@@ -1,0 +1,161 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Show {
+  id    Int      @id @default(autoincrement())
+  name  String
+  start DateTime
+
+  rundowns        Rundown[]
+  continuityItems ContinuityItem[]
+
+  @@map("shows")
+}
+
+model Rundown {
+  id     Int    @id @default(autoincrement())
+  name   String
+  showId Int
+  order  Int
+
+  show  Show          @relation(fields: [showId], references: [id])
+  items RundownItem[]
+
+  @@map("rundowns")
+}
+
+enum RundownItemType {
+  Segment
+  VT
+
+  @@map("rundown_item_type")
+}
+
+model RundownItem {
+  id              Int             @id @default(autoincrement())
+  name            String
+  rundownId       Int
+  order           Int
+  durationSeconds Int
+  type            RundownItemType
+  notes           String          @default("")
+
+  media Media[]
+
+  rundown Rundown @relation(fields: [rundownId], references: [id])
+
+  // Do not be tempted to include a @@unique on the order!
+  // See https://github.com/prisma/prisma/issues/13115 and https://github.com/prisma/prisma/issues/8807
+  @@map("rundown_items")
+}
+
+model ContinuityItem {
+  id              Int    @id @default(autoincrement())
+  name            String
+  order           Int
+  showId          Int
+  durationSeconds Int
+
+  media Media?
+
+  show Show @relation(fields: [showId], references: [id])
+
+  // Do not be tempted to include a @@unique on the order!
+  // See https://github.com/prisma/prisma/issues/13115 and https://github.com/prisma/prisma/issues/8807
+  @@map("continuity_items")
+}
+
+enum MediaState {
+  Pending
+  Processing
+  Ready
+
+  @@map("media_state")
+}
+
+model Media {
+  id              Int        @id @default(autoincrement())
+  name            String
+  path            String
+  durationSeconds Int
+  state           MediaState @default(Pending)
+
+  rundownItemID    Int? @unique
+  continuityItemID Int? @unique
+
+  rundownItem    RundownItem?          @relation(fields: [rundownItemID], references: [id], onDelete: Cascade)
+  continuityItem ContinuityItem?       @relation(fields: [continuityItemID], references: [id], onDelete: Cascade)
+  tasks          MediaProcessingTask[]
+  process_jobs   ProcessMediaJob[]
+
+  @@map("media")
+}
+
+enum MediaProcessingTaskState {
+  Pending
+  Running
+  Complete
+  Failed
+  Warning
+}
+
+model MediaProcessingTask {
+  id             Int                      @id @default(autoincrement())
+  media_id       Int
+  media          Media                    @relation(fields: [media_id], references: [id], onDelete: Cascade)
+  description    String
+  additionalInfo String                   @default("")
+  state          MediaProcessingTaskState @default(Pending)
+
+  @@unique([media_id, description])
+  @@map("media_processing_tasks")
+}
+
+enum JobState {
+  Pending
+  Running
+  Complete
+  Failed
+
+  @@map("job_state")
+}
+
+model BaseJob {
+  id          Int       @id @default(autoincrement())
+  workerId    String?
+  state       JobState  @default(Pending)
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  ProcessMediaJob ProcessMediaJob?
+
+  @@map("base_jobs")
+}
+
+enum MediaFileSourceType {
+  Tus
+  GoogleDrive
+}
+
+model ProcessMediaJob {
+  id      Int   @id @default(autoincrement())
+  mediaId Int
+  media   Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  sourceType MediaFileSourceType
+  source     String
+
+  base_job_id Int     @unique
+  base_job    BaseJob @relation(fields: [base_job_id], references: [id], onDelete: Cascade)
+
+  @@map("process_media_jobs")
+}
