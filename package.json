@@ -1,0 +1,14 @@
+{
+  "private": true,
+  "workspaces": [
+    "./server",
+    "./desktop",
+    "./jobrunner"
+  ],
+  "packageManager": "yarn@3.6.1",
+  "dependencies": {
+    "client-only": "^0.0.1",
+    "dayjs": "^1.11.9",
+    "server-only": "^0.0.1"
+  }
+}
