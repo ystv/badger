@@ -26,8 +26,10 @@ import * as tus from "tus-js-client";
 import {
   ReactNode,
   useCallback,
+  useEffect,
   useMemo,
   experimental_useOptimistic as useOptimistic,
+  useRef,
   useState,
   useTransition,
 } from "react";
@@ -227,6 +229,7 @@ function UploadDialog(props: {
 
 function ItemsTable(props: { rundown: CompleteRundown }) {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const [optimisticItems, doOptimisticMove] = useOptimistic(
     props.rundown.items,
@@ -272,6 +275,28 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
     [props.rundown.id, doOptimisticMove]
   );
 
+  // Periodically refresh if any items are pending
+  const intervalRef = useRef<NodeJS.Timer | null>(null);
+  useEffect(() => {
+    const anyPending = props.rundown.items.some((x) =>
+      x.media.some(
+        (y) =>
+          y.state === MediaState.Pending || y.state === MediaState.Processing
+      )
+    );
+    if (!anyPending) {
+      return;
+    }
+    intervalRef.current = setInterval(() => {
+      router.refresh();
+    }, 2500);
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [props.rundown.items, router]);
+
   const [showUploadForItemID, setShowUploadForItemID] = useState<number | null>(
     null
   );
@@ -310,7 +335,9 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
                   <li key={task.id}>
                     {task.description} - {task.state}
                     {task.additionalInfo.length > 0 && (
-                      <small>({task.additionalInfo})</small>
+                      <>
+                        &nbsp;<small>({task.additionalInfo})</small>
+                      </>
                     )}
                   </li>
                 ))}

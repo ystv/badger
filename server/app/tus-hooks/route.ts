@@ -72,7 +72,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             data: {
               name: data.Upload.MetaData.filename,
               durationSeconds: 0,
-              path: "",
+              rawPath: "",
               rundownItem: {
                 connect: {
                   id: rundownItemID,

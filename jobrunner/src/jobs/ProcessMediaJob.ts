@@ -103,12 +103,20 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
             "Uploading source file to storage",
             MediaProcessingTaskState.Running
           );
-          await this._uploadFileToS3(rawTempPath, "raw", media),
-            await this._updateTaskStatus(
-              media,
-              "Uploading source file to storage",
-              MediaProcessingTaskState.Complete
-            );
+          const rawPath = await this._uploadFileToS3(rawTempPath, "raw", media);
+          await this.db.media.update({
+            where: {
+              id: media.id,
+            },
+            data: {
+              rawPath,
+            },
+          });
+          await this._updateTaskStatus(
+            media,
+            "Uploading source file to storage",
+            MediaProcessingTaskState.Complete
+          );
         })(),
         (async () => {
           await this._updateTaskStatus(
@@ -165,6 +173,16 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
             rawTempPath,
             path.extname(media.name)
           );
+          await this._updateTaskStatus(
+            media,
+            "Normalising loudness",
+            MediaProcessingTaskState.Complete
+          );
+          await this._updateTaskStatus(
+            media,
+            "Uploading processed file",
+            MediaProcessingTaskState.Running
+          );
           const finalS3Path = await this._uploadFileToS3(
             normalisedPath,
             "final",
@@ -180,7 +198,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
           });
           await this._updateTaskStatus(
             media,
-            "Normalising loudness",
+            "Uploading processed file",
             MediaProcessingTaskState.Complete
           );
         })(),
@@ -255,7 +273,10 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     }
     const loudnormData: LoudnormOutput = JSON.parse(loudnormJSON[0]);
     // Step 2: renormalise
-    const normalisedPath = path.join(this.temporaryDir, "normalised");
+    const normalisedPath = path.join(
+      this.temporaryDir,
+      "normalised." + extension
+    );
     await exec(
       [
         "ffmpeg",
@@ -285,8 +306,6 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
         "192k",
         "-c:v",
         "copy",
-        "-f",
-        "mp4",
         normalisedPath,
       ].join(" ")
     );

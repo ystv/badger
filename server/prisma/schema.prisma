@@ -85,7 +85,8 @@ enum MediaState {
 model Media {
   id              Int        @id @default(autoincrement())
   name            String
-  path            String
+  rawPath         String
+  path            String?
   durationSeconds Int
   state           MediaState @default(Pending)
 
