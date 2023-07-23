@@ -21,8 +21,6 @@ import { addItem, deleteItem, editItem, reorder } from "./actions";
 import { AddItemSchema, EditItemSchema, ItemTypeSchema } from "./schema";
 import { Field, HiddenField, SelectField } from "@/components/FormFields";
 import { identity } from "lodash";
-import { useDropzone } from "react-dropzone";
-import * as tus from "tus-js-client";
 import {
   ReactNode,
   useCallback,
@@ -33,10 +31,9 @@ import {
   useState,
   useTransition,
 } from "react";
-import { format } from "date-fns";
-import clsx from "clsx";
 import Button from "@/components/Button";
 import { useRouter } from "next/navigation";
+import { MediaUploadDialog } from "@/components/MediaUpload";
 
 // beautiful-dnd is not compatible with SSR
 const Droppable = dynamic(
@@ -134,99 +131,6 @@ function EditItem(props: {
   );
 }
 
-function UploadDialog(props: {
-  rundown: CompleteRundown;
-  itemID: number;
-  close?: () => void;
-}) {
-  const item = useMemo(
-    () => props.rundown.items.find((i) => i.id === props.itemID),
-    [props.rundown.items, props.itemID]
-  );
-  if (!item) {
-    throw new Error("Item not found");
-  }
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    disabled: isUploading,
-    onDrop(files) {
-      const upload = new tus.Upload(files[0], {
-        endpoint: process.env.NEXT_PUBLIC_TUS_ENDPOINT,
-        metadata: {
-          filename: files[0].name,
-          filetype: files[0].type,
-          rundownItemID: item.id.toString(10),
-        },
-        onError: function (error) {
-          setIsUploading(false);
-          setError(error.message);
-        },
-        onProgress: function (bytesUploaded, bytesTotal) {
-          var percentage = (bytesUploaded / bytesTotal) * 100;
-          setUploadProgress(percentage);
-        },
-        onSuccess: function () {
-          setIsUploading(false);
-          router.refresh();
-          props.close?.();
-        },
-      });
-      // Check if there are any previous uploads to continue.
-      upload.findPreviousUploads().then(function (previousUploads) {
-        // Found previous uploads so we select the first one.
-        if (previousUploads.length) {
-          // TODO: if this is already completely finished, Tus won't fire the pre-finish hook,
-          // so the backend won't know to run the jobs.
-          upload.resumeFromPreviousUpload(previousUploads[0]);
-        }
-
-        // Start the upload
-        upload.start();
-        setUploadProgress(0);
-        setIsUploading(true);
-      });
-    },
-    accept: {
-      "video/*": [],
-    },
-    maxFiles: 1,
-  });
-  return (
-    <>
-      <div className="fixed inset-0 bg-dark/30" aria-hidden="true" />
-      <div className="fixed inset-0 flex items-center justify-center p-4">
-        <Dialog.Panel className="mx-auto max-w-sm rounded bg-light p-8 relative">
-          <Dialog.Title className="text-xl font-bold">
-            Add media for {item.name}
-          </Dialog.Title>
-          <div
-            {...getRootProps()}
-            className="p-8 m-1 rounded-md bg-mid-light text-dark w-64 h-24"
-          >
-            <input {...getInputProps()} />
-            {isDragActive ? (
-              <p>Drop the file here...</p>
-            ) : (
-              <p>Drop video files here, or click to select</p>
-            )}
-          </div>
-          {isUploading && (
-            <div
-              className="absolute bottom-0 w-full h-2 left-0 bg-primary"
-              style={{
-                width: `${uploadProgress}%`,
-              }}
-            />
-          )}
-        </Dialog.Panel>
-      </div>
-    </>
-  );
-}
-
 function ItemsTable(props: { rundown: CompleteRundown }) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -310,6 +214,7 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
       // Ensure the render prop closes over the current value of runningDuration
       const dur = runningDuration;
 
+      // TODO: Refactor this all out into a sub-component
       let classNames = "";
       let mediaStatus = "";
       let popoverContents;
@@ -479,9 +384,10 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
         onClose={() => setShowUploadForItemID(null)}
       >
         {showUploadForItemID !== null && (
-          <UploadDialog
-            rundown={props.rundown}
-            itemID={showUploadForItemID}
+          <MediaUploadDialog
+            parentType="rundown_item"
+            parentID={showUploadForItemID}
+            title={`Add media`}
             close={() => setShowUploadForItemID(null)}
           />
         )}

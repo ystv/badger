@@ -13,7 +13,11 @@ export default async function ShowPage(props: { params: { show_id: string } }) {
       rundowns: true,
       continuityItems: {
         include: {
-          media: true,
+          media: {
+            include: {
+              tasks: true,
+            },
+          },
         },
       },
     },

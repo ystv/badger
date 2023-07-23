@@ -84,6 +84,14 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
         },
       },
     });
+    await this.db.media.update({
+      where: {
+        id: media.id,
+      },
+      data: {
+        state: MediaState.Processing,
+      },
+    });
     try {
       await this._updateTaskStatus(
         media,

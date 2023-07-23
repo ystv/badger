@@ -4,6 +4,10 @@ import { db } from "@/lib/db";
 import { PrismaClient } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
+import { z } from "zod";
+import { editContinuityItemSchema } from "./schema";
+import { FormResponse } from "@/components/Form";
+import { zodErrorResponse } from "@/components/FormServerHelpers";
 
 export async function addItem(
   showID: number,
@@ -45,6 +49,26 @@ export async function addItem(
     }
   });
   revalidatePath(`/shows/${showID}`);
+  return { ok: true };
+}
+
+// rundowns are handled on their own page (or at least will be - TODO)
+export async function editContinuityItem(
+  raw: z.infer<typeof editContinuityItemSchema>
+): Promise<FormResponse> {
+  const data = editContinuityItemSchema.safeParse(raw);
+  if (!data.success) {
+    return zodErrorResponse(data.error);
+  }
+  const res = await db.continuityItem.update({
+    where: {
+      id: data.data.itemID,
+    },
+    data: {
+      name: data.data.name,
+    },
+  });
+  revalidatePath(`/shows/${res.showId}`);
   return { ok: true };
 }
 

@@ -42,6 +42,18 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           return new NextResponse("Not found", { status: 404 });
         }
         return new NextResponse("", { status: 200 });
+      } else if ("continuityItemID" in data.Upload.MetaData) {
+        const continuityItemID = parseInt(
+          data.Upload.MetaData.continuityItemID,
+          10
+        );
+        const continuityItem = await db.continuityItem.findUnique({
+          where: { id: continuityItemID },
+        });
+        if (!continuityItem) {
+          return new NextResponse("Not found", { status: 404 });
+        }
+        return new NextResponse("", { status: 200 });
       } else {
         return new NextResponse("No reference", { status: 400 });
       }
@@ -93,6 +105,49 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         revalidatePath(
           `/shows/${rundownItem.rundown.showId}/rundown/${rundownItem.rundownId}`
         );
+        return new NextResponse("", { status: 200 });
+      } else if ("continuityItemID" in data.Upload.MetaData) {
+        const continuityItemID = parseInt(
+          data.Upload.MetaData.continuityItemID,
+          10
+        );
+        const continuityItem = await db.continuityItem.findUnique({
+          where: { id: continuityItemID },
+        });
+        if (!continuityItem) {
+          return new NextResponse("Not found", { status: 404 });
+        }
+        await db.$transaction(async ($db) => {
+          await $db.media.deleteMany({
+            where: {
+              continuityItem: {
+                id: continuityItemID,
+              },
+            },
+          });
+          await $db.media.create({
+            data: {
+              name: data.Upload.MetaData.filename,
+              durationSeconds: 0,
+              rawPath: "",
+              continuityItem: {
+                connect: {
+                  id: continuityItemID,
+                },
+              },
+              process_jobs: {
+                create: {
+                  sourceType: MediaFileSourceType.Tus,
+                  source: data.Upload.ID,
+                  base_job: {
+                    create: {},
+                  },
+                },
+              },
+            },
+          });
+        });
+        revalidatePath(`/shows/${continuityItem.showId}`);
         return new NextResponse("", { status: 200 });
       } else {
         return new NextResponse("No reference", { status: 400 });
