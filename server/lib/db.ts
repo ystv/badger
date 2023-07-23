@@ -2,6 +2,7 @@ import "server-only";
 import { PrismaClient } from "@prisma/client";
 
 declare global {
+  // eslint-disable-next-line no-var
   var prisma: PrismaClient;
 }
 
@@ -29,9 +30,9 @@ if (process.env.NODE_ENV === "development") {
     });
   }
   prisma = global.prisma;
-  // @ts-ignore
+  // @ts-expect-error This works, trust me.
   prisma.$on("query", async (e) => {
-    // @ts-ignore
+    // @ts-expect-error This works, trust me.
     console.log(`${e.query}\n\t${e.params}`);
   });
 } else {

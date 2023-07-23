@@ -1,27 +1,46 @@
 "use client";
 
-import {CompleteContinuityItem, CompleteRundown, RundownOrContinuity,} from "./types";
-import {DragDropContext, Draggable, OnDragEndResponder,} from "react-beautiful-dnd";
+import {
+  CompleteContinuityItem,
+  CompleteRundown,
+  RundownOrContinuity,
+} from "./types";
+import {
+  DragDropContext,
+  Draggable,
+  OnDragEndResponder,
+} from "react-beautiful-dnd";
 import Spinner from "@/app/_assets/spinner.svg";
-import {experimental_useOptimistic as useOptimistic, forwardRef, useCallback, useMemo, useTransition,} from "react";
-import {addItem, deleteItem, editContinuityItem, reorderShowItems,} from "./actions";
-import {Show} from "@prisma/client";
+import {
+  experimental_useOptimistic as useOptimistic,
+  forwardRef,
+  useCallback,
+  useMemo,
+  useTransition,
+} from "react";
+import {
+  addItem,
+  deleteItem,
+  editContinuityItem,
+  reorderShowItems,
+} from "./actions";
+import { Show } from "@prisma/client";
 import Button from "@/components/Button";
-import {Popover} from "@headlessui/react";
-import {TextInput} from "flowbite-react";
+import { Popover } from "@headlessui/react";
+import { TextInput } from "flowbite-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import {format} from "date-fns";
+import { format } from "date-fns";
 import Link from "next/link";
 import Form from "@/components/Form";
-import {editContinuityItemSchema} from "./schema";
-import {Field, HiddenField} from "@/components/FormFields";
-import {ItemMediaState} from "@/app/components/MediaState";
+import { editContinuityItemSchema } from "./schema";
+import { Field, HiddenField } from "@/components/FormFields";
+import { ItemMediaState } from "@/app/components/MediaState";
 
 // beautiful-dnd is not compatible with SSR
 const Droppable = dynamic(
   () => import("react-beautiful-dnd").then((res) => res.Droppable),
-  { ssr: false, loading: () => <Image src={Spinner} alt="" /> }
+  { ssr: false, loading: () => <Image src={Spinner} alt="" /> },
 );
 
 function AddItemPopover(props: {
@@ -154,7 +173,7 @@ const ContinuityItemRow = forwardRef<
 >(function ContinuityItemRow(props, ref) {
   const item = props.item;
   return (
-    <tr ref={ref} {...props.draggableProps} className="[&>td]:m-2">
+    <tr ref={ref} {...props.draggableProps} className="[&>td]:m-2 align-top">
       <td {...props.dragHandleProps} className="text-2xl cursor-grab">
         ☰
       </td>
@@ -211,7 +230,7 @@ export function ShowItemsList(props: {
     props.items,
     (state, action: { type: string; id: number; newIdx: number }) => {
       const idx = state.findIndex(
-        (i) => i._type == action.type && i.id == action.id
+        (i) => i._type == action.type && i.id == action.id,
       );
       if (idx === -1) {
         return state;
@@ -221,7 +240,7 @@ export function ShowItemsList(props: {
       newState.splice(idx, 1);
       newState.splice(action.newIdx, 0, item);
       return newState;
-    }
+    },
   );
   const onDragEnd: OnDragEndResponder = useCallback(
     (result) => {
@@ -236,11 +255,11 @@ export function ShowItemsList(props: {
           props.show.id,
           type as "rundown" | "continuity_item",
           parseInt(id, 10),
-          result.destination!.index
+          result.destination!.index,
         );
       });
     },
-    [doOptimisticMove, props.show.id]
+    [doOptimisticMove, props.show.id],
   );
 
   const rows = useMemo(() => {
@@ -287,7 +306,7 @@ export function ShowItemsList(props: {
               />
             )
           }
-        </Draggable>
+        </Draggable>,
       );
       durationTotal += duration;
       time = new Date(time.getTime() + duration * 1000);

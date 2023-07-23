@@ -13,6 +13,7 @@ module.exports = {
     colors: {
       light: "#fbfbfb",
       "mid-light": "#ddd",
+      "mid-dark": "#444",
       dark: "#333333",
       "primary-2": "#74b5ff",
       primary: "#227ee4",
@@ -32,5 +33,9 @@ module.exports = {
       "purple-4": "#7722a6",
     },
   },
-  plugins: [require("@tailwindcss/forms"), require("flowbite")],
+  plugins: [
+    require("@tailwindcss/forms"),
+    require("flowbite"),
+    require("@headlessui/tailwindcss"),
+  ],
 };
