@@ -93,25 +93,20 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
       },
     });
     try {
-      await this._updateTaskStatus(
+      const rawTempPath = await this._wrapTask(
         media,
-        "Loading source file",
-        MediaProcessingTaskState.Running
-      );
-      const rawTempPath = await this._downloadSourceFile(params);
-      await this._updateTaskStatus(
-        media,
-        "Loading source file",
-        MediaProcessingTaskState.Complete
+        "Downloading source file",
+        () => this._downloadSourceFile(params),
+        true,
       );
       await Promise.all([
         (async () => {
-          await this._updateTaskStatus(
+          const rawPath = await this._wrapTask(
             media,
             "Uploading source file to storage",
-            MediaProcessingTaskState.Running
+            () => this._uploadFileToS3(rawTempPath, "raw", media),
+            true,
           );
-          const rawPath = await this._uploadFileToS3(rawTempPath, "raw", media);
           await this.db.media.update({
             where: {
               id: media.id,
@@ -120,19 +115,19 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
               rawPath,
             },
           });
-          await this._updateTaskStatus(
-            media,
-            "Uploading source file to storage",
-            MediaProcessingTaskState.Complete
-          );
         })(),
         (async () => {
           await this._updateTaskStatus(
             media,
             "Determining duration",
-            MediaProcessingTaskState.Running
+            MediaProcessingTaskState.Running,
           );
-          const duration = await this._determineDuration(rawTempPath, media);
+          const duration = await this._wrapTask(
+            media,
+            "Determining duration",
+            () => this._determineDuration(rawTempPath, media),
+            false,
+          );
           await this.db.media.update({
             where: {
               id: media.id,
@@ -168,33 +163,22 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
             media,
             "Determining duration",
             MediaProcessingTaskState.Complete,
-            `Duration: ${durationMMSS}`
+            `Duration: ${durationMMSS}`,
           );
         })(),
         (async () => {
-          await this._updateTaskStatus(
+          const normalisedPath = await this._wrapTask(
             media,
             "Normalising loudness",
-            MediaProcessingTaskState.Running
+            () =>
+              this._normaliseLoudness(rawTempPath, path.extname(media.name)),
+            true,
           );
-          const normalisedPath = await this._normaliseLoudness(
-            rawTempPath,
-            path.extname(media.name)
-          );
-          await this._updateTaskStatus(
-            media,
-            "Normalising loudness",
-            MediaProcessingTaskState.Complete
-          );
-          await this._updateTaskStatus(
+          const finalS3Path = await this._wrapTask(
             media,
             "Uploading processed file",
-            MediaProcessingTaskState.Running
-          );
-          const finalS3Path = await this._uploadFileToS3(
-            normalisedPath,
-            "final",
-            media
+            () => this._uploadFileToS3(normalisedPath, "final", media),
+            true,
           );
           await this.db.media.update({
             where: {
@@ -204,11 +188,6 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
               path: finalS3Path,
             },
           });
-          await this._updateTaskStatus(
-            media,
-            "Uploading processed file",
-            MediaProcessingTaskState.Complete
-          );
         })(),
       ]);
       await this.db.media.update({
@@ -219,6 +198,17 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
           state: MediaState.Ready,
         },
       });
+    } catch (e) {
+      this.logger.error(e);
+      await this.db.media.update({
+        where: {
+          id: media.id,
+        },
+        data: {
+          state: MediaState.ProcessingFailed,
+        },
+      });
+      throw e;
     } finally {
       this._deleteTemporaryDir();
     }
@@ -231,7 +221,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     switch (params.sourceType) {
       case MediaFileSourceType.Tus:
         stream = got.stream.get(
-          process.env.NEXT_PUBLIC_TUS_ENDPOINT + "/" + params.source
+          process.env.NEXT_PUBLIC_TUS_ENDPOINT + "/" + params.source,
         );
         (await pEvent(stream, "response")) as GotResponse; // this ensures that any errors are thrown
         break;
@@ -244,7 +234,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
           },
           {
             responseType: "stream",
-          }
+          },
         );
         stream = res.data;
         break;
@@ -259,7 +249,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
   private async _determineDuration(path: string, media: CompleteMedia) {
     // This is safe because we created path in _downloadSourceFile
     const res = await exec(
-      `ffprobe -v error -print_format json -show_format ${path}`
+      `ffprobe -v error -print_format json -show_format ${path}`,
     );
     const data: FFProbeOutput = JSON.parse(res.stdout);
     return parseFloat(data.format.duration);
@@ -268,22 +258,29 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
   private async _normaliseLoudness(rawPath: string, extension: string) {
     // Step 1: determine the loudness of the file
     const output = await exec(
-      `ffmpeg -hide_banner -nostats -loglevel info -i ${rawPath} -af loudnorm=print_format=json -f null -`
+      `ffmpeg -hide_banner -nostats -loglevel info -i ${rawPath} -af loudnorm=print_format=json -f null -`,
     );
     // Find the loudnorm output. It's a bit of JSON immediately after a line like `[Parsed_loudnorm_0 @ 0x600003670fd0]`
     const loudnormJSON =
       /(?<=\[Parsed_loudnorm_0 @ 0x[0-9a-f]+\]\s*\n)[\s\S]*/.exec(
-        output.stderr
+        output.stderr,
       );
     if (!loudnormJSON) {
       this.logger.warn(output.stderr);
       throw new Error("Could not find loudnorm output");
     }
     const loudnormData: LoudnormOutput = JSON.parse(loudnormJSON[0]);
+
+    // Ensure we don't fail if the file has no audio at all
+    if (loudnormData.input_i === "-inf") {
+      this.logger.warn("File has no audio");
+      return rawPath;
+    }
+
     // Step 2: renormalise
     const normalisedPath = path.join(
       this.temporaryDir,
-      "normalised." + extension
+      "normalised." + extension,
     );
     await exec(
       [
@@ -315,7 +312,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
         "-c:v",
         "copy",
         normalisedPath,
-      ].join(" ")
+      ].join(" "),
     );
     return normalisedPath;
   }
@@ -324,7 +321,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     path: string,
     fileType: "raw" | "final",
     item: CompleteMedia,
-    suffix = ""
+    suffix = "",
   ) {
     const stream = fs.createReadStream(path);
     const s3Path = item.continuityItem
@@ -334,7 +331,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
       : null;
     if (!s3Path) {
       throw new Error(
-        "Impossible: media item without either continuity or rundown item parent"
+        "Impossible: media item without either continuity or rundown item parent",
       );
     }
     const command = new PutObjectCommand({
@@ -346,11 +343,48 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     return s3Path;
   }
 
+  /**
+   * Wrap a task in a try/catch block that updates the start and end of the task.
+   * @private
+   */
+  private async _wrapTask<T>(
+    media: CompleteMedia,
+    descr: string,
+    task: () => Promise<T>,
+    autoComplete: boolean,
+  ): Promise<T> {
+    await this._updateTaskStatus(
+      media,
+      descr,
+      MediaProcessingTaskState.Running,
+    );
+    try {
+      const r = await task();
+      if (autoComplete) {
+        await this._updateTaskStatus(
+          media,
+          descr,
+          MediaProcessingTaskState.Complete,
+        );
+      }
+      return r;
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      await this._updateTaskStatus(
+        media,
+        descr,
+        MediaProcessingTaskState.Failed,
+        errorMessage,
+      );
+      throw e;
+    }
+  }
+
   private async _updateTaskStatus(
     media: CompleteMedia,
     descr: string,
     state: MediaProcessingTaskState,
-    extra?: string
+    extra?: string,
   ) {
     this.logger.info(`[${media.id}] ${descr}: ${state}`);
     await this.db.mediaProcessingTask.upsert({

@@ -34,6 +34,7 @@ import {
 import Button from "@/components/Button";
 import { useRouter } from "next/navigation";
 import { MediaUploadDialog } from "@/components/MediaUpload";
+import {ItemMediaState} from "@/app/components/MediaState";
 
 // beautiful-dnd is not compatible with SSR
 const Droppable = dynamic(
@@ -214,73 +215,6 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
       // Ensure the render prop closes over the current value of runningDuration
       const dur = runningDuration;
 
-      // TODO: Refactor this all out into a sub-component
-      let classNames = "";
-      let mediaStatus = "";
-      let popoverContents;
-      if (item.type === "VT") {
-        if (item.media.length === 0) {
-          classNames += "bg-danger-4 text-light";
-          mediaStatus = "Missing media";
-        } else if (item.media[0].state === MediaState.Pending) {
-          classNames += "bg-purple-4 text-light";
-          mediaStatus = "Media processing...";
-        } else {
-          if (item.media[0].state === MediaState.Processing) {
-            classNames += "bg-purple-4 text-light";
-            mediaStatus = "Media processing...";
-          } else if (item.media[0].state === MediaState.Ready) {
-            classNames += "bg-success-4 text-light";
-            mediaStatus = "Good to go!";
-          }
-          popoverContents = (
-            <div>
-              <ul>
-                {item.media[0].tasks.map((task) => (
-                  <li key={task.id}>
-                    {task.description} - {task.state}
-                    {task.additionalInfo.length > 0 && (
-                      <>
-                        &nbsp;<small>({task.additionalInfo})</small>
-                      </>
-                    )}
-                  </li>
-                ))}
-              </ul>
-              <Button
-                color="warning"
-                inverted
-                onClick={() => setShowUploadForItemID(item.id)}
-              >
-                Replace
-              </Button>
-            </div>
-          );
-        }
-      }
-
-      let button: ReactNode;
-      if (popoverContents) {
-        button = (
-          <Popover>
-            <Popover.Button>{mediaStatus}</Popover.Button>
-            <Popover.Panel className="absolute shadow-lg bg-light text-dark p-4 ml-4 z-50 m-0">
-              {popoverContents}
-            </Popover.Panel>
-          </Popover>
-        );
-      } else {
-        button = (
-          <Button
-            color="light"
-            inverted
-            onClick={() => setShowUploadForItemID(item.id)}
-          >
-            {mediaStatus}
-          </Button>
-        );
-      }
-
       items.push(
         <Draggable
           key={item.id}
@@ -292,7 +226,6 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
             <tr
               {...provided.draggableProps}
               ref={provided.innerRef}
-              className={classNames}
             >
               <td {...provided.dragHandleProps} className="text-2xl px-4">
                 ☰
@@ -300,8 +233,7 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
               <td className="py-2 px-4">
                 <div>
                   <span className="block">{item.name}</span>
-
-                  {button}
+                    {item.type === "VT" && <ItemMediaState item={item} itemType="rundown_item" />}
                 </div>
               </td>
               <td>{formatDuration(item.durationSeconds)}</td>
