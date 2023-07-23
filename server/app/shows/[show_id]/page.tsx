@@ -10,7 +10,11 @@ export default async function ShowPage(props: { params: { show_id: string } }) {
       id: parseInt(props.params.show_id, 10),
     },
     include: {
-      rundowns: true,
+      rundowns: {
+        include: {
+          items: true,
+        },
+      },
       continuityItems: {
         include: {
           media: {
@@ -32,7 +36,7 @@ export default async function ShowPage(props: { params: { show_id: string } }) {
     })) as RundownOrContinuity[]
   )
     .concat(
-      show.continuityItems.map((c) => ({ ...c, _type: "continuity_item" }))
+      show.continuityItems.map((c) => ({ ...c, _type: "continuity_item" })),
     )
     .sort((a, b) => a.order - b.order);
   return (
