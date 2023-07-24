@@ -1,10 +1,12 @@
-import { ShowModel } from "./show";
+import {
+    ShowSchema,
+    ContinuityItemSchema,
+    RundownSchema,
+    MediaSchema,
+    RundownItemSchema,
+    MediaProcessingTaskSchema
+} from "./modelSchema";
 import { z } from "zod";
-import { ContinuityItemModel } from "./continuityitem";
-import { RundownModel } from "./rundown";
-import { RundownItemModel } from "./rundownitem";
-import { MediaModel } from "./media";
-import { MediaProcessingTaskModel } from "./mediaprocessingtask";
 
 /*
  * These types are used in desktop and the tRPC API. They're defined here to ensure that the types stay in sync,
@@ -12,20 +14,20 @@ import { MediaProcessingTaskModel } from "./mediaprocessingtask";
  * zod-prisma config because it'd create circular types, so we have to define relations manually.)
  */
 
-export const PartialShowModel = ShowModel.extend({
-  continuityItems: z.array(ContinuityItemModel),
-  rundowns: z.array(RundownModel),
+export const PartialShowModel = ShowSchema.extend({
+  continuityItems: z.array(ContinuityItemSchema),
+  rundowns: z.array(RundownSchema),
 });
-const PartialMediaModel = MediaModel.extend({});
-export const CompleteContinuityItemModel = ContinuityItemModel.extend({
+const PartialMediaModel = MediaSchema.extend({});
+export const CompleteContinuityItemModel = ContinuityItemSchema.extend({
   media: PartialMediaModel.nullable(),
 });
-export const CompleteShowModel = ShowModel.extend({
+export const CompleteShowModel = ShowSchema.extend({
   continuityItems: z.array(CompleteContinuityItemModel),
   rundowns: z.array(
-    RundownModel.extend({
+    RundownSchema.extend({
       items: z.array(
-        RundownItemModel.extend({
+        RundownItemSchema.extend({
           media: z.array(PartialMediaModel),
         }),
       ),
@@ -34,5 +36,5 @@ export const CompleteShowModel = ShowModel.extend({
 });
 
 export const CompleteMediaModel = PartialMediaModel.extend({
-  tasks: z.array(MediaProcessingTaskModel),
+  tasks: z.array(MediaProcessingTaskSchema),
 });

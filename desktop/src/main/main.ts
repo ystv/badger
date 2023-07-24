@@ -5,15 +5,16 @@ import { appRouter } from "./ipcApi";
 import { tryCreateAPIClient } from "./serverApiClient";
 import { tryCreateOBSConnection } from "./obs";
 import { validateLocalMediaState } from "./settings";
+import isSquirrel from "electron-squirrel-startup";
 
-console.log("Environment:", process.env.NODE_ENV);
+console.log("Environment:", import.meta.env.MODE);
 
 // https://www.electronforge.io/config/plugins/vite
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
 declare const MAIN_WINDOW_VITE_NAME: string;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require("electron-squirrel-startup")) {
+if (isSquirrel) {
   app.quit();
 }
 
@@ -41,7 +42,7 @@ const createWindow = async () => {
   }
 
   // Open the DevTools.
-  if (process.env.NODE_ENV === "development") {
+  if (import.meta.env.DEV) {
     mainWindow.webContents.openDevTools();
   }
 

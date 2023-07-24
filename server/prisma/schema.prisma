@@ -6,9 +6,13 @@ generator client {
 }
 
 generator zod {
-  provider      = "zod-prisma"
-  output        = "../lib/db/types"
-  relationModel = false
+  provider         = "zod-prisma-types"
+  output           = "../lib/db/types"
+  useMultipleFiles = true
+  writeBarrelFiles = true
+  createInputTypes = false
+  addIncludeType   = false
+  addSelectType    = false
 }
 
 datasource db {

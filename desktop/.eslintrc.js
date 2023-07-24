@@ -32,6 +32,12 @@ module.exports = {
             message: "You probably wanted 'import type'.",
             allowTypeImports: true,
           },
+          {
+            group: ["@"],
+            message:
+              "Next's @-prefixed imports won't work. Import from bowser-server instead.",
+            allowTypeImports: true,
+          },
         ],
       },
     ],

@@ -2,7 +2,7 @@ import { z } from "zod";
 import type {
   CompleteShowModel,
   PartialShowModel,
-} from "bowser-server/lib/db/types/_utility";
+} from "@/lib/db/types/_utility";
 
 export interface ServerConnection {
   connected: true;

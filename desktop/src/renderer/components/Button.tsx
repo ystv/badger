@@ -49,35 +49,44 @@ export default function Button<T extends "button" | "a">(
     size?: "small" | "large";
   } & React.ComponentPropsWithoutRef<T>,
 ) {
-  const { children, color, as, inverted, ...rest } = props;
+  const {
+    children,
+    color,
+    as,
+    isDisabled,
+    size,
+    inverted,
+    className,
+    ...rest
+  } = props;
   const ref = useRef<HTMLButtonElement | HTMLAnchorElement | null>(null);
-  // @ts-ignore
+  // @ts-expect-error react-aria's typings don't handle `as` well
   const btn = useButton(props, ref);
-  const Type = props.as ?? "button";
+  const Type = as ?? "button";
   return (
     <Type
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
       ref={ref as any}
       {...rest}
       {...btn.buttonProps}
+      disabled={isDisabled}
       className={classNames(
         `inline-flex items-center 
         rounded-md
         border border-transparent
         text-sm font-bold 
         shadow-sm
-        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${
-          props.color
-        }
-        ${props.isDisabled ? "cursor-not-allowed opacity-50" : ""}
+        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${color}
+        ${isDisabled ? "cursor-not-allowed opacity-50" : ""}
         active:opacity-85 active:shadow-lg`,
-        props.inverted
-          ? invertedColors[props.color ?? "primary"]
-          : normalColors[props.color ?? "primary"],
-        sizeClasses[props.size ?? "medium"],
-        props.className,
+        inverted
+          ? invertedColors[color ?? "primary"]
+          : normalColors[color ?? "primary"],
+        sizeClasses[size ?? "medium"],
+        className,
       )}
     >
-      {props.children}
+      {children}
     </Type>
   );
 }

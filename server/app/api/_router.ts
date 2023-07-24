@@ -7,11 +7,11 @@ import {
   PartialShowModel,
 } from "@/lib/db/types/_utility";
 import { getPresignedURL } from "@/lib/s3";
-import { ContinuityItemModel, RundownItemModel } from "@/lib/db/types";
+import { ContinuityItemSchema, RundownItemSchema } from "@/lib/db/types";
 
 const ExtendedMediaModelWithDownloadURL = CompleteMediaModel.extend({
-  continuityItem: ContinuityItemModel.nullable(),
-  rundownItem: RundownItemModel.nullable(),
+  continuityItem: ContinuityItemSchema.nullable(),
+  rundownItem: RundownItemSchema.nullable(),
   downloadURL: z.string().nullable(),
 });
 export const appRouter = router({

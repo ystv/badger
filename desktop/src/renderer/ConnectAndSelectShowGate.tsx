@@ -8,9 +8,7 @@ import invariant from "tiny-invariant";
 function ServerConnectForm() {
   const queryClient = useQueryClient();
   const [addrEntry, setAddrEntry] = useState(
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:3000"
-      : "https://bowser.ystv.co.uk",
+    import.meta.env.DEV ? "http://localhost:3000" : "https://bowser.ystv.co.uk",
   );
   const doConnect = ipc.connectToServer.useMutation();
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +21,7 @@ function ServerConnectForm() {
     } catch (e) {
       setError(String(e));
     }
-  }, [addrEntry]);
+  }, [addrEntry, doConnect, queryClient]);
   return (
     <>
       <label>
