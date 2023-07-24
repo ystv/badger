@@ -42,6 +42,9 @@ pipeline {
         }
 
         stage('Push') {
+            when {
+                branch 'main'
+            }
             steps {
                 withDockerRegistry(credentialsId: 'docker-registry', url: 'https://registry.comp.ystv.co.uk') {
                     sh "docker push registry.comp.ystv.co.uk/ystv/bowser/jobrunner:${imageNamePrefix}${env.BUILD_NUMBER}"
