@@ -7,14 +7,15 @@
     "esbuild": "^0.18.16",
     "prettier": "^3.0.0",
     "prisma": "^5.0.0",
-    "tsx": "^3.12.7"
+    "tsx": "^3.12.7",
+    "zod-prisma-types": "^2.7.4"
   },
   "type": "module",
   "scripts": {
     "prisma:generate": "prisma generate --schema=../server/prisma/schema.prisma",
     "dev": "tsx watch src/index.ts",
     "prettify": "prettier --write .",
-    "build": "yarn prisma:generate && esbuild --bundle src/index.ts --outdir=dist --sourcemap --platform=node --target=node18"
+    "build": "SKIP_ZOD_PRISMA=true yarn prisma:generate && esbuild --bundle src/index.ts --outdir=dist --sourcemap --platform=node --target=node18"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.374.0",

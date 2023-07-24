@@ -5828,6 +5828,7 @@ __metadata:
     prettier: ^3.0.0
     prisma: ^5.0.0
     tsx: ^3.12.7
+    zod-prisma-types: ^2.7.4
   languageName: unknown
   linkType: soft
 
