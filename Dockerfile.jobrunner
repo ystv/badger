@@ -19,6 +19,7 @@ RUN yarn workspace bowser-jobrunner run build
 
 FROM node:18-slim
 COPY --from=base /app/jobrunner/dist /app
+COPY --from=base /app/node_modules/@prisma/client /app/node_modules/@prisma/client
 COPY --from=base /app/node_modules/.prisma/client /app/node_modules/.prisma/client
 WORKDIR /app
 ENV NODE_ENV=production
