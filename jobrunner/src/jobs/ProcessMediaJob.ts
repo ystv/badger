@@ -99,7 +99,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
         () => this._downloadSourceFile(params),
         true,
       );
-      await Promise.all([
+      await Promise.allSettled([
         (async () => {
           const rawPath = await this._wrapTask(
             media,
@@ -280,7 +280,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     // Step 2: renormalise
     const normalisedPath = path.join(
       this.temporaryDir,
-      "normalised." + extension,
+      "normalised" + extension,
     );
     await exec(
       [
@@ -386,7 +386,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     state: MediaProcessingTaskState,
     extra?: string,
   ) {
-    this.logger.info(`[${media.id}] ${descr}: ${state}`);
+    this.logger.info(`[${media.id}] ${descr}: ${state} ${extra}`);
     await this.db.mediaProcessingTask.upsert({
       where: {
         media_id_description: {
