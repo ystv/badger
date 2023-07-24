@@ -18,7 +18,7 @@ export const {
   auth,
   CSRF_experimental,
 } = NextAuth({
-  secret: "cornflakes", // FIXME
+  secret: process.env.AUTH_SECRET,
   providers: [
     CredentialsProvider({
       name: "YSTV Login",
