@@ -19,6 +19,7 @@ export const {
   CSRF_experimental,
 } = NextAuth({
   secret: process.env.AUTH_SECRET,
+  trustHost: true,
   providers: [
     CredentialsProvider({
       name: "YSTV Login",
