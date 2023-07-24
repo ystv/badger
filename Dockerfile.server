@@ -22,6 +22,8 @@ FROM base
 COPY --from=build /app/server/.next/standalone /app
 COPY --from=build /app/server/public /app/public
 COPY --from=build /app/server/.next/static /app/.next/static
+# Ensure we have the schema.prisma and migrations files
+COPY --from=build /app/server/prisma /app/prisma
 WORKDIR /app
 ENV NODE_ENV=production
 CMD ["node", "server/server.js"]
