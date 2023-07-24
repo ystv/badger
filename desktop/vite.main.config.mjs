@@ -15,11 +15,11 @@ export default defineConfig(({mode}) => {
       conditions: ["node"],
     },
     build: {
-      minify: process.env.NODE_ENV === "development" ? false : "esbuild",
+      minify: env.NODE_ENV === "development" ? false : "esbuild",
       sourcemap: true,
     },
     esbuild: {
-      minifyIdentifiers: process.env.NODE_ENV !== "development",
+      minifyIdentifiers: env.NODE_ENV !== "development",
     },
   };
 });

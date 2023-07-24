@@ -1,7 +1,7 @@
 import { serverApiClient, createAPIClient } from "./serverApiClient";
 import { z } from "zod";
 import { initTRPC } from "@trpc/server";
-import invariant from "tiny-invariant";
+import invariant from "../common/invariant";
 import { selectedShow, setSelectedShow } from "./selectedShow";
 import {
   CompleteShowModel,

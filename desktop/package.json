@@ -63,7 +63,6 @@
     "react-hook-form": "^7.45.2",
     "react-icons": "^4.10.1",
     "superjson": "^1.13.1",
-    "tiny-invariant": "^1.3.1",
     "typed-ipc": "^0.0.3",
     "typescript": "^5.1.6",
     "undici": "^5.22.1",

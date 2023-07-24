@@ -1,5 +1,5 @@
 import { ipc } from "./ipc";
-import invariant from "tiny-invariant";
+import invariant from "../common/invariant";
 import { Tab } from "@headlessui/react";
 import { IoCog } from "react-icons/io5";
 import OBSScreen from "./screens/OBS";
