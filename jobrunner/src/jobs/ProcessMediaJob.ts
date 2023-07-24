@@ -220,9 +220,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     let stream: NodeJS.ReadableStream;
     switch (params.sourceType) {
       case MediaFileSourceType.Tus:
-        stream = got.stream.get(
-          process.env.NEXT_PUBLIC_TUS_ENDPOINT + "/" + params.source,
-        );
+        stream = got.stream.get(process.env.TUS_ENDPOINT + "/" + params.source);
         (await pEvent(stream, "response")) as GotResponse; // this ensures that any errors are thrown
         break;
 
