@@ -2,15 +2,11 @@
 
 import * as os from "node:os";
 import { getMediaSettings, updateLocalMediaState } from "./settings";
-import * as fs from "fs";
 import * as fsp from "fs/promises";
 import * as path from "path";
-import { fetch } from "undici";
-import { Readable } from "node:stream";
-import { pipeline } from "node:stream/promises";
-import progress from "progress-stream";
 import { serverApiClient } from "./serverApiClient";
 import { z } from "zod";
+import * as wget from "wget-improved";
 
 export async function getMediaPath(): Promise<string> {
   const settings = await getMediaSettings();
@@ -41,14 +37,13 @@ interface DownloadQueueItem {
 export const DownloadStatusSchema = z.object({
   mediaID: z.number(),
   name: z.string(),
-  status: z.enum(["downloading", "done", "error"]),
+  status: z.enum(["pending", "downloading", "done", "error"]),
   progressPercent: z.number().optional(),
   error: z.string().optional(),
 });
 type DownloadStatus = z.infer<typeof DownloadStatusSchema>;
 
 const downloadQueue: DownloadQueueItem[] = [];
-const abortDownload = new AbortController();
 export const downloadStatus: Map<number, DownloadStatus> = new Map();
 
 async function doDownloadMedia() {
@@ -80,38 +75,20 @@ async function doDownloadMedia() {
     progressPercent: 0,
   };
   downloadStatus.set(info.id, status);
-  const output = fs.createWriteStream(outputPath);
 
   try {
-    let response;
-    try {
-      response = await fetch(urlRaw, {
-        signal: abortDownload.signal,
-      });
-    } catch (e) {
-      throw new Error("Network error", { cause: e });
-    }
-    if (response.status !== 200) {
-      throw new Error(`Response status code was ${response.status}`);
-    }
-    if (!response.body) {
-      throw new Error("Response body was empty");
-    }
-    const stream = Readable.fromWeb(response.body);
+    const download = wget.download(urlRaw, outputPath, {
+      // @ts-expect-error typings wrong, `download` does accept this
+      gunzip: true,
+    });
 
-    await pipeline(
-      stream,
-      progress(
-        {
-          length: parseInt(response.headers.get("Content-Length") ?? "0"),
-          time: 1000,
-        },
-        (progress) => {
-          status.progressPercent = progress.percentage;
-        },
-      ),
-      output,
-    );
+    download.on("progress", (progress: number) => {
+      status.progressPercent = progress * 100;
+    });
+    await new Promise<void>((resolve, reject) => {
+      download.on("error", reject);
+      download.on("end", resolve);
+    });
   } catch (e) {
     console.error(`Error downloading media ${info.id} [${info.name}]`, e);
     status.status = "error";
@@ -136,6 +113,11 @@ async function doDownloadMedia() {
 
 export function downloadMedia(mediaID: number) {
   downloadQueue.push({ mediaID });
+  downloadStatus.set(mediaID, {
+    mediaID,
+    name: "Unknown",
+    status: "pending",
+  });
   process.nextTick(doDownloadMedia);
 }
 

@@ -34,12 +34,12 @@ import {
 import Button from "@/components/Button";
 import { useRouter } from "next/navigation";
 import { MediaUploadDialog } from "@/components/MediaUpload";
-import {ItemMediaState} from "@/app/components/MediaState";
+import { ItemMediaState } from "@/app/components/MediaState";
 
 // beautiful-dnd is not compatible with SSR
 const Droppable = dynamic(
   () => import("react-beautiful-dnd").then((res) => res.Droppable),
-  { ssr: false, loading: () => <Image src={Spinner} alt="" /> }
+  { ssr: false, loading: () => <Image src={Spinner} alt="" /> },
 );
 
 export interface MediaWithTasks extends Media {
@@ -157,7 +157,7 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
       item.order = act.newOrder;
       items.sort((a, b) => a.order - b.order);
       return items;
-    }
+    },
   );
 
   const doMove: OnDragEndResponder = useCallback(
@@ -173,11 +173,11 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
         await reorder(
           props.rundown.id,
           parseInt(ev.draggableId, 10),
-          ev.destination!.index
+          ev.destination!.index,
         );
       });
     },
-    [props.rundown.id, doOptimisticMove]
+    [props.rundown.id, doOptimisticMove],
   );
 
   // Periodically refresh if any items are pending
@@ -186,8 +186,8 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
     const anyPending = props.rundown.items.some((x) =>
       x.media.some(
         (y) =>
-          y.state === MediaState.Pending || y.state === MediaState.Processing
-      )
+          y.state === MediaState.Pending || y.state === MediaState.Processing,
+      ),
     );
     if (!anyPending) {
       return;
@@ -203,7 +203,7 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
   }, [props.rundown.items, router]);
 
   const [showUploadForItemID, setShowUploadForItemID] = useState<number | null>(
-    null
+    null,
   );
 
   const [items, runtime] = useMemo(() => {
@@ -223,17 +223,16 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
           isDragDisabled={isPending}
         >
           {(provided) => (
-            <tr
-              {...provided.draggableProps}
-              ref={provided.innerRef}
-            >
+            <tr {...provided.draggableProps} ref={provided.innerRef}>
               <td {...provided.dragHandleProps} className="text-2xl px-4">
                 ☰
               </td>
               <td className="py-2 px-4">
                 <div>
                   <span className="block">{item.name}</span>
-                    {item.type === "VT" && <ItemMediaState item={item} itemType="rundown_item" />}
+                  {item.type === "VT" && (
+                    <ItemMediaState item={item} itemType="rundown_item" />
+                  )}
                 </div>
               </td>
               <td>{formatDuration(item.durationSeconds)}</td>
@@ -280,7 +279,7 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
               </td>
             </tr>
           )}
-        </Draggable>
+        </Draggable>,
       );
     }
     return [items, runningDuration];

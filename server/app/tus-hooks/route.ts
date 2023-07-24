@@ -45,7 +45,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       } else if ("continuityItemID" in data.Upload.MetaData) {
         const continuityItemID = parseInt(
           data.Upload.MetaData.continuityItemID,
-          10
+          10,
         );
         const continuityItem = await db.continuityItem.findUnique({
           where: { id: continuityItemID },
@@ -103,13 +103,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           });
         });
         revalidatePath(
-          `/shows/${rundownItem.rundown.showId}/rundown/${rundownItem.rundownId}`
+          `/shows/${rundownItem.rundown.showId}/rundown/${rundownItem.rundownId}`,
         );
         return new NextResponse("", { status: 200 });
       } else if ("continuityItemID" in data.Upload.MetaData) {
         const continuityItemID = parseInt(
           data.Upload.MetaData.continuityItemID,
-          10
+          10,
         );
         const continuityItem = await db.continuityItem.findUnique({
           where: { id: continuityItemID },

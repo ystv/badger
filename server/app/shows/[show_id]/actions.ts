@@ -12,7 +12,7 @@ import { zodErrorResponse } from "@/components/FormServerHelpers";
 export async function addItem(
   showID: number,
   type: "rundown" | "continuity_item",
-  name: string
+  name: string,
 ) {
   await db.$transaction(async ($db) => {
     const highestOrder = await $db.$queryRaw<[{ order: number }]>`
@@ -54,7 +54,7 @@ export async function addItem(
 
 // rundowns are handled on their own page (or at least will be - TODO)
 export async function editContinuityItem(
-  raw: z.infer<typeof editContinuityItemSchema>
+  raw: z.infer<typeof editContinuityItemSchema>,
 ): Promise<FormResponse> {
   const data = editContinuityItemSchema.safeParse(raw);
   if (!data.success) {
@@ -75,7 +75,7 @@ export async function editContinuityItem(
 export async function deleteItem(
   showID: number,
   itemType: "rundown" | "continuity_item",
-  itemId: number
+  itemId: number,
 ) {
   await db.$transaction(async ($db) => {
     let oldItem;
@@ -130,7 +130,7 @@ export async function reorderShowItems(
   showID: number,
   itemType: "rundown" | "continuity_item",
   itemId: number,
-  newOrder: number
+  newOrder: number,
 ) {
   await db.$transaction(async ($db) => {
     // TODO: the rundowns and continuity_items tables don't have unique constraints.
@@ -161,7 +161,7 @@ export async function reorderShowItems(
     }
     const oldOrder = oldItem.order;
     console.debug(
-      `Moving ${itemType} ${itemId} from ${oldOrder} to ${newOrder}`
+      `Moving ${itemType} ${itemId} from ${oldOrder} to ${newOrder}`,
     );
     if (oldOrder < newOrder) {
       // Moving down, so the item's order will be incremented
@@ -255,7 +255,7 @@ export async function reorderShowItems(
 
 async function ensureContiguousDEV(
   showID: number,
-  $db: Parameters<Parameters<typeof db.$transaction>[0]>[0]
+  $db: Parameters<Parameters<typeof db.$transaction>[0]>[0],
 ) {
   if (process.env.NODE_ENV !== "production") {
     // Sanity check: ensure all items have a contiguous order, otherwise this will break next time
@@ -280,7 +280,7 @@ async function ensureContiguousDEV(
           throw new Error(
             `Invariant violation: non-contiguous order for items of show ${showID}; item ${i} has order ${
               allItems[i]
-            } but item ${i - 1} has order ${allItems[i - 1]}`
+            } but item ${i - 1} has order ${allItems[i - 1]}`,
           );
         }
       }
@@ -289,7 +289,7 @@ async function ensureContiguousDEV(
       throw new Error(
         `Invariant violation: non-contiguous order for items of show ${showID}; last item has order ${
           allItems[allItems.length - 1]
-        } but there are ${allItems.length} items`
+        } but there are ${allItems.length} items`,
       );
     }
   }

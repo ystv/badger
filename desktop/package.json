@@ -9,7 +9,8 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "echo \"No linting configured\""
+    "lint": "echo \"No linting configured\"",
+    "prettify": "prettier --write ."
   },
   "keywords": [],
   "author": {
@@ -67,6 +68,7 @@
     "typescript": "^5.1.6",
     "undici": "^5.22.1",
     "utf-8-validate": "^6.0.3",
+    "wget-improved": "^3.4.0",
     "ws": "^8.13.0",
     "zod": "^3.21.4"
   }

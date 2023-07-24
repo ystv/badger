@@ -60,7 +60,7 @@ describe("reorderShowItems", () => {
       include: { rundowns: true, continuityItems: true },
     });
     const newItems = [...newShow.rundowns, ...newShow.continuityItems].sort(
-      (a, b) => a.order - b.order
+      (a, b) => a.order - b.order,
     );
     expect(newItems).toMatchInlineSnapshot(`
       [
@@ -101,7 +101,7 @@ describe("reorderShowItems", () => {
       include: { rundowns: true, continuityItems: true },
     });
     const newItems = [...newShow.rundowns, ...newShow.continuityItems].sort(
-      (a, b) => a.order - b.order
+      (a, b) => a.order - b.order,
     );
     expect(newItems).toMatchInlineSnapshot(`
       [
@@ -142,7 +142,7 @@ describe("reorderShowItems", () => {
       include: { rundowns: true, continuityItems: true },
     });
     const newItems = [...newShow.rundowns, ...newShow.continuityItems].sort(
-      (a, b) => a.order - b.order
+      (a, b) => a.order - b.order,
     );
     expect(newItems).toMatchInlineSnapshot(`
       [

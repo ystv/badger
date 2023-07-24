@@ -18,7 +18,7 @@ export function Pagination(props: {
       url.searchParams.set("page", page.toString());
       router.push(url.toString());
     },
-    [router, path]
+    [router, path],
   );
 
   return (

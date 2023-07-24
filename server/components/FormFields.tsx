@@ -19,7 +19,7 @@ import { identity } from "lodash";
 interface FieldBaseProps<
   TFields extends FieldValues,
   TFieldName extends Path<TFields>,
-  TEl extends React.ElementType = "input"
+  TEl extends React.ElementType = "input",
 > {
   name: TFieldName;
   label?: string;
@@ -36,10 +36,10 @@ interface FieldBaseProps<
 export function Field<
   TFields extends FieldValues,
   TFieldName extends FieldPath<TFields> = FieldPath<TFields>,
-  TEl extends React.ElementType = "input"
+  TEl extends React.ElementType = "input",
 >(
   props: FieldBaseProps<TFields, TFieldName, TEl> &
-    React.ComponentPropsWithoutRef<TEl>
+    React.ComponentPropsWithoutRef<TEl>,
 ) {
   const { label, registerParams, ...rest } = props;
   const ctx = useFormContext<TFields>();
@@ -51,7 +51,7 @@ export function Field<
       className={classNames(
         props.className ??
           "mt-1 block w-full rounded-md border-2 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 ",
-        ctx.formState.errors[props.name] ? "border-danger" : "border-gray-300"
+        ctx.formState.errors[props.name] ? "border-danger" : "border-gray-300",
       )}
     />
   );
@@ -73,7 +73,7 @@ export function Field<
 
 export function HiddenField<
   TFields extends FieldValues,
-  TFieldName extends FieldPath<TFields> = FieldPath<TFields>
+  TFieldName extends FieldPath<TFields> = FieldPath<TFields>,
 >(props: { name: TFieldName; value: string }) {
   const ctx = useFormContext<TFields>();
   return (
@@ -86,7 +86,7 @@ export function DatePickerField(
     name: string;
     defaultValue?: Date | string;
     label: string;
-  } & Omit<ReactDatePickerProps, "value" | "onChange">
+  } & Omit<ReactDatePickerProps, "value" | "onChange">,
 ) {
   const { name, defaultValue, label, ...rest } = props;
   const controller = useController({
@@ -98,7 +98,7 @@ export function DatePickerField(
   });
   const v = useMemo(
     () => (controller.field.value ? new Date(controller.field.value) : null),
-    [controller.field.value]
+    [controller.field.value],
   );
   return (
     <label className="block">
@@ -116,7 +116,7 @@ export function DatePickerField(
         className={classNames(
           "mt-1 block w-full rounded-md shadow-sm",
           controller.fieldState.error ? "border-danger" : "border-gray-300",
-          props.className
+          props.className,
         )}
         wrapperClassName="block"
         {...rest}
@@ -175,7 +175,7 @@ export function NullableCheckboxField(props: {
 
 export function ArrayField<
   TFieldValues extends FieldValues,
-  TFieldName extends ArrayPath<TFieldValues> = ArrayPath<TFieldValues>
+  TFieldName extends ArrayPath<TFieldValues> = ArrayPath<TFieldValues>,
 >(props: {
   name: string;
   children: (
@@ -184,7 +184,7 @@ export function ArrayField<
     // but the value you'll get passed here may be a string
     field: Record<string, unknown> & { id: string },
     index: number,
-    els: { remove: React.ReactNode }
+    els: { remove: React.ReactNode },
   ) => React.ReactNode;
   newElement: (value: FieldArray<TFieldValues, TFieldName>[]) => TFieldValues;
   header?: React.ReactNode;
@@ -207,7 +207,7 @@ export function ArrayField<
               -
             </Button>
           ),
-        })
+        }),
       )}
       <Button
         className="mt-1 font-black"

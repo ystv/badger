@@ -89,6 +89,7 @@ function ContinuityItem({
         {item.media ? (
           ourLocalStatus ? (
             <Button onClick={() => addToOBS.mutate({ id: item.media!.id })}>
+              {/* TODO: is it already present? */}
               Add to OBS
             </Button>
           ) : ourDownloadStatus ? (

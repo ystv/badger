@@ -9,7 +9,7 @@ import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
 
 export async function addItem(
-  raw: z.infer<typeof AddItemSchema>
+  raw: z.infer<typeof AddItemSchema>,
 ): Promise<FormResponse> {
   const data = AddItemSchema.safeParse(raw);
   if (!data.success) {
@@ -39,7 +39,7 @@ export async function addItem(
 }
 
 export async function editItem(
-  raw: z.infer<typeof EditItemSchema>
+  raw: z.infer<typeof EditItemSchema>,
 ): Promise<FormResponse> {
   const data = EditItemSchema.safeParse(raw);
   if (!data.success) {
@@ -96,7 +96,7 @@ export async function deleteItem(rundownID: number, itemID: number) {
 export async function reorder(
   rundownID: number,
   itemID: number,
-  newOrder: number
+  newOrder: number,
 ) {
   const showID = await db.$transaction(async ($db) => {
     const rundown = await $db.rundown.findFirst({
@@ -116,7 +116,7 @@ export async function reorder(
     }
     const oldOrder = oldItem.order;
     console.debug(
-      `Rundown ${rundownID}: moving ${oldItem.name} from ${oldOrder} to ${newOrder}`
+      `Rundown ${rundownID}: moving ${oldItem.name} from ${oldOrder} to ${newOrder}`,
     );
 
     // TODO: the rundowns_items tables don't have unique constraints.
@@ -174,7 +174,7 @@ export async function reorder(
 
 async function ensureContiguousDEV(
   rundownID: number,
-  $db: Parameters<Parameters<typeof db.$transaction>[0]>[0]
+  $db: Parameters<Parameters<typeof db.$transaction>[0]>[0],
 ) {
   if (process.env.NODE_ENV !== "production") {
     // Sanity check: ensure all items have a contiguous order, otherwise this will break next time
@@ -196,7 +196,7 @@ async function ensureContiguousDEV(
           throw new Error(
             `Invariant violation: non-contiguous order for items of rundown ${rundownID}; item ${i} has order ${
               items[i]
-            } but item ${i - 1} has order ${items[i - 1]}`
+            } but item ${i - 1} has order ${items[i - 1]}`,
           );
         }
       }
@@ -205,7 +205,7 @@ async function ensureContiguousDEV(
       throw new Error(
         `Invariant violation: non-contiguous order for items of rundown ${rundownID}; last item has order ${
           items[items.length - 1]
-        } but there are ${items.length} items`
+        } but there are ${items.length} items`,
       );
     }
   }

@@ -8,7 +8,7 @@ export default abstract class AbstractJob<TParams = {}> {
 
   public static async init<T extends AbstractJob = AbstractJob>(
     this: { new (): T },
-    db: PrismaClient
+    db: PrismaClient,
   ) {
     const job = new this();
     job.db = db;

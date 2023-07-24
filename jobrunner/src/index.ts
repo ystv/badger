@@ -5,7 +5,7 @@ import logging, { LogLevelNames } from "loglevel";
 import prefix from "loglevel-plugin-prefix";
 import ProcessMediaJob from "./jobs/ProcessMediaJob.js";
 logging.setLevel(
-  (process.env.LOG_LEVEL as LogLevelNames) ?? logging.levels.DEBUG
+  (process.env.LOG_LEVEL as LogLevelNames) ?? logging.levels.DEBUG,
 );
 prefix.reg(logging);
 prefix.apply(logging, {

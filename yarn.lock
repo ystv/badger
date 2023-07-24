@@ -5726,6 +5726,7 @@ __metadata:
     typescript: ^5.1.6
     undici: ^5.22.1
     utf-8-validate: ^6.0.3
+    wget-improved: ^3.4.0
     ws: ^8.13.0
     zod: ^3.21.4
   languageName: unknown
@@ -5744,6 +5745,7 @@ __metadata:
     loglevel: ^1.8.1
     loglevel-plugin-prefix: ^0.8.4
     p-event: ^6.0.0
+    prettier: ^3.0.0
     prisma: ^5.0.0
     tsx: ^3.12.7
   languageName: unknown
@@ -5788,6 +5790,8 @@ __metadata:
     lodash: ^4.17.21
     next: 13.4.10
     postcss: ^8.4.27
+    prettier: ^3.0.0
+    prettier-plugin-tailwindcss: ^0.4.1
     prisma: ^5.0.0
     react: 18.2.0
     react-aria: ^3.26.0
@@ -10600,6 +10604,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"minimist@npm:1.2.6":
+  version: 1.2.6
+  resolution: "minimist@npm:1.2.6"
+  checksum: d15428cd1e11eb14e1233bcfb88ae07ed7a147de251441d61158619dfb32c4d7e9061d09cab4825fdee18ecd6fce323228c8c47b5ba7cd20af378ca4048fb3fb
+  languageName: node
+  linkType: hard
+
 "minimist@npm:^1.1.0, minimist@npm:^1.2.0, minimist@npm:^1.2.5, minimist@npm:^1.2.6":
   version: 1.2.8
   resolution: "minimist@npm:1.2.8"
@@ -14004,6 +14015,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tunnel@npm:0.0.6":
+  version: 0.0.6
+  resolution: "tunnel@npm:0.0.6"
+  checksum: c362948df9ad34b649b5585e54ce2838fa583aa3037091aaed66793c65b423a264e5229f0d7e9a95513a795ac2bd4cb72cda7e89a74313f182c1e9ae0b0994fa
+  languageName: node
+  linkType: hard
+
 "tus-js-client@npm:^3.1.0":
   version: 3.1.0
   resolution: "tus-js-client@npm:3.1.0"
@@ -14595,6 +14613,18 @@ __metadata:
   version: 7.0.0
   resolution: "webidl-conversions@npm:7.0.0"
   checksum: f05588567a2a76428515333eff87200fae6c83c3948a7482ebb109562971e77ef6dc49749afa58abb993391227c5697b3ecca52018793e0cb4620a48f10bd21b
+  languageName: node
+  linkType: hard
+
+"wget-improved@npm:^3.4.0":
+  version: 3.4.0
+  resolution: "wget-improved@npm:3.4.0"
+  dependencies:
+    minimist: 1.2.6
+    tunnel: 0.0.6
+  bin:
+    nwget: bin/nwget
+  checksum: b1e779499344c4f0037a62b0617fc757f9049900a1dc797382578c5c0996c2bfedb090fb2650db508c52b23de82aa08141a7ac2e4dafd0a0983deccc1560ee66
   languageName: node
   linkType: hard
 

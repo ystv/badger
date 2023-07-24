@@ -10,7 +10,7 @@ import { zodErrorResponse } from "@/components/FormServerHelpers";
 import { z } from "zod";
 
 export async function create(
-  data: z.infer<typeof schema>
+  data: z.infer<typeof schema>,
 ): Promise<FormResponse> {
   "use server";
   const result = schema.safeParse(data);

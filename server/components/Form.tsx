@@ -21,11 +21,11 @@ export interface FormErrorResponse<Fields extends FieldValues = any> {
 
 export type FormResponse<
   OK extends Record<string, unknown> = {},
-  Fields extends FieldValues = any
+  Fields extends FieldValues = any,
 > = ({ ok: true } & OK) | FormErrorResponse;
 export type FormAction<
   OK extends Record<string, unknown> = {},
-  Fields extends FieldValues = any
+  Fields extends FieldValues = any,
 > = (data: Fields) => Promise<FormResponse<OK, Fields>>;
 
 const useForceUpdate = () => {
@@ -37,7 +37,7 @@ const useForceUpdate = () => {
 
 export default function Form<
   Schema extends ZodTypeAny | ZodEffects<ZodTypeAny>,
-  SuccessfulResponse extends Record<string, unknown> = {}
+  SuccessfulResponse extends Record<string, unknown> = {},
 >(props: {
   action: FormAction<SuccessfulResponse, z.infer<Schema>>;
   schema: Schema;
@@ -75,7 +75,7 @@ export default function Form<
         }
         if (!("ok" in res)) {
           throw new Error(
-            "<Form> action did not conform to FormResponse interface."
+            "<Form> action did not conform to FormResponse interface.",
           );
         }
         if (res.ok) {
@@ -85,7 +85,7 @@ export default function Form<
         }
         form.clearErrors();
         for (const [k, err] of Object.entries(
-          (res as FormErrorResponse).errors
+          (res as FormErrorResponse).errors,
         )) {
           form.setError(k as FieldPath<z.infer<Schema>>, {
             type: "custom",
@@ -110,7 +110,7 @@ export default function Form<
           className={classNames(
             "mt-4 rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-4",
             (isSubmitting || !form.formState.isValid) &&
-              "cursor-not-allowed opacity-50"
+              "cursor-not-allowed opacity-50",
           )}
         >
           {props.submitLabel ?? "Create"}
@@ -130,7 +130,7 @@ export default function Form<
           {JSON.stringify(
             props.schema.safeParse(form.getValues()),
             null,
-            2
+            2,
           )}{" "}
           <br />
           <Button size="small" color="light" onClick={forceUpdate}>

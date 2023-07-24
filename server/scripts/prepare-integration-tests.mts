@@ -1,4 +1,4 @@
-import sh from "shelljs";
+import * as sh from "shelljs";
 sh.config.fatal = true;
 sh.config.verbose = true;
 
@@ -7,7 +7,7 @@ sh.config.fatal = false;
 sh.exec("docker rm -f bowser_test_postgres");
 sh.config.fatal = true;
 sh.exec(
-  "docker run --rm -d -p 5432:5432 --name bowser_test_postgres -e POSTGRES_USER=root -e POSTGRES_PASSWORD=postgres -e POSTGRES_HOST_AUTH_METHOD=trust postgres:alpine"
+  "docker run --rm -d -p 5432:5432 --name bowser_test_postgres -e POSTGRES_USER=root -e POSTGRES_PASSWORD=postgres -e POSTGRES_HOST_AUTH_METHOD=trust postgres:alpine",
 );
 console.log("Waiting for PostgreSQL to start...");
 sh.exec("sleep 3");

@@ -1,4 +1,4 @@
-import sh from "shelljs";
+import * as sh from "shelljs";
 sh.config.fatal = true;
 sh.config.verbose = true;
 

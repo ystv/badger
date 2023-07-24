@@ -47,7 +47,7 @@ export default function Button<T extends "button" | "a">(
     as?: T;
     inverted?: boolean;
     size?: "small" | "large";
-  } & React.ComponentPropsWithoutRef<T>
+  } & React.ComponentPropsWithoutRef<T>,
 ) {
   const { children, color, as, inverted, ...rest } = props;
   const ref = useRef<HTMLButtonElement | HTMLAnchorElement | null>(null);
@@ -74,7 +74,7 @@ export default function Button<T extends "button" | "a">(
           ? invertedColors[props.color ?? "primary"]
           : normalColors[props.color ?? "primary"],
         sizeClasses[props.size ?? "medium"],
-        props.className
+        props.className,
       )}
     >
       {props.children}

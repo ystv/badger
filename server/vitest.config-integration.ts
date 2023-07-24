@@ -9,5 +9,5 @@ export default merge(
       environment: "node",
       include: ["**/*.integration.{test,spec}.?(c|m)[jt]s?(x)"],
     },
-  })
+  }),
 );
