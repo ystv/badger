@@ -10,11 +10,12 @@ function ServerConnectForm() {
   const [addrEntry, setAddrEntry] = useState(
     import.meta.env.DEV ? "http://localhost:3000" : "https://bowser.ystv.co.uk",
   );
+  const [password, setPassword] = useState("");
   const doConnect = ipc.connectToServer.useMutation();
   const [error, setError] = useState<string | null>(null);
   const connect = useCallback(async () => {
     try {
-      await doConnect.mutateAsync({ endpoint: addrEntry });
+      await doConnect.mutateAsync({ endpoint: addrEntry, password });
       await queryClient.invalidateQueries(
         getQueryKey(ipc.serverConnectionStatus),
       );
@@ -31,6 +32,15 @@ function ServerConnectForm() {
           type="text"
           value={addrEntry}
           onChange={(e) => setAddrEntry(e.target.value)}
+        />
+      </label>
+      <label>
+        Server Password
+        <input
+          className="w-full"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
       </label>
       <Button color="primary" onClick={connect}>

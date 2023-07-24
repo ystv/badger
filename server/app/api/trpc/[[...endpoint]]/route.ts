@@ -8,8 +8,15 @@ const handler: (req: NextRequest) => Promise<Response> = (req) => {
   return fetchRequestHandler({
     router: appRouter,
     req,
-    createContext() {
-      return {};
+    createContext({ req }) {
+      const bearerToken = req.headers.get("authorization")?.split(" ")[1];
+      if (bearerToken === process.env.API_SHARED_SECRET) {
+        return {};
+      }
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: bearerToken ? "Invalid token" : "Missing token",
+      });
     },
     endpoint: "/api/trpc",
     onError({ error, path }) {

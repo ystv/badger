@@ -37,10 +37,11 @@ export const appRouter = r({
     .input(
       z.object({
         endpoint: z.string().url(),
+        password: z.string(),
       }),
     )
     .mutation(async ({ input }) => {
-      await createAPIClient(input.endpoint + "/api/trpc");
+      await createAPIClient(input.endpoint + "/api/trpc", input.password);
       return true;
     }),
   listUpcomingShows: proc.output(z.array(PartialShowModel)).query(async () => {

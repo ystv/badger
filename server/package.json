@@ -41,6 +41,7 @@
     "flowbite-react": "^0.5.0",
     "lodash": "^4.17.21",
     "next": "13.4.10",
+    "next-auth": "experimental",
     "react": "18.2.0",
     "react-aria": "^3.26.0",
     "react-beautiful-dnd": "^13.1.1",

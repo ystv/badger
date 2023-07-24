@@ -8,21 +8,28 @@ import * as fsp from "fs/promises";
  */
 const ServerSettingsSchema = z.object({
   endpoint: z.string().url(),
+  password: z.string(),
 });
 
 export async function getServerSettings(): Promise<z.infer<
   typeof ServerSettingsSchema
 > | null> {
-  const settingsData = await settings.get("server");
-  if (settingsData === undefined) {
+  const settingsDataRaw = await settings.get("server");
+  if (settingsDataRaw === undefined) {
     return null;
   }
-  return ServerSettingsSchema.parse(settingsData);
+  const settingsData = ServerSettingsSchema.parse(settingsDataRaw);
+  settingsData.password = safeStorage.decryptString(
+    Buffer.from(settingsData.password, "base64"),
+  );
+  return settingsData;
 }
 
 export async function saveServerSettings(
-  val: z.infer<typeof ServerSettingsSchema>,
+  valRaw: z.infer<typeof ServerSettingsSchema>,
 ): Promise<void> {
+  const val = { ...valRaw };
+  val.password = safeStorage.encryptString(val.password).toString("base64");
   await settings.set("server", val);
 }
 
