@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import dayjs from "dayjs";
 import { RundownOrContinuity } from "./types";
 import { ShowItemsList } from "./ShowItemsList";
+import { TusEndpointProvider } from "@/components/MediaUpload";
+import { getTusEndpoint } from "@/lib/tus";
 
 export default async function ShowPage(props: { params: { show_id: string } }) {
   const show = await db.show.findFirst({
@@ -42,7 +44,9 @@ export default async function ShowPage(props: { params: { show_id: string } }) {
   return (
     <>
       <p>Start: {dayjs(show.start).format("YYYY-MM-DD HH:mm")}</p>
-      <ShowItemsList show={show} items={items} />
+      <TusEndpointProvider value={getTusEndpoint()}>
+        <ShowItemsList show={show} items={items} />
+      </TusEndpointProvider>
     </>
   );
 }

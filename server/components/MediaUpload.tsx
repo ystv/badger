@@ -1,9 +1,15 @@
 "use client";
 
 import { Dialog } from "@headlessui/react";
-import { useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import * as tus from "tus-js-client";
+
+const TusEndpointContext = createContext<string>(
+  process.env.TUS_ENDPOINT ?? "",
+);
+export const TusEndpointProvider = TusEndpointContext.Provider;
+export const useTusEndpoint = () => useContext(TusEndpointContext);
 
 export function MediaUploadDialog(props: {
   title: string;
@@ -12,11 +18,12 @@ export function MediaUploadDialog(props: {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const endpoint = useTusEndpoint();
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     disabled: isUploading,
     onDrop(files) {
       const upload = new tus.Upload(files[0], {
-        endpoint: process.env.NEXT_PUBLIC_TUS_ENDPOINT,
+        endpoint,
         onError: function (error) {
           setIsUploading(false);
           setError(error.message);

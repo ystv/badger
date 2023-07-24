@@ -36,7 +36,7 @@ services:
       AWS_ACCESS_KEY_ID: root
       AWS_SECRET_ACCESS_KEY: rootroot
       AWS_REGION: us-east-1
-    command: ['-s3-bucket=uploads', '-s3-endpoint=http://minio:9000', '-s3-object-prefix=/uploads', '-port=1080', '-hooks-http=http://host.docker.internal:3000/tus-hooks', '-hooks-enabled-events=pre-create,pre-finish']
+    command: ['-s3-bucket=uploads', '-s3-endpoint=http://minio:9000', '-s3-object-prefix=/uploads', '-port=1080']
 
 volumes:
   minio_data: {}

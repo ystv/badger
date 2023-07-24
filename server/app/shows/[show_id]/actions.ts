@@ -311,7 +311,7 @@ export async function processUploadForContinuityItem(
   }
 
   // Sanity check to ensure it was really uploaded where we expected
-  if (!uploadURL.startsWith(process.env.NEXT_PUBLIC_TUS_ENDPOINT!)) {
+  if (!uploadURL.startsWith(process.env.TUS_ENDPOINT!)) {
     throw new Error("Invalid upload URL");
   }
 
@@ -337,9 +337,7 @@ export async function processUploadForContinuityItem(
           create: {
             sourceType: MediaFileSourceType.Tus,
             source: uploadURL.replace(
-              new RegExp(
-                `^${escapeRegExp(process.env.NEXT_PUBLIC_TUS_ENDPOINT!)}/?`,
-              ),
+              new RegExp(`^${escapeRegExp(process.env.TUS_ENDPOINT!)}/?`),
               "",
             ),
             base_job: {

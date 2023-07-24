@@ -2,6 +2,8 @@ import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { RundownItems } from "./RundownItems";
 import Link from "next/link";
+import { TusEndpointProvider } from "@/components/MediaUpload";
+import { getTusEndpoint } from "@/lib/tus";
 
 export default async function RundownPage(props: {
   params: { show_id: string; rundown_id: string };
@@ -39,7 +41,9 @@ export default async function RundownPage(props: {
       </Link>
 
       <h2 className="text-xl">{rundown.name}</h2>
-      <RundownItems rundown={rundown} />
+      <TusEndpointProvider value={getTusEndpoint()}>
+        <RundownItems rundown={rundown} />
+      </TusEndpointProvider>
     </div>
   );
 }
