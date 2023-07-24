@@ -1,0 +1,25 @@
+#syntax=docker/dockerfile:1
+
+FROM node:18 AS base
+
+WORKDIR /app
+COPY ./.yarn/ .yarn/
+COPY .yarnrc.yml .yarnrc.yml
+COPY desktop desktop/
+COPY server server/
+COPY jobrunner jobrunner/
+COPY package.json package.json
+COPY yarn.lock yarn.lock
+RUN --mount=type=cache,id=bowser-yarn,target=.yarn/cache yarn install --immutable --inline-builds
+
+# NB: Please keep everything above this line the same in all the Dockerfiles, to properly leverage the Docker cache
+ENV NODE_ENV=production
+RUN yarn workspace bowser-server run build
+
+FROM node:18-slim
+COPY --from=base /app/server/.next/standalone /app
+COPY --from=base /app/server/public /app/public
+COPY --from=base /app/server/.next/static /app/.next/static
+WORKDIR /app
+ENV NODE_ENV=production
+CMD ["node", "server/server.js"]

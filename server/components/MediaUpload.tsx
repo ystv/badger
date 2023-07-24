@@ -2,7 +2,7 @@
 
 import { Dialog } from "@headlessui/react";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import * as tus from "tus-js-client";
 
@@ -41,7 +41,7 @@ export function MediaUploadDialog(props: {
           setError(error.message);
         },
         onProgress: function (bytesUploaded, bytesTotal) {
-          var percentage = (bytesUploaded / bytesTotal) * 100;
+          const percentage = (bytesUploaded / bytesTotal) * 100;
           setUploadProgress(percentage);
         },
         onSuccess: function () {

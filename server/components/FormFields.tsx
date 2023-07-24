@@ -190,12 +190,14 @@ export function ArrayField<
   header?: React.ReactNode;
 }) {
   const { fields, append, remove } = useFieldArray<TFieldValues, TFieldName>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     name: props.name as any /* TODO: the typings here are absolutely insane */,
   });
   return (
     <>
       {fields.length > 0 && props.header}
       {fields.map((field, idx) =>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         props.children(field as any, idx, {
           remove: (
             <Button
@@ -211,6 +213,7 @@ export function ArrayField<
       )}
       <Button
         className="mt-1 font-black"
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onClick={() => append(props.newElement(fields) as any)}
         color="primary"
         size="small"
@@ -221,7 +224,7 @@ export function ArrayField<
   );
 }
 
-export function SelectField<TObj extends {}>(props: {
+export function SelectField<TObj>(props: {
   name: string;
   options: TObj[];
   label?: string;

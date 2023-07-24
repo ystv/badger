@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { DebugModeProvider } from "@/components/DebugMode";
 import { cookies } from "next/headers";
-import { DEBUG_MODE_COOKIE } from "./enableDebugMode/route";
+
+import { DEBUG_MODE_COOKIE } from "@/app/enableDebugMode/constants";
 
 export const metadata: Metadata = {
   title: "Create Next App",

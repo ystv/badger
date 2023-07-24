@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-
-export const DEBUG_MODE_COOKIE = "debugMode";
+import { DEBUG_MODE_COOKIE } from "@/app/enableDebugMode/constants";
 
 export function GET(req: NextRequest): NextResponse {
   const val = req.nextUrl.searchParams.get("value")

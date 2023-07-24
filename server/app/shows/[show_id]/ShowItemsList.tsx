@@ -11,7 +11,7 @@ import {
   OnDragEndResponder,
 } from "react-beautiful-dnd";
 import Spinner from "@/app/_assets/spinner.svg";
-import {
+import React, {
   experimental_useOptimistic as useOptimistic,
   forwardRef,
   useCallback,
@@ -126,11 +126,11 @@ function DeleteItemPopover(props: {
 }
 
 const RundownRow = forwardRef<
-  HTMLElement,
+  HTMLTableRowElement,
   {
     rundown: CompleteRundown;
-    draggableProps: any;
-    dragHandleProps: any;
+    draggableProps: React.ComponentPropsWithoutRef<"tr">;
+    dragHandleProps: React.ComponentPropsWithoutRef<"td">;
     time: Date;
     runningDuration: number;
   }
@@ -162,11 +162,11 @@ const RundownRow = forwardRef<
 });
 
 const ContinuityItemRow = forwardRef<
-  HTMLElement,
+  HTMLTableRowElement,
   {
     item: CompleteContinuityItem;
-    draggableProps: any;
-    dragHandleProps: any;
+    draggableProps: React.ComponentPropsWithoutRef<"tr">;
+    dragHandleProps: React.ComponentPropsWithoutRef<"td">;
     time: Date;
     runningDuration: number;
   }
@@ -290,7 +290,7 @@ export function ShowItemsList(props: {
               <RundownRow
                 ref={provided.innerRef}
                 draggableProps={provided.draggableProps}
-                dragHandleProps={provided.dragHandleProps}
+                dragHandleProps={provided.dragHandleProps!}
                 rundown={item}
                 time={itemStartTime}
                 runningDuration={duration}
@@ -299,7 +299,7 @@ export function ShowItemsList(props: {
               <ContinuityItemRow
                 ref={provided.innerRef}
                 draggableProps={provided.draggableProps}
-                dragHandleProps={provided.dragHandleProps}
+                dragHandleProps={provided.dragHandleProps!}
                 item={item}
                 time={itemStartTime}
                 runningDuration={duration}

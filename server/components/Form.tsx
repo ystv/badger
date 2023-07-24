@@ -14,19 +14,21 @@ import { DebugOnly } from "@/components/DebugMode";
 import Button from "@/components/Button";
 import { isRedirectError } from "next/dist/client/components/redirect";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface FormErrorResponse<Fields extends FieldValues = any> {
   ok: false;
   errors: { [K in keyof Fields | "root"]?: string };
 }
 
 export type FormResponse<
-  OK extends Record<string, unknown> = {},
+  OK extends Record<string, unknown> = Record<string, unknown>,
   Fields extends FieldValues = any,
 > = ({ ok: true } & OK) | FormErrorResponse;
 export type FormAction<
-  OK extends Record<string, unknown> = {},
+  OK extends Record<string, unknown> = Record<string, unknown>,
   Fields extends FieldValues = any,
 > = (data: Fields) => Promise<FormResponse<OK, Fields>>;
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 const useForceUpdate = () => {
   const [, setState] = useState(true);
@@ -37,7 +39,7 @@ const useForceUpdate = () => {
 
 export default function Form<
   Schema extends ZodTypeAny | ZodEffects<ZodTypeAny>,
-  SuccessfulResponse extends Record<string, unknown> = {},
+  SuccessfulResponse extends Record<string, unknown> = Record<string, unknown>,
 >(props: {
   action: FormAction<SuccessfulResponse, z.infer<Schema>>;
   schema: Schema;

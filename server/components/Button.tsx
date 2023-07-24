@@ -51,11 +51,12 @@ export default function Button<T extends "button" | "a">(
 ) {
   const { children, color, as, inverted, ...rest } = props;
   const ref = useRef<HTMLButtonElement | HTMLAnchorElement | null>(null);
-  // @ts-ignore
+  // @ts-expect-error - useButton is not typed correctly
   const btn = useButton(props, ref);
   const Type = props.as ?? "button";
   return (
     <Type
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ref={ref as any}
       {...rest}
       {...btn.buttonProps}

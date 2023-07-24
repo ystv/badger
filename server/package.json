@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "dotenv -e .env.production prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "test:integration": "dotenv -e .env.test vitest --config ./vitest.config-integration.ts",
