@@ -15,4 +15,4 @@ console.log("Preparing test database...");
 sh.exec("docker exec bowser_test_postgres createdb -O root bowser_test");
 process.env.DATABASE_URL =
   "postgresql://root:postgres@localhost:5432/bowser_test";
-sh.exec("yarn prisma db push"); // TODO: use migrations instead
+sh.exec("yarn prisma migrate deploy");
