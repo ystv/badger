@@ -61,6 +61,7 @@ export function MediaUploadDialog(props: {
               {error}
             </div>
           )}
+          {/* TODO: Google Drive picker */}
           <div
             {...getRootProps()}
             className="p-8 m-1 rounded-md bg-mid-light text-dark w-64 h-24"
