@@ -22,6 +22,7 @@ import {
   addItem,
   deleteItem,
   editContinuityItem,
+  processUploadForContinuityItem,
   reorderShowItems,
 } from "./actions";
 import { Show } from "@prisma/client";
@@ -181,7 +182,12 @@ const ContinuityItemRow = forwardRef<
       <td>
         <div>{item.name}</div>
         <div>
-          <ItemMediaState item={item} itemType="continuity_item" />
+          <ItemMediaState
+            item={item}
+            onUploadComplete={async (url, fileName) =>
+              processUploadForContinuityItem(item.id, fileName, url)
+            }
+          />
         </div>
       </td>
       <td>{format(props.time, "HH:mm")}</td>

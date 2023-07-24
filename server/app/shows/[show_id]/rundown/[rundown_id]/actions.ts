@@ -7,6 +7,8 @@ import { zodErrorResponse } from "@/components/FormServerHelpers";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
+import { MediaFileSourceType } from "@prisma/client";
+import { escapeRegExp } from "lodash";
 
 export async function addItem(
   raw: z.infer<typeof AddItemSchema>,
@@ -209,4 +211,65 @@ async function ensureContiguousDEV(
       );
     }
   }
+}
+
+export async function processUploadForRundownItem(
+  itemID: number,
+  fileName: string,
+  uploadURL: string,
+) {
+  const item = await db.rundownItem.findUnique({
+    where: {
+      id: itemID,
+    },
+    include: {
+      rundown: true,
+    },
+  });
+  if (!item) {
+    throw new Error("Invalid item ID");
+  }
+
+  // Sanity check to ensure it was really uploaded where we expected
+  if (!uploadURL.startsWith(process.env.NEXT_PUBLIC_TUS_ENDPOINT!)) {
+    throw new Error("Invalid upload URL");
+  }
+
+  await db.$transaction(async ($db) => {
+    await $db.media.deleteMany({
+      where: {
+        rundownItem: {
+          id: itemID,
+        },
+      },
+    });
+    await $db.media.create({
+      data: {
+        name: fileName,
+        durationSeconds: 0,
+        rawPath: "",
+        rundownItem: {
+          connect: {
+            id: itemID,
+          },
+        },
+        process_jobs: {
+          create: {
+            sourceType: MediaFileSourceType.Tus,
+            source: uploadURL.replace(
+              new RegExp(
+                `^${escapeRegExp(process.env.NEXT_PUBLIC_TUS_ENDPOINT!)}/?`,
+              ),
+              "",
+            ),
+            base_job: {
+              create: {},
+            },
+          },
+        },
+      },
+    });
+  });
+  revalidatePath(`/shows/${item.rundown.showId}`);
+  return { ok: true };
 }

@@ -17,10 +17,11 @@ import clsx from "clsx";
 import Image from "next/image";
 import Spinner from "@/app/_assets/spinner.svg";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { Dialog, Popover } from "@headlessui/react";
 import Button from "@/components/Button";
 import { MediaUploadDialog } from "@/components/MediaUpload";
+import { processUploadForContinuityItem } from "@/app/shows/[show_id]/actions";
 
 export interface CompleteMedia extends Media {
   tasks: MediaProcessingTask[];
@@ -129,12 +130,13 @@ function MediaProcessingState({
 
 export function ItemMediaState({
   item,
-  itemType,
+  onUploadComplete,
 }: {
   item: CompleteContinuityItem | CompleteRundownItem;
-  itemType: "rundown_item" | "continuity_item";
+  onUploadComplete: (url: string, fileName: string) => Promise<unknown>;
 }) {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
   let base;
   const media = Array.isArray(item.media)
     ? item.media.length > 0
@@ -160,11 +162,15 @@ export function ItemMediaState({
       {base}
       <Dialog open={isUploadOpen} onClose={() => setIsUploadOpen(false)}>
         <MediaUploadDialog
-          parentType={itemType}
-          parentID={item.id}
           title={`Upload '${item.name}'`}
-          close={() => setIsUploadOpen(false)}
+          onComplete={(url, fileName) =>
+            startTransition(async () => {
+              await onUploadComplete(url, fileName);
+              setIsUploadOpen(false);
+            })
+          }
         />
+        {isPending && <em>Processing, please wait...</em>}
       </Dialog>
     </>
   );

@@ -1,41 +1,22 @@
 "use client";
 
 import { Dialog } from "@headlessui/react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import * as tus from "tus-js-client";
 
 export function MediaUploadDialog(props: {
-  parentType: "rundown_item" | "continuity_item";
-  parentID: number;
   title: string;
-  close?: () => void;
+  onComplete: (url: string, fileName: string) => void;
 }) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     disabled: isUploading,
     onDrop(files) {
-      const meta: Record<string, string> = {
-        filename: files[0].name,
-        filetype: files[0].type,
-      };
-      switch (props.parentType) {
-        case "rundown_item":
-          meta.rundownItemID = props.parentID.toString();
-          break;
-        case "continuity_item":
-          meta.continuityItemID = props.parentID.toString();
-          break;
-        default:
-          throw new Error("Invalid parent type");
-      }
       const upload = new tus.Upload(files[0], {
         endpoint: process.env.NEXT_PUBLIC_TUS_ENDPOINT,
-        metadata: meta,
         onError: function (error) {
           setIsUploading(false);
           setError(error.message);
@@ -46,16 +27,13 @@ export function MediaUploadDialog(props: {
         },
         onSuccess: function () {
           setIsUploading(false);
-          router.refresh();
-          props.close?.();
+          props.onComplete(upload.url!, files[0].name);
         },
       });
       // Check if there are any previous uploads to continue.
       upload.findPreviousUploads().then(function (previousUploads) {
         // Found previous uploads so we select the first one.
         if (previousUploads.length) {
-          // TODO: if this is already completely finished, Tus won't fire the pre-finish hook,
-          // so the backend won't know to run the jobs.
           upload.resumeFromPreviousUpload(previousUploads[0]);
         }
 

@@ -1,13 +1,14 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { PrismaClient } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 import { editContinuityItemSchema } from "./schema";
 import { FormResponse } from "@/components/Form";
 import { zodErrorResponse } from "@/components/FormServerHelpers";
+import { MediaFileSourceType } from "@prisma/client";
+import { escapeRegExp } from "lodash";
 
 export async function addItem(
   showID: number,
@@ -293,4 +294,62 @@ async function ensureContiguousDEV(
       );
     }
   }
+}
+
+export async function processUploadForContinuityItem(
+  itemID: number,
+  fileName: string,
+  uploadURL: string,
+) {
+  const item = await db.continuityItem.findUnique({
+    where: {
+      id: itemID,
+    },
+  });
+  if (!item) {
+    throw new Error("Invalid item ID");
+  }
+
+  // Sanity check to ensure it was really uploaded where we expected
+  if (!uploadURL.startsWith(process.env.NEXT_PUBLIC_TUS_ENDPOINT!)) {
+    throw new Error("Invalid upload URL");
+  }
+
+  await db.$transaction(async ($db) => {
+    await $db.media.deleteMany({
+      where: {
+        continuityItem: {
+          id: itemID,
+        },
+      },
+    });
+    await $db.media.create({
+      data: {
+        name: fileName,
+        durationSeconds: 0,
+        rawPath: "",
+        continuityItem: {
+          connect: {
+            id: itemID,
+          },
+        },
+        process_jobs: {
+          create: {
+            sourceType: MediaFileSourceType.Tus,
+            source: uploadURL.replace(
+              new RegExp(
+                `^${escapeRegExp(process.env.NEXT_PUBLIC_TUS_ENDPOINT!)}/?`,
+              ),
+              "",
+            ),
+            base_job: {
+              create: {},
+            },
+          },
+        },
+      },
+    });
+  });
+  revalidatePath(`/shows/${item.showId}`);
+  return { ok: true };
 }

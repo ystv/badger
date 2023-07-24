@@ -17,12 +17,17 @@ import Image from "next/image";
 import Spinner from "@/app/_assets/spinner.svg";
 import { Dialog, Popover } from "@headlessui/react";
 import Form from "@/components/Form";
-import { addItem, deleteItem, editItem, reorder } from "./actions";
+import {
+  addItem,
+  deleteItem,
+  editItem,
+  processUploadForRundownItem,
+  reorder,
+} from "./actions";
 import { AddItemSchema, EditItemSchema, ItemTypeSchema } from "./schema";
 import { Field, HiddenField, SelectField } from "@/components/FormFields";
 import { identity } from "lodash";
 import {
-  ReactNode,
   useCallback,
   useEffect,
   useMemo,
@@ -202,10 +207,6 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
     };
   }, [props.rundown.items, router]);
 
-  const [showUploadForItemID, setShowUploadForItemID] = useState<number | null>(
-    null,
-  );
-
   const [items, runtime] = useMemo(() => {
     const items = [];
     let runningDuration = 0;
@@ -231,7 +232,12 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
                 <div>
                   <span className="block">{item.name}</span>
                   {item.type === "VT" && (
-                    <ItemMediaState item={item} itemType="rundown_item" />
+                    <ItemMediaState
+                      item={item}
+                      onUploadComplete={async (url, fileName) =>
+                        processUploadForRundownItem(item.id, fileName, url)
+                      }
+                    />
                   )}
                 </div>
               </td>
@@ -310,19 +316,6 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
           )}
         </Droppable>
       </DragDropContext>
-      <Dialog
-        open={showUploadForItemID !== null}
-        onClose={() => setShowUploadForItemID(null)}
-      >
-        {showUploadForItemID !== null && (
-          <MediaUploadDialog
-            parentType="rundown_item"
-            parentID={showUploadForItemID}
-            title={`Add media`}
-            close={() => setShowUploadForItemID(null)}
-          />
-        )}
-      </Dialog>
     </>
   );
 }
