@@ -33,7 +33,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
       },
     });
     if (!nextJob) {
-      logger.info("No jobs available, sleeping");
+      logger.trace("No jobs available, sleeping");
       await sleep(2500);
       continue;
     }
