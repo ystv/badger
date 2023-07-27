@@ -88,7 +88,7 @@ export async function editItem(
 }
 
 export async function deleteItem(rundownID: number, itemID: number) {
-  const rundown = await db.$transaction(async ($db) => {
+  await db.$transaction(async ($db) => {
     const oldItem = await $db.rundownItem.delete({
       where: {
         id: itemID,
@@ -125,11 +125,6 @@ export async function deleteItem(rundownID: number, itemID: number) {
       },
     });
     await ensureContiguousDEV(rundownID, $db);
-    return await $db.rundown.findUniqueOrThrow({
-      where: {
-        id: rundownID,
-      },
-    });
   });
   revalidatePath(`/shows/[show_id]/rundown/[rundown_id]`);
 }

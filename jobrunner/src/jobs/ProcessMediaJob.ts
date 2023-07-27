@@ -125,7 +125,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
           const duration = await this._wrapTask(
             media,
             "Determining duration",
-            () => this._determineDuration(rawTempPath, media),
+            () => this._determineDuration(rawTempPath),
             false,
           );
           await this.db.media.update({
@@ -279,7 +279,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     return filePath;
   }
 
-  private async _determineDuration(path: string, media: CompleteMedia) {
+  private async _determineDuration(path: string) {
     // This is safe because we created path in _downloadSourceFile
     const res = await exec(
       `ffprobe -v error -print_format json -show_format ${path}`,
@@ -295,9 +295,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     );
     // Find the loudnorm output. It's a bit of JSON immediately after a line like `[Parsed_loudnorm_0 @ 0x600003670fd0]`
     const loudnormJSON =
-      /(?<=\[Parsed_loudnorm_0 @ 0x[0-9a-f]+\]\s*\n)[\s\S]*/.exec(
-        output.stderr,
-      );
+      /(?<=\[Parsed_loudnorm_0 @ 0x[0-9a-f]+]\s*\n)[\s\S]*/.exec(output.stderr);
     if (!loudnormJSON) {
       this.logger.warn(output.stderr);
       throw new Error("Could not find loudnorm output");
@@ -354,7 +352,6 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     path: string,
     fileType: "raw" | "final",
     item: CompleteMedia,
-    suffix = "",
   ) {
     const stream = fs.createReadStream(path);
     const s3Path = item.continuityItem

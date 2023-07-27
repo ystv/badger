@@ -23,7 +23,7 @@ export async function addItem(
           (SELECT MAX("order") FROM "continuity_items" WHERE "showId" = ${showID})
         ),
         -1 -- to ensure that the first item is 0-indexed
-      ) AS order
+      ) AS "order"
     `;
     const order = highestOrder[0].order + 1;
     if (type === "rundown") {

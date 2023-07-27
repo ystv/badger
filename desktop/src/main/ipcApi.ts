@@ -1,4 +1,4 @@
-import { serverApiClient, createAPIClient } from "./serverApiClient";
+import { createAPIClient, serverApiClient } from "./serverApiClient";
 import { z } from "zod";
 import { initTRPC } from "@trpc/server";
 import invariant from "../common/invariant";
@@ -46,9 +46,7 @@ export const appRouter = r({
       return true;
     }),
   listUpcomingShows: proc.output(z.array(PartialShowModel)).query(async () => {
-    const res = await api().shows.listUpcoming.query();
-
-    return res;
+    return await api().shows.listUpcoming.query();
   }),
   getSelectedShow: proc.output(CompleteShowModel.nullable()).query(() => {
     return selectedShow;
