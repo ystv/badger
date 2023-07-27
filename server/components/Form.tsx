@@ -64,6 +64,7 @@ export default function Form<
         try {
           // TODO: This submits the form values as JSON, effectively ignoring the FormData parameter. This works, but
           //  may run into issues down the line, especially when (if?) we upload files directly from the form.
+          //  It's also not brilliant for progressive enhancement.
           //  Instead, we should probably use the FormData object React gives us (though we'll have to figure out how
           //  to make it play nice with hook-form).
           res = await action(form.getValues());
