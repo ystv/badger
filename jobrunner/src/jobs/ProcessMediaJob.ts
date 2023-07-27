@@ -198,6 +198,41 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
           state: MediaState.Ready,
         },
       });
+      if (media.rundownItem) {
+        await this.db.rundownItem.update({
+          where: {
+            id: media.rundownItem.id,
+          },
+          data: {
+            rundown: {
+              update: {
+                show: {
+                  update: {
+                    version: {
+                      increment: 1,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        });
+      } else if (media.continuityItem) {
+        await this.db.continuityItem.update({
+          where: {
+            id: media.continuityItem.id,
+          },
+          data: {
+            show: {
+              update: {
+                version: {
+                  increment: 1,
+                },
+              },
+            },
+          },
+        });
+      }
     } catch (e) {
       this.logger.error(e);
       await this.db.media.update({

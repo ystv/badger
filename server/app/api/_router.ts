@@ -5,7 +5,7 @@ import {
   CompleteMediaModel,
   CompleteShowModel,
   PartialShowModel,
-} from "@/lib/db/types/_utility";
+} from "@/lib/db/utilityTypes";
 import { getPresignedURL } from "@/lib/s3";
 import { ContinuityItemSchema, RundownItemSchema } from "@/lib/db/types";
 

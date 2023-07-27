@@ -2,7 +2,7 @@ import { z } from "zod";
 import type {
   CompleteShowModel,
   PartialShowModel,
-} from "@/lib/db/types/_utility";
+} from "@/lib/db/utilityTypes";
 
 export interface ServerConnection {
   connected: true;

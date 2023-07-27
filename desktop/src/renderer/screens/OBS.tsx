@@ -4,7 +4,7 @@ import Button from "../components/Button";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { CompleteContinuityItemModel } from "@/lib/db/types/_utility";
+import { CompleteContinuityItemModel } from "@/lib/db/utilityTypes";
 import { z } from "zod";
 
 function OBSConnection() {

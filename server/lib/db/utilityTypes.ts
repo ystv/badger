@@ -1,11 +1,11 @@
 import {
-    ShowSchema,
-    ContinuityItemSchema,
-    RundownSchema,
-    MediaSchema,
-    RundownItemSchema,
-    MediaProcessingTaskSchema
-} from "./modelSchema";
+  ShowSchema,
+  ContinuityItemSchema,
+  RundownSchema,
+  MediaSchema,
+  RundownItemSchema,
+  MediaProcessingTaskSchema,
+} from "./types/modelSchema";
 import { z } from "zod";
 
 /*

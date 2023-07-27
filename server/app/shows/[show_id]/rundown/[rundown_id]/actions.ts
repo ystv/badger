@@ -35,8 +35,22 @@ export async function addItem(
         },
       },
     });
+    await $db.rundown.update({
+      where: {
+        id: data.data.rundownID,
+      },
+      data: {
+        show: {
+          update: {
+            version: {
+              increment: 1,
+            },
+          },
+        },
+      },
+    });
   });
-  revalidatePath(`/shows/${data.data.showID}/rundown/${data.data.rundownID}`);
+  revalidatePath(`/shows/[show_id]/rundown/[rundown_id]`);
   return { ok: true };
 }
 
@@ -56,9 +70,20 @@ export async function editItem(
       type: data.data.type,
       durationSeconds: data.data.durationSeconds,
       notes: data.data.notes,
+      rundown: {
+        update: {
+          show: {
+            update: {
+              version: {
+                increment: 1,
+              },
+            },
+          },
+        },
+      },
     },
   });
-  revalidatePath(`/shows/${data.data.showID}/rundown/${data.data.rundownID}`);
+  revalidatePath(`/shows/[show_id]/rundown/[rundown_id]`);
   return { ok: true };
 }
 
@@ -85,6 +110,20 @@ export async function deleteItem(rundownID: number, itemID: number) {
         },
       },
     });
+    await $db.rundown.update({
+      where: {
+        id: rundownID,
+      },
+      data: {
+        show: {
+          update: {
+            version: {
+              increment: 1,
+            },
+          },
+        },
+      },
+    });
     await ensureContiguousDEV(rundownID, $db);
     return await $db.rundown.findUniqueOrThrow({
       where: {
@@ -92,7 +131,7 @@ export async function deleteItem(rundownID: number, itemID: number) {
       },
     });
   });
-  revalidatePath(`/shows/${rundown.showId}/rundown/${rundownID}`);
+  revalidatePath(`/shows/[show_id]/rundown/[rundown_id]`);
 }
 
 export async function reorder(
@@ -166,6 +205,17 @@ export async function reorder(
       },
       data: {
         order: newOrder,
+        rundown: {
+          update: {
+            show: {
+              update: {
+                version: {
+                  increment: 1,
+                },
+              },
+            },
+          },
+        },
       },
     });
     await ensureContiguousDEV(rundownID, $db);
@@ -262,6 +312,20 @@ export async function processUploadForRundownItem(
             ),
             base_job: {
               create: {},
+            },
+          },
+        },
+      },
+    });
+    await $db.rundown.update({
+      where: {
+        id: item.rundown.id,
+      },
+      data: {
+        show: {
+          update: {
+            version: {
+              increment: 1,
             },
           },
         },

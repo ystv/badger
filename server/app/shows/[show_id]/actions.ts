@@ -48,6 +48,16 @@ export async function addItem(
         },
       });
     }
+    await $db.show.update({
+      where: {
+        id: showID,
+      },
+      data: {
+        version: {
+          increment: 1,
+        },
+      },
+    });
   });
   revalidatePath(`/shows/${showID}`);
   return { ok: true };
@@ -67,6 +77,13 @@ export async function editContinuityItem(
     },
     data: {
       name: data.data.name,
+      show: {
+        update: {
+          version: {
+            increment: 1,
+          },
+        },
+      },
     },
   });
   revalidatePath(`/shows/${res.showId}`);
@@ -119,6 +136,16 @@ export async function deleteItem(
       data: {
         order: {
           decrement: 1,
+        },
+      },
+    });
+    await $db.show.update({
+      where: {
+        id: showID,
+      },
+      data: {
+        version: {
+          increment: 1,
         },
       },
     });
@@ -248,6 +275,17 @@ export async function reorderShowItems(
       throw new Error("Invalid item type");
     }
 
+    await $db.show.update({
+      where: {
+        id: showID,
+      },
+      data: {
+        version: {
+          increment: 1,
+        },
+      },
+    });
+
     await ensureContiguousDEV(showID, $db);
   });
   revalidatePath(`/shows/${showID}`);
@@ -344,6 +382,16 @@ export async function processUploadForContinuityItem(
               create: {},
             },
           },
+        },
+      },
+    });
+    await $db.show.update({
+      where: {
+        id: item.showId,
+      },
+      data: {
+        version: {
+          increment: 1,
         },
       },
     });

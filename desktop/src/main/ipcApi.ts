@@ -6,7 +6,7 @@ import { selectedShow, setSelectedShow } from "./selectedShow";
 import {
   CompleteShowModel,
   PartialShowModel,
-} from "bowser-server/lib/db/types/_utility";
+} from "bowser-server/lib/db/utilityTypes";
 import { Integration } from "../common/types";
 import { createOBSConnection, obsConnection } from "./obs";
 import {

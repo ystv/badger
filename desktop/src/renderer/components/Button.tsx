@@ -1,7 +1,7 @@
 "use client";
 
 import { useButton } from "react-aria";
-import { useRef } from "react";
+import { ReactNode, useRef } from "react";
 import classNames from "classnames";
 
 type Colors =
@@ -41,7 +41,7 @@ const sizeClasses = {
 
 export default function Button<T extends "button" | "a">(
   props: {
-    children: React.ReactNode;
+    children: ReactNode;
     color?: Colors;
     isDisabled?: boolean;
     as?: T;

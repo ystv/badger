@@ -25,6 +25,10 @@ model Show {
   name  String
   start DateTime
 
+  /// The version of the show. This is incremented every time the show, or any of its dependent data, is changed.
+  /// This is used by Desktop to watch for changes.
+  version BigInt @default(0)
+
   rundowns        Rundown[]
   continuityItems ContinuityItem[]
 

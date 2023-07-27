@@ -10,7 +10,8 @@
     "test:integration": "dotenv -e .env.test vitest --config ./vitest.config-integration.ts",
     "pretest:integration": "ts-node --esm scripts/prepare-integration-tests.mts",
     "posttest:integration": "ts-node --esm scripts/teardown-integration-tests.mts",
-    "prettify": "prettier --write ."
+    "prettify": "prettier --write .",
+    "prisma:generate": "prisma generate"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.374.0",
