@@ -36,7 +36,7 @@ import Link from "next/link";
 import Form from "@/components/Form";
 import { editContinuityItemSchema } from "./schema";
 import { Field, HiddenField } from "@/components/FormFields";
-import { ItemMediaState } from "@/app/components/MediaState";
+import { ItemMediaState } from "@/components/MediaState";
 
 // beautiful-dnd is not compatible with SSR
 const Droppable = dynamic(

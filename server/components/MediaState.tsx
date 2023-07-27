@@ -4,7 +4,6 @@ import {
   MediaProcessingTask,
   MediaProcessingTaskState,
   MediaState,
-  Rundown,
   RundownItem,
 } from "@prisma/client";
 import {
@@ -21,7 +20,6 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { Dialog, Popover } from "@headlessui/react";
 import Button from "@/components/Button";
 import { MediaUploadDialog } from "@/components/MediaUpload";
-import { processUploadForContinuityItem } from "@/app/shows/[show_id]/actions";
 
 export interface CompleteMedia extends Media {
   tasks: MediaProcessingTask[];

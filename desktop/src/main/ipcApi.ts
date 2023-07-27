@@ -15,6 +15,7 @@ import {
   getDownloadStatus,
 } from "./mediaManagement";
 import { getLocalMediaSettings, LocalMediaSettingsSchema } from "./settings";
+import { addMediaAsScene } from "./obsHelpers";
 
 function api() {
   invariant(serverApiClient !== null, "serverApiClient is null");
@@ -131,41 +132,12 @@ export const appRouter = r({
     addMediaAsScene: proc
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
-        const localMedia = await getLocalMediaSettings();
-        const item = localMedia.find((x) => x.mediaID === input.id);
-        invariant(item !== undefined, "No local media for obs.addMediaAsScene");
         const info = await api().media.get.query({ id: input.id });
         invariant(
           info.continuityItem,
           "No continuity item for media in obs.addMediaAsScene",
         );
-        const mediaSourceName = `Bowser Media ${info.id}`;
-        const sceneTitle = `${info.continuityItem.order} - ${info.continuityItem.name} [#${info.continuityItemID}]`;
-        invariant(obsConnection, "no OBS connection");
-        const scenes = await obsConnection.listScenes();
-        const ours = scenes.find((x) => x.sceneName === sceneTitle);
-        console.log("Found scene", ours);
-        if (ours) {
-          const items = await obsConnection.getSceneItems(sceneTitle);
-          const existing = items.find((x) => x.sourceName === mediaSourceName);
-          if (existing) {
-            // TODO: Handle media file replacements
-            console.log("Already present");
-            return;
-          }
-          await obsConnection.addMediaSourceToScene(
-            sceneTitle,
-            mediaSourceName,
-            item.path,
-          );
-        } else {
-          await obsConnection.createScene(sceneTitle);
-          await obsConnection.addMediaSourceToScene(
-            sceneTitle,
-            mediaSourceName,
-            item.path,
-          );
-        }
+        await addMediaAsScene(info);
       }),
   }),
 });

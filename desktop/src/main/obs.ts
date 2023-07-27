@@ -19,6 +19,24 @@ export interface SceneItem {
   sourceType: string;
 }
 
+export interface MediaSourceSettings {
+  local_file: string;
+  is_local_file: boolean;
+  looping: boolean;
+  restart_on_activate: boolean;
+}
+
+export interface InputSettingsResult<T = unknown> {
+  inputKind: string;
+  inputSettings: T;
+}
+
+export function castMediaSourceSettings(
+  x: InputSettingsResult,
+): x is InputSettingsResult<MediaSourceSettings> {
+  return x.inputKind === "ffmpeg_source";
+}
+
 export default class OBSConnection {
   private obs!: OBSWebSocket;
   private constructor() {}
@@ -37,8 +55,8 @@ export default class OBSConnection {
     return obsConnection;
   }
 
-  public async createScene(name: string) {
-    return await this.obs.call("CreateScene", { sceneName: name });
+  public async createScene(name: string): Promise<void> {
+    await this.obs.call("CreateScene", { sceneName: name });
   }
 
   public async listScenes(): Promise<Scene[]> {
@@ -66,6 +84,12 @@ export default class OBSConnection {
         restart_on_activate: true,
       },
     });
+  }
+
+  public async getSourceSettings(
+    inputName: string,
+  ): Promise<InputSettingsResult> {
+    return await this.obs.call("GetInputSettings", { inputName });
   }
 
   public async replaceMediaSourceInScene(

@@ -39,7 +39,7 @@ import {
 import Button from "@/components/Button";
 import { useRouter } from "next/navigation";
 import { MediaUploadDialog } from "@/components/MediaUpload";
-import { ItemMediaState } from "@/app/components/MediaState";
+import { ItemMediaState } from "@/components/MediaState";
 
 // beautiful-dnd is not compatible with SSR
 const Droppable = dynamic(
