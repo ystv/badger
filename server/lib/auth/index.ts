@@ -71,7 +71,14 @@ export async function doSignIn(username: string, password: string) {
 }
 
 export function makePublicURL(baseUrl: URL | string) {
-  return new URL(baseUrl, process.env.PUBLIC_URL).toString();
+  const url = new URL(baseUrl.toString(), process.env.PUBLIC_URL);
+  // Just passing the second parameter to `new URL()` isn't sufficient to *override* the host
+  if (process.env.PUBLIC_URL) {
+    const publicUrl = new URL(process.env.PUBLIC_URL);
+    url.protocol = publicUrl.protocol;
+    url.host = publicUrl.host;
+  }
+  return url.toString();
 }
 
 async function getSessionFromCookie(req?: NextRequest) {
