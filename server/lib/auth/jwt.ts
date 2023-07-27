@@ -43,7 +43,7 @@ function urlsafeBase64ToArrayBuffer(str: string) {
   const binary = global.atob(
     str.replace(/-/g, "+").replace(/_/g, "/").replace(/=/g, ""),
   );
-  // @ts-ignore
+  // @ts-expect-error Uint8Array constructor is overloaded
   return Uint8Array.from(binary, (m) => m.codePointAt(0));
 }
 
