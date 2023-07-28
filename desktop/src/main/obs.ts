@@ -1,9 +1,46 @@
 import OBSWebSocket from "obs-websocket-js";
 import { getOBSSettings, saveOBSSettings } from "./settings";
 
+/*
+ * This file contains OBSConnection, a wrapper around obs-websocket-js that provides a higher level, more typesafe API.
+ * In general, anything that requires more than one call to OBS should go in obsHelpers.ts instead.
+ */
+
 export interface Scene {
   sceneIndex: number;
   sceneName: string;
+}
+
+export enum OBSBoundsTypes {
+  OBS_BOUNDS_NONE = "OBS_BOUNDS_NONE" /**< no bounds */,
+  OBS_BOUNDS_STRETCH = "OBS_BOUNDS_STRETCH" /**< stretch (ignores base scale) */,
+  OBS_BOUNDS_SCALE_INNER = "OBS_BOUNDS_SCALE_INNER" /**< scales to inner rectangle */,
+  OBS_BOUNDS_SCALE_OUTER = "OBS_BOUNDS_SCALE_OUTER" /**< scales to outer rectangle */,
+  OBS_BOUNDS_SCALE_TO_WIDTH = "OBS_BOUNDS_SCALE_TO_WIDTH" /**< scales to the width  */,
+  OBS_BOUNDS_SCALE_TO_HEIGHT = "OBS_BOUNDS_SCALE_TO_HEIGHT" /**< scales to the height */,
+  OBS_BOUNDS_MAX_ONLY = "OBS_BOUNDS_MAX_ONLY" /**< no scaling, maximum size only */,
+}
+export type OBSBoundsType = keyof typeof OBSBoundsTypes;
+
+export interface SceneItemTransform {
+  alignment: number;
+  boundsAlignment: number;
+  boundsHeight: number;
+  boundsType: OBSBoundsType;
+  boundsWidth: number;
+  cropBottom: number;
+  cropLeft: number;
+  cropRight: number;
+  cropTop: number;
+  height: number;
+  positionX: number;
+  positionY: number;
+  rotation: number;
+  scaleX: number;
+  scaleY: number;
+  sourceHeight: number;
+  sourceWidth: number;
+  width: number;
 }
 
 export interface SceneItem {
@@ -14,7 +51,7 @@ export interface SceneItem {
   sceneItemId: number;
   sceneItemIndex: number;
   sceneItemLocked: boolean;
-  sceneItemTransform: unknown; // TODO {alignment: 5, boundsAlignment: 0, boundsHeight: 0, boundsType: "OBS_BOUNDS_NONE", boundsWidth: 0, ...}
+  sceneItemTransform: SceneItemTransform;
   sourceName: string;
   sourceType: string;
 }
@@ -73,7 +110,7 @@ export default class OBSConnection {
     inputName: string,
     path: string,
   ) {
-    await this.obs.call("CreateInput", {
+    const res = await this.obs.call("CreateInput", {
       sceneName: scene,
       inputName,
       inputKind: "ffmpeg_source",
@@ -84,6 +121,7 @@ export default class OBSConnection {
         restart_on_activate: true,
       },
     });
+    return res.sceneItemId;
   }
 
   public async getSourceSettings(
@@ -106,6 +144,22 @@ export default class OBSConnection {
         restart_on_activate: true,
       },
     });
+  }
+
+  public async setSceneItemTransform(
+    sceneName: string,
+    sceneItemId: number,
+    transform: Partial<SceneItemTransform>,
+  ): Promise<void> {
+    await this.obs.call("SetSceneItemTransform", {
+      sceneName,
+      sceneItemId,
+      sceneItemTransform: transform,
+    });
+  }
+
+  public async getVideoSettings() {
+    return await this.obs.call("GetVideoSettings");
   }
 
   public async ping() {

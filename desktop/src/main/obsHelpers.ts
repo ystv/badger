@@ -4,6 +4,10 @@ import invariant from "../common/invariant";
 import { inferProcedureOutput } from "@trpc/server";
 import type { AppRouter } from "bowser-server/app/api/_router";
 
+/*
+ * This file contains helper functions that wrap obsConnection in obs.ts.
+ */
+
 export async function addMediaAsScene(
   info: inferProcedureOutput<AppRouter["media"]["get"]>,
 ) {
@@ -23,14 +27,20 @@ export async function addMediaAsScene(
   const sceneTitle = `${info.continuityItem.order} - ${info.continuityItem.name} [#${info.continuityItemID}]`;
   const scenes = await obsConnection.listScenes();
   const ours = scenes.find((x) => x.sceneName === sceneTitle);
+  const videoSettings = await obsConnection.getVideoSettings();
   if (!ours) {
     console.log("addMediaAsScene: creating scene", sceneTitle);
     await obsConnection.createScene(sceneTitle);
-    await obsConnection.addMediaSourceToScene(
+    const id = await obsConnection.addMediaSourceToScene(
       sceneTitle,
       mediaSourceName,
       item.path,
     );
+    await obsConnection.setSceneItemTransform(sceneTitle, id, {
+      boundsWidth: videoSettings.baseWidth,
+      boundsHeight: videoSettings.baseHeight,
+      boundsType: "OBS_BOUNDS_SCALE_INNER",
+    });
     return;
   }
   console.log("addMediaAsScene: found scene", ours);
@@ -40,11 +50,18 @@ export async function addMediaAsScene(
     console.log(
       "addMediaAsScene: existing scene doesn't have our source. Adding.",
     );
-    await obsConnection.addMediaSourceToScene(
+    // TODO: What do we do if the scene already has other sources? Should we remove them? Should we add our source
+    //  before or after them? Should we prompt the user? If so, how?
+    const id = await obsConnection.addMediaSourceToScene(
       sceneTitle,
       mediaSourceName,
       item.path,
     );
+    await obsConnection.setSceneItemTransform(sceneTitle, id, {
+      boundsWidth: videoSettings.baseWidth,
+      boundsHeight: videoSettings.baseHeight,
+      boundsType: "OBS_BOUNDS_SCALE_INNER",
+    });
     return;
   }
   console.log("addMediaAsScene: found existing source", existing);
@@ -61,12 +78,10 @@ export async function addMediaAsScene(
     );
     return;
   }
-  console.log(
-    `addMediaAsScene: existing source is a different file. Replacing with ${item.path}.`,
-  );
-  await obsConnection.replaceMediaSourceInScene(
-    sceneTitle,
-    mediaSourceName,
-    item.path,
+  // This should actually never happen. When a media file is replaced, we create a new Media object with a new ID,
+  // which would mean the source has a new name (see the definition of mediaSourceName). There being a source with the
+  // same ID and name but different path suggests that the user has manually changed it, and we shouldn't touch it.
+  console.warn(
+    `addMediaAsScene: existing source has different path (${settings.inputSettings.local_file} vs ${item.path}). Cowardly refusing to overwrite.`,
   );
 }
