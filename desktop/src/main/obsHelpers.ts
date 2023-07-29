@@ -228,7 +228,9 @@ export async function findContinuityScenes(): Promise<
   Array<{
     sceneName: string;
     continuityItemID: number;
-    sources: SceneItem[];
+    sources: (SceneItem & {
+      mediaID?: number;
+    })[];
   }>
 > {
   invariant(obsConnection, "no OBS connection");
@@ -240,7 +242,18 @@ export async function findContinuityScenes(): Promise<
     continuityScenes.map((x) => obsConnection!.getSceneItems(x.sceneName)),
   );
   return continuityScenes.map((x, i) => {
-    const sources = sceneItems[i];
+    const sources = sceneItems[i].map((item) => {
+      if (!item.sourceName.startsWith(MEDIA_SOURCE_PREFIX)) {
+        return item;
+      }
+      return {
+        ...item,
+        mediaID: parseInt(
+          item.sourceName.slice(MEDIA_SOURCE_PREFIX.length),
+          10,
+        ),
+      };
+    });
     const continuityItemID = CONTINUITY_SCENE_NAME_REGEXP.exec(x.sceneName)![1];
     return {
       sceneName: x.sceneName,

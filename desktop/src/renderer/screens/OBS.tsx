@@ -64,6 +64,7 @@ function AddToOBS({
   item: z.infer<typeof CompleteContinuityItemModel>;
 }) {
   invariant(item.media, "AddToOBS rendered with no media");
+  const queryClient = useQueryClient();
   const addToOBS = ipc.obs.addMediaAsScene.useMutation();
   const existing = ipc.obs.listContinuityItemScenes.useQuery();
   const [alert, setAlert] = useState<null | {
@@ -78,6 +79,9 @@ function AddToOBS({
         replaceMode,
       });
       if (result.warnings.length === 0 && result.done) {
+        await queryClient.invalidateQueries(
+          getQueryKey(ipc.obs.listContinuityItemScenes),
+        );
         return;
       }
       setAlert({
@@ -93,12 +97,30 @@ function AddToOBS({
     }
     return existing.data.some((x) => x.continuityItemID === item.id);
   }, [existing.data, item.id]);
+  const needsReplacement = useMemo(() => {
+    if (!existing.data) {
+      return false;
+    }
+    console.log(existing.data, item);
+    return existing.data.some(
+      (x) =>
+        x.continuityItemID === item.id &&
+        (x.sources.length !== 1 || x.sources[0].mediaID !== item.media?.id),
+    );
+  }, [existing.data, item]);
   return (
     <>
       {alreadyPresent ? (
-        <Button disabled={addToOBS.isLoading} onClick={() => doAdd("replace")}>
-          Replace
-        </Button>
+        needsReplacement ? (
+          <Button
+            disabled={addToOBS.isLoading}
+            onClick={() => doAdd("replace")}
+          >
+            Replace
+          </Button>
+        ) : (
+          <em>Good to go!</em>
+        )
       ) : (
         <Button disabled={addToOBS.isLoading} onClick={() => doAdd()}>
           Add to OBS
@@ -181,10 +203,25 @@ function ContinuityItem({
     }
     return localMedia.data.find((x) => x.mediaID === item.media!.id);
   }, [item, localMedia.data]);
+  const existingOBSScenes = ipc.obs.listContinuityItemScenes.useQuery();
+  const needsReplacement = useMemo(() => {
+    if (!existingOBSScenes.data) {
+      return false;
+    }
+    console.log(existingOBSScenes.data, item);
+    return existingOBSScenes.data.some(
+      (x) =>
+        x.continuityItemID === item.id &&
+        (x.sources.length !== 1 || x.sources[0].mediaID !== item.media?.id),
+    );
+  }, [existingOBSScenes.data, item]);
   return (
     <div className="flex flex-row flex-wrap">
       <span className="text-lg font-bold">{item.name}</span>
       <div className="ml-auto">
+        {needsReplacement && (
+          <em className="text-warning-4">Changed, needs replacement</em>
+        )}
         {item.media ? (
           ourLocalStatus ? (
             <AddToOBS item={item} />
