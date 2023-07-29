@@ -1,5 +1,10 @@
-import OBSWebSocket from "obs-websocket-js";
+import OBSWebSocket, {
+  OBSRequestTypes,
+  OBSResponseTypes,
+} from "obs-websocket-js";
 import { getOBSSettings, saveOBSSettings } from "./settings";
+import { getLogger } from "loglevel";
+import { inspect } from "node:util";
 
 /*
  * This file contains OBSConnection, a wrapper around obs-websocket-js that provides a higher level, more typesafe API.
@@ -109,32 +114,39 @@ export interface InputBasicInfo {
 
 export default class OBSConnection {
   private obs!: OBSWebSocket;
+  private logger = getLogger("OBSConnection");
   private constructor() {}
   public static async create(
     obsHost: string,
     obsPassword: string,
     obsPort = 4455,
   ) {
+    const obsConnection = new OBSConnection();
     const obs = new OBSWebSocket();
-    console.log("Connecting to OBS at", `ws://${obsHost}:${obsPort}`);
+    obs.on("ConnectionError", (err) => {
+      obsConnection.logger.error("OBS error:", err);
+    });
+    obsConnection.logger.info(
+      "Connecting to OBS at",
+      `ws://${obsHost}:${obsPort}`,
+    );
     await obs.connect(`ws://${obsHost}:${obsPort}`, obsPassword, {
       rpcVersion: 1,
     });
-    const obsConnection = new OBSConnection();
     obsConnection.obs = obs;
     return obsConnection;
   }
 
   public async createScene(name: string): Promise<void> {
-    await this.obs.call("CreateScene", { sceneName: name });
+    await this._call("CreateScene", { sceneName: name });
   }
 
   public async listScenes(): Promise<Scene[]> {
-    return (await this.obs.call("GetSceneList")).scenes as unknown as Scene[];
+    return (await this._call("GetSceneList")).scenes as unknown as Scene[];
   }
 
   public async getSceneItems(scene: string): Promise<SceneItem[]> {
-    return (await this.obs.call("GetSceneItemList", { sceneName: scene }))
+    return (await this._call("GetSceneItemList", { sceneName: scene }))
       .sceneItems as unknown as SceneItem[];
   }
 
@@ -143,7 +155,7 @@ export default class OBSConnection {
     inputName: string,
     path: string,
   ) {
-    const res = await this.obs.call("CreateInput", {
+    const res = await this._call("CreateInput", {
       sceneName: scene,
       inputName,
       inputKind: "ffmpeg_source",
@@ -160,7 +172,7 @@ export default class OBSConnection {
   public async getSourceSettings(
     inputName: string,
   ): Promise<InputSettingsResult> {
-    return await this.obs.call("GetInputSettings", { inputName });
+    return await this._call("GetInputSettings", { inputName });
   }
 
   public async replaceMediaSourceInScene(
@@ -168,7 +180,7 @@ export default class OBSConnection {
     inputName: string,
     path: string,
   ) {
-    await this.obs.call("SetInputSettings", {
+    await this._call("SetInputSettings", {
       inputName: inputName,
       inputSettings: {
         local_file: path,
@@ -184,7 +196,7 @@ export default class OBSConnection {
     sceneItemId: number,
     transform: Partial<SceneItemTransform>,
   ): Promise<void> {
-    await this.obs.call("SetSceneItemTransform", {
+    await this._call("SetSceneItemTransform", {
       sceneName,
       sceneItemId,
       sceneItemTransform: transform,
@@ -192,23 +204,33 @@ export default class OBSConnection {
   }
 
   public async removeSceneItem(sceneTitle: string, itemId: number) {
-    await this.obs.call("RemoveSceneItem", {
+    await this._call("RemoveSceneItem", {
       sceneName: sceneTitle,
       sceneItemId: itemId,
     });
   }
 
   public async listSources(): Promise<InputBasicInfo[]> {
-    return (await this.obs.call("GetInputList"))
+    return (await this._call("GetInputList"))
       .inputs as unknown as InputBasicInfo[];
   }
 
   public async getVideoSettings(): Promise<OBSVideoSettings> {
-    return await this.obs.call("GetVideoSettings");
+    return await this._call("GetVideoSettings");
   }
 
   public async ping() {
-    return await this.obs.call("GetVersion");
+    return await this._call("GetVersion");
+  }
+
+  private async _call<K extends keyof OBSRequestTypes>(
+    req: K,
+    requestData?: OBSRequestTypes[K],
+  ): Promise<OBSResponseTypes[K]> {
+    this.logger.debug("->OBS " + req + " " + inspect(requestData));
+    const r = await this.obs.call(req, requestData);
+    this.logger.debug("<-OBS " + req + " " + inspect(r));
+    return r;
   }
 }
 

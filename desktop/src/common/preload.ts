@@ -1,7 +1,6 @@
+import { contextBridge, ipcRenderer } from "electron";
 import { exposeElectronTRPC } from "electron-trpc/main";
-import contextBridge = Electron.contextBridge;
 import { Events } from "./ipcEvents";
-import ipcRenderer = Electron.ipcRenderer;
 import invariant from "./invariant";
 
 process.once("loaded", async () => {

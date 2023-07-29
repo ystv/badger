@@ -17,6 +17,6 @@ interface EventBusType {
 
 declare global {
   interface Window {
-    EventBus: EventBusType;
+    IPCEventBus: EventBusType;
   }
 }

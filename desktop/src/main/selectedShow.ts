@@ -2,10 +2,8 @@ import { CompleteShowType } from "../common/types";
 import { serverApiClient } from "./serverApiClient";
 import { BehaviorSubject } from "rxjs";
 import invariant from "../common/invariant";
-import { emitObservable } from "./ipcEventBus";
 
 export const selectedShow = new BehaviorSubject<CompleteShowType | null>(null);
-emitObservable("selectedShowChange", selectedShow);
 
 export async function setSelectedShow(show: CompleteShowType) {
   selectedShow.next(show);
