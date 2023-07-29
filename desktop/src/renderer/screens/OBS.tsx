@@ -65,6 +65,7 @@ function AddToOBS({
 }) {
   invariant(item.media, "AddToOBS rendered with no media");
   const addToOBS = ipc.obs.addMediaAsScene.useMutation();
+  const existing = ipc.obs.listContinuityItemScenes.useQuery();
   const [alert, setAlert] = useState<null | {
     warnings: string[];
     prompt: "replace" | "force" | "ok";
@@ -72,8 +73,6 @@ function AddToOBS({
   const doAdd = useCallback(
     async (replaceMode?: "replace" | "force") => {
       invariant(item.media, "AddToOBS doAdd callback with no media");
-      // TODO: If we knew in advance that the source is there, we could show a "replace" button initially and skip the
-      //  confirmation popup.
       const result = await addToOBS.mutateAsync({
         id: item.media.id,
         replaceMode,
@@ -88,9 +87,19 @@ function AddToOBS({
     },
     [item.media, addToOBS],
   );
+  const alreadyPresent = useMemo(() => {
+    if (!existing.data) {
+      return false;
+    }
+    return existing.data.some((x) => x.continuityItemID === item.id);
+  }, [existing.data, item.id]);
   return (
     <>
-      <Button onClick={() => doAdd()}>Add to OBS</Button>
+      {alreadyPresent ? (
+        <Button onClick={() => doAdd("replace")}>Replace</Button>
+      ) : (
+        <Button onClick={() => doAdd()}>Add to OBS</Button>
+      )}
       <AlertDialog.Root
         open={alert !== null}
         onOpenChange={(open) => {

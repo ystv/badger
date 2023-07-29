@@ -101,6 +101,12 @@ export interface OBSVideoSettings {
   outputHeight: number;
 }
 
+export interface InputBasicInfo {
+  inputKind: string;
+  unversionedInputKind: string;
+  inputName: string;
+}
+
 export default class OBSConnection {
   private obs!: OBSWebSocket;
   private constructor() {}
@@ -190,6 +196,11 @@ export default class OBSConnection {
       sceneName: sceneTitle,
       sceneItemId: itemId,
     });
+  }
+
+  public async listSources(): Promise<InputBasicInfo[]> {
+    return (await this.obs.call("GetInputList"))
+      .inputs as unknown as InputBasicInfo[];
   }
 
   public async getVideoSettings(): Promise<OBSVideoSettings> {

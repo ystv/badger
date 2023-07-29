@@ -2,6 +2,7 @@ import {
   castMediaSourceSettings,
   obsConnection,
   OBSVideoSettings,
+  SceneItem,
 } from "./obs";
 import { getLocalMediaSettings, LocalMediaType } from "./settings";
 import invariant from "../common/invariant";
@@ -13,6 +14,9 @@ import type { AppRouter } from "bowser-server/app/api/_router";
  */
 
 type MediaType = inferProcedureOutput<AppRouter["media"]["get"]>;
+
+const MEDIA_SOURCE_PREFIX = "Bowser Media ";
+export const CONTINUITY_SCENE_NAME_REGEXP = /^\d+ - .+? \[#(\d+)]$/;
 
 /**
  * Adds a file to an OBS scene as a media source, creating the scene if it does not exist.
@@ -55,8 +59,19 @@ export async function addOrReplaceMediaAsScene(
 
   const videoSettings = await obsConnection.getVideoSettings();
 
-  const mediaSourceName = `Bowser Media ${info.id}`;
+  const mediaSourceName = MEDIA_SOURCE_PREFIX + info.id.toString(10);
   const sceneTitle = `${info.continuityItem.order} - ${info.continuityItem.name} [#${info.continuityItemID}]`;
+  // Sanity checks
+  if (import.meta.env.DEV) {
+    invariant(
+      mediaSourceName.startsWith(MEDIA_SOURCE_PREFIX),
+      "Generated media source name that won't match our prefix checks later",
+    );
+    invariant(
+      sceneTitle.match(CONTINUITY_SCENE_NAME_REGEXP),
+      "Generated scene title that won't match our regex checks later",
+    );
+  }
 
   const scenes = await obsConnection.listScenes();
   const ours = scenes.find((x) => x.sceneName === sceneTitle);
@@ -87,7 +102,10 @@ export async function addOrReplaceMediaAsScene(
       return { warnings, done: true };
     }
     // If the scene is non-empty, but has only one other source, and it's a Bowser source, we can replace it if the user permits it.
-    if (items.length === 1 && items[0].sourceName.startsWith("Bowser Media ")) {
+    if (
+      items.length === 1 &&
+      items[0].sourceName.startsWith(MEDIA_SOURCE_PREFIX)
+    ) {
       if (replaceMode === "replace" || replaceMode === "force") {
         console.log(
           "addMediaAsScene: existing scene has one Bowser source with mismatching ID. Replacing.",
@@ -169,8 +187,11 @@ export async function addOrReplaceMediaAsScene(
     warn(
       `Media source ${mediaSourceName} in scene ${sceneTitle} has a different path (${settings.inputSettings.local_file}) than expected (${item.path}). Forcing replacement.`,
     );
-    await obsConnection.removeSceneItem(sceneTitle, existing.sceneItemId);
-    await _doAddMediaToScene(sceneTitle, mediaSourceName, item, videoSettings);
+    await obsConnection.replaceMediaSourceInScene(
+      sceneTitle,
+      mediaSourceName,
+      item.path,
+    );
     return { warnings, done: true };
   } else {
     warn(
@@ -200,5 +221,31 @@ async function _doAddMediaToScene(
     boundsWidth: videoSettings.baseWidth,
     boundsHeight: videoSettings.baseHeight,
     boundsType: "OBS_BOUNDS_SCALE_INNER",
+  });
+}
+
+export async function findContinuityScenes(): Promise<
+  Array<{
+    sceneName: string;
+    continuityItemID: number;
+    sources: SceneItem[];
+  }>
+> {
+  invariant(obsConnection, "no OBS connection");
+  const scenes = await obsConnection.listScenes();
+  const continuityScenes = scenes.filter((x) =>
+    CONTINUITY_SCENE_NAME_REGEXP.test(x.sceneName),
+  );
+  const sceneItems = await Promise.all(
+    continuityScenes.map((x) => obsConnection!.getSceneItems(x.sceneName)),
+  );
+  return continuityScenes.map((x, i) => {
+    const sources = sceneItems[i];
+    const continuityItemID = CONTINUITY_SCENE_NAME_REGEXP.exec(x.sceneName)![1];
+    return {
+      sceneName: x.sceneName,
+      continuityItemID: parseInt(continuityItemID, 10),
+      sources,
+    };
   });
 }
