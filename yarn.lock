@@ -6314,6 +6314,7 @@ __metadata:
     typescript: ^5.1.6
     utf-8-validate: ^6.0.3
     vite: ^4.4.6
+    vitest: ^0.33.0
     wget-improved: ^3.4.0
     ws: ^8.13.0
     zod: ^3.21.4
