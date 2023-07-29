@@ -8,7 +8,16 @@ import * as tus from "tus-js-client";
 const TusEndpointContext = createContext<string>(
   process.env.TUS_ENDPOINT ?? "",
 );
-export const TusEndpointProvider = TusEndpointContext.Provider;
+export function TusEndpointProvider(props: {
+  value: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <TusEndpointContext.Provider value={props.value}>
+      {props.children}
+    </TusEndpointContext.Provider>
+  );
+}
 export const useTusEndpoint = () => useContext(TusEndpointContext);
 
 export function MediaUploadDialog(props: {

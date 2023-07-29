@@ -29,4 +29,4 @@ COPY --from=build /app/node_modules/.prisma/client /app/node_modules/.prisma/cli
 
 WORKDIR /app
 ENV NODE_ENV=production
-CMD ["node", "index.js"]
+CMD ["node", "--enable-source-maps", "index.js"]

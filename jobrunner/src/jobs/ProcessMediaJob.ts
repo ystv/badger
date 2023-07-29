@@ -99,7 +99,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
         () => this._downloadSourceFile(params),
         true,
       );
-      await Promise.allSettled([
+      const results = await Promise.allSettled([
         (async () => {
           const rawPath = await this._wrapTask(
             media,
@@ -190,6 +190,25 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
           });
         })(),
       ]);
+      if (results.some((x) => x.status === "rejected")) {
+        results
+          .filter((x) => x.status === "rejected")
+          .forEach((x) => {
+            this.logger.error(
+              "Task failed",
+              (x as PromiseRejectedResult).reason,
+            );
+          });
+        await this.db.media.update({
+          where: {
+            id: media.id,
+          },
+          data: {
+            state: MediaState.ProcessingFailed,
+          },
+        });
+        return;
+      }
       await this.db.media.update({
         where: {
           id: media.id,
@@ -233,17 +252,6 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
           },
         });
       }
-    } catch (e) {
-      this.logger.error(e);
-      await this.db.media.update({
-        where: {
-          id: media.id,
-        },
-        data: {
-          state: MediaState.ProcessingFailed,
-        },
-      });
-      throw e;
     } finally {
       this._deleteTemporaryDir();
     }
