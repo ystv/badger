@@ -90,7 +90,7 @@ export async function addOrReplaceMediaAsScene(
     if (items.length === 1 && items[0].sourceName.startsWith("Bowser Media ")) {
       if (replaceMode === "replace" || replaceMode === "force") {
         console.log(
-          "addMediaAsScene: existing scene has one Bowser source. Replacing.",
+          "addMediaAsScene: existing scene has one Bowser source with mismatching ID. Replacing.",
         );
         await obsConnection.removeSceneItem(sceneTitle, items[0].sceneItemId);
         await _doAddMediaToScene(
@@ -99,10 +99,11 @@ export async function addOrReplaceMediaAsScene(
           item,
           videoSettings,
         );
+        return { warnings, done: true };
       } else {
         warn(`Scene ${sceneTitle} has a prior Bowser source.`);
+        return { warnings, done: false, promptReplace: "replace" };
       }
-      return { warnings, done: false, promptReplace: "replace" };
     }
     // The scene has non-Bowser sources in it.
     if (replaceMode === "force") {
@@ -119,13 +120,14 @@ export async function addOrReplaceMediaAsScene(
         item,
         videoSettings,
       );
+      return { warnings, done: true };
     } else {
       // Bail.
       warn(
         `Scene ${sceneTitle} has non-Bowser sources in it. Cowardly refusing to overwrite.`,
       );
+      return { warnings, done: false, promptReplace: "force" };
     }
-    return { warnings, done: false, promptReplace: "force" };
   }
 
   // The scene exists, and it has a source that matches our naming convention. Check if it's the same file.
