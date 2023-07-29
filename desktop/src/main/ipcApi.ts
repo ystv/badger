@@ -7,7 +7,7 @@ import {
   CompleteShowModel,
   PartialShowModel,
 } from "bowser-server/lib/db/utilityTypes";
-import { Integration } from "../common/types";
+import { CompleteShowType, Integration } from "../common/types";
 import { createOBSConnection, obsConnection } from "./obs";
 import {
   downloadMedia,
@@ -16,6 +16,7 @@ import {
 } from "./mediaManagement";
 import { getLocalMediaSettings, LocalMediaSettingsSchema } from "./settings";
 import { addOrReplaceMediaAsScene, findContinuityScenes } from "./obsHelpers";
+import { observable } from "@trpc/server/observable";
 
 function serverAPI() {
   invariant(serverApiClient !== null, "serverApiClient is null");
@@ -47,7 +48,7 @@ export const appRouter = r({
     return await serverAPI().shows.listUpcoming.query();
   }),
   getSelectedShow: proc.output(CompleteShowModel.nullable()).query(() => {
-    return selectedShow;
+    return selectedShow.value;
   }),
   setSelectedShow: proc
     .input(z.object({ id: z.number() }))

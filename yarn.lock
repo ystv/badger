@@ -6096,6 +6096,7 @@ __metadata:
     react-dom: ^18.2.0
     react-hook-form: ^7.45.2
     react-icons: ^4.10.1
+    rxjs: ^7.8.1
     superjson: ^1.13.1
     tailwindcss: ^3.3.3
     typescript: ^5.1.6
@@ -13200,7 +13201,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rxjs@npm:^7.8.0":
+"rxjs@npm:^7.8.0, rxjs@npm:^7.8.1":
   version: 7.8.1
   resolution: "rxjs@npm:7.8.1"
   dependencies:
