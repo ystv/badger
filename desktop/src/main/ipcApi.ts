@@ -15,9 +15,9 @@ import {
   getDownloadStatus,
 } from "./mediaManagement";
 import { getLocalMediaSettings, LocalMediaSettingsSchema } from "./settings";
-import { addMediaAsScene } from "./obsHelpers";
+import { addOrReplaceMediaAsScene } from "./obsHelpers";
 
-function api() {
+function serverAPI() {
   invariant(serverApiClient !== null, "serverApiClient is null");
   return serverApiClient;
 }
@@ -46,7 +46,7 @@ export const appRouter = r({
       return true;
     }),
   listUpcomingShows: proc.output(z.array(PartialShowModel)).query(async () => {
-    return await api().shows.listUpcoming.query();
+    return await serverAPI().shows.listUpcoming.query();
   }),
   getSelectedShow: proc.output(CompleteShowModel.nullable()).query(() => {
     return selectedShow;
@@ -55,7 +55,7 @@ export const appRouter = r({
     .input(z.object({ id: z.number() }))
     .output(CompleteShowModel)
     .mutation(async ({ input }) => {
-      const data = await api().shows.get.query({ id: input.id });
+      const data = await serverAPI().shows.get.query({ id: input.id });
       await setSelectedShow(data);
       return data;
     }),
@@ -128,14 +128,26 @@ export const appRouter = r({
           });
       }),
     addMediaAsScene: proc
-      .input(z.object({ id: z.number() }))
+      .input(
+        z.object({
+          id: z.number(),
+          replaceMode: z.enum(["none", "replace", "force"]).default("none"),
+        }),
+      )
+      .output(
+        z.object({
+          done: z.boolean(),
+          warnings: z.array(z.string()),
+          promptReplace: z.enum(["replace", "force"]).optional(),
+        }),
+      )
       .mutation(async ({ input }) => {
-        const info = await api().media.get.query({ id: input.id });
+        const info = await serverAPI().media.get.query({ id: input.id });
         invariant(
           info.continuityItem,
           "No continuity item for media in obs.addMediaAsScene",
         );
-        await addMediaAsScene(info);
+        return await addOrReplaceMediaAsScene(info, input.replaceMode);
       }),
   }),
 });

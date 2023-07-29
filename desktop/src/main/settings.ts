@@ -85,6 +85,7 @@ const LocalMediaData = z.object({
   mediaID: z.number(),
   path: z.string(),
 });
+export type LocalMediaType = z.infer<typeof LocalMediaData>;
 export const LocalMediaSettingsSchema = z.array(LocalMediaData);
 
 /**

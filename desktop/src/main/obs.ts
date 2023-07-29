@@ -74,6 +74,33 @@ export function castMediaSourceSettings(
   return x.inputKind === "ffmpeg_source";
 }
 
+export interface OBSVideoSettings {
+  /**
+   * Numerator of the fractional FPS value
+   */
+  fpsNumerator: number;
+  /**
+   * Denominator of the fractional FPS value
+   */
+  fpsDenominator: number;
+  /**
+   * Width of the base (canvas) resolution in pixels
+   */
+  baseWidth: number;
+  /**
+   * Height of the base (canvas) resolution in pixels
+   */
+  baseHeight: number;
+  /**
+   * Width of the output resolution in pixels
+   */
+  outputWidth: number;
+  /**
+   * Height of the output resolution in pixels
+   */
+  outputHeight: number;
+}
+
 export default class OBSConnection {
   private obs!: OBSWebSocket;
   private constructor() {}
@@ -105,7 +132,7 @@ export default class OBSConnection {
       .sceneItems as unknown as SceneItem[];
   }
 
-  public async addMediaSourceToScene(
+  public async createMediaSourceInput(
     scene: string,
     inputName: string,
     path: string,
@@ -158,7 +185,14 @@ export default class OBSConnection {
     });
   }
 
-  public async getVideoSettings() {
+  public async removeSceneItem(sceneTitle: string, itemId: number) {
+    await this.obs.call("RemoveSceneItem", {
+      sceneName: sceneTitle,
+      sceneItemId: itemId,
+    });
+  }
+
+  public async getVideoSettings(): Promise<OBSVideoSettings> {
     return await this.obs.call("GetVideoSettings");
   }
 
