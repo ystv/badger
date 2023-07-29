@@ -96,9 +96,13 @@ function AddToOBS({
   return (
     <>
       {alreadyPresent ? (
-        <Button onClick={() => doAdd("replace")}>Replace</Button>
+        <Button disabled={addToOBS.isLoading} onClick={() => doAdd("replace")}>
+          Replace
+        </Button>
       ) : (
-        <Button onClick={() => doAdd()}>Add to OBS</Button>
+        <Button disabled={addToOBS.isLoading} onClick={() => doAdd()}>
+          Add to OBS
+        </Button>
       )}
       <AlertDialog.Root
         open={alert !== null}
