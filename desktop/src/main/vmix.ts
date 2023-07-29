@@ -64,7 +64,7 @@ export default class VMixConnection {
     });
     await new Promise<void>((resolve, reject) => {
       this.sock.write(
-        command + " " + args.join(" ") + "\r\n",
+        command + (args.length > 0 ? " " + args.join(" ") : "") + "\r\n",
         "utf-8",
         (err) => (err ? reject(err) : resolve()),
       );
