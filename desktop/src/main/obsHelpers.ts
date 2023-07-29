@@ -33,7 +33,7 @@ export const CONTINUITY_SCENE_NAME_REGEXP = /^\d+ - .+? \[#(\d+)]$/;
  */
 export async function addOrReplaceMediaAsScene(
   info: MediaType,
-  replaceMode: "none" | "replace" | "force" = "none",
+  replaceMode: "none" | "replace" | "force",
 ): Promise<{
   done: boolean;
   warnings: string[];
