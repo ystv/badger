@@ -6,6 +6,7 @@ import { tryCreateAPIClient } from "./serverApiClient";
 import { tryCreateOBSConnection } from "./obs";
 import { validateLocalMediaState } from "./settings";
 import isSquirrel from "electron-squirrel-startup";
+import { setSender } from "./ipcEventBus";
 
 console.log("Environment:", import.meta.env.MODE);
 
@@ -47,6 +48,7 @@ const createWindow = async () => {
   }
 
   createIPCHandler({ router: appRouter, windows: [mainWindow] });
+  setSender(mainWindow.webContents.send);
 };
 
 // This method will be called when Electron has finished

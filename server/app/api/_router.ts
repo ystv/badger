@@ -60,6 +60,20 @@ export const appRouter = router({
           },
         });
       }),
+    getVersion: publicProcedure
+      .input(z.object({ id: z.number() }))
+      .output(z.object({ version: z.number() }))
+      .query(async ({ input }) => {
+        const obj = await db.show.findUniqueOrThrow({
+          where: {
+            id: input.id,
+          },
+          select: {
+            version: true,
+          },
+        });
+        return obj;
+      }),
   }),
   media: router({
     get: publicProcedure
