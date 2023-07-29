@@ -3,9 +3,12 @@ import { useForm } from "react-hook-form";
 import Button from "../components/Button";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import * as AlertDialog from "@radix-ui/react-alert-dialog";
+
 import { CompleteContinuityItemModel } from "@/lib/db/utilityTypes";
 import { z } from "zod";
+import invariant from "../../common/invariant";
 
 function OBSConnection() {
   const queryClient = useQueryClient();
@@ -55,6 +58,90 @@ function OBSConnection() {
   );
 }
 
+function AddToOBS({
+  item,
+}: {
+  item: z.infer<typeof CompleteContinuityItemModel>;
+}) {
+  invariant(item.media, "AddToOBS rendered with no media");
+  const addToOBS = ipc.obs.addMediaAsScene.useMutation();
+  const [alert, setAlert] = useState<null | {
+    warnings: string[];
+    prompt: "replace" | "force" | "ok";
+  }>(null);
+  const doAdd = useCallback(
+    async (replaceMode?: "replace" | "force") => {
+      invariant(item.media, "AddToOBS doAdd callback with no media");
+      // TODO: If we knew in advance that the source is there, we could show a "replace" button initially and skip the
+      //  confirmation popup.
+      const result = await addToOBS.mutateAsync({
+        id: item.media.id,
+        replaceMode,
+      });
+      if (result.warnings.length === 0 && result.done) {
+        return;
+      }
+      setAlert({
+        warnings: result.warnings,
+        prompt: result.promptReplace ?? "ok",
+      });
+    },
+    [item.media, addToOBS],
+  );
+  return (
+    <>
+      <Button onClick={() => doAdd()}>Add to OBS</Button>
+      <AlertDialog.Root
+        open={alert !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setAlert(null);
+          }
+        }}
+      >
+        <AlertDialog.Portal>
+          <AlertDialog.Overlay />
+          <AlertDialog.Content>
+            {alert && (
+              <>
+                <AlertDialog.Content>
+                  {alert.warnings.length > 0 && (
+                    <ul>
+                      {alert.warnings.map((warning) => (
+                        <li key={warning}>{warning}</li>
+                      ))}
+                    </ul>
+                  )}
+                </AlertDialog.Content>
+                <AlertDialog.Cancel asChild>
+                  <Button color="light">Cancel</Button>
+                </AlertDialog.Cancel>
+                {alert.prompt === "ok" ? (
+                  <AlertDialog.Action asChild>
+                    <Button>Confirm</Button>
+                  </AlertDialog.Action>
+                ) : (
+                  <AlertDialog.Action asChild>
+                    <Button
+                      color={alert.prompt === "force" ? "danger" : "warning"}
+                      onClick={async () => {
+                        await doAdd(alert.prompt as "replace" | "force");
+                        setAlert(null);
+                      }}
+                    >
+                      {alert.prompt === "force" ? "Force Replace" : "Replace"}
+                    </Button>
+                  </AlertDialog.Action>
+                )}
+              </>
+            )}
+          </AlertDialog.Content>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>
+    </>
+  );
+}
+
 function ContinuityItem({
   item,
 }: {
@@ -81,17 +168,13 @@ function ContinuityItem({
     }
     return localMedia.data.find((x) => x.mediaID === item.media!.id);
   }, [item, localMedia.data]);
-  const addToOBS = ipc.obs.addMediaAsScene.useMutation();
   return (
     <div className="flex flex-row flex-wrap">
       <span className="text-lg font-bold">{item.name}</span>
       <div className="ml-auto">
         {item.media ? (
           ourLocalStatus ? (
-            <Button onClick={() => addToOBS.mutate({ id: item.media!.id })}>
-              {/* TODO: is it already present? */}
-              Add to OBS
-            </Button>
+            <AddToOBS item={item} />
           ) : ourDownloadStatus ? (
             <span className="text-lg">
               {ourDownloadStatus.progressPercent?.toFixed(1)}%
