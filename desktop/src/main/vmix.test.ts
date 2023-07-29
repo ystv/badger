@@ -37,6 +37,14 @@ describe("VMixConnection", () => {
     sock.emit("data", "FUNCTION OK test\r\n");
     expect(res).resolves.toEqual(["test", ""]);
   });
+  test("no-arg request", async () => {
+    vmix["send"]("XML");
+    expect(sock.write).toHaveBeenCalledWith(
+      "XML\r\n",
+      "utf-8",
+      expect.any(Function),
+    );
+  });
   test("binary response", async () => {
     const res = vmix["send"]("FUNCTION", "test");
     sock.emit("data", "FUNCTION 5\r\nhello");
@@ -47,6 +55,12 @@ describe("VMixConnection", () => {
     sock.emit("data", "FUNCTION 5\r\n");
     sock.emit("data", "hello");
     expect(res).resolves.toEqual(["", "hello"]);
+  });
+  test("response split across chunks", async () => {
+    const res = vmix["send"]("FUNCTION", "test");
+    sock.emit("data", "FUNCTION");
+    sock.emit("data", " OK\r\n");
+    expect(res).resolves.toEqual(["", ""]);
   });
   test("message and binary", async () => {
     const res = vmix["send"]("FUNCTION", "test");
