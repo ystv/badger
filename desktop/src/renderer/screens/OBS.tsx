@@ -66,11 +66,25 @@ function AddToOBS({
   invariant(item.media, "AddToOBS rendered with no media");
   const queryClient = useQueryClient();
   const addToOBS = ipc.obs.addMediaAsScene.useMutation();
+  const localMedia = ipc.media.getLocalMedia.useQuery(void 0);
   const existing = ipc.obs.listContinuityItemScenes.useQuery();
   const [alert, setAlert] = useState<null | {
     warnings: string[];
     prompt: "replace" | "force" | "ok";
   }>(null);
+  const downloadMedia = ipc.media.downloadMedia.useMutation();
+  const downloadStatus = ipc.media.getDownloadStatus.useQuery(void 0, {
+    refetchInterval: 1000,
+  });
+  const ourDownloadStatus = useMemo(
+    () => downloadStatus.data?.find((x) => x.mediaID === item.media?.id),
+    [downloadStatus.data, item.media?.id],
+  );
+  useEffect(() => {
+    if (ourDownloadStatus?.status === "done") {
+      queryClient.invalidateQueries(getQueryKey(ipc.media.getLocalMedia));
+    }
+  }, [ourDownloadStatus?.status, queryClient]);
   const doAdd = useCallback(
     async (replaceMode?: "replace" | "force") => {
       invariant(item.media, "AddToOBS doAdd callback with no media");
@@ -91,41 +105,129 @@ function AddToOBS({
     },
     [item.media, addToOBS],
   );
-  const alreadyPresent = useMemo(() => {
-    if (!existing.data) {
-      return false;
+  const state = useMemo(() => {
+    if (!item.media) {
+      return "no-media";
     }
-    return existing.data.some((x) => x.continuityItemID === item.id);
-  }, [existing.data, item.id]);
-  const needsReplacement = useMemo(() => {
-    if (!existing.data) {
-      return false;
+    if (item.media.state !== "Ready") {
+      return "media-processing";
     }
-    console.log(existing.data, item);
-    return existing.data.some(
-      (x) =>
-        x.continuityItemID === item.id &&
-        (x.sources.length !== 1 || x.sources[0].mediaID !== item.media?.id),
+    if (!localMedia.data || !existing.data) {
+      return "loading";
+    }
+    if (ourDownloadStatus?.status === "downloading") {
+      return "downloading";
+    }
+    const alreadyPresent = existing.data.find(
+      (x) => x.continuityItemID === item.id,
     );
-  }, [existing.data, item]);
+    if (alreadyPresent) {
+      // check if we need to replace
+      if (alreadyPresent.sources.length !== 1) {
+        return "needs-force";
+      }
+      const source = alreadyPresent.sources[0];
+      if (source.mediaID !== item.media.id) {
+        if (!localMedia.data.some((x) => x.mediaID === item.media!.id)) {
+          return "needs-replace-download";
+        }
+        return "needs-replace";
+      }
+      return "ok";
+    }
+    if (!localMedia.data.some((x) => x.mediaID === item.media!.id)) {
+      return "needs-download";
+    }
+    return "needs-add";
+  }, [
+    existing.data,
+    item.id,
+    item.media,
+    localMedia.data,
+    ourDownloadStatus?.status,
+  ]);
+
+  let contents;
+  switch (state) {
+    case "no-media":
+      contents = <em>Media missing</em>;
+      break;
+    case "loading":
+      contents = <em>Please wait just one sec...</em>;
+      break;
+    case "media-processing":
+      contents = <em className="text-purple-4">Media processing...</em>;
+      break;
+    case "downloading":
+      contents = (
+        <div>
+          <em>Downloading...</em>
+          <progress value={ourDownloadStatus?.progressPercent ?? 0} max={100} />
+        </div>
+      );
+      break;
+    case "needs-download":
+      contents = (
+        <Button
+          disabled={downloadMedia.isLoading}
+          onClick={() => downloadMedia.mutate({ id: item.media!.id })}
+        >
+          Download
+        </Button>
+      );
+      break;
+    case "needs-add":
+      contents = <Button onClick={() => doAdd()}>Add to OBS</Button>;
+      break;
+    case "needs-replace-download":
+      contents = (
+        <>
+          <em className="text-warning-4 mr-1">Changed, needs replacement</em>
+          <Button
+            disabled={downloadMedia.isLoading}
+            onClick={() => downloadMedia.mutate({ id: item.media!.id })}
+          >
+            Download
+          </Button>
+        </>
+      );
+      break;
+    case "needs-replace":
+      contents = (
+        <>
+          <em className="text-warning-4 mr-1">Changed, needs replacement</em>
+          <Button onClick={() => doAdd("replace")}>Replace</Button>
+        </>
+      );
+      break;
+    case "needs-force":
+      contents = (
+        <>
+          <em className="text-warning-4 mr-1">Manual OBS changes detected</em>
+          <Button
+            onClick={() =>
+              setAlert({
+                warnings: [
+                  "Manual changes to the OBS scene detected. If you continue, these changes will be lost.",
+                ],
+                prompt: "force",
+              })
+            }
+          >
+            Override
+          </Button>
+        </>
+      );
+      break;
+    case "ok":
+      contents = <em className="text-success-4 mr-1">Good to go!</em>;
+      break;
+    default:
+      invariant(false, "Unhandled state: " + state);
+  }
   return (
     <>
-      {alreadyPresent ? (
-        needsReplacement ? (
-          <Button
-            disabled={addToOBS.isLoading}
-            onClick={() => doAdd("replace")}
-          >
-            Replace
-          </Button>
-        ) : (
-          <em>Good to go!</em>
-        )
-      ) : (
-        <Button disabled={addToOBS.isLoading} onClick={() => doAdd()}>
-          Add to OBS
-        </Button>
-      )}
+      {contents}
       <AlertDialog.Root
         open={alert !== null}
         onOpenChange={(open) => {
@@ -135,11 +237,11 @@ function AddToOBS({
         }}
       >
         <AlertDialog.Portal>
-          <AlertDialog.Overlay />
-          <AlertDialog.Content>
+          <AlertDialog.Overlay className="fixed w-full h-full top-0 left-0 bg-dark/60" />
+          <AlertDialog.Content className="absolute bg-light mx-auto p-8 rounded-md">
             {alert && (
               <>
-                <AlertDialog.Content>
+                <AlertDialog.Content className="my-2">
                   {alert.warnings.length > 0 && (
                     <ul>
                       {alert.warnings.map((warning) => (
@@ -182,66 +284,11 @@ function ContinuityItem({
 }: {
   item: z.infer<typeof CompleteContinuityItemModel>;
 }) {
-  const queryClient = useQueryClient();
-  const downloadMedia = ipc.media.downloadMedia.useMutation();
-  const downloadStatus = ipc.media.getDownloadStatus.useQuery(void 0, {
-    refetchInterval: 1000,
-  });
-  const ourDownloadStatus = useMemo(
-    () => downloadStatus.data?.find((x) => x.mediaID === item.media?.id),
-    [downloadStatus.data, item.media?.id],
-  );
-  useEffect(() => {
-    if (ourDownloadStatus?.status === "done") {
-      queryClient.invalidateQueries(getQueryKey(ipc.media.getLocalMedia));
-    }
-  }, [ourDownloadStatus?.status, queryClient]);
-  const localMedia = ipc.media.getLocalMedia.useQuery(void 0);
-  const ourLocalStatus = useMemo(() => {
-    if (!localMedia.data || !item.media) {
-      return null;
-    }
-    return localMedia.data.find((x) => x.mediaID === item.media!.id);
-  }, [item, localMedia.data]);
-  const existingOBSScenes = ipc.obs.listContinuityItemScenes.useQuery();
-  const needsReplacement = useMemo(() => {
-    if (!existingOBSScenes.data) {
-      return false;
-    }
-    console.log(existingOBSScenes.data, item);
-    return existingOBSScenes.data.some(
-      (x) =>
-        x.continuityItemID === item.id &&
-        (x.sources.length !== 1 || x.sources[0].mediaID !== item.media?.id),
-    );
-  }, [existingOBSScenes.data, item]);
   return (
     <div className="flex flex-row flex-wrap">
       <span className="text-lg font-bold">{item.name}</span>
       <div className="ml-auto">
-        {needsReplacement && (
-          <em className="text-warning-4">Changed, needs replacement</em>
-        )}
-        {item.media ? (
-          ourLocalStatus ? (
-            <AddToOBS item={item} />
-          ) : ourDownloadStatus ? (
-            <span className="text-lg">
-              {ourDownloadStatus.progressPercent?.toFixed(1)}%
-            </span>
-          ) : (
-            <Button
-              color="primary"
-              onClick={() => downloadMedia.mutate({ id: item.media!.id })}
-            >
-              Download
-            </Button>
-          )
-        ) : (
-          <span className="h-full p-4 rounded bg-danger-4 text-light">
-            No media
-          </span>
-        )}
+        <AddToOBS item={item} />
       </div>
     </div>
   );

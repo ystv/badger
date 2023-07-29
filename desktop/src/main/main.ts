@@ -1,14 +1,24 @@
 import { app, BrowserWindow } from "electron";
 import * as path from "path";
 import { createIPCHandler } from "electron-trpc/main";
+import { emitObservable, setSender } from "./ipcEventBus";
 import { appRouter } from "./ipcApi";
 import { tryCreateAPIClient } from "./serverApiClient";
 import { tryCreateOBSConnection } from "./obs";
 import { validateLocalMediaState } from "./settings";
 import isSquirrel from "electron-squirrel-startup";
-import { setSender } from "./ipcEventBus";
+import { selectedShow } from "./selectedShow";
+import logging, { LogLevelNames } from "loglevel";
+import prefix from "loglevel-plugin-prefix";
+logging.setLevel(
+  (process.env.LOG_LEVEL as LogLevelNames) ?? logging.levels.DEBUG,
+);
+prefix.reg(logging);
+prefix.apply(logging, {
+  template: "[%t] %l (%n):",
+});
 
-console.log("Environment:", import.meta.env.MODE);
+logging.info("Environment:", import.meta.env.MODE);
 
 // https://www.electronforge.io/config/plugins/vite
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
@@ -48,7 +58,8 @@ const createWindow = async () => {
   }
 
   createIPCHandler({ router: appRouter, windows: [mainWindow] });
-  setSender(mainWindow.webContents.send);
+  setSender(mainWindow.webContents.send.bind(mainWindow.webContents));
+  emitObservable("selectedShowChange", selectedShow);
 };
 
 // This method will be called when Electron has finished

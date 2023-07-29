@@ -1,9 +1,10 @@
-import { ReactNode, useCallback, useState } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 import { ipc } from "./ipc";
 import Button from "./components/Button";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import invariant from "../common/invariant";
+import { CompleteShowType } from "../common/types";
 
 function ServerConnectForm() {
   const queryClient = useQueryClient();
@@ -22,7 +23,7 @@ function ServerConnectForm() {
     } catch (e) {
       setError(String(e));
     }
-  }, [addrEntry, doConnect, queryClient]);
+  }, [addrEntry, doConnect, password, queryClient]);
   return (
     <>
       <label>
@@ -97,10 +98,21 @@ function SelectShowForm() {
 export default function ConnectAndSelectShowGate(props: {
   children: ReactNode;
 }) {
+  const queryClient = useQueryClient();
   const connState = ipc.serverConnectionStatus.useQuery(void 0, {
     staleTime: 5000,
   });
   const selectedShow = ipc.getSelectedShow.useQuery(void 0);
+
+  useEffect(() => {
+    const handler = (_: CompleteShowType | null) => {
+      queryClient.invalidateQueries(getQueryKey(ipc.getSelectedShow));
+    };
+    window.IPCEventBus.on("selectedShowChange", handler);
+    return () => {
+      window.IPCEventBus.off("selectedShowChange", handler);
+    };
+  }, [queryClient]);
 
   if (connState.isLoading || selectedShow.isLoading) {
     return <div>Please wait...</div>;
