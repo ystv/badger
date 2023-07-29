@@ -20,6 +20,8 @@ vi.mock("net", () => ({
   },
 }));
 
+const nextTick = () => new Promise((resolve) => process.nextTick(resolve));
+
 describe("VMixConnection", () => {
   let vmix: VMixConnection;
   let sock: MockSocket;
@@ -78,5 +80,25 @@ describe("VMixConnection", () => {
     const res = vmix["send"]("FUNCTION", "test");
     sock.emit("data", "FUNCTION ER test\r\n");
     expect(res).rejects.toThrow("test");
+  });
+  test("two requests", async () => {
+    const r1 = vmix["send"]("FUNCTION", "test1");
+    const r2 = vmix["send"]("FUNCTION", "test2");
+    await nextTick();
+    expect(sock.write).toHaveBeenCalledWith(
+      "FUNCTION test1\r\n",
+      "utf-8",
+      expect.any(Function),
+    );
+    sock.emit("data", "FUNCTION OK test1\r\n");
+    expect(r1).resolves.toEqual(["test1", ""]);
+    await nextTick();
+    expect(sock.write).toHaveBeenCalledWith(
+      "FUNCTION test2\r\n",
+      "utf-8",
+      expect.any(Function),
+    );
+    sock.emit("data", "FUNCTION OK test2\r\n");
+    expect(r2).resolves.toEqual(["test2", ""]);
   });
 });

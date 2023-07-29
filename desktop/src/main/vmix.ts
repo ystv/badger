@@ -11,6 +11,13 @@ type VMixCommand =
   | "UNSUBSCRIBE"
   | "QUIT";
 
+interface ReqQueueItem {
+  command: VMixCommand;
+  args: string[];
+  resolve: (msgAndData: [string, string]) => void;
+  reject: (err: Error) => void;
+}
+
 /**
  * A connection to a vMix instance using the TCP API.
  *
@@ -26,6 +33,7 @@ export default class VMixConnection {
       reject: (err: Error) => void;
     }
   >;
+  private requestQueue: Array<ReqQueueItem> = [];
   private buffer: string = "";
   private constructor() {
     this.replyAwaiting = new Map();
@@ -59,17 +67,43 @@ export default class VMixConnection {
   }
 
   private async send(command: VMixCommand, ...args: string[]) {
+    const req: ReqQueueItem = {
+      command,
+      args,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      resolve: null as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      reject: null as any,
+    };
     const reply = new Promise<[string, string]>((resolve, reject) => {
-      this.replyAwaiting.set(command, { resolve, reject });
+      req.resolve = resolve;
+      req.reject = reject;
     });
+    this.requestQueue.push(req);
+    await this.doNextRequest();
+    return reply;
+  }
+
+  private async doNextRequest() {
+    const req = this.requestQueue[0];
+    if (!req) {
+      return;
+    }
+    if (this.replyAwaiting.has(req.command)) {
+      // Wait until the next run
+      return;
+    }
+    this.requestQueue.shift();
+    this.replyAwaiting.set(req!.command, req!);
     await new Promise<void>((resolve, reject) => {
       this.sock.write(
-        command + (args.length > 0 ? " " + args.join(" ") : "") + "\r\n",
+        req.command +
+          (req.args.length > 0 ? " " + req.args.join(" ") : "") +
+          "\r\n",
         "utf-8",
         (err) => (err ? reject(err) : resolve()),
       );
     });
-    return reply;
   }
 
   private onData(data: Buffer) {
@@ -92,12 +126,16 @@ export default class VMixConnection {
     const reply = this.replyAwaiting.get(command as VMixCommand);
     if (status === "OK") {
       reply?.resolve([rest.join(" "), ""]);
+      this.replyAwaiting.delete(command as VMixCommand);
       this.buffer = "";
+      process.nextTick(this.doNextRequest.bind(this));
       return;
     }
     if (status === "ER") {
       reply?.reject(new Error(rest.join(" ")));
+      this.replyAwaiting.delete(command as VMixCommand);
       this.buffer = "";
+      process.nextTick(this.doNextRequest.bind(this));
       return;
     }
     invariant(status.match(/^\d+$/), "Invalid status: " + status);
@@ -111,6 +149,8 @@ export default class VMixConnection {
       payloadLength + firstLine.length + 2,
     );
     reply?.resolve([rest.join(" "), payload]);
+    this.replyAwaiting.delete(command as VMixCommand);
+    process.nextTick(this.doNextRequest.bind(this));
     this.buffer = "";
   }
 
