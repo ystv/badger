@@ -15,14 +15,12 @@ import {
   getDownloadStatus,
 } from "./mediaManagement";
 import { getLocalMediaSettings, LocalMediaSettingsSchema } from "./settings";
-import { addOrReplaceMediaAsScene } from "./obsHelpers";
+import { addOrReplaceMediaAsScene, findContinuityScenes } from "./obsHelpers";
 
 function serverAPI() {
   invariant(serverApiClient !== null, "serverApiClient is null");
   return serverApiClient;
 }
-
-const CONTINUITY_SCENE_RE = /\d+ - .+? \[#(\d+)]/;
 
 const t = initTRPC.create();
 const r = t.router;
@@ -111,22 +109,6 @@ export const appRouter = r({
       .mutation(async ({ input }) => {
         await createOBSConnection(input.host, input.password, input.port);
       }),
-    listContinuityItemScenes: proc
-      .output(z.array(z.number()))
-      .query(async () => {
-        invariant(
-          obsConnection,
-          "no OBS connection in obs.listContinuityItemScenes",
-        );
-        const scenes = await obsConnection.listScenes();
-        return scenes
-          .filter((x) => CONTINUITY_SCENE_RE.test(x.sceneName as string))
-          .map((x) => {
-            const match = (x.sceneName as string).match(CONTINUITY_SCENE_RE);
-            invariant(match, "Scene name doesn't match regex");
-            return Number(match[1]);
-          });
-      }),
     addMediaAsScene: proc
       .input(
         z.object({
@@ -148,6 +130,18 @@ export const appRouter = r({
           "No continuity item for media in obs.addMediaAsScene",
         );
         return await addOrReplaceMediaAsScene(info, input.replaceMode);
+      }),
+    listContinuityItemScenes: proc
+      .output(
+        z.array(
+          z.object({
+            sceneName: z.string(),
+            continuityItemID: z.number(),
+          }),
+        ),
+      )
+      .query(async () => {
+        return await findContinuityScenes();
       }),
   }),
 });
