@@ -137,6 +137,11 @@ export const appRouter = r({
           z.object({
             sceneName: z.string(),
             continuityItemID: z.number(),
+            sources: z.array(
+              z.object({
+                mediaID: z.number().optional(),
+              }),
+            ),
           }),
         ),
       )
