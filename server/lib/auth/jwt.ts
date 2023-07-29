@@ -82,9 +82,7 @@ export async function parseAndVerifyJWT(
   }
   const payloadDecoded = JSON.parse(decodeUrlsafeBase64(payload));
   const signatureDecoded = urlsafeBase64ToArrayBuffer(signature);
-  console.log("Decode: signature:", signatureDecoded);
   const data = `${header}.${payload}`;
-  console.log("Decode: data:", data);
   const signatureValid = await crypto.subtle.verify(
     "HMAC",
     await signingKey(),
