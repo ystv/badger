@@ -5939,6 +5939,7 @@ __metadata:
     bowser-server: "workspace:*"
     bufferutil: ^4.0.7
     classnames: ^2.3.2
+    client-only: ^0.0.1
     electron: 25.3.1
     electron-settings: ^4.0.2
     electron-squirrel-startup: ^1.0.0
