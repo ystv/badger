@@ -1,0 +1,26 @@
+name: Desktop Build (Windows)
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-desktop-windows:
+    runs-on: windows-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: 'yarn'
+          cache-dependency-path: 'yarn.lock'
+      - run: yarn install --immutable
+      
+      - run: yarn make # TODO publish
+      
+      - uses: actions/upload-artifact@3
+        with:
+          name: bowser-desktop-windows
+          path: desktop/out/make
