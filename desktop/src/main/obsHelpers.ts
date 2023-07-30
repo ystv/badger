@@ -13,7 +13,7 @@ import type { AppRouter } from "bowser-server/app/api/_router";
  * This file contains helper functions that wrap obsConnection in obs.ts.
  */
 
-type MediaType = inferProcedureOutput<AppRouter["media"]["get"]>;
+export type MediaType = inferProcedureOutput<AppRouter["media"]["get"]>;
 
 const MEDIA_SOURCE_PREFIX = "Bowser Media ";
 export const CONTINUITY_SCENE_NAME_REGEXP = /^\d+ - .+? \[#(\d+)]$/;
@@ -95,7 +95,7 @@ export async function addOrReplaceMediaAsScene(
     return { warnings, done: true };
   }
 
-  // If the scene is non-empty, but only has our source, we're fine - do some sanity checks.
+  // If the scene is non-empty, but only has our source, we're probably fine - do some sanity checks.
   if (items.length === 1 && items[0].sourceName === mediaSourceName) {
     // The scene exists, and it has a source that matches our naming convention. Check if it's the same file.
     console.log("addMediaAsScene: found existing source");
@@ -103,9 +103,7 @@ export async function addOrReplaceMediaAsScene(
     if (!castMediaSourceSettings(settings)) {
       // Should never happen unless the user manually creates a different source, or there's a Bowser version incompatibility.
       if (replaceMode === "force") {
-        warn(
-          "addMediaAsScene: existing source is not a media source. Forcing replacement.",
-        );
+        warn("Existing source is not a media source. Forcing replacement.");
         await obsConnection.removeSceneItem(sceneTitle, items[0].sceneItemId);
         await _doAddMediaToScene(
           sceneTitle,
@@ -115,9 +113,7 @@ export async function addOrReplaceMediaAsScene(
         );
         return { warnings, done: true };
       } else {
-        warn(
-          "addMediaAsScene: existing source is not a media source. Cowardly refusing to overwrite.",
-        );
+        warn("Existing source is not a media source.");
         return { warnings, done: false };
       }
     }
@@ -171,7 +167,9 @@ export async function addOrReplaceMediaAsScene(
       );
       return { warnings, done: true };
     } else {
-      warn(`Scene ${sceneTitle} has a prior Bowser source.`);
+      warn(
+        `Scene ${sceneTitle} has a pre-existing Bowser source for a different media file.`,
+      );
       return { warnings, done: false, promptReplace: "replace" };
     }
   }
@@ -182,16 +180,28 @@ export async function addOrReplaceMediaAsScene(
     console.log(
       "addMediaAsScene: existing scene has non-Bowser sources. Replacing as the replaceMode is 'force'.",
     );
+    let oursPresent = false;
     for (const item of items) {
-      if (item.sourceName !== mediaSourceName) {
+      if (item.sourceName == mediaSourceName) {
+        oursPresent = true;
+      } else {
         await obsConnection.removeSceneItem(sceneTitle, item.sceneItemId);
       }
     }
-    await obsConnection.replaceMediaSourceInScene(
-      sceneTitle,
-      mediaSourceName,
-      item.path,
-    );
+    if (oursPresent) {
+      await obsConnection.replaceMediaSourceInScene(
+        sceneTitle,
+        mediaSourceName,
+        item.path,
+      );
+    } else {
+      await _doAddMediaToScene(
+        sceneTitle,
+        mediaSourceName,
+        item,
+        videoSettings,
+      );
+    }
     return { warnings, done: true };
   } else {
     // Bail.

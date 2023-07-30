@@ -1,0 +1,72 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`addOrReplaceMediaAsScene > add to existing empty scene 1`] = `
+[
+  {
+    "name": "1 - Test Continuity [#1]",
+    "sources": [
+      {
+        "inputKind": "ffmpeg_source",
+        "inputName": "Bowser Media 1",
+        "sceneItemId": 1,
+      },
+    ],
+  },
+]
+`;
+
+exports[`addOrReplaceMediaAsScene > no change 1`] = `
+[
+  {
+    "name": "1 - Test Continuity [#1]",
+    "sources": [
+      {
+        "inputKind": "ffmpeg_source",
+        "inputName": "Bowser Media 1",
+        "sceneItemId": 1,
+      },
+    ],
+  },
+]
+`;
+
+exports[`addOrReplaceMediaAsScene > non-Bowser sources present 2`] = `
+[
+  {
+    "name": "1 - Test Continuity [#1]",
+    "sources": [
+      {
+        "inputKind": "ffmpeg_source",
+        "inputName": "Bowser Media 1",
+        "sceneItemId": 1,
+      },
+    ],
+  },
+]
+`;
+
+exports[`addOrReplaceMediaAsScene > non-Bowser sources present 3`] = `
+Map {
+  "Bowser Media 1" => {
+    "is_local_file": true,
+    "local_file": "TEST_PATH",
+    "looping": false,
+    "restart_on_activate": false,
+  },
+}
+`;
+
+exports[`addOrReplaceMediaAsScene > replace in pre-existing scene with new media ID 2`] = `
+[
+  {
+    "name": "1 - Test Continuity [#1]",
+    "sources": [
+      {
+        "inputKind": "ffmpeg_source",
+        "inputName": "Bowser Media 1",
+        "sceneItemId": 1,
+      },
+    ],
+  },
+]
+`;
