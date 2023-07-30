@@ -17,6 +17,9 @@
     "name": "Marks Polakovs",
     "email": "marks@markspolakovs.me"
   },
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  },
   "license": "MIT",
   "devDependencies": {
     "@electron-forge/cli": "^6.2.1",
