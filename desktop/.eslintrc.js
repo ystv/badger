@@ -25,10 +25,7 @@ module.exports = {
       {
         patterns: [
           {
-            group: [`bowser-server/app(?!/api)`],
-          },
-          {
-            group: [`bowser-server/app`],
+            group: [`bowser-server/`],
             message: "You probably wanted 'import type'.",
             allowTypeImports: true,
           },

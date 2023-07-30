@@ -3,10 +3,6 @@ import { z } from "zod";
 import { initTRPC } from "@trpc/server";
 import invariant from "../common/invariant";
 import { selectedShow, setSelectedShow } from "./selectedShow";
-import {
-  CompleteShowModel,
-  PartialShowModel,
-} from "bowser-server/lib/db/utilityTypes";
 import { Integration } from "../common/types";
 import { createOBSConnection, obsConnection } from "./obs";
 import {
@@ -45,15 +41,14 @@ export const appRouter = r({
       await createAPIClient(input.endpoint + "/api/trpc", input.password);
       return true;
     }),
-  listUpcomingShows: proc.output(z.array(PartialShowModel)).query(async () => {
+  listUpcomingShows: proc.query(async () => {
     return await api().shows.listUpcoming.query();
   }),
-  getSelectedShow: proc.output(CompleteShowModel.nullable()).query(() => {
+  getSelectedShow: proc.query(() => {
     return selectedShow;
   }),
   setSelectedShow: proc
     .input(z.object({ id: z.number() }))
-    .output(CompleteShowModel)
     .mutation(async ({ input }) => {
       const data = await api().shows.get.query({ id: input.id });
       await setSelectedShow(data);
