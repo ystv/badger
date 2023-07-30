@@ -10,7 +10,8 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint src/",
-    "prettify": "prettier --write ."
+    "prettify": "prettier --write .",
+    "test": "vitest run"
   },
   "keywords": [],
   "author": {
@@ -35,6 +36,7 @@
     "@types/eslint": "^8.44.0",
     "@typescript-eslint/eslint-plugin": "^6.1.0",
     "@typescript-eslint/parser": "^6.1.0",
+    "@vitest/coverage-v8": "^0.33.0",
     "autoprefixer": "^10.4.14",
     "electron": "25.3.1",
     "eslint": "^8.45.0",
