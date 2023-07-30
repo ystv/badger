@@ -2,12 +2,15 @@ import { db } from "@/lib/db";
 import { describe, test, vi, beforeEach, afterEach, expect } from "vitest";
 import { reorderShowItems } from "./actions";
 
+const integrate =
+  process.env.TEST_INTEGRATION === "true" ? describe : describe.skip;
+
 vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ revalidatePath: () => {} }));
 
 const TEST_TIME = new Date("2023-07-21T16:46:35.036Z");
 
-describe("reorderShowItems", () => {
+integrate("reorderShowItems", () => {
   beforeEach(async () => {
     await db.$executeRawUnsafe("TRUNCATE TABLE shows CASCADE");
     await db.show.create({
