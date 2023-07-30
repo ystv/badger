@@ -20,7 +20,7 @@ jobs:
       
       - run: yarn make # TODO publish
       
-      - uses: actions/upload-artifact@3
+      - uses: actions/upload-artifact@v3
         with:
           name: bowser-desktop-windows
           path: desktop/out/make
