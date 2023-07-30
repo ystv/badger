@@ -7,6 +7,22 @@ on:
     branches: [ "main" ]
 
 jobs:
+  prettier:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: 'yarn'
+          cache-dependency-path: 'yarn.lock'
+      - run: yarn install --immutable
+
+      - run: yarn prettier --check '{desktop,jobrunner,server}/**/*.{ts,tsx}'
+
   test-unit-desktop:
 
     runs-on: ubuntu-latest
