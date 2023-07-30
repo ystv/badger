@@ -1,6 +1,6 @@
 module.exports = {
   packagerConfig: {
-    ignore: [/bowser-server/],
+    prune: false,
   },
   rebuildConfig: {},
   makers: [
