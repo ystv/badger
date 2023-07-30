@@ -7,6 +7,10 @@ on:
 jobs:
   build-desktop-windows:
     runs-on: windows-latest
+
+    permissions:
+      contents: write
+      statuses: write
     
     steps:
       - uses: actions/checkout@v3
@@ -18,9 +22,7 @@ jobs:
           cache-dependency-path: 'yarn.lock'
       - run: yarn install --immutable
       
-      - run: yarn make # TODO publish
-      
-      - uses: actions/upload-artifact@v3
-        with:
-          name: bowser-desktop-windows
-          path: desktop/out/make
+      - run: yarn publish
+        working-directory: ./desktop
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

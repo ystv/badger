@@ -5,6 +5,7 @@ module.exports = {
     {
       name: "@electron-forge/maker-squirrel",
       config: {},
+      platforms: ["win32"],
     },
     {
       name: "@electron-forge/maker-zip",
@@ -18,6 +19,18 @@ module.exports = {
     //   name: '@electron-forge/maker-rpm',
     //   config: {},
     // },
+  ],
+  publishers: [
+    {
+      name: "@electron-forge/publisher-github",
+      config: {
+        repository: {
+          owner: "ystv",
+          name: "bowser",
+        },
+        prerelease: true,
+      },
+    },
   ],
   plugins: [
     {
