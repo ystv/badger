@@ -22,7 +22,10 @@ jobs:
           cache-dependency-path: 'yarn.lock'
       - run: yarn install --immutable
       
-      - run: yarn publish
+      - run: yarn make
         working-directory: ./desktop
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: desktop
+          path: ./desktop/out/make
