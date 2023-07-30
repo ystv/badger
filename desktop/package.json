@@ -11,7 +11,7 @@
     "publish": "electron-forge publish",
     "lint": "eslint src/",
     "prettify": "prettier --write .",
-    "test": "vitest run"
+    "test": "../node_modules/.bin/vitest run"
   },
   "keywords": [],
   "author": {
