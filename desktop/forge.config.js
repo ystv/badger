@@ -1,5 +1,7 @@
 module.exports = {
-  packagerConfig: {},
+  packagerConfig: {
+    ignore: [/bowser-server/],
+  },
   rebuildConfig: {},
   makers: [
     {
