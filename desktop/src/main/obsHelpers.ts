@@ -29,7 +29,7 @@ export const CONTINUITY_SCENE_NAME_REGEXP = /^\d+ - .+? \[#(\d+)]$/;
  * @return
  *   done: true if the media was added to the scene
  *   warnings: any warnings that occurred
- *   promptReplace: if replaceMode is "replace" or "force", and the scene already exists, this will be "replace" or "force" to indicate that the user should be prompted to replace the scene
+ *   promptReplace: if replaceMode is *not* "replace" or "force", and the scene already exists, this will be "replace" or "force" to indicate that the user should be prompted to replace the scene
  */
 export async function addOrReplaceMediaAsScene(
   info: MediaType,
