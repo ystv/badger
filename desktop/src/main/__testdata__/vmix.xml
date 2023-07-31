@@ -1,0 +1,85 @@
+<vmix>
+    <version>26.0.0.44</version>
+    <edition>4K</edition>
+    <preset>C:\\Test.vmix</preset>
+    <inputs>
+        <input key="418f6d70-ec7e-464a-8abc-92280776f5a0" number="1" type="Mix" title="TV Mix"
+            shortTitle="TV Mix" state="Paused" position="0" duration="0" loop="False">TV Mix</input>
+        <input key="1c077daf-caf6-4371-be56-ca11736d12dd" number="2" type="Colour"
+            title="Transparent" shortTitle="Transparent"
+            state="Paused" position="0" duration="0" loop="False">Transparent</input>
+        <input key="705aa6bc-632e-4714-8759-0966703c154f" number="3" type="VideoList"
+            title="VTs - Test 0.mp4" shortTitle="VTs"
+            state="Paused" position="0" duration="279573" loop="False" muted="False" volume="100"
+            balance="0" solo="False" audiobusses="M" meterF1="0" meterF2="0" gainDb="0"
+            selectedIndex="1">VTs - Test 0.mp4<list>
+                <item selected="true">C:\\media\\Test 0.mp4</item>
+                <item>C:\\media\\Test 1.mp4</item>
+                <item>C:\\media\\Test 22.mp4</item>
+                <item>C:\\media\\Test 3.mov</item>
+                <item>C:\\media\\Test 4.mp4</item>
+            </list></input>
+        <input key="410bc785-3d4b-4d0d-96a0-58e0ed78edde" number="4" type="Video"
+            title="YY_Transition_1.mov" shortTitle="YY_Transition_1.mov" state="Paused" position="0"
+            duration="5000" loop="False" muted="True" volume="100" balance="0" solo="False"
+            audiobusses="M" meterF1="0" meterF2="0">YY_Transition_1.mov</input>
+        <input key="254bf3d2-6b74-4dc3-a46f-bac16b5c4fee" number="5" type="Colour" title="Colour"
+            shortTitle="Colour" state="Paused" position="0" duration="0" loop="False">Colour</input>
+        <input key="be25c595-60e1-49b1-873b-1c1f7fde77b4" number="6" type="VideoList"
+            title="Stills - Test.png" shortTitle="Stills" state="Paused"
+            position="0" duration="0" loop="False" muted="True" volume="100" balance="0"
+            solo="False" audiobusses="M" meterF1="0" meterF2="0" gainDb="0" selectedIndex="1">Stills - Test.png<list>
+                <item selected="true">C:\\media\\Test.png</item>
+            </list></input>
+        <input key="ba632fc4-90b6-42db-afd0-fbc73487fa23" number="7" type="Image"
+            title="Test.png" shortTitle="Test.png" state="Paused"
+            position="0" duration="0" loop="False">Test.png</input>
+        <input key="b5076d09-361c-4185-8086-9c45c9de75de" number="8" type="AudioFile"
+            title="ES_Young Mystery Detectives - Trailer Worx.wav"
+            shortTitle="ES_Young Mystery Detectives - Trailer Worx.wav" state="Paused" position="0"
+            duration="60899" loop="False" muted="True" volume="100" balance="0" solo="False"
+            audiobusses="M" meterF1="0" meterF2="0" gainDb="0">ES_Young Mystery Detectives - Trailer Worx.wav</input>
+    </inputs>
+    <overlays>
+        <overlay number="1" />
+        <overlay number="2" />
+        <overlay number="3" />
+        <overlay number="4" />
+        <overlay number="5" />
+        <overlay number="6" />
+        <overlay number="7" />
+        <overlay number="8" />
+    </overlays>
+    <preview>3</preview>
+    <active>3</active>
+    <fadeToBlack>False</fadeToBlack>
+    <transitions>
+        <transition number="1" effect="Fade" duration="500" />
+        <transition number="2" effect="Merge" duration="1000" />
+        <transition number="3" effect="Wipe" duration="1000" />
+        <transition number="4" effect="CubeZoom" duration="1000" />
+    </transitions>
+    <recording>False</recording>
+    <external>False</external>
+    <streaming>False</streaming>
+    <playList>False</playList>
+    <multiCorder>False</multiCorder>
+    <fullscreen>False</fullscreen>
+    <mix number="2">
+        <preview>0</preview>
+        <active>6</active>
+    </mix>
+    <audio>
+        <master volume="100" muted="False" meterF1="0" meterF2="0" headphonesVolume="100" />
+    </audio>
+    <dynamic>
+        <input1></input1>
+        <input2></input2>
+        <input3></input3>
+        <input4></input4>
+        <value1></value1>
+        <value2></value2>
+        <value3></value3>
+        <value4></value4>
+    </dynamic>
+</vmix>

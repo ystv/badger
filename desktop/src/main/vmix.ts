@@ -1,5 +1,9 @@
 import { Socket, connect } from "node:net";
 import invariant from "../common/invariant";
+import { XMLParser } from "fast-xml-parser";
+import { AudioFileInput, BaseInput, ColourInput, InputType, ListInput, ListItem, VMixInputType, VMixState, VideoInput } from "./vmixTypes";
+import { AudioFileObject, VMixRawXMLSchema, VideoListObject, VideoObject } from "./vmixTypesRaw";
+import { z } from "zod";
 
 type VMixCommand =
   | "TALLY"
@@ -35,6 +39,11 @@ export default class VMixConnection {
   >;
   private requestQueue: Array<ReqQueueItem> = [];
   private buffer: string = "";
+  private xmlParser = new XMLParser({
+    ignoreAttributes: false,
+    attributeNamePrefix: "@_",
+    allowBooleanAttributes: true,
+  });
   private constructor() {
     this.replyAwaiting = new Map();
   }
@@ -60,10 +69,96 @@ export default class VMixConnection {
     return vmix;
   }
 
-  public async getFullState(): Promise<unknown> {
+  public async getFullStateRaw(): Promise<unknown> {
     const [_, result] = await this.send("XML");
-    // TODO: parse XML
-    return result;
+    return this.xmlParser.parse(result);
+  }
+
+  public async getFullState(): Promise<VMixState> {
+    const data = await this.getFullStateRaw();
+    const rawParseRes = VMixRawXMLSchema.safeParse(data);
+    let raw: z.infer<typeof VMixRawXMLSchema>;
+    if (rawParseRes.success) {
+      raw = rawParseRes.data;
+    } else {
+      console.warn("Parsing raw vMix schema failed. Possibly the vMix is a version we don't know. Will try to proceed, but things may break!");
+      console.debug("Raw data:", JSON.stringify(data));
+      // DIRTY HACK
+      raw = data as z.infer<typeof VMixRawXMLSchema>;
+    }
+    const res: VMixState = {
+      version: raw.vmix.version,
+      edition: raw.vmix.edition,
+      preset: raw.vmix.preset,
+      inputs: [],
+    };
+    for (const input of raw.vmix.inputs.input) {
+      let v: BaseInput = {
+        key: input["@_key"],
+        number: input["@_number"],
+        type: input["@_type"] as VMixInputType,
+        title: input["@_title"],
+        shortTitle: input["@_shortTitle"],
+        loop: input["@_loop"] === "True",
+        state: input["@_state"],
+        duration: input["@_duration"],
+        position: input["@_position"],
+      };
+      switch (input["@_type"]) {
+        case "Colour":
+        case "Mix":
+        case "Image":
+          break;
+        case "Video":
+        case "AudioFile": {
+          const r = (input as VideoObject | AudioFileObject);
+          (v as unknown as VideoInput | AudioFileInput) = {
+            ...v,
+            type: r["@_type"] as "Video" | "AudioFile",
+            volume: r["@_volume"],
+            balance: r["@_balance"],
+            solo: r["@_solo"] === "True",
+            muted: r["@_muted"] === "True",
+            audioBusses: r["@_audiobusses"]
+          };
+          break;
+        }
+        case "VideoList": {
+          const r = (input as VideoListObject);
+          (v as unknown as ListInput) = {
+            ...v,
+            type: r["@_type"],
+            selectedIndex: r["@_selectedIndex"],
+            items: [],
+          };
+          if (Array.isArray(r.list.item)) {
+            (v as ListInput).items = r.list.item.map(item => {
+              if (typeof item === "string") {
+                return {
+                  source: item,
+                  selected: false
+                }
+              }
+              return {
+                source: item["#text"],
+                selected: item["@_selected"] === "true"
+              };
+            });
+          } else {
+            (v as ListInput).items.push({
+              source: r.list.item["#text"],
+              selected: r.list.item["@_selected"] === "true"
+            });
+          }
+          break;
+        }
+        default:
+          console.warn(`Unrecognised input type '${input["@_type"]}'`);
+          continue;
+      }
+      res.inputs.push(v as InputType);
+    }
+    return res;
   }
 
   private async send(command: VMixCommand, ...args: string[]) {
@@ -98,8 +193,8 @@ export default class VMixConnection {
     await new Promise<void>((resolve, reject) => {
       this.sock.write(
         req.command +
-          (req.args.length > 0 ? " " + req.args.join(" ") : "") +
-          "\r\n",
+        (req.args.length > 0 ? " " + req.args.join(" ") : "") +
+        "\r\n",
         "utf-8",
         (err) => (err ? reject(err) : resolve()),
       );
@@ -148,13 +243,13 @@ export default class VMixConnection {
       firstLine.length + 2,
       payloadLength + firstLine.length + 2,
     );
-    reply?.resolve([rest.join(" "), payload]);
+    reply?.resolve([rest.join(" "), payload.trim()]);
     this.replyAwaiting.delete(command as VMixCommand);
     process.nextTick(this.doNextRequest.bind(this));
     this.buffer = "";
   }
 
-  private onClose(error: boolean) {}
+  private onClose(error: boolean) { }
 
-  private onError(err: Error) {}
+  private onError(err: Error) { }
 }
