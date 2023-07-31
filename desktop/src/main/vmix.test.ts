@@ -107,14 +107,17 @@ describe("VMixConnection", () => {
   });
 
   test("getFullState", async () => {
-    const testXML = await fs.readFile(path.join(__dirname, "__testdata__", "vmix.xml"), { encoding: "utf-8"});
+    const testXML = await fs.readFile(
+      path.join(__dirname, "__testdata__", "vmix.xml"),
+      { encoding: "utf-8" },
+    );
     const res = vmix.getFullState();
     expect(sock.write).toHaveBeenCalledWith(
       "XML\r\n",
       "utf-8",
-      expect.any(Function)
+      expect.any(Function),
     );
     sock.emit("data", `XML ${testXML.length}\r\n${testXML}`);
     expect(res).resolves.toMatchSnapshot();
-  })
+  });
 });

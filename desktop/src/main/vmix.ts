@@ -1,8 +1,23 @@
 import { Socket, connect } from "node:net";
 import invariant from "../common/invariant";
 import { XMLParser } from "fast-xml-parser";
-import { AudioFileInput, BaseInput, ColourInput, InputType, ListInput, ListItem, VMixInputType, VMixState, VideoInput } from "./vmixTypes";
-import { AudioFileObject, VMixRawXMLSchema, VideoListObject, VideoObject } from "./vmixTypesRaw";
+import {
+  AudioFileInput,
+  BaseInput,
+  ColourInput,
+  InputType,
+  ListInput,
+  ListItem,
+  VMixInputType,
+  VMixState,
+  VideoInput,
+} from "./vmixTypes";
+import {
+  AudioFileObject,
+  VMixRawXMLSchema,
+  VideoListObject,
+  VideoObject,
+} from "./vmixTypesRaw";
 import { z } from "zod";
 
 type VMixCommand =
@@ -81,7 +96,9 @@ export default class VMixConnection {
     if (rawParseRes.success) {
       raw = rawParseRes.data;
     } else {
-      console.warn("Parsing raw vMix schema failed. Possibly the vMix is a version we don't know. Will try to proceed, but things may break!");
+      console.warn(
+        "Parsing raw vMix schema failed. Possibly the vMix is a version we don't know. Will try to proceed, but things may break!",
+      );
       console.debug("Raw data:", JSON.stringify(data));
       // DIRTY HACK
       raw = data as z.infer<typeof VMixRawXMLSchema>;
@@ -111,7 +128,7 @@ export default class VMixConnection {
           break;
         case "Video":
         case "AudioFile": {
-          const r = (input as VideoObject | AudioFileObject);
+          const r = input as VideoObject | AudioFileObject;
           (v as unknown as VideoInput | AudioFileInput) = {
             ...v,
             type: r["@_type"] as "Video" | "AudioFile",
@@ -119,12 +136,12 @@ export default class VMixConnection {
             balance: r["@_balance"],
             solo: r["@_solo"] === "True",
             muted: r["@_muted"] === "True",
-            audioBusses: r["@_audiobusses"]
+            audioBusses: r["@_audiobusses"],
           };
           break;
         }
         case "VideoList": {
-          const r = (input as VideoListObject);
+          const r = input as VideoListObject;
           (v as unknown as ListInput) = {
             ...v,
             type: r["@_type"],
@@ -132,22 +149,22 @@ export default class VMixConnection {
             items: [],
           };
           if (Array.isArray(r.list.item)) {
-            (v as ListInput).items = r.list.item.map(item => {
+            (v as ListInput).items = r.list.item.map((item) => {
               if (typeof item === "string") {
                 return {
                   source: item,
-                  selected: false
-                }
+                  selected: false,
+                };
               }
               return {
                 source: item["#text"],
-                selected: item["@_selected"] === "true"
+                selected: item["@_selected"] === "true",
               };
             });
           } else {
             (v as ListInput).items.push({
               source: r.list.item["#text"],
-              selected: r.list.item["@_selected"] === "true"
+              selected: r.list.item["@_selected"] === "true",
             });
           }
           break;
@@ -193,8 +210,8 @@ export default class VMixConnection {
     await new Promise<void>((resolve, reject) => {
       this.sock.write(
         req.command +
-        (req.args.length > 0 ? " " + req.args.join(" ") : "") +
-        "\r\n",
+          (req.args.length > 0 ? " " + req.args.join(" ") : "") +
+          "\r\n",
         "utf-8",
         (err) => (err ? reject(err) : resolve()),
       );
@@ -249,7 +266,7 @@ export default class VMixConnection {
     this.buffer = "";
   }
 
-  private onClose(error: boolean) { }
+  private onClose(error: boolean) {}
 
-  private onError(err: Error) { }
+  private onError(err: Error) {}
 }
