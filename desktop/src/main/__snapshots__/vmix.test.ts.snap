@@ -31,30 +31,30 @@ exports[`VMixConnection > getFullState 1`] = `
       "items": [
         {
           "selected": true,
-          "source": "C:\\\\\\\\media\\\\\\\\Test 0.mp4",
+          "source": "C:\\\\media\\\\Test 0.mp4",
         },
         {
           "selected": false,
-          "source": "C:\\\\\\\\media\\\\\\\\Test 1.mp4",
+          "source": "C:\\\\media\\\\Test 1.mp4",
         },
         {
           "selected": false,
-          "source": "C:\\\\\\\\media\\\\\\\\Test 22.mp4",
+          "source": "C:\\\\media\\\\Test 22.mp4",
         },
         {
           "selected": false,
-          "source": "C:\\\\\\\\media\\\\\\\\Test 3.mov",
+          "source": "C:\\\\media\\\\Test 3.mov",
         },
         {
           "selected": false,
-          "source": "C:\\\\\\\\media\\\\\\\\Test 4.mp4",
+          "source": "C:\\\\media\\\\Test 4.mp4",
         },
       ],
       "key": "705aa6bc-632e-4714-8759-0966703c154f",
       "loop": false,
       "number": 3,
       "position": 0,
-      "selectedIndex": "1",
+      "selectedIndex": 1,
       "shortTitle": "VTs",
       "state": "Paused",
       "title": "VTs - Test 0.mp4",
@@ -62,7 +62,7 @@ exports[`VMixConnection > getFullState 1`] = `
     },
     {
       "audioBusses": "M",
-      "balance": "0",
+      "balance": 0,
       "duration": 5000,
       "key": "410bc785-3d4b-4d0d-96a0-58e0ed78edde",
       "loop": false,
@@ -74,7 +74,7 @@ exports[`VMixConnection > getFullState 1`] = `
       "state": "Paused",
       "title": "YY_Transition_1.mov",
       "type": "Video",
-      "volume": "100",
+      "volume": 100,
     },
     {
       "duration": 0,
@@ -92,14 +92,14 @@ exports[`VMixConnection > getFullState 1`] = `
       "items": [
         {
           "selected": true,
-          "source": "C:\\\\\\\\media\\\\\\\\Test.png",
+          "source": "C:\\\\media\\\\Test.png",
         },
       ],
       "key": "be25c595-60e1-49b1-873b-1c1f7fde77b4",
       "loop": false,
       "number": 6,
       "position": 0,
-      "selectedIndex": "1",
+      "selectedIndex": 1,
       "shortTitle": "Stills",
       "state": "Paused",
       "title": "Stills - Test.png",
@@ -118,7 +118,7 @@ exports[`VMixConnection > getFullState 1`] = `
     },
     {
       "audioBusses": "M",
-      "balance": "0",
+      "balance": 0,
       "duration": 60899,
       "key": "b5076d09-361c-4185-8086-9c45c9de75de",
       "loop": false,
@@ -130,10 +130,10 @@ exports[`VMixConnection > getFullState 1`] = `
       "state": "Paused",
       "title": "ES_Young Mystery Detectives - Trailer Worx.wav",
       "type": "AudioFile",
-      "volume": "100",
+      "volume": 100,
     },
   ],
-  "preset": "C:\\\\\\\\Test.vmix",
+  "preset": "C:\\\\Test.vmix",
   "version": "26.0.0.44",
 }
 `;

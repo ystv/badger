@@ -9,82 +9,84 @@ const InputType = z
   .enum(["Mix", "Colour", "VideoList", "Video", "Image", "AudioFile"] as const)
   .or(z.string());
 
-export const VideoObject = z
-  .object({
-    "#text": z.string(),
-    "@_key": z.string(),
-    "@_number": z.coerce.number(),
-    "@_type": InputType,
-    "@_title": z.string(),
-    "@_shortTitle": z.string(),
-    "@_state": z.string(),
-    "@_position": z.coerce.number(),
-    "@_duration": z.coerce.number(),
-    "@_loop": z.string(),
-    "@_muted": z.string(),
-    "@_volume": z.coerce.number(),
-    "@_balance": z.coerce.number(),
-    "@_solo": z.string(),
-    "@_audiobusses": z.string(),
-    "@_meterF1": z.string(),
-    "@_meterF2": z.string(),
-  })
-  .passthrough();
+/**
+ * vMix backslash-escapes its strings, even though backslash is valid in XML. This removes that layer of escaping.
+ */
+const deEscapedString = z.string().transform((v) => v.replace(/\\\\/g, "\\"));
+
+export const VideoObject = z.object({
+  "#text": z.string(),
+  "@_key": z.string(),
+  "@_number": z.coerce.number(),
+  "@_type": z.literal("Video"),
+  "@_title": z.string(),
+  "@_shortTitle": z.string(),
+  "@_state": z.string(),
+  "@_position": z.coerce.number(),
+  "@_duration": z.coerce.number(),
+  "@_loop": z.string(),
+  "@_muted": z.string(),
+  "@_volume": z.coerce.number(),
+  "@_balance": z.coerce.number(),
+  "@_solo": z.string(),
+  "@_audiobusses": z.string(),
+  "@_meterF1": z.string(),
+  "@_meterF2": z.string(),
+});
 export type VideoObject = z.infer<typeof VideoObject>;
 
-const ListItemObj = z.object({ "#text": z.string(), "@_selected": z.string() });
-const ListItemType = z.union([ListItemObj, z.string()]);
+const ListItemObj = z.object({
+  "#text": deEscapedString,
+  "@_selected": z.string(),
+});
+const ListItemType = z.union([ListItemObj, deEscapedString]);
 
-export const VideoListObject = z
-  .object({
-    list: z.object({
-      item: ListItemObj.or(z.array(ListItemType)),
-    }),
-    "#text": z.string(),
-    "@_key": z.string(),
-    "@_number": z.coerce.number(),
-    "@_type": z.literal("VideoList"),
-    "@_title": z.string(),
-    "@_shortTitle": z.string(),
-    "@_state": z.string(),
-    "@_position": z.coerce.number(),
-    "@_duration": z.coerce.number(),
-    "@_loop": z.string(),
-    "@_muted": z.string(),
-    "@_volume": z.string(),
-    "@_balance": z.string(),
-    "@_solo": z.string(),
-    "@_audiobusses": z.string(),
-    "@_meterF1": z.string(),
-    "@_meterF2": z.string(),
-    "@_gainDb": z.coerce.number(),
-    "@_selectedIndex": z.coerce.number(),
-  })
-  .passthrough();
+export const VideoListObject = z.object({
+  list: z.object({
+    item: ListItemObj.or(z.array(ListItemType)),
+  }),
+  "#text": z.string(),
+  "@_key": z.string(),
+  "@_number": z.coerce.number(),
+  "@_type": z.literal("VideoList"),
+  "@_title": z.string(),
+  "@_shortTitle": z.string(),
+  "@_state": z.string(),
+  "@_position": z.coerce.number(),
+  "@_duration": z.coerce.number(),
+  "@_loop": z.string(),
+  "@_muted": z.string(),
+  "@_volume": z.string(),
+  "@_balance": z.string(),
+  "@_solo": z.string(),
+  "@_audiobusses": z.string(),
+  "@_meterF1": z.string(),
+  "@_meterF2": z.string(),
+  "@_gainDb": z.coerce.number(),
+  "@_selectedIndex": z.coerce.number(),
+});
 export type VideoListObject = z.infer<typeof VideoListObject>;
 
-export const AudioFileObject = z
-  .object({
-    "#text": z.string(),
-    "@_key": z.string(),
-    "@_number": z.coerce.number(),
-    "@_type": InputType,
-    "@_title": z.string(),
-    "@_shortTitle": z.string(),
-    "@_state": z.string(),
-    "@_position": z.coerce.number(),
-    "@_duration": z.coerce.number(),
-    "@_loop": z.string(),
-    "@_muted": z.string(),
-    "@_volume": z.coerce.number(),
-    "@_balance": z.coerce.number(),
-    "@_solo": z.string(),
-    "@_audiobusses": z.string(),
-    "@_meterF1": z.string(),
-    "@_meterF2": z.string(),
-    "@_gainDb": z.coerce.number(),
-  })
-  .passthrough();
+export const AudioFileObject = z.object({
+  "#text": z.string(),
+  "@_key": z.string(),
+  "@_number": z.coerce.number(),
+  "@_type": z.literal("AudioFile"),
+  "@_title": z.string(),
+  "@_shortTitle": z.string(),
+  "@_state": z.string(),
+  "@_position": z.coerce.number(),
+  "@_duration": z.coerce.number(),
+  "@_loop": z.string(),
+  "@_muted": z.string(),
+  "@_volume": z.coerce.number(),
+  "@_balance": z.coerce.number(),
+  "@_solo": z.string(),
+  "@_audiobusses": z.string(),
+  "@_meterF1": z.string(),
+  "@_meterF2": z.string(),
+  "@_gainDb": z.coerce.number(),
+});
 export type AudioFileObject = z.infer<typeof AudioFileObject>;
 
 export const VMixRawXMLSchema = z
@@ -92,32 +94,29 @@ export const VMixRawXMLSchema = z
     vmix: z.object({
       version: z.string(),
       edition: z.string(),
-      preset: z.string(),
-      inputs: z
-        .object({
-          input: z.array(
-            z.union([
-              z
-                .object({
-                  "#text": z.string(),
-                  "@_key": z.string(),
-                  "@_number": z.coerce.number(),
-                  "@_type": InputType,
-                  "@_title": z.string(),
-                  "@_shortTitle": z.string(),
-                  "@_state": z.string(),
-                  "@_position": z.coerce.number(),
-                  "@_duration": z.coerce.number(),
-                  "@_loop": z.string(),
-                })
-                .passthrough(),
-              VideoObject,
-              VideoListObject,
-              AudioFileObject,
-            ]),
-          ),
-        })
-        .passthrough(),
+      preset: deEscapedString,
+      inputs: z.object({
+        input: z.array(
+          z.union([
+            VideoObject,
+            VideoListObject,
+            AudioFileObject,
+            // This one needs to be last, so that the more specific types match first
+            z.object({
+              "#text": z.string(),
+              "@_key": z.string(),
+              "@_number": z.coerce.number(),
+              "@_type": InputType,
+              "@_title": z.string(),
+              "@_shortTitle": z.string(),
+              "@_state": z.string(),
+              "@_position": z.coerce.number(),
+              "@_duration": z.coerce.number(),
+              "@_loop": z.string(),
+            }),
+          ]),
+        ),
+      }),
       overlays: z.object({
         overlay: z.array(z.object({ "@_number": z.coerce.number() })),
       }),
