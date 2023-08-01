@@ -251,17 +251,20 @@ export function ShowItemsList(props: {
   const onDragEnd: OnDragEndResponder = useCallback(
     (result) => {
       startTransition(async () => {
+        if (!result.destination) {
+          return;
+        }
         const [type, id] = result.draggableId.split(":");
         doOptimisticMove({
           type,
           id: parseInt(id, 10),
-          newIdx: result.destination!.index,
+          newIdx: result.destination.index,
         });
         await reorderShowItems(
           props.show.id,
           type as "rundown" | "continuity_item",
           parseInt(id, 10),
-          result.destination!.index,
+          result.destination.index,
         );
       });
     },
