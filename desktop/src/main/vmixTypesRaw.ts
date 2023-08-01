@@ -101,7 +101,7 @@ export const VMixRawXMLSchema = z
             VideoObject,
             VideoListObject,
             AudioFileObject,
-            // This one needs to be last, so that the more specific types match first
+            // This one needs to be last, so that the more specific types match first (based on the z.literal on the @_type)
             z.object({
               "#text": z.string(),
               "@_key": z.string(),
