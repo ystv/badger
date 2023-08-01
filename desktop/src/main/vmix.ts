@@ -19,6 +19,7 @@ import {
   VideoObject,
 } from "./vmixTypesRaw";
 import { z } from "zod";
+import { inspect } from "node:util";
 
 type VMixCommand =
   | "TALLY"
@@ -145,7 +146,7 @@ export default class VMixConnection {
           (v as unknown as ListInput) = {
             ...v,
             type: r["@_type"],
-            selectedIndex: r["@_selectedIndex"],
+            selectedIndex: r["@_selectedIndex"] - 1 /* 1-based index */,
             items: [],
           };
           if (Array.isArray(r.list.item)) {
