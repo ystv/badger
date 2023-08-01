@@ -111,6 +111,8 @@ export default class VMixConnection {
       inputs: [],
     };
     for (const input of raw.vmix.inputs.input) {
+      // eslint is wrong
+      // eslint-disable-next-line prefer-const
       let v: BaseInput = {
         key: input["@_key"],
         number: input["@_number"],
