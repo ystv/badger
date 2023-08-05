@@ -235,7 +235,6 @@ export const appRouter = r({
             message: "Not all media is downloaded locally",
           });
         }
-        // TODO: avoid hardcoding this
         await reconcileList(VMIX_NAMES.VTS_LIST, paths as string[]);
       }),
   }),

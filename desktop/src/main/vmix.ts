@@ -45,6 +45,14 @@ interface ReqQueueItem {
  */
 export default class VMixConnection {
   private sock!: Socket;
+  // When replying to a TCP request, vMix includes the name of the command
+  // in its response, but nothing else that would allow us to identify the sender
+  // (unlike e.g. the OBS WebSocket API, where requests can have an ID).
+  // Therefore, we only allow one request per command type to be in flight at
+  // a time. If a caller makes another request while one is in flight, we push it
+  // to the request queue and dispatch it after the first one comes back.
+  // This map is used to hang onto the response handler for the currently
+  // in-flight request - if the command has an entry, one is in flight.
   private replyAwaiting: Map<
     VMixCommand,
     {
@@ -136,9 +144,13 @@ export default class VMixConnection {
     if (rawParseRes.success) {
       raw = rawParseRes.data;
     } else if (import.meta.env.MODE === "test") {
+      // In tests we want this to fail immediately so that we notice the changes
       console.error(rawParseRes.error);
       throw rawParseRes.error;
     } else {
+      // But in production we want to keep trying if we can, as it's possible the
+      // changes are minor enough to allow this to continue working.
+      // TODO: track divergences centrally
       console.warn(
         "Parsing raw vMix schema failed. Possibly the vMix is a version we don't know. Will try to proceed, but things may break!",
       );
