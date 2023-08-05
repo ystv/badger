@@ -1,7 +1,7 @@
 import { ipc } from "./ipc";
 import invariant from "../common/invariant";
-import { Tab } from "@headlessui/react";
-import { IoCog } from "react-icons/io5";
+import { Popover, Tab } from "@headlessui/react";
+import { IoCog, IoDownloadSharp } from "react-icons/io5";
 import OBSScreen from "./screens/OBS";
 import { DownloadTracker } from "./DownloadTracker";
 import VMixScreen from "./screens/vMix";
@@ -14,6 +14,14 @@ export default function MainScreen() {
     <div>
       <nav className="absolute top-0 left-0 w-full h-12 mb-12 px-4 bg-dark text-light flex flex-nowrap items-center justify-between">
         <span className="font-bold">{show.name}</span>
+        <Popover>
+          <Popover.Button>
+            <IoDownloadSharp />
+          </Popover.Button>
+          <Popover.Panel>
+            <DownloadTracker />
+          </Popover.Panel>
+        </Popover>
         <button className="h-full aspect-square flex items-center justify-center">
           <IoCog className="h-8 w-8" size={32} />
         </button>
@@ -49,7 +57,6 @@ export default function MainScreen() {
           )}
         </Tab.Panels>
       </Tab.Group>
-      <DownloadTracker />
     </div>
   );
 }
