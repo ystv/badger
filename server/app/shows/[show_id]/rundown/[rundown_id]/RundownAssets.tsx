@@ -22,7 +22,6 @@ import {
   processAssetUpload,
   removeAsset,
 } from "@/app/shows/[show_id]/rundown/[rundown_id]/assetsActions";
-import { deleteItem } from "@/app/shows/[show_id]/actions";
 import { useRouter } from "next/navigation";
 
 export interface RundownWithAssets extends Rundown {
