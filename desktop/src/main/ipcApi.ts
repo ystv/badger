@@ -15,11 +15,17 @@ import {
   DownloadStatusSchema,
   getDownloadStatus,
 } from "./mediaManagement";
-import { getLocalMediaSettings, LocalMediaSettingsSchema } from "./settings";
+import {
+  assetsSettingsSchema,
+  getAssetsSettings,
+  getLocalMediaSettings,
+  LocalMediaSettingsSchema,
+} from "./settings";
 import { addOrReplaceMediaAsScene, findContinuityScenes } from "./obsHelpers";
 import { createVMixConnection, getVMixConnection } from "./vmix";
-import { reconcileList } from "./vmixHelpers";
+import { getInputTypeForAsset, reconcileList } from "./vmixHelpers";
 import { VMIX_NAMES } from "../common/constants";
+import { ListInput } from "./vmixTypes";
 
 function serverAPI() {
   invariant(serverApiClient !== null, "serverApiClient is null");
@@ -29,6 +35,7 @@ function serverAPI() {
 const t = initTRPC.create();
 const r = t.router;
 const proc = t.procedure;
+
 export const appRouter = r({
   serverConnectionStatus: proc.query(async () => {
     return (
@@ -229,6 +236,95 @@ export const appRouter = r({
         }
         await reconcileList(VMIX_NAMES.VTS_LIST, paths as string[]);
       }),
+    loadAssets: proc
+      .input(
+        z.object({
+          rundownID: z.number(),
+          assetIDs: z.array(z.number()),
+        }),
+      )
+      .mutation(async ({ input }) => {
+        const rundown = await serverAPI().rundowns.get.query({
+          id: input.rundownID,
+        });
+        invariant(rundown, "Rundown not found");
+        const assets = rundown.assets.filter((x) =>
+          input.assetIDs.includes(x.id),
+        );
+        if (assets.length !== input.assetIDs.length) {
+          throw new TRPCError({
+            code: "PRECONDITION_FAILED",
+            message: "Not all assets are in the rundown",
+          });
+        }
+        const localMedia = await getLocalMediaSettings();
+        const settings = await getAssetsSettings();
+        const vmix = getVMixConnection();
+        invariant(vmix, "No vMix connection");
+        const state = await vmix.getFullState();
+        for (const asset of assets) {
+          if (!asset.media || asset.media.state !== "Ready") {
+            throw new TRPCError({
+              code: "PRECONDITION_FAILED",
+              message: "Not all assets are ready",
+            });
+          }
+          const local = localMedia.find((x) => x.mediaID === asset.media!.id);
+          if (!local) {
+            throw new TRPCError({
+              code: "PRECONDITION_FAILED",
+              message: "Not all assets are downloaded locally",
+            });
+          }
+
+          // TODO: See if everything below here could be refactored out - not currently done to avoid needing to refetch
+          //  vMix state each time
+          const loadType = settings.loadTypes[asset.type];
+          if (!loadType) {
+            throw new TRPCError({
+              code: "PRECONDITION_FAILED",
+              message: "No load type for asset type",
+            });
+          }
+          if (loadType === "direct") {
+            const present = state.inputs.find(
+              (x) => x.title === asset.media!.name,
+            );
+            if (!present) {
+              await vmix.addInput(getInputTypeForAsset(asset), local.path);
+            }
+          } else if (loadType === "list") {
+            let present;
+            const list = state.inputs.find(
+              (x) => x.shortTitle === VMIX_NAMES.ASSET_LIST[asset.type],
+            );
+            let listKey;
+            if (!list) {
+              present = false;
+              listKey = await vmix.addInput("VideoList", "");
+              await vmix.renameInput(
+                listKey,
+                VMIX_NAMES.ASSET_LIST[asset.type],
+              );
+            } else {
+              listKey = list.key;
+              present = (list as ListInput).items.some(
+                (x) => x.source === local.path,
+              );
+            }
+            if (!present) {
+              await vmix.addInputToList(listKey, local.path);
+            }
+          } else {
+            invariant(false, "Invalid load type " + loadType);
+          }
+        }
+      }),
+  }),
+  assets: r({
+    getSettings: proc
+      .output(assetsSettingsSchema)
+      .query(() => getAssetsSettings()),
   }),
 });
 export type AppRouter = typeof appRouter;

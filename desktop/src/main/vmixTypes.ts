@@ -5,6 +5,7 @@ export type InputType =
   | "Video"
   | "Image"
   | "AudioFile"
+  | "Title"
   | "Blank";
 
 export interface BaseInput<T extends InputType = InputType> {

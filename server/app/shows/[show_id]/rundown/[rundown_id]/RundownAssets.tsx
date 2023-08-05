@@ -73,7 +73,7 @@ export default function RundownAssets(props: { rundown: RundownWithAssets }) {
         window.clearInterval(refreshIntervalRef.current);
       }
     };
-  }, [props.rundown.assets]);
+  }, [props.rundown.assets, router]);
 
   return (
     <div>

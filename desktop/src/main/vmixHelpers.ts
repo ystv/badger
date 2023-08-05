@@ -1,5 +1,8 @@
 import invariant from "../common/invariant";
 import { getVMixConnection } from "./vmix";
+import { z } from "zod";
+import { CompleteAssetSchema } from "@/lib/db/utilityTypes";
+import { InputType } from "./vmixTypes";
 
 export async function reconcileList(listName: string, elements: string[]) {
   const conn = getVMixConnection();
@@ -19,5 +22,28 @@ export async function reconcileList(listName: string, elements: string[]) {
   // Not done in a Promise.all() to ensure they're done in order
   for (const el of elements) {
     await conn.addInputToList(key, el);
+  }
+}
+
+export function getInputTypeForAsset(
+  asset: z.infer<typeof CompleteAssetSchema>,
+): InputType {
+  switch (asset.type) {
+    case "Still":
+      return "Image";
+    case "Music":
+    case "SoundEffect":
+      return "AudioFile";
+    case "Graphic": {
+      const media = asset.media;
+      invariant(media, "Asset has no media");
+      if (media.name.endsWith(".gtxml") || media.name.endsWith(".gtzip")) {
+        return "Title";
+      } else {
+        return "Video";
+      }
+    }
+    default:
+      invariant(false, `Unknown asset type ${asset.type}`);
   }
 }
