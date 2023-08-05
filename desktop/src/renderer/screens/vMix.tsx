@@ -177,7 +177,7 @@ function Rundown(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
       )}
       <div className="space-y-2">
         {items.map((item) => (
-          <div className="flex flex-row flex-wrap">
+          <div key={item.id} className="flex flex-row flex-wrap">
             <span className="text-lg font-bold">{item.name}</span>
             <div className="ml-auto">
               {item._state === "no-media" && (
@@ -250,7 +250,7 @@ export default function VMixScreen() {
       ) : (
         <div className="space-y-2">
           {show.rundowns.map((rundown) => (
-            <div className="flex flex-row flex-wrap">
+            <div key={rundown.id} className="flex flex-row flex-wrap">
               <span className="text-lg font-bold">{rundown.name}</span>
               <div className="ml-auto">
                 <Button onClick={() => setActiveRundownID(rundown.id)}>
