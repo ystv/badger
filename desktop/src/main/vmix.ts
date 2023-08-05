@@ -4,11 +4,9 @@ import { XMLParser } from "fast-xml-parser";
 import {
   AudioFileInput,
   BaseInput,
-  ColourInput,
-  InputType,
+  InputObject,
   ListInput,
-  ListItem,
-  VMixInputType,
+  InputType,
   VMixState,
   VideoInput,
 } from "./vmixTypes";
@@ -19,7 +17,7 @@ import {
   VideoObject,
 } from "./vmixTypesRaw";
 import { z } from "zod";
-import { inspect } from "node:util";
+import * as qs from "qs";
 
 type VMixCommand =
   | "TALLY"
@@ -85,23 +83,61 @@ export default class VMixConnection {
     return vmix;
   }
 
+  public async addInput(type: InputType, filePath: string) {
+    return this.doFunction("AddInput", { Value: type + "|" + filePath });
+  }
+
+  public async addInputToList(listSource: string, path: string) {
+    return this.doFunction("ListAdd", { Input: listSource, Value: path });
+  }
+
+  /**
+   *
+   * @param listSource the name, index, or ID of the list source
+   * @param index the index of the item to remove - NB: this is 1-based!
+   */
+  public async removeItemFromList(listSource: string, index: number) {
+    return this.doFunction("ListRemove", {
+      Input: listSource,
+      Value: index.toString(),
+    });
+  }
+
+  public async clearList(listSource: string) {
+    return this.doFunction("ListRemoveAll", { Input: listSource });
+  }
+
+  // Function reference: https://www.vmix.com/help26/ShortcutFunctionReference.html
+  private async doFunction(fn: string, params: Record<string, string>) {
+    return this.send("FUNCTION", fn, qs.stringify(params));
+  }
+
   public async getFullStateRaw(): Promise<unknown> {
     const [_, result] = await this.send("XML");
     return this.xmlParser.parse(result);
   }
 
-  public async getFullState(): Promise<VMixState> {
+  /**
+   *
+   * @param _requireSuccessfulParse should only be used by tests
+   */
+  public async getFullState(
+    _requireSuccessfulParse = false,
+  ): Promise<VMixState> {
     const data = await this.getFullStateRaw();
     const rawParseRes = VMixRawXMLSchema.safeParse(data);
     let raw: z.infer<typeof VMixRawXMLSchema>;
     if (rawParseRes.success) {
       raw = rawParseRes.data;
-    } else {
+    } else if (_requireSuccessfulParse) {
+      throw rawParseRes.error;
+    }
+    {
       console.warn(
         "Parsing raw vMix schema failed. Possibly the vMix is a version we don't know. Will try to proceed, but things may break!",
       );
       console.debug("Raw data:", JSON.stringify(data));
-      // DIRTY HACK
+      // DIRTY HACK - assume that the data matches the schema to extract what we can
       raw = data as z.infer<typeof VMixRawXMLSchema>;
     }
     const res: VMixState = {
@@ -116,7 +152,7 @@ export default class VMixConnection {
       let v: BaseInput = {
         key: input["@_key"],
         number: input["@_number"],
-        type: input["@_type"] as VMixInputType,
+        type: input["@_type"] as InputType,
         title: input["@_title"],
         shortTitle: input["@_shortTitle"],
         loop: input["@_loop"] === "True",
@@ -176,7 +212,7 @@ export default class VMixConnection {
           console.warn(`Unrecognised input type '${input["@_type"]}'`);
           continue;
       }
-      res.inputs.push(v as InputType);
+      res.inputs.push(v as InputObject);
     }
     return res;
   }
