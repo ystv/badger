@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import {
   CompleteMediaModel,
+  CompleteRundownModel,
   CompleteShowModel,
   PartialShowModel,
 } from "@/lib/db/utilityTypes";
@@ -96,6 +97,25 @@ export const appRouter = router({
           ).downloadURL = await getPresignedURL(obj.path);
         }
         return obj as z.infer<typeof ExtendedMediaModelWithDownloadURL>;
+      }),
+  }),
+  rundowns: router({
+    get: publicProcedure
+      .input(z.object({ id: z.number() }))
+      .output(CompleteRundownModel)
+      .query(async ({ input }) => {
+        return db.rundown.findUniqueOrThrow({
+          where: {
+            id: input.id,
+          },
+          include: {
+            items: {
+              include: {
+                media: true,
+              },
+            },
+          },
+        });
       }),
   }),
 });

@@ -22,17 +22,15 @@ export const PartialMediaModel = MediaSchema.extend({});
 export const CompleteContinuityItemModel = ContinuityItemSchema.extend({
   media: PartialMediaModel.nullable(),
 });
+export const CompleteRundownItemSchema = RundownItemSchema.extend({
+  media: z.array(PartialMediaModel),
+});
+export const CompleteRundownModel = RundownSchema.extend({
+  items: z.array(CompleteRundownItemSchema),
+});
 export const CompleteShowModel = ShowSchema.extend({
   continuityItems: z.array(CompleteContinuityItemModel),
-  rundowns: z.array(
-    RundownSchema.extend({
-      items: z.array(
-        RundownItemSchema.extend({
-          media: z.array(PartialMediaModel),
-        }),
-      ),
-    }),
-  ),
+  rundowns: z.array(CompleteRundownModel),
 });
 
 export const CompleteMediaModel = PartialMediaModel.extend({
