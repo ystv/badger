@@ -18,6 +18,7 @@ import {
 } from "./vmixTypesRaw";
 import { z } from "zod";
 import * as qs from "qs";
+import { v4 as uuidV4 } from "uuid";
 
 type VMixCommand =
   | "TALLY"
@@ -84,10 +85,14 @@ export default class VMixConnection {
   }
 
   public async addInput(type: InputType, filePath: string) {
-    return this.doFunction("AddInput", { Value: type + "|" + filePath });
-    // You may be wondering how to get the ID or index of the newly added input.
-    // You don't! vMix simply doesn't return it.
-    // You need to do a getFullState() and look for it.
+    // vMix doesn't return the input key, but you can pass it one to use.
+    const id = uuidV4();
+    await this.doFunction("AddInput", {
+      Value: type + "|" + filePath,
+      Input: id,
+    });
+    // This may error if the input is already added or the GUID collides (very very unlikely)
+    return id;
   }
 
   public async addInputToList(listSource: string, path: string) {
