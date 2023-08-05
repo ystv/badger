@@ -1,4 +1,4 @@
-import { beforeAll, vi, expect, test, describe } from "vitest";
+import { beforeAll, expect, test, describe } from "vitest";
 import VMixConnection from "./vmix";
 
 const integrate =

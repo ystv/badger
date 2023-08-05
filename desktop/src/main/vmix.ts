@@ -328,9 +328,17 @@ export default class VMixConnection {
     this.buffer = "";
   }
 
-  private onClose(error: boolean) {}
+  private onClose() {
+    this.replyAwaiting.forEach((req) => req.reject(new Error("Socket closed")));
+    this.replyAwaiting.clear();
+    this.requestQueue.forEach((req) => req.reject(new Error("Socket closed")));
+    this.requestQueue = [];
+    this.onError(new Error("Socket closed"));
+  }
 
-  private onError(err: Error) {}
+  private onError(err: Error) {
+    console.error("VMix connection error", err);
+  }
 }
 
 export let conn: VMixConnection | null;

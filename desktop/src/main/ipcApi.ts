@@ -4,12 +4,11 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import invariant from "../common/invariant";
 import { selectedShow, setSelectedShow } from "./selectedShow";
 import {
-  CompleteMediaModel,
   CompleteShowModel,
   PartialMediaModel,
   PartialShowModel,
 } from "bowser-server/lib/db/utilityTypes";
-import { CompleteShowType, Integration } from "../common/types";
+import { Integration } from "../common/types";
 import { createOBSConnection, obsConnection } from "./obs";
 import {
   downloadMedia,
@@ -18,12 +17,7 @@ import {
 } from "./mediaManagement";
 import { getLocalMediaSettings, LocalMediaSettingsSchema } from "./settings";
 import { addOrReplaceMediaAsScene, findContinuityScenes } from "./obsHelpers";
-import { observable } from "@trpc/server/observable";
-import {
-  createVMixConnection,
-  getVMixConnection,
-  tryCreateVMixConnection,
-} from "./vmix";
+import { createVMixConnection, getVMixConnection } from "./vmix";
 import { reconcileList } from "./vmixHelpers";
 import { VMIX_NAMES } from "../common/constants";
 

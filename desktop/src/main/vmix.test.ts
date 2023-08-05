@@ -1,4 +1,4 @@
-import { beforeEach, describe, test, vi, expect, beforeAll } from "vitest";
+import { beforeEach, describe, test, vi, expect } from "vitest";
 import { EventEmitter } from "node:events";
 import * as fs from "node:fs/promises";
 import * as path from "path";

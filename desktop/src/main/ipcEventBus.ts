@@ -1,6 +1,5 @@
 import { Events } from "../common/ipcEvents";
 import { Subscribable } from "rxjs";
-import { selectedShow } from "./selectedShow";
 
 let sender: (evt: keyof Events, ...args: unknown[]) => void = () => {
   throw new Error("sender not initialized");
