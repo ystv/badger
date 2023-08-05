@@ -86,7 +86,7 @@ export default class VMixConnection {
   public async addInput(type: InputType, filePath: string) {
     return this.doFunction("AddInput", { Value: type + "|" + filePath });
     // You may be wondering how to get the ID or index of the newly added input.
-    // You don't!
+    // You don't! vMix simply doesn't return it.
     // You need to do a getFullState() and look for it.
   }
 

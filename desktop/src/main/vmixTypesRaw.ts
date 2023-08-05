@@ -6,7 +6,15 @@ import { z } from "zod";
  */
 
 const InputType = z
-  .enum(["Mix", "Colour", "VideoList", "Video", "Image", "AudioFile", "Blank"] as const)
+  .enum([
+    "Mix",
+    "Colour",
+    "VideoList",
+    "Video",
+    "Image",
+    "AudioFile",
+    "Blank",
+  ] as const)
   .or(z.string());
 
 /**
@@ -42,9 +50,11 @@ const ListItemObj = z.object({
 const ListItemType = z.union([ListItemObj, deEscapedString]);
 
 export const VideoListObject = z.object({
-  list: z.object({
-    item: ListItemObj.or(z.array(ListItemType)),
-  }).optional(),
+  list: z
+    .object({
+      item: ListItemObj.or(z.array(ListItemType)),
+    })
+    .optional(),
   "#text": z.string(),
   "@_key": z.string(),
   "@_number": z.coerce.number(),
@@ -153,11 +163,13 @@ export const VMixRawXMLSchema = z
       playList: z.string(),
       multiCorder: z.string(),
       fullscreen: z.string(),
-      mix: z.object({
-        preview: z.number(),
-        active: z.number(),
-        "@_number": z.coerce.number(),
-      }).optional(),
+      mix: z
+        .object({
+          preview: z.number(),
+          active: z.number(),
+          "@_number": z.coerce.number(),
+        })
+        .optional(),
       audio: z.object({
         master: z.object({
           "@_volume": z.string(),

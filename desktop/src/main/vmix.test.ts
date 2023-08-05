@@ -121,4 +121,3 @@ describe("VMixConnection", () => {
     expect(res).resolves.toMatchSnapshot();
   });
 });
-
