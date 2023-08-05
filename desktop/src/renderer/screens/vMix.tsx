@@ -73,11 +73,12 @@ function Rundown(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
   const vmixState = ipc.vmix.getCompleteState.useQuery();
   const downloadState = ipc.media.getDownloadStatus.useQuery(undefined, {
     refetchInterval: (data) =>
-      data?.some((x) => x.status !== "done") ? 1000 : false,
+      data?.some((x) => x.status !== "done") ? 1_000 : false,
   });
   const localMedia = ipc.media.getLocalMedia.useQuery(undefined, {
     refetchInterval: () =>
-      downloadState.data?.some((x) => x.status !== "done") ? 1000 : 10_000,
+      downloadState.data?.some((x) => x.status !== "done") ? 1_000 : 10_000,
+    staleTime: 2_500,
   });
   const doLoad = ipc.vmix.loadRundownVTs.useMutation();
   const doDownload = ipc.media.downloadMedia.useMutation();
