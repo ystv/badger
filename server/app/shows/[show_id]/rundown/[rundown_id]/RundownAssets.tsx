@@ -1,7 +1,7 @@
 "use client";
 
 import { Asset, AssetTypeSchema, LoadAssetJob, Rundown } from "@/lib/db/types";
-import React, { useState, useTransition } from "react";
+import React, { useEffect, useRef, useState, useTransition } from "react";
 import { AssetTypeType } from "@/lib/db/types/inputTypeSchemas/AssetTypeSchema";
 import classNames from "classnames";
 import Button from "@/components/Button";
@@ -14,11 +14,16 @@ import {
 } from "react-icons/io5";
 import { IconType } from "react-icons/lib/cjs/iconBase";
 import { MediaUploadDialog } from "@/components/MediaUpload";
-import { Dialog } from "@headlessui/react";
-import { processAssetUpload } from "@/app/shows/[show_id]/rundown/[rundown_id]/actions";
+import { Dialog, Popover } from "@headlessui/react";
 import Spinner from "@/app/_assets/spinner.svg";
 import Image from "next/image";
 import { MediaState } from "@prisma/client";
+import {
+  processAssetUpload,
+  removeAsset,
+} from "@/app/shows/[show_id]/rundown/[rundown_id]/assetsActions";
+import { deleteItem } from "@/app/shows/[show_id]/actions";
+import { useRouter } from "next/navigation";
 
 export interface RundownWithAssets extends Rundown {
   assets: Asset[];
@@ -39,6 +44,7 @@ const AssetIcons: { [K in AssetTypeType]: IconType } = {
 };
 
 export default function RundownAssets(props: { rundown: RundownWithAssets }) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [filter, setFilter] = useState<AssetTypeType | "all">("all");
   const assets = props.rundown.assets.filter((asset) => {
@@ -51,6 +57,24 @@ export default function RundownAssets(props: { rundown: RundownWithAssets }) {
   const [newUploadType, setNewUploadType] = useState<AssetTypeType | "$none">(
     "$none",
   );
+
+  // Periodically refresh if any assets are pending
+  const refreshIntervalRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (
+      props.rundown.assets.some((asset) => asset.state !== MediaState.Ready)
+    ) {
+      refreshIntervalRef.current = window.setInterval(() => {
+        router.refresh();
+      }, 2500);
+    }
+    return () => {
+      if (refreshIntervalRef.current !== null) {
+        window.clearInterval(refreshIntervalRef.current);
+      }
+    };
+  }, [props.rundown.assets]);
+
   return (
     <div>
       <h2 className="text-xl">Assets</h2>
@@ -108,9 +132,28 @@ export default function RundownAssets(props: { rundown: RundownWithAssets }) {
                 <div>{icon}</div>
                 <div>{asset.name}</div>
                 <div>
-                  <Button color="danger" size="small">
-                    &times;
-                  </Button>
+                  <Popover>
+                    <Popover.Button className="border-danger border-[1px] text-danger hover:text-light hover:bg-danger-4 px-0.5 py-1 rounded-md">
+                      &times;
+                    </Popover.Button>
+                    <Popover.Overlay className="fixed inset-0 bg-dark/40 z-20" />
+                    <Popover.Panel className="absolute shadow-lg ml-4 z-50 p-0 m-0">
+                      <Button
+                        color="danger"
+                        inverted
+                        onClick={() =>
+                          startTransition(async () => {
+                            await removeAsset(asset.id);
+                          })
+                        }
+                        disabled={isPending}
+                        className="z-50"
+                      >
+                        {isPending && <Image src={Spinner} alt="" />}
+                        You sure boss?
+                      </Button>
+                    </Popover.Panel>
+                  </Popover>
                 </div>
               </div>
             );
@@ -138,7 +181,7 @@ export default function RundownAssets(props: { rundown: RundownWithAssets }) {
                 setNewUploadType(e.target.value as AssetTypeType)
               }
               value={String(newUploadType)}
-              className="border border-mid-dark rounded-md p-1"
+              className="border border-mid-dark rounded-md p-1 w-64"
             >
               <option value="$none" disabled>
                 Select type

@@ -23,7 +23,7 @@ import {
   editItem,
   processUploadForRundownItem,
   reorder,
-} from "./actions";
+} from "./itemsActions";
 import { AddItemSchema, EditItemSchema, ItemTypeSchema } from "./schema";
 import { Field, HiddenField, SelectField } from "@/components/FormFields";
 import { identity } from "lodash";

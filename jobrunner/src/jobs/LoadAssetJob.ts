@@ -101,7 +101,7 @@ export class LoadAssetJob extends AbstractJob<LoadAssetJobType> {
 
   private async _uploadFileToS3(path: string, asset: AssetWithRundown) {
     const stream = fs.createReadStream(path);
-    const s3Path = `shows/${asset.rundown.showId}/rundown/${asset.rundownId}/assets/${asset.id} - ${asset.name}`;
+    const s3Path = `shows/${asset.rundown.showId}/rundown/${asset.rundown.id}/assets/${asset.id} - ${asset.name}`;
     const command = new PutObjectCommand({
       Bucket: process.env.STORAGE_BUCKET,
       Key: s3Path,
