@@ -117,22 +117,16 @@ export default class VMixConnection {
     return this.xmlParser.parse(result);
   }
 
-  /**
-   *
-   * @param _requireSuccessfulParse should only be used by tests
-   */
-  public async getFullState(
-    _requireSuccessfulParse = false,
-  ): Promise<VMixState> {
+  public async getFullState(): Promise<VMixState> {
     const data = await this.getFullStateRaw();
     const rawParseRes = VMixRawXMLSchema.safeParse(data);
     let raw: z.infer<typeof VMixRawXMLSchema>;
     if (rawParseRes.success) {
       raw = rawParseRes.data;
-    } else if (_requireSuccessfulParse) {
+    } else if (import.meta.env.MODE === "test") {
+      console.error(rawParseRes.error);
       throw rawParseRes.error;
-    }
-    {
+    } else {
       console.warn(
         "Parsing raw vMix schema failed. Possibly the vMix is a version we don't know. Will try to proceed, but things may break!",
       );
