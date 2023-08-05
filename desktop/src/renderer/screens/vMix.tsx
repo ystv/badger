@@ -132,13 +132,32 @@ function Rundown(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
         _state: "ready",
       };
     });
-  }, [localMedia.data, props.rundown.items, vtsListState]);
+  }, [
+    downloadState.data,
+    localMedia.data,
+    props.rundown.items,
+    vtsListState?.items,
+  ]);
+
+  const doDownloadAll = useCallback(() => {
+    for (const item of items) {
+      if (item._state === "no-local") {
+        doDownload.mutate({ id: item.media[0].id });
+      }
+    }
+  }, [doDownload, items]);
 
   return (
     <div>
       <h2>{props.rundown.name}</h2>
       <div>
         <div className="ml-auto">
+          <Button
+            isDisabled={items.every((x) => x._state !== "no-local")}
+            onClick={doDownloadAll}
+          >
+            Download All
+          </Button>
           <Button
             isDisabled={doLoad.isLoading}
             onClick={() => doLoad.mutate({ rundownID: props.rundown.id })}
