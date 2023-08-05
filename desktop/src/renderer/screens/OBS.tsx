@@ -103,7 +103,7 @@ function AddToOBS({
         prompt: result.promptReplace ?? "ok",
       });
     },
-    [item.media, addToOBS],
+    [item.media, addToOBS, queryClient],
   );
   const state = useMemo(() => {
     if (!item.media) {

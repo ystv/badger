@@ -1,7 +1,7 @@
 import { ipc } from "./ipc";
 import invariant from "../common/invariant";
 import { Popover, Tab } from "@headlessui/react";
-import { IoCog, IoDownloadSharp } from "react-icons/io5";
+import { IoDownloadSharp } from "react-icons/io5";
 import OBSScreen from "./screens/OBS";
 import VMixScreen from "./screens/vMix";
 import { usePopper } from "react-popper";

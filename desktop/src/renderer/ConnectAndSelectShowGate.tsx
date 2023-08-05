@@ -4,7 +4,6 @@ import Button from "./components/Button";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import invariant from "../common/invariant";
-import { CompleteShowType } from "../common/types";
 
 function ServerConnectForm() {
   const queryClient = useQueryClient();
@@ -105,8 +104,8 @@ export default function ConnectAndSelectShowGate(props: {
   const selectedShow = ipc.getSelectedShow.useQuery(void 0);
 
   useEffect(() => {
-    const handler = (_: CompleteShowType | null) => {
-      queryClient.invalidateQueries(getQueryKey(ipc.getSelectedShow));
+    const handler = async () => {
+      await queryClient.invalidateQueries(getQueryKey(ipc.getSelectedShow));
     };
     window.IPCEventBus.on("selectedShowChange", handler);
     return () => {
