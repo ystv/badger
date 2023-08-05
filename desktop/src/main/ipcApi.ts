@@ -214,14 +214,12 @@ export const appRouter = r({
         });
         invariant(rundown, "Rundown not found");
         const media = rundown.items
-          .map<z.infer<typeof PartialMediaModel>>(
-            (i) => i.media[0] /* TODO: change this once BOW-20 lands */,
-          )
+          .map<z.infer<typeof PartialMediaModel> | null>((i) => i.media)
           .filter((x) => x && x.state === "Ready");
         const localMedia = await getLocalMediaSettings();
         const paths = media.map(
           (remote) =>
-            localMedia.find((local) => local.mediaID === remote.id)?.path,
+            localMedia.find((local) => local.mediaID === remote?.id)?.path,
         );
         if (paths.some((x) => !x)) {
           throw new TRPCError({
