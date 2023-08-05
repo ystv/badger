@@ -91,12 +91,16 @@ export default class VMixConnection {
       Value: type + "|" + filePath,
       Input: id,
     });
-    // This may error if the input is already added or the GUID collides (very very unlikely)
+    // This may error if the input is already added or the GUID collides (very unlikely)
     return id;
   }
 
+  public async renameInput(inputKey: string, newName: string) {
+    await this.doFunction("SetInputName", { Input: inputKey, Value: newName });
+  }
+
   public async addInputToList(listSource: string, path: string) {
-    return this.doFunction("ListAdd", { Input: listSource, Value: path });
+    await this.doFunction("ListAdd", { Input: listSource, Value: path });
   }
 
   /**
@@ -105,14 +109,14 @@ export default class VMixConnection {
    * @param index the index of the item to remove - NB: this is 1-based!
    */
   public async removeItemFromList(listSource: string, index: number) {
-    return this.doFunction("ListRemove", {
+    await this.doFunction("ListRemove", {
       Input: listSource,
       Value: index.toString(),
     });
   }
 
   public async clearList(listSource: string) {
-    return this.doFunction("ListRemoveAll", { Input: listSource });
+    await this.doFunction("ListRemoveAll", { Input: listSource });
   }
 
   // Function reference: https://www.vmix.com/help26/ShortcutFunctionReference.html
@@ -315,4 +319,40 @@ export default class VMixConnection {
   private onClose(error: boolean) {}
 
   private onError(err: Error) {}
+}
+
+export let conn: VMixConnection | null;
+
+export async function tryCreateVMixConnection(
+  host?: string,
+  port?: number,
+): Promise<VMixConnection | null> {
+  if (!conn) {
+    try {
+      conn = await VMixConnection.connect(host, port);
+    } catch (e) {
+      console.warn("Failed to connect to VMix", e);
+      conn = null;
+    }
+  }
+  return conn;
+}
+
+export async function createVMixConnection(
+  host?: string,
+  port?: number,
+): Promise<VMixConnection> {
+  if (!conn) {
+    try {
+      conn = await VMixConnection.connect(host, port);
+    } catch (e) {
+      conn = null;
+      throw e;
+    }
+  }
+  return conn;
+}
+
+export function getVMixConnection(): VMixConnection | null {
+  return conn;
 }

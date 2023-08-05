@@ -10,6 +10,7 @@ import isSquirrel from "electron-squirrel-startup";
 import { selectedShow } from "./selectedShow";
 import logging, { LogLevelNames } from "loglevel";
 import prefix from "loglevel-plugin-prefix";
+import { tryCreateVMixConnection } from "./vmix";
 logging.setLevel(
   (process.env.LOG_LEVEL as LogLevelNames) ?? logging.levels.DEBUG,
 );
@@ -33,6 +34,9 @@ const createWindow = async () => {
   await validateLocalMediaState();
   await tryCreateAPIClient();
   await tryCreateOBSConnection(); // TODO: check if OBS is even installed
+  if (process.platform === "win32") {
+    await tryCreateVMixConnection();
+  }
 
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -45,9 +49,9 @@ const createWindow = async () => {
 
   // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+    await mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
   } else {
-    mainWindow.loadFile(
+    await mainWindow.loadFile(
       path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`),
     );
   }
