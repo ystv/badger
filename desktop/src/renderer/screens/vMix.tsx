@@ -70,11 +70,14 @@ type ItemState = "no-media" | "no-local" | "downloading" | "ready" | "loaded";
 
 function Rundown(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
   const queryClient = useQueryClient();
-  const localMedia = ipc.media.getLocalMedia.useQuery();
   const vmixState = ipc.vmix.getCompleteState.useQuery();
   const downloadState = ipc.media.getDownloadStatus.useQuery(undefined, {
     refetchInterval: (data) =>
       data?.some((x) => x.status !== "done") ? 1000 : false,
+  });
+  const localMedia = ipc.media.getLocalMedia.useQuery(undefined, {
+    refetchInterval: () =>
+      downloadState.data?.some((x) => x.status !== "done") ? 1000 : 10_000,
   });
   const doLoad = ipc.vmix.loadRundownVTs.useMutation();
   const doDownload = ipc.media.downloadMedia.useMutation();
@@ -95,43 +98,45 @@ function Rundown(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
       _downloadProgress?: number;
     }
   > = useMemo(() => {
-    return props.rundown.items.map((item) => {
-      if (item.media.length === 0 || item.media[0].state !== "Ready") {
-        return {
-          ...item,
-          _state: "no-media",
-        };
-      }
-      const local = localMedia.data?.find(
-        (x) => x.mediaID === item.media[0].id,
-      );
-      if (!local) {
-        const dl = downloadState.data?.find(
-          (x) => x.mediaID === item.media[0].id,
-        );
-        if (dl) {
+    return props.rundown.items
+      .filter((item) => item.type !== "Segment")
+      .map((item) => {
+        if (item.media.length === 0 || item.media[0].state !== "Ready") {
           return {
             ...item,
-            _state: "downloading",
-            _downloadProgress: dl.progressPercent,
+            _state: "no-media",
+          };
+        }
+        const local = localMedia.data?.find(
+          (x) => x.mediaID === item.media[0].id,
+        );
+        if (!local) {
+          const dl = downloadState.data?.find(
+            (x) => x.mediaID === item.media[0].id,
+          );
+          if (dl) {
+            return {
+              ...item,
+              _state: "downloading",
+              _downloadProgress: dl.progressPercent,
+            };
+          }
+          return {
+            ...item,
+            _state: "no-local",
+          };
+        }
+        if (vtsListState?.items?.find((x) => x.source === local.path)) {
+          return {
+            ...item,
+            _state: "loaded",
           };
         }
         return {
           ...item,
-          _state: "no-local",
+          _state: "ready",
         };
-      }
-      if (vtsListState?.items?.find((x) => x.source === local.path)) {
-        return {
-          ...item,
-          _state: "loaded",
-        };
-      }
-      return {
-        ...item,
-        _state: "ready",
-      };
-    });
+      });
   }, [
     downloadState.data,
     localMedia.data,
@@ -149,7 +154,7 @@ function Rundown(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
 
   return (
     <div>
-      <h2>{props.rundown.name}</h2>
+      <h1 className="text-2xl">{props.rundown.name}</h1>
       <div>
         <div className="ml-auto">
           <Button
@@ -227,12 +232,20 @@ export default function VMixScreen() {
     return <VMixConnection />;
   }
   return (
-    <div>
-      <h1 className="text-3xl">Continuity</h1>
+    <div className="mt-2">
       {activeRundownID ? (
-        <Rundown
-          rundown={show.rundowns.find((x) => x.id === activeRundownID)!}
-        />
+        <>
+          <Button
+            size="small"
+            color="light"
+            onClick={() => setActiveRundownID(null)}
+          >
+            Change Rundown
+          </Button>
+          <Rundown
+            rundown={show.rundowns.find((x) => x.id === activeRundownID)!}
+          />
+        </>
       ) : (
         <div className="space-y-2">
           {show.rundowns.map((rundown) => (
