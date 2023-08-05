@@ -1,4 +1,4 @@
-export type VMixInputType =
+export type InputType =
   | "Mix"
   | "Colour"
   | "VideoList"
@@ -6,7 +6,7 @@ export type VMixInputType =
   | "Image"
   | "AudioFile";
 
-export interface BaseInput<T extends VMixInputType = VMixInputType> {
+export interface BaseInput<T extends InputType = InputType> {
   key: string;
   type: T;
   number: number;
@@ -50,7 +50,7 @@ export interface AudioFileInput extends BaseInput<"AudioFile"> {
   audioBusses: unknown;
 }
 
-export type InputType =
+export type InputObject =
   | ListInput
   | ColourInput
   | MixInput
@@ -62,5 +62,5 @@ export interface VMixState {
   version: string;
   edition: string;
   preset: string;
-  inputs: InputType[];
+  inputs: InputObject[];
 }
