@@ -2,11 +2,11 @@
   "name": "bowser-jobrunner",
   "packageManager": "yarn@3.6.1",
   "devDependencies": {
-    "@prisma/client": "^5.0.0",
+    "@prisma/client": "latest",
     "@tsconfig/node18": "^18.2.0",
     "esbuild": "^0.18.16",
     "prettier": "^3.0.0",
-    "prisma": "^5.0.0",
+    "prisma": "latest",
     "tsx": "^3.12.7",
     "typescript": "^5.1.6",
     "zod-prisma-types": "^2.7.4"
