@@ -44,7 +44,7 @@ const ListItemType = z.union([ListItemObj, deEscapedString]);
 export const VideoListObject = z.object({
   list: z.object({
     item: ListItemObj.or(z.array(ListItemType)),
-  }),
+  }).optional(),
   "#text": z.string(),
   "@_key": z.string(),
   "@_number": z.coerce.number(),

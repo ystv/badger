@@ -182,8 +182,8 @@ export default class VMixConnection {
             selectedIndex: r["@_selectedIndex"] - 1 /* 1-based index */,
             items: [],
           };
-          if (Array.isArray(r.list.item)) {
-            (v as ListInput).items = r.list.item.map((item) => {
+          if (Array.isArray(r.list?.item)) {
+            (v as ListInput).items = r.list!.item.map((item) => {
               if (typeof item === "string") {
                 return {
                   source: item,
@@ -195,7 +195,7 @@ export default class VMixConnection {
                 selected: item["@_selected"] === "true",
               };
             });
-          } else {
+          } else if (r.list) {
             (v as ListInput).items.push({
               source: r.list.item["#text"],
               selected: r.list.item["@_selected"] === "true",
