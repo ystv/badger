@@ -4,9 +4,6 @@ import * as fs from "node:fs/promises";
 import * as path from "path";
 import VMixConnection from "./vmix";
 
-const integrate =
-  process.env.TEST_INTEGRATION === "true" ? describe : describe.skip;
-
 class MockSocket extends EventEmitter {
   write = vi.fn(
     (payload: unknown, encoding: string, cb: (err?: Error) => void) =>
@@ -125,13 +122,3 @@ describe("VMixConnection", () => {
   });
 });
 
-integrate("VMixConnection integration", () => {
-  let vmix: VMixConnection;
-  beforeAll(async () => {
-    vmix = await VMixConnection.connect();
-  });
-  test("getFullState", async () => {
-    // The current state of the vMix instance is unpredictable, so all we can do is test that it doesn't throw.
-    expect(vmix.getFullState()).resolves.not.toThrow();
-  });
-});

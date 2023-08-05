@@ -4,7 +4,8 @@ export type InputType =
   | "VideoList"
   | "Video"
   | "Image"
-  | "AudioFile";
+  | "AudioFile"
+  | "Blank";
 
 export interface BaseInput<T extends InputType = InputType> {
   key: string;
@@ -29,6 +30,8 @@ export interface ListInput extends BaseInput<"VideoList"> {
 }
 
 export interface ColourInput extends BaseInput<"Colour"> {}
+
+export interface BlankInput extends BaseInput<"Blank"> {}
 
 export interface MixInput extends BaseInput<"Mix"> {}
 
@@ -56,11 +59,12 @@ export type InputObject =
   | MixInput
   | VideoInput
   | ImageInput
-  | AudioFileInput;
+  | AudioFileInput
+  | BlankInput;
 
 export interface VMixState {
   version: string;
   edition: string;
-  preset: string;
+  preset?: string;
   inputs: InputObject[];
 }

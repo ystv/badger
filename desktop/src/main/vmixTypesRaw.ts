@@ -6,7 +6,7 @@ import { z } from "zod";
  */
 
 const InputType = z
-  .enum(["Mix", "Colour", "VideoList", "Video", "Image", "AudioFile"] as const)
+  .enum(["Mix", "Colour", "VideoList", "Video", "Image", "AudioFile", "Blank"] as const)
   .or(z.string());
 
 /**
@@ -89,18 +89,33 @@ export const AudioFileObject = z.object({
 });
 export type AudioFileObject = z.infer<typeof AudioFileObject>;
 
+export const BlankObject = z.object({
+  "#text": z.string(),
+  "@_key": z.string(),
+  "@_number": z.coerce.number(),
+  "@_type": z.literal("Blank"),
+  "@_title": z.string(),
+  "@_shortTitle": z.string(),
+  "@_state": z.string(),
+  "@_position": z.coerce.number(),
+  "@_duration": z.coerce.number(),
+  "@_loop": z.string(),
+});
+export type BlankObject = z.infer<typeof BlankObject>;
+
 export const VMixRawXMLSchema = z
   .object({
     vmix: z.object({
       version: z.string(),
       edition: z.string(),
-      preset: deEscapedString,
+      preset: deEscapedString.optional(),
       inputs: z.object({
         input: z.array(
           z.union([
             VideoObject,
             VideoListObject,
             AudioFileObject,
+            BlankObject,
             // This one needs to be last, so that the more specific types match first (based on the z.literal on the @_type)
             z.object({
               "#text": z.string(),
@@ -142,7 +157,7 @@ export const VMixRawXMLSchema = z
         preview: z.number(),
         active: z.number(),
         "@_number": z.coerce.number(),
-      }),
+      }).optional(),
       audio: z.object({
         master: z.object({
           "@_volume": z.string(),

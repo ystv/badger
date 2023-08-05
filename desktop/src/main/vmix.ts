@@ -158,6 +158,7 @@ export default class VMixConnection {
         case "Colour":
         case "Mix":
         case "Image":
+        case "Blank":
           break;
         case "Video":
         case "AudioFile": {
@@ -204,6 +205,10 @@ export default class VMixConnection {
         }
         default:
           console.warn(`Unrecognised input type '${input["@_type"]}'`);
+          if (import.meta.env.MODE === "test") {
+            console.debug(input);
+            throw new Error(`Unrecognised input type ${input["@_type"]}`);
+          }
           continue;
       }
       res.inputs.push(v as InputObject);
