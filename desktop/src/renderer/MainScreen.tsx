@@ -4,6 +4,7 @@ import { Tab } from "@headlessui/react";
 import { IoCog } from "react-icons/io5";
 import OBSScreen from "./screens/OBS";
 import { DownloadTracker } from "./DownloadTracker";
+import VMixScreen from "./screens/vMix";
 
 export default function MainScreen() {
   const { data: show } = ipc.getSelectedShow.useQuery();
@@ -36,7 +37,11 @@ export default function MainScreen() {
           )}
         </Tab.List>
         <Tab.Panels>
-          {integrations.includes("vmix") && <Tab.Panel>TODO: vMix</Tab.Panel>}
+          {integrations.includes("vmix") && (
+            <Tab.Panel>
+              <VMixScreen />
+            </Tab.Panel>
+          )}
           {integrations.includes("obs") && (
             <Tab.Panel>
               <OBSScreen />

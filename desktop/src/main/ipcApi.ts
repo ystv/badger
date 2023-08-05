@@ -1,10 +1,12 @@
 import { createAPIClient, serverApiClient } from "./serverApiClient";
 import { z } from "zod";
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import invariant from "../common/invariant";
 import { selectedShow, setSelectedShow } from "./selectedShow";
 import {
+  CompleteMediaModel,
   CompleteShowModel,
+  PartialMediaModel,
   PartialShowModel,
 } from "bowser-server/lib/db/utilityTypes";
 import { CompleteShowType, Integration } from "../common/types";
@@ -17,6 +19,13 @@ import {
 import { getLocalMediaSettings, LocalMediaSettingsSchema } from "./settings";
 import { addOrReplaceMediaAsScene, findContinuityScenes } from "./obsHelpers";
 import { observable } from "@trpc/server/observable";
+import {
+  createVMixConnection,
+  getVMixConnection,
+  tryCreateVMixConnection,
+} from "./vmix";
+import { reconcileList } from "./vmixHelpers";
+import { VMIX_NAMES } from "../common/constants";
 
 function serverAPI() {
   invariant(serverApiClient !== null, "serverApiClient is null");
@@ -148,6 +157,86 @@ export const appRouter = r({
       )
       .query(async () => {
         return await findContinuityScenes();
+      }),
+  }),
+  vmix: r({
+    getConnectionState: proc
+      .output(
+        z.object({
+          connected: z.boolean(),
+          version: z.string().optional(),
+          edition: z.string().optional(),
+        }),
+      )
+      .query(async () => {
+        const conn = getVMixConnection();
+        if (conn === null) {
+          return { connected: false };
+        }
+        const state = await conn.getFullState();
+        return {
+          connected: true,
+          version: state.version,
+          edition: state.edition,
+        };
+      }),
+    tryConnect: proc
+      .input(
+        z.object({
+          host: z.string(),
+          port: z.number(),
+        }),
+      )
+      .output(
+        z.object({
+          connected: z.boolean(),
+          version: z.string().optional(),
+          edition: z.string().optional(),
+        }),
+      )
+      .mutation(async ({ input }) => {
+        const conn = await createVMixConnection(input.host, input.port);
+        const state = await conn.getFullState();
+        return {
+          connected: true,
+          version: state.version,
+          edition: state.edition,
+        };
+      }),
+    getCompleteState: proc.query(() => {
+      const conn = getVMixConnection();
+      invariant(conn, "No vMix connection");
+      return conn.getFullState();
+    }),
+    loadRundownVTs: proc
+      .input(
+        z.object({
+          rundownID: z.number(),
+        }),
+      )
+      .mutation(async ({ input }) => {
+        const rundown = await serverAPI().rundowns.get.query({
+          id: input.rundownID,
+        });
+        invariant(rundown, "Rundown not found");
+        const media = rundown.items
+          .map<z.infer<typeof PartialMediaModel>>(
+            (i) => i.media[0] /* TODO: change this once BOW-20 lands */,
+          )
+          .filter((x) => x && x.state === "Ready");
+        const localMedia = await getLocalMediaSettings();
+        const paths = media.map(
+          (remote) =>
+            localMedia.find((local) => local.mediaID === remote.id)?.path,
+        );
+        if (paths.some((x) => !x)) {
+          throw new TRPCError({
+            code: "PRECONDITION_FAILED",
+            message: "Not all media is downloaded locally",
+          });
+        }
+        // TODO: avoid hardcoding this
+        await reconcileList(VMIX_NAMES.VTS_LIST, paths as string[]);
       }),
   }),
 });
