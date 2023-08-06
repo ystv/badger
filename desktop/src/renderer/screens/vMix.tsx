@@ -10,6 +10,7 @@ import {
 import { z } from "zod";
 import { VMIX_NAMES } from "../../common/constants";
 import { ListInput } from "../../main/vmixTypes";
+import invariant from "../../common/invariant";
 
 function VMixConnection() {
   const tryConnect = ipc.vmix.tryConnect.useMutation();
@@ -102,18 +103,18 @@ function Rundown(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
     return props.rundown.items
       .filter((item) => item.type !== "Segment")
       .map((item) => {
-        if (item.media.length === 0 || item.media[0].state !== "Ready") {
+        if (!item.media || item.media.state !== "Ready") {
           return {
             ...item,
             _state: "no-media",
           };
         }
         const local = localMedia.data?.find(
-          (x) => x.mediaID === item.media[0].id,
+          (x) => x.mediaID === item.media!.id,
         );
         if (!local) {
           const dl = downloadState.data?.find(
-            (x) => x.mediaID === item.media[0].id,
+            (x) => x.mediaID === item.media!.id,
           );
           if (dl) {
             return {
@@ -147,8 +148,8 @@ function Rundown(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
 
   const doDownloadAll = useCallback(() => {
     for (const item of items) {
-      if (item._state === "no-local") {
-        doDownload.mutate({ id: item.media[0].id });
+      if (item._state === "no-local" && item.media) {
+        doDownload.mutate({ id: item.media.id });
       }
     }
   }, [doDownload, items]);
@@ -192,7 +193,11 @@ function Rundown(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
                 <Button
                   color="primary"
                   onClick={async () => {
-                    await doDownload.mutateAsync({ id: item.media[0].id });
+                    invariant(
+                      item.media,
+                      "no media for item in download button handler",
+                    );
+                    await doDownload.mutateAsync({ id: item.media.id });
                     await queryClient.invalidateQueries(
                       getQueryKey(ipc.media.getDownloadStatus),
                     );

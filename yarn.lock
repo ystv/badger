@@ -6357,6 +6357,7 @@ __metadata:
     prettier: ^3.0.0
     prisma: latest
     tsx: ^3.12.7
+    typescript: ^5.1.6
     zod-prisma-types: ^2.7.4
   languageName: unknown
   linkType: soft

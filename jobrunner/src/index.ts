@@ -4,6 +4,7 @@ import AbstractJob from "./jobs/base.js";
 import logging, { LogLevelNames } from "loglevel";
 import prefix from "loglevel-plugin-prefix";
 import ProcessMediaJob from "./jobs/ProcessMediaJob.js";
+import { LoadAssetJob } from "./jobs/LoadAssetJob.js";
 logging.setLevel(
   (process.env.LOG_LEVEL as LogLevelNames) ?? logging.levels.DEBUG,
 );
@@ -30,6 +31,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
       },
       include: {
         ProcessMediaJob: true,
+        LoadAssetJob: true,
       },
     });
     if (!nextJob) {
@@ -53,6 +55,9 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
     if (nextJob.ProcessMediaJob) {
       handler = await ProcessMediaJob.init(db);
       payload = nextJob.ProcessMediaJob;
+    } else if (nextJob.LoadAssetJob) {
+      handler = await LoadAssetJob.init(db);
+      payload = nextJob.LoadAssetJob;
     } else {
       logger.error(`Unknown job type for job ${nextJob.id}`);
       continue;

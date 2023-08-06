@@ -26,7 +26,7 @@ export interface CompleteMedia extends Media {
 }
 
 export interface CompleteRundownItem extends RundownItem {
-  media: CompleteMedia[];
+  media: CompleteMedia | null;
 }
 
 export interface CompleteContinuityItem extends ContinuityItem {
@@ -136,12 +136,7 @@ export function ItemMediaState({
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   let base;
-  const media = Array.isArray(item.media)
-    ? item.media.length > 0
-      ? item.media[0]
-      : null
-    : item.media;
-  if (media === null) {
+  if (item.media === null) {
     base = (
       <Button color="danger" onClick={() => setIsUploadOpen(true)}>
         Media Missing
@@ -150,7 +145,7 @@ export function ItemMediaState({
   } else {
     base = (
       <MediaProcessingState
-        media={media} // TODO handle multiple media for rundown items
+        media={item.media}
         doReplace={() => setIsUploadOpen(true)}
       />
     );
@@ -159,16 +154,23 @@ export function ItemMediaState({
     <>
       {base}
       <Dialog open={isUploadOpen} onClose={() => setIsUploadOpen(false)}>
-        <MediaUploadDialog
-          title={`Upload '${item.name}'`}
-          onComplete={(url, fileName) =>
-            startTransition(async () => {
-              await onUploadComplete(url, fileName);
-              setIsUploadOpen(false);
-            })
-          }
-        />
-        {isPending && <em>Processing, please wait...</em>}
+        <div className="fixed inset-0 bg-dark/60" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4 shadow-xl">
+          <Dialog.Panel className="mx-auto max-w-sm rounded bg-light p-8 relative">
+            <MediaUploadDialog
+              title={`Upload '${item.name}'`}
+              prompt="Drop video files here, or click to select"
+              accept={{ "video/*": [] }}
+              onComplete={(url, fileName) =>
+                startTransition(async () => {
+                  await onUploadComplete(url, fileName);
+                  setIsUploadOpen(false);
+                })
+              }
+            />
+            {isPending && <em>Processing, please wait...</em>}
+          </Dialog.Panel>
+        </div>
       </Dialog>
     </>
   );

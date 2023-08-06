@@ -23,7 +23,7 @@ export const CompleteContinuityItemModel = ContinuityItemSchema.extend({
   media: PartialMediaModel.nullable(),
 });
 export const CompleteRundownItemSchema = RundownItemSchema.extend({
-  media: z.array(PartialMediaModel),
+  media: PartialMediaModel.nullable(),
 });
 export const CompleteRundownModel = RundownSchema.extend({
   items: z.array(CompleteRundownItemSchema),
