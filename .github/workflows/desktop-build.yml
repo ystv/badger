@@ -25,6 +25,8 @@ jobs:
       
       - run: "yarn ${{ github.event_name == 'release' && 'publish' || 'make' }}"
         working-directory: ./desktop
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - run: ls desktop/out/make
 
