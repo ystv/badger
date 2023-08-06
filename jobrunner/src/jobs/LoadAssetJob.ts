@@ -5,7 +5,7 @@ import {
   MediaFileSourceType,
   MediaState,
   Rundown,
-} from "@prisma/client";
+} from "bowser-prisma/client";
 import path from "node:path";
 import fs from "node:fs";
 import got from "got";

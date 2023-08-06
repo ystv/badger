@@ -5,7 +5,7 @@ import {
   MediaProcessingTaskState,
   MediaState,
   RundownItem,
-} from "@prisma/client";
+} from "bowser-prisma/client";
 import {
   IoAlertCircle,
   IoCheckmarkCircle,

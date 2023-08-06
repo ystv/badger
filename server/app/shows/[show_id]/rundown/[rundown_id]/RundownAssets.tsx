@@ -17,7 +17,7 @@ import { MediaUploadDialog } from "@/components/MediaUpload";
 import { Dialog, Popover } from "@headlessui/react";
 import Spinner from "@/app/_assets/spinner.svg";
 import Image from "next/image";
-import { MediaState } from "@prisma/client";
+import { MediaState } from "bowser-prisma/client";
 import {
   processAssetUpload,
   removeAsset,
