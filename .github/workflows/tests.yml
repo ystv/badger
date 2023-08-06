@@ -141,9 +141,6 @@ jobs:
           cache-dependency-path: 'yarn.lock'
       - run: yarn install --immutable --inline-builds
 
-      - run: yarn prisma:generate
-        working-directory: ./server
-
       - run: yarn test --coverage
         working-directory: ./server
 
@@ -172,7 +169,7 @@ jobs:
           cache-dependency-path: 'yarn.lock'
       - run: yarn install --immutable --inline-builds
 
-      - run: yarn prisma migrate deploy && yarn prisma:generate
+      - run: yarn prisma migrate deploy --skip-generate
         working-directory: ./server
         env:
           DATABASE_URL: postgres://root:postgres@localhost:5432/bowser_test

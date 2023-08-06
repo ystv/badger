@@ -6418,6 +6418,7 @@ __metadata:
     postcss: ^8.4.27
     prettier: ^3.0.0
     prettier-plugin-tailwindcss: ^0.4.1
+    prisma: ^5.1.1
     react: 18.3.0-canary-9377e1010-20230712
     react-aria: ^3.26.0
     react-beautiful-dnd: ^13.1.1
