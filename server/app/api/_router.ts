@@ -6,7 +6,7 @@ import {
   CompleteRundownModel,
   CompleteShowModel,
   PartialShowModel,
-} from "../../../utility/prisma/utilityTypes";
+} from "bowser-prisma/utilityTypes";
 import { getPresignedURL } from "@/lib/s3";
 import { ContinuityItemSchema, RundownItemSchema } from "bowser-prisma/types";
 

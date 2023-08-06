@@ -10,6 +10,7 @@ COPY .yarnrc.yml .yarnrc.yml
 COPY desktop desktop/
 COPY server server/
 COPY jobrunner jobrunner/
+COPY utility utility/
 COPY package.json package.json
 COPY yarn.lock yarn.lock
 RUN --mount=type=cache,id=bowser-yarn,target=.yarn/cache yarn workspaces focus bowser-server bowser-jobrunner
@@ -22,8 +23,6 @@ FROM base
 COPY --from=build /app/server/.next/standalone /app
 COPY --from=build /app/server/public /app/server/public
 COPY --from=build /app/server/.next/static /app/server/.next/static
-# Ensure we have the schema.prisma and migrations files
-COPY --from=build /app/server/prisma /app/prisma
 WORKDIR /app
 ENV NODE_ENV=production
 CMD ["node", "server/server.js"]
