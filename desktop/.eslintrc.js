@@ -33,6 +33,10 @@ module.exports = {
             allowTypeImports: true,
           },
           {
+            group: [`bowser-server/lib/db`],
+            message: "You probably wanted 'bowser-prisma'.",
+          },
+          {
             group: ["@"],
             message:
               "Next's @-prefixed imports won't work. Import from bowser-server instead.",
