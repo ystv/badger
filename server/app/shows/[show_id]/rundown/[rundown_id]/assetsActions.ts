@@ -67,5 +67,6 @@ export async function removeAsset(assetID: number) {
       id: assetID,
     },
   });
+  revalidatePath("/shows/[show_id]/rundown/[rundown_id]");
   return { ok: true };
 }
