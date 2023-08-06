@@ -33,6 +33,17 @@ export class LoadAssetJob extends AbstractJob<LoadAssetJobType> {
             state: MediaState.Processing,
           },
         },
+        rundown: {
+          update: {
+            show: {
+              update: {
+                version: {
+                  increment: 1,
+                },
+              },
+            },
+          },
+        },
       },
     });
     const fullJob = await this.db.loadAssetJob.findUniqueOrThrow({
@@ -62,6 +73,17 @@ export class LoadAssetJob extends AbstractJob<LoadAssetJobType> {
               state: MediaState.Ready,
             },
           },
+          rundown: {
+            update: {
+              show: {
+                update: {
+                  version: {
+                    increment: 1,
+                  },
+                },
+              },
+            },
+          },
         },
       });
     } catch (e) {
@@ -73,6 +95,17 @@ export class LoadAssetJob extends AbstractJob<LoadAssetJobType> {
           media: {
             update: {
               state: MediaState.Processing,
+            },
+          },
+          rundown: {
+            update: {
+              show: {
+                update: {
+                  version: {
+                    increment: 1,
+                  },
+                },
+              },
             },
           },
         },

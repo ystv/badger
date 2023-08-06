@@ -1,9 +1,10 @@
-import { ipc } from "../ipc";
+import { ipc, useInvalidateQueryOnIPCEvent } from "../ipc";
 import Button from "../components/Button";
 import { useCallback, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import {
+  CompleteAssetSchema,
   CompleteRundownItemSchema,
   CompleteRundownModel,
 } from "bowser-prisma/utilityTypes";
@@ -67,9 +68,15 @@ function VMixConnection() {
   );
 }
 
-type ItemState = "no-media" | "no-local" | "downloading" | "ready" | "loaded";
+type ItemState =
+  | "no-media"
+  | "media-processing"
+  | "no-local"
+  | "downloading"
+  | "ready"
+  | "loaded";
 
-function Rundown(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
+function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
   const queryClient = useQueryClient();
   const vmixState = ipc.vmix.getCompleteState.useQuery();
   const downloadState = ipc.media.getDownloadStatus.useQuery(undefined, {
@@ -82,7 +89,11 @@ function Rundown(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
     staleTime: 2_500,
   });
   const doLoad = ipc.vmix.loadRundownVTs.useMutation();
-  const doDownload = ipc.media.downloadMedia.useMutation();
+  const doDownload = ipc.media.downloadMedia.useMutation({
+    onSuccess() {
+      queryClient.invalidateQueries(getQueryKey(ipc.media.getDownloadStatus));
+    },
+  });
 
   const vtsListState = useMemo(() => {
     if (!vmixState.data) {
@@ -103,10 +114,16 @@ function Rundown(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
     return props.rundown.items
       .filter((item) => item.type !== "Segment")
       .map((item) => {
-        if (!item.media || item.media.state !== "Ready") {
+        if (!item.media) {
           return {
             ...item,
             _state: "no-media",
+          };
+        }
+        if (item.media.state !== "Ready") {
+          return {
+            ...item,
+            _state: "media-processing",
           };
         }
         const local = localMedia.data?.find(
@@ -155,8 +172,8 @@ function Rundown(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
   }, [doDownload, items]);
 
   return (
-    <div>
-      <h1 className="text-2xl">{props.rundown.name}</h1>
+    <>
+      <h2 className="text-xl font-bold">VTs</h2>
       <div>
         <div className="ml-auto">
           <Button
@@ -214,6 +231,211 @@ function Rundown(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
           </div>
         ))}
       </div>
+    </>
+  );
+}
+
+function RundownAssets(props: {
+  rundown: z.infer<typeof CompleteRundownModel>;
+}) {
+  const queryClient = useQueryClient();
+  const localMedia = ipc.media.getLocalMedia.useQuery(undefined, {
+    refetchInterval: () => 10_000,
+    staleTime: 2_500,
+  });
+  const vmixState = ipc.vmix.getCompleteState.useQuery(undefined, {
+    refetchInterval: () => 15_000,
+    staleTime: 2_500,
+  });
+  const downloadState = ipc.media.getDownloadStatus.useQuery(undefined, {
+    refetchInterval: (data) =>
+      data?.some((x) => x.status !== "done") ? 1_000 : false,
+  });
+  const assetSettings = ipc.assets.getSettings.useQuery();
+  useInvalidateQueryOnIPCEvent(
+    getQueryKey(ipc.assets.getSettings),
+    "assetsSettingsChange",
+  );
+  const doDownload = ipc.media.downloadMedia.useMutation({
+    async onSuccess() {
+      await queryClient.invalidateQueries(
+        getQueryKey(ipc.media.getDownloadStatus),
+      );
+    },
+  });
+  const doLoad = ipc.vmix.loadAssets.useMutation({
+    async onSuccess() {
+      await queryClient.invalidateQueries(
+        getQueryKey(ipc.vmix.getCompleteState),
+      );
+    },
+  });
+
+  const assets: Array<
+    z.infer<typeof CompleteAssetSchema> & {
+      _state: ItemState;
+      _downloadProgress?: number;
+    }
+  > | null = useMemo(() => {
+    if (!assetSettings.data) {
+      return null;
+    }
+    if (!localMedia.data) {
+      return null;
+    }
+    if (!vmixState.data) {
+      return null;
+    }
+    return props.rundown.assets.map((asset) => {
+      if (!asset.media) {
+        return {
+          ...asset,
+          _state: "no-media",
+        };
+      }
+      if (asset.media.state !== "Ready") {
+        return {
+          ...asset,
+          _state: "media-processing",
+        };
+      }
+      const local = localMedia.data.find((x) => x.mediaID === asset.media!.id);
+      if (!local) {
+        const dl = downloadState.data?.find(
+          (x) => x.mediaID === asset.media!.id,
+        );
+        if (dl) {
+          return {
+            ...asset,
+            _state: "downloading",
+            _downloadProgress: dl.progressPercent,
+          };
+        }
+        return {
+          ...asset,
+          _state: "no-local",
+        };
+      }
+      const addMode = assetSettings.data.loadTypes[asset.type] ?? "direct";
+      let alreadyPresent;
+      if (addMode === "direct") {
+        alreadyPresent = vmixState.data.inputs.find(
+          (x) => x.title === local.path,
+        );
+      } else {
+        const list = vmixState.data.inputs.find(
+          (x) => x.shortTitle === VMIX_NAMES.ASSET_LIST[asset.type],
+        );
+        if (list) {
+          alreadyPresent = (list as ListInput).items.find(
+            (x) => x.source === local.path,
+          );
+        } else {
+          alreadyPresent = false;
+        }
+      }
+      return {
+        ...asset,
+        _state: alreadyPresent ? "loaded" : "ready",
+      };
+    });
+  }, [
+    assetSettings.data,
+    downloadState.data,
+    localMedia.data,
+    props.rundown.assets,
+    vmixState.data,
+  ]);
+
+  return (
+    <>
+      <h2 className="text-xl font-bold">Assets</h2>
+      <div>
+        <div className="flex flex-row ml-auto">
+          <Button
+            onClick={() => {
+              invariant(assets, "no assets");
+              assets
+                .filter((x) => x._state === "no-local")
+                .forEach((a) => doDownload.mutate({ id: a.media!.id }));
+            }}
+          >
+            Download All
+          </Button>
+          <Button
+            onClick={() => {
+              invariant(assets, "no assets");
+              doLoad.mutate({
+                rundownID: props.rundown.id,
+                assetIDs: assets
+                  .filter((x) => x._state === "ready")
+                  .map((x) => x.id),
+              });
+            }}
+          >
+            Load All
+          </Button>
+        </div>
+      </div>
+      <div className="space-y-2">
+        {assets?.map((asset) => (
+          <div key={asset.id} className="flex flex-row flex-wrap">
+            <span className="text-lg font-bold">{asset.name}</span>
+            <div className="ml-auto">
+              {asset._state === "no-media" && (
+                <span className="text-warning-4">No media!</span>
+              )}
+              {asset._state === "downloading" && (
+                <span className="text-purple-4">
+                  Downloading {asset._downloadProgress?.toFixed(2)}%
+                </span>
+              )}
+              {asset._state === "no-local" && (
+                <Button
+                  color="primary"
+                  onClick={async () => {
+                    invariant(
+                      asset.media,
+                      "no media for asset in download button handler",
+                    );
+                    await doDownload.mutateAsync({ id: asset.media.id });
+                    await queryClient.invalidateQueries(
+                      getQueryKey(ipc.media.getDownloadStatus),
+                    );
+                  }}
+                >
+                  Download
+                </Button>
+              )}
+              {asset._state === "ready" && (
+                <Button
+                  onClick={() =>
+                    doLoad.mutate({
+                      rundownID: props.rundown.id,
+                      assetIDs: [asset.id],
+                    })
+                  }
+                >
+                  Load
+                </Button>
+              )}
+              {asset._state === "loaded" && (
+                <span className="text-success-4">Good to go!</span>
+              )}
+            </div>
+          </div>
+        )) ?? <div>Loading...</div>}
+      </div>
+    </>
+  );
+}
+
+function Rundown(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
+  return (
+    <div>
+      <h1 className="text-2xl">{props.rundown.name}</h1>
+      <RundownVTs rundown={props.rundown} />
+      <RundownAssets rundown={props.rundown} />
     </div>
   );
 }

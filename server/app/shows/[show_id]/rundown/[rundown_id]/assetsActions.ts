@@ -56,16 +56,51 @@ export async function processAssetUpload(
       },
     },
   });
+  await db.rundown.update({
+    where: {
+      id: rundownID,
+    },
+    data: {
+      show: {
+        update: {
+          version: {
+            increment: 1,
+          },
+        },
+      },
+    },
+  });
 
   revalidatePath("/shows/[show_id]/rundown/[rundown_id]");
   return { ok: true };
 }
 
 export async function removeAsset(assetID: number) {
-  await db.asset.delete({
-    where: {
-      id: assetID,
-    },
+  await db.$transaction(async ($db) => {
+    await $db.asset.update({
+      where: {
+        id: assetID,
+      },
+      data: {
+        rundown: {
+          update: {
+            show: {
+              update: {
+                version: {
+                  increment: 1,
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    await $db.asset.delete({
+      where: {
+        id: assetID,
+      },
+    });
   });
+  revalidatePath("/shows/[show_id]/rundown/[rundown_id]");
   return { ok: true };
 }
