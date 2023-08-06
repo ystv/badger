@@ -27,7 +27,7 @@ export const CompleteRundownItemSchema = RundownItemSchema.extend({
   media: PartialMediaModel.nullable(),
 });
 export const CompleteAssetSchema = AssetSchema.extend({
-  media: PartialMediaModel.nullable(),
+  media: PartialMediaModel,
 });
 export const CompleteRundownModel = RundownSchema.extend({
   items: z.array(CompleteRundownItemSchema),

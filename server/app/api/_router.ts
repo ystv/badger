@@ -56,7 +56,11 @@ export const appRouter = router({
                     media: true,
                   },
                 },
-                assets: true,
+                assets: {
+                  include: {
+                    media: true,
+                  },
+                },
               },
             },
           },
@@ -115,7 +119,11 @@ export const appRouter = router({
                 media: true,
               },
             },
-            assets: true,
+            assets: {
+              include: {
+                media: true,
+              },
+            },
           },
         });
       }),

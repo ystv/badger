@@ -13,7 +13,11 @@ async function RundownAssetsFetcher(props: { rundownID: number }) {
       id: props.rundownID,
     },
     include: {
-      assets: true,
+      assets: {
+        include: {
+          media: true,
+        },
+      },
     },
   });
   return <RundownAssets rundown={rundown} />;

@@ -111,15 +111,16 @@ enum AssetType {
 }
 
 model Asset {
-  id    Int        @id @default(autoincrement())
-  name  String
-  path  String?
-  type  AssetType
-  state MediaState @default(Pending)
+  id   Int       @id @default(autoincrement())
+  name String
+  type AssetType
+
+  media Media @relation(fields: [mediaId], references: [id])
 
   rundown   Rundown        @relation(fields: [rundownId], references: [id], onDelete: Cascade)
   rundownId Int
   loadJobs  LoadAssetJob[]
+  mediaId   Int            @unique
 
   @@map("assets")
 }
@@ -139,6 +140,7 @@ model Media {
   continuityItem ContinuityItem?       @relation(fields: [continuityItemID], references: [id], onDelete: Cascade)
   tasks          MediaProcessingTask[]
   process_jobs   ProcessMediaJob[]
+  asset          Asset?
 
   @@map("media")
 }
