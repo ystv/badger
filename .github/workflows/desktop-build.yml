@@ -32,3 +32,4 @@ jobs:
         with:
           name: desktop
           path: ./desktop/out/make
+        if: github.event_name != 'release' # because 'publish' will take care of it
