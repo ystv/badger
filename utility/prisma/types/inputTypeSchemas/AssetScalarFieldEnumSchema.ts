@@ -1,5 +1,5 @@
 import { z } from 'zod';
 
-export const AssetScalarFieldEnumSchema = z.enum(['id','name','path','type','state','rundownId']);
+export const AssetScalarFieldEnumSchema = z.enum(['id','name','type','rundownId','mediaId']);
 
 export default AssetScalarFieldEnumSchema;
