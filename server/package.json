@@ -12,6 +12,7 @@
     "pretest:integration": "ts-node --esm scripts/prepare-integration-tests.mts",
     "posttest:integration": "ts-node --esm scripts/teardown-integration-tests.mts",
     "prettify": "prettier --write .",
+    "typecheck": "tsc --noEmit",
     "prisma:generate": "prisma generate"
   },
   "dependencies": {
