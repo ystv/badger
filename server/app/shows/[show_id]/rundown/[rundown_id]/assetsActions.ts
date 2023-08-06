@@ -35,6 +35,13 @@ export async function processAssetUpload(
       rundown: {
         connect: rundown,
       },
+      media: {
+        create: {
+          name: fileName,
+          rawPath: "",
+          durationSeconds: 0,
+        },
+      },
       loadJobs: {
         create: {
           sourceType: "Tus",
