@@ -17,7 +17,7 @@ import { MediaUploadDialog } from "@/components/MediaUpload";
 import { Dialog, Popover } from "@headlessui/react";
 import Spinner from "@/app/_assets/spinner.svg";
 import Image from "next/image";
-import { MediaState } from "bowser-prisma/client";
+import { Media, MediaState } from "bowser-prisma/client";
 import {
   processAssetUpload,
   removeAsset,
@@ -25,7 +25,7 @@ import {
 import { useRouter } from "next/navigation";
 
 export interface RundownWithAssets extends Rundown {
-  assets: Asset[];
+  assets: (Asset & { media: Media })[];
 }
 
 const AssetColorClasses: { [K in AssetTypeType]: string } = {
@@ -61,7 +61,9 @@ export default function RundownAssets(props: { rundown: RundownWithAssets }) {
   const refreshIntervalRef = useRef<number | null>(null);
   useEffect(() => {
     if (
-      props.rundown.assets.some((asset) => asset.state !== MediaState.Ready)
+      props.rundown.assets.some(
+        (asset) => asset.media.state !== MediaState.Ready,
+      )
     ) {
       refreshIntervalRef.current = window.setInterval(() => {
         router.refresh();
@@ -104,7 +106,7 @@ export default function RundownAssets(props: { rundown: RundownWithAssets }) {
         <div className="flex flex-col">
           {assets.map((asset) => {
             let icon;
-            if (asset.state !== MediaState.Ready) {
+            if (asset.media.state !== MediaState.Ready) {
               icon = <Image src={Spinner} alt="" className="inline-block" />;
             } else {
               const Icon = AssetIcons[asset.type];
@@ -122,9 +124,9 @@ export default function RundownAssets(props: { rundown: RundownWithAssets }) {
                 key={asset.id}
                 className={classNames(
                   "flex flex-row items-center space-x-2",
-                  asset.state === "Pending" && "text-mid-dark",
-                  asset.state === "Processing" && "text-purple-4",
-                  asset.state === "ProcessingFailed" &&
+                  asset.media.state === "Pending" && "text-mid-dark",
+                  asset.media.state === "Processing" && "text-purple-4",
+                  asset.media.state === "ProcessingFailed" &&
                     "text-danger-4 line-through",
                 )}
               >
