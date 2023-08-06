@@ -1,8 +1,8 @@
 module.exports = {
   packagerConfig: {
-    // TODO: We should really re-enable it to bring down binary sizes - it gets tripped up on bowser-server/ imports
+    // TODO(BOW-29): We should really re-enable it to bring down binary sizes - it gets tripped up on bowser-server/ imports
     //  (eg. https://github.com/ystv/bowser/actions/runs/5707381373)
-    prune: false,
+    prune: true,
   },
   rebuildConfig: {},
   makers: [
