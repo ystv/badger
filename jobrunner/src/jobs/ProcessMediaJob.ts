@@ -34,10 +34,6 @@ interface CompleteMedia extends Media {
 }
 
 export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
-  private s3Client: S3Client;
-  private temporaryDir: string;
-  driveClient: drive_v3.Drive;
-
   constructor() {
     super();
 
@@ -46,20 +42,6 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     } catch (e) {
       throw new Error("ffprobe not found");
     }
-
-    this.s3Client = new S3Client({
-      endpoint: process.env.S3_ENDPOINT,
-      region: process.env.S3_REGION,
-      forcePathStyle: true,
-    });
-
-    this.driveClient = drive({
-      version: "v3",
-    });
-
-    const dir = path.join(os.tmpdir(), "bowser-jobrunner-" + Date.now());
-    fs.mkdirSync(dir, { recursive: true });
-    this.temporaryDir = dir;
   }
 
   async run(params: ProcessMediaJobType) {

@@ -5,6 +5,7 @@ import {
   MediaSchema,
   RundownItemSchema,
   MediaProcessingTaskSchema,
+  AssetSchema,
 } from "./types/modelSchema";
 import { z } from "zod";
 
@@ -23,10 +24,14 @@ export const CompleteContinuityItemModel = ContinuityItemSchema.extend({
   media: PartialMediaModel.nullable(),
 });
 export const CompleteRundownItemSchema = RundownItemSchema.extend({
-  media: z.array(PartialMediaModel),
+  media: PartialMediaModel.nullable(),
+});
+export const CompleteAssetSchema = AssetSchema.extend({
+  media: PartialMediaModel.nullable(),
 });
 export const CompleteRundownModel = RundownSchema.extend({
   items: z.array(CompleteRundownItemSchema),
+  assets: z.array(CompleteAssetSchema),
 });
 export const CompleteShowModel = ShowSchema.extend({
   continuityItems: z.array(CompleteContinuityItemModel),

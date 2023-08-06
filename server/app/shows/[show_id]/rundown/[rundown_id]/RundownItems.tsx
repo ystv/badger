@@ -15,7 +15,7 @@ import {
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Spinner from "@/app/_assets/spinner.svg";
-import { Dialog, Popover } from "@headlessui/react";
+import { Popover } from "@headlessui/react";
 import Form from "@/components/Form";
 import {
   addItem,
@@ -23,7 +23,7 @@ import {
   editItem,
   processUploadForRundownItem,
   reorder,
-} from "./actions";
+} from "./itemsActions";
 import { AddItemSchema, EditItemSchema, ItemTypeSchema } from "./schema";
 import { Field, HiddenField, SelectField } from "@/components/FormFields";
 import { identity } from "lodash";
@@ -33,12 +33,10 @@ import {
   useMemo,
   experimental_useOptimistic as useOptimistic,
   useRef,
-  useState,
   useTransition,
 } from "react";
 import Button from "@/components/Button";
 import { useRouter } from "next/navigation";
-import { MediaUploadDialog } from "@/components/MediaUpload";
 import { ItemMediaState } from "@/components/MediaState";
 
 // beautiful-dnd is not compatible with SSR
@@ -52,7 +50,7 @@ export interface MediaWithTasks extends Media {
 }
 
 export interface ItemWithMedia extends RundownItem {
-  media: MediaWithTasks[];
+  media: MediaWithTasks | null;
 }
 
 export interface CompleteRundown extends Rundown {
@@ -188,11 +186,10 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
   // Periodically refresh if any items are pending
   const intervalRef = useRef<NodeJS.Timer | null>(null);
   useEffect(() => {
-    const anyPending = props.rundown.items.some((x) =>
-      x.media.some(
-        (y) =>
-          y.state === MediaState.Pending || y.state === MediaState.Processing,
-      ),
+    const anyPending = props.rundown.items.some(
+      (x) =>
+        x.media?.state === MediaState.Pending ||
+        x.media?.state === MediaState.Processing,
     );
     if (!anyPending) {
       return;
@@ -323,6 +320,7 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
 export function RundownItems(props: { rundown: CompleteRundown }) {
   return (
     <div>
+      <h2 className="text-xl">Rundown</h2>
       <ItemsTable rundown={props.rundown} />
       <AddSegment rundown={props.rundown} />
     </div>
