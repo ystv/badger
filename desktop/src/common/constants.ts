@@ -1,4 +1,4 @@
-import type { AssetTypeType } from "bowser-server/lib/db/types/inputTypeSchemas/AssetTypeSchema";
+import type { AssetTypeType } from "bowser-prisma/types/inputTypeSchemas/AssetTypeSchema";
 
 const AssetListNames: { [K in AssetTypeType]: string } = {
   Still: "Stills",

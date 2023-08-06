@@ -1,7 +1,7 @@
 import invariant from "../common/invariant";
 import { getVMixConnection } from "./vmix";
 import { z } from "zod";
-import { CompleteAssetSchema } from "bowser-server/lib/db/utilityTypes";
+import { CompleteAssetSchema } from "bowser-prisma/utilityTypes";
 import { InputType } from "./vmixTypes";
 
 export async function reconcileList(listName: string, elements: string[]) {
