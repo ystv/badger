@@ -2612,7 +2612,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/client@npm:latest":
+"@prisma/client@npm:5.1.1":
   version: 5.1.1
   resolution: "@prisma/client@npm:5.1.1"
   dependencies:
@@ -2626,14 +2626,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/debug@npm:4.16.2":
-  version: 4.16.2
-  resolution: "@prisma/debug@npm:4.16.2"
+"@prisma/debug@npm:5.1.1":
+  version: 5.1.1
+  resolution: "@prisma/debug@npm:5.1.1"
   dependencies:
     "@types/debug": 4.1.8
     debug: 4.3.4
     strip-ansi: 6.0.1
-  checksum: 2b07cafc5cce6132ae23c362d3b8391093f2c5dcc90efb6ac9331b78fcf1012f7569f1e3c8a535a0b5330855558606d5d883cb608cbdb0ddd07d39eebb840ad6
+  checksum: ab073c70aac7f8240b70c6021b7f46b34a0bbbe6a220fe503cd34bfd6c7b9890916f42c6bc7b7345a3225f8ea9d9744064e716fe39fb2d40e44c752689ee3415
   languageName: node
   linkType: hard
 
@@ -2651,15 +2651,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/generator-helper@npm:^4.15.0":
-  version: 4.16.2
-  resolution: "@prisma/generator-helper@npm:4.16.2"
+"@prisma/generator-helper@npm:^5.1.1":
+  version: 5.1.1
+  resolution: "@prisma/generator-helper@npm:5.1.1"
   dependencies:
-    "@prisma/debug": 4.16.2
+    "@prisma/debug": 5.1.1
     "@types/cross-spawn": 6.0.2
     cross-spawn: 7.0.3
     kleur: 4.1.5
-  checksum: ff271cccf06769437bd53d23117168fe86180e170bd70ce31b79a444f7e073ba82707ef3b2f4712f3a7cdabdb3925fa4ba01fb6bfc3381c7ed6c05f306c2ef19
+  checksum: e576e0396031e0f90442c5fd37c0ee13894d03d89d4d9c572e787268156fcda960a969773c37030f3d66271c56424c34c988ac15c75be5dde5f71c6be7266bf6
+  languageName: node
+  linkType: hard
+
+"@prisma/nextjs-monorepo-workaround-plugin@npm:^5.1.1":
+  version: 5.1.1
+  resolution: "@prisma/nextjs-monorepo-workaround-plugin@npm:5.1.1"
+  checksum: d22b81a2085f19f4f5292bf8ec7fa22a6c29e07c8034193d489dca6fc7646458a1c33cb7e3e57bc36526efc60a0d37d219587ceebab800d58bcafb366c6ed4f2
   languageName: node
   linkType: hard
 
@@ -6347,18 +6354,26 @@ __metadata:
   dependencies:
     "@aws-sdk/client-s3": ^3.374.0
     "@googleapis/drive": ^8.0.0
-    "@prisma/client": latest
     "@tsconfig/node18": ^18.2.0
+    bowser-prisma: "workspace:*"
     esbuild: ^0.18.16
     got: ^13.0.0
     loglevel: ^1.8.1
     loglevel-plugin-prefix: ^0.8.4
     p-event: ^6.0.0
     prettier: ^3.0.0
-    prisma: latest
     tsx: ^3.12.7
     typescript: ^5.1.6
-    zod-prisma-types: ^2.7.4
+  languageName: unknown
+  linkType: soft
+
+"bowser-prisma@workspace:*, bowser-prisma@workspace:utility/prisma":
+  version: 0.0.0-use.local
+  resolution: "bowser-prisma@workspace:utility/prisma"
+  dependencies:
+    "@prisma/client": 5.1.1
+    prisma: ^5.1.1
+    zod-prisma-types: ^2.7.9
   languageName: unknown
   linkType: soft
 
@@ -6372,7 +6387,7 @@ __metadata:
     "@headlessui/react": ^1.7.15
     "@headlessui/tailwindcss": ^0.1.3
     "@hookform/resolvers": ^3.1.1
-    "@prisma/client": latest
+    "@prisma/nextjs-monorepo-workaround-plugin": ^5.1.1
     "@tailwindcss/forms": ^0.5.4
     "@trpc/server": ^10.34.0
     "@types/lodash": ^4.14.195
@@ -6386,6 +6401,7 @@ __metadata:
     "@typescript-eslint/parser": latest
     "@vitejs/plugin-react": ^4.0.3
     autoprefixer: ^10.4.14
+    bowser-prisma: "workspace:*"
     classnames: ^2.3.2
     clsx: ^2.0.0
     date-fns: ^2.30.0
@@ -6402,7 +6418,7 @@ __metadata:
     postcss: ^8.4.27
     prettier: ^3.0.0
     prettier-plugin-tailwindcss: ^0.4.1
-    prisma: latest
+    prisma: ^5.1.1
     react: 18.3.0-canary-9377e1010-20230712
     react-aria: ^3.26.0
     react-beautiful-dnd: ^13.1.1
@@ -6424,7 +6440,6 @@ __metadata:
     zod: ^3.21.4
     zod-error: ^1.5.0
     zod-form-data: ^2.0.1
-    zod-prisma-types: ^2.7.4
   languageName: unknown
   linkType: soft
 
@@ -6964,10 +6979,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"code-block-writer@npm:^11.0.3":
-  version: 11.0.3
-  resolution: "code-block-writer@npm:11.0.3"
-  checksum: f0a2605f19963d7087267c9b0fd0b05a6638a50e7b29b70f97aa01a514f59475b0626f8aa092188df853ee6d96745426dfa132d6a677795df462c6ce32c21639
+"code-block-writer@npm:^12.0.0":
+  version: 12.0.0
+  resolution: "code-block-writer@npm:12.0.0"
+  checksum: 9f6505a4d668c9131c6f3f686359079439e66d5f50c236614d52fcfa53aeb0bc615b2c6c64ef05b5511e3b0433ccfd9f7756ad40eb3b9298af6a7d791ab1981d
   languageName: node
   linkType: hard
 
@@ -12599,7 +12614,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prisma@npm:latest":
+"prisma@npm:^5.1.1":
   version: 5.1.1
   resolution: "prisma@npm:5.1.1"
   dependencies:
@@ -15757,17 +15772,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod-prisma-types@npm:^2.7.4":
-  version: 2.7.4
-  resolution: "zod-prisma-types@npm:2.7.4"
+"zod-prisma-types@npm:^2.7.9":
+  version: 2.7.9
+  resolution: "zod-prisma-types@npm:2.7.9"
   dependencies:
-    "@prisma/generator-helper": ^4.15.0
-    code-block-writer: ^11.0.3
+    "@prisma/generator-helper": ^5.1.1
+    code-block-writer: ^12.0.0
     lodash: ^4.17.21
     zod: ^3.21.1
   bin:
     zod-prisma-types: dist/bin.js
-  checksum: e95cef99be119f152d96b562260f9cca3f753bfad9b2643c80d9b3d9ce22682ce366cac49e870c909de99c3222433f55fe6f5a059845a07524ce63ee0a0cf2f5
+  checksum: 16e7b43cca8d3df064412fa41565dd87d09839a2e39329bbd1f183e582b3e24a7efe9e0e5793eccce199a3dc007ad62830856c88db387a93c6e78eb4ba59fb80
   languageName: node
   linkType: hard
 

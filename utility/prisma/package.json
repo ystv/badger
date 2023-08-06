@@ -1,0 +1,15 @@
+{
+  "name": "bowser-prisma",
+  "private": true,
+  "devDependencies": {
+    "prisma": "^5.1.1",
+    "zod-prisma-types": "^2.7.9"
+  },
+  "scripts": {
+    "prisma:generate": "SKIP_ZOD_PRISMA=true prisma generate",
+    "postinstall": "yarn prisma:generate"
+  },
+  "dependencies": {
+    "@prisma/client": "5.1.1"
+  }
+}

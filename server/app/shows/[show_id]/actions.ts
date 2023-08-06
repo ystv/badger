@@ -7,7 +7,7 @@ import { z } from "zod";
 import { editContinuityItemSchema } from "./schema";
 import { FormResponse } from "@/components/Form";
 import { zodErrorResponse } from "@/components/FormServerHelpers";
-import { MediaFileSourceType } from "@prisma/client";
+import { MediaFileSourceType } from "bowser-prisma/client";
 import { escapeRegExp } from "lodash";
 
 export async function addItem(

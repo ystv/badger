@@ -1,8 +1,8 @@
 "use client";
 
-import { Asset, AssetTypeSchema, LoadAssetJob, Rundown } from "@/lib/db/types";
+import { Asset, AssetTypeSchema, Rundown } from "bowser-prisma/types";
 import React, { useEffect, useRef, useState, useTransition } from "react";
-import { AssetTypeType } from "@/lib/db/types/inputTypeSchemas/AssetTypeSchema";
+import { AssetTypeType } from "bowser-prisma/types/inputTypeSchemas/AssetTypeSchema";
 import classNames from "classnames";
 import Button from "@/components/Button";
 import {
@@ -17,7 +17,7 @@ import { MediaUploadDialog } from "@/components/MediaUpload";
 import { Dialog, Popover } from "@headlessui/react";
 import Spinner from "@/app/_assets/spinner.svg";
 import Image from "next/image";
-import { MediaState } from "@prisma/client";
+import { MediaState } from "bowser-prisma/client";
 import {
   processAssetUpload,
   removeAsset,

@@ -1,5 +1,5 @@
 import "server-only";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "bowser-prisma/client";
 
 declare global {
   // eslint-disable-next-line no-var
