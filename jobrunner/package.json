@@ -15,6 +15,7 @@
   "type": "module",
   "scripts": {
     "prisma:generate": "prisma generate --schema=../server/prisma/schema.prisma",
+    "postinstall": "yarn prisma:generate",
     "dev": "tsx watch src/index.ts",
     "prettify": "prettier --write .",
     "typecheck": "tsc --noEmit",
