@@ -12,7 +12,9 @@
     "pretest:integration": "ts-node --esm scripts/prepare-integration-tests.mts",
     "posttest:integration": "ts-node --esm scripts/teardown-integration-tests.mts",
     "prettify": "prettier --write .",
-    "prisma:generate": "prisma generate"
+    "typecheck": "tsc --noEmit",
+    "prisma:generate": "prisma generate",
+    "postinstall": "yarn prisma:generate"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.374.0",

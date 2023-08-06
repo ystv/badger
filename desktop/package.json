@@ -11,6 +11,7 @@
     "publish": "electron-forge publish",
     "lint": "eslint src/",
     "prettify": "prettier --write .",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "keywords": [],
