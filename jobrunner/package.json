@@ -1,5 +1,6 @@
 {
   "name": "bowser-jobrunner",
+  "version": "0.1.0",
   "packageManager": "yarn@3.6.1",
   "devDependencies": {
     "@prisma/client": "latest",

@@ -1,8 +1,9 @@
 name: Desktop Build (Windows)
 
 on:
-  push:
-    branches: [main]
+  workflow_dispatch: {}
+  release:
+    types: [prereleased, released]
 
 jobs:
   build-desktop-windows:
@@ -22,10 +23,15 @@ jobs:
           cache-dependency-path: 'yarn.lock'
       - run: yarn install --immutable
       
-      - run: yarn make
+      - run: "yarn ${{ github.event_name == 'release' && 'publish' || 'make' }}"
         working-directory: ./desktop
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - run: ls desktop/out/make
 
       - uses: actions/upload-artifact@v3
         with:
           name: desktop
           path: ./desktop/out/make
+        if: github.event_name != 'release' # because 'publish' will take care of it

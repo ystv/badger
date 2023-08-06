@@ -1,7 +1,7 @@
 {
   "name": "bowser-desktop",
   "productName": "Bowser Desktop",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "My Electron application description",
   "main": ".vite/build/main.js",
   "scripts": {
@@ -11,16 +11,13 @@
     "publish": "electron-forge publish",
     "lint": "eslint src/",
     "prettify": "prettier --write .",
-    "test": "node_modules/.bin/vitest run",
     "typecheck": "tsc --noEmit"
+    "test": "vitest run"
   },
   "keywords": [],
   "author": {
     "name": "Marks Polakovs",
     "email": "marks@markspolakovs.me"
-  },
-  "installConfig": {
-    "hoistingLimits": "workspaces"
   },
   "license": "MIT",
   "devDependencies": {
