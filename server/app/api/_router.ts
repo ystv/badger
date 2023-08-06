@@ -6,9 +6,9 @@ import {
   CompleteRundownModel,
   CompleteShowModel,
   PartialShowModel,
-} from "@/lib/db/utilityTypes";
+} from "bowser-prisma/utilityTypes";
 import { getPresignedURL } from "@/lib/s3";
-import { ContinuityItemSchema, RundownItemSchema } from "@/lib/db/types";
+import { ContinuityItemSchema, RundownItemSchema } from "bowser-prisma/types";
 
 const ExtendedMediaModelWithDownloadURL = CompleteMediaModel.extend({
   continuityItem: ContinuityItemSchema.nullable(),

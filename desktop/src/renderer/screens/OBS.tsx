@@ -6,7 +6,7 @@ import { getQueryKey } from "@trpc/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 
-import { CompleteContinuityItemModel } from "@/lib/db/utilityTypes";
+import { CompleteContinuityItemModel } from "bowser-prisma/utilityTypes";
 import { z } from "zod";
 import invariant from "../../common/invariant";
 

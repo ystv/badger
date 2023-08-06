@@ -13,3 +13,4 @@ desktop/.vite/
 server/.next/
 jobrunner/dist/
 
+utility/prisma/client/

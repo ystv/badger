@@ -25,7 +25,7 @@ import {
   processUploadForContinuityItem,
   reorderShowItems,
 } from "./actions";
-import { Show } from "@prisma/client";
+import { Show } from "bowser-prisma/client";
 import Button from "@/components/Button";
 import { Popover } from "@headlessui/react";
 import { TextInput } from "flowbite-react";
