@@ -23,8 +23,10 @@ jobs:
           cache-dependency-path: 'yarn.lock'
       - run: yarn install --immutable
       
-      - run: yarn make
+      - run: "yarn ${{ github.event_name == 'release' && 'publish' || 'make' }}"
         working-directory: ./desktop
+
+      - run: ls desktop/out/make
 
       - uses: actions/upload-artifact@v3
         with:
