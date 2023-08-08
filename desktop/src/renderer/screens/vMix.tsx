@@ -88,7 +88,11 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
       downloadState.data?.some((x) => x.status !== "done") ? 1_000 : 10_000,
     staleTime: 2_500,
   });
-  const doLoad = ipc.vmix.loadRundownVTs.useMutation();
+  const doLoad = ipc.vmix.loadRundownVTs.useMutation({
+    onSuccess() {
+      queryClient.invalidateQueries(getQueryKey(ipc.vmix.getCompleteState));
+    }
+  });
   const doDownload = ipc.media.downloadMedia.useMutation({
     onSuccess() {
       queryClient.invalidateQueries(getQueryKey(ipc.media.getDownloadStatus));
@@ -173,7 +177,7 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
 
   return (
     <>
-      <h2 className="text-xl font-bold">VTs</h2>
+      <h2 className="text-xl font-light">VTs</h2>
       <div>
         <div className="ml-auto">
           <Button
@@ -196,7 +200,7 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
       <div className="space-y-2">
         {items.map((item) => (
           <div key={item.id} className="flex flex-row flex-wrap">
-            <span className="text-lg font-bold">{item.name}</span>
+            <span className="text-lg">{item.name}</span>
             <div className="ml-auto">
               {item._state === "no-media" && (
                 <span className="text-warning-4">No media!</span>
@@ -239,10 +243,6 @@ function RundownAssets(props: {
   rundown: z.infer<typeof CompleteRundownModel>;
 }) {
   const queryClient = useQueryClient();
-  const localMedia = ipc.media.getLocalMedia.useQuery(undefined, {
-    refetchInterval: () => 10_000,
-    staleTime: 2_500,
-  });
   const vmixState = ipc.vmix.getCompleteState.useQuery(undefined, {
     refetchInterval: () => 15_000,
     staleTime: 2_500,
@@ -250,6 +250,10 @@ function RundownAssets(props: {
   const downloadState = ipc.media.getDownloadStatus.useQuery(undefined, {
     refetchInterval: (data) =>
       data?.some((x) => x.status !== "done") ? 1_000 : false,
+  });
+  const localMedia = ipc.media.getLocalMedia.useQuery(undefined, {
+    refetchInterval: () => downloadState.data?.some(x => x.status === "downloading") ? 2_500 : 10_000,
+    staleTime: 2_500,
   });
   const assetSettings = ipc.assets.getSettings.useQuery();
   useInvalidateQueryOnIPCEvent(
@@ -349,7 +353,7 @@ function RundownAssets(props: {
 
   return (
     <>
-      <h2 className="text-xl font-bold">Assets</h2>
+      <h2 className="text-xl font-light">Assets</h2>
       <div>
         <div className="flex flex-row ml-auto">
           <Button
@@ -380,7 +384,7 @@ function RundownAssets(props: {
       <div className="space-y-2">
         {assets?.map((asset) => (
           <div key={asset.id} className="flex flex-row flex-wrap">
-            <span className="text-lg font-bold">{asset.name}</span>
+            <span className="text-lg">{asset.name}</span>
             <div className="ml-auto">
               {asset._state === "no-media" && (
                 <span className="text-warning-4">No media!</span>
@@ -432,7 +436,7 @@ function RundownAssets(props: {
 
 function Rundown(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
   return (
-    <div>
+    <div className="space-y-4">
       <h1 className="text-2xl">{props.rundown.name}</h1>
       <RundownVTs rundown={props.rundown} />
       <RundownAssets rundown={props.rundown} />
