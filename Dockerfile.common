@@ -1,7 +1,7 @@
 #syntax=docker/dockerfile:1
 
-FROM node:18-bookworm AS base
-RUN apt update && apt install -y openssl
+FROM node:18-bookworm-slim AS base
+RUN apt-get update -y && apt-get install -y openssl
 
 FROM base AS build
 WORKDIR /app
