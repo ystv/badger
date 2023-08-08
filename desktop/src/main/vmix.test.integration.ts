@@ -1,8 +1,6 @@
-import { beforeAll, expect, test, describe } from "vitest";
+import { beforeAll, expect, test } from "vitest";
 import VMixConnection from "./vmix";
-
-const integrate =
-  process.env.TEST_INTEGRATION === "true" ? describe : describe.skip;
+import { integrate } from "bowser-utility-testing";
 
 integrate("VMixConnection integration", () => {
   let vmix: VMixConnection;

@@ -1,9 +1,7 @@
 import { JobState } from "bowser-prisma/client";
 import { describe, it, beforeEach, expect } from "vitest";
 import { db, doOneJob } from "./index.js";
-
-const integrate =
-  process.env.TEST_INTEGRATION === "true" ? describe : describe.skip;
+import { integrate } from "bowser-utility-testing";
 
 integrate("doOneJob", () => {
   beforeEach(async () => {

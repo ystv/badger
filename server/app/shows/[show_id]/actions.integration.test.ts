@@ -1,9 +1,7 @@
 import { db } from "@/lib/db";
-import { describe, test, vi, beforeEach, afterEach, expect } from "vitest";
+import { test, vi, beforeEach, expect } from "vitest";
 import { reorderShowItems } from "./actions";
-
-const integrate =
-  process.env.TEST_INTEGRATION === "true" ? describe : describe.skip;
+import { integrate } from "bowser-utility-testing";
 
 vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ revalidatePath: () => {} }));
