@@ -77,6 +77,7 @@ export function makePublicURL(baseUrl: URL | string) {
     const publicUrl = new URL(process.env.PUBLIC_URL);
     url.protocol = publicUrl.protocol;
     url.host = publicUrl.host;
+    url.port = publicUrl.port;
   }
   return url.toString();
 }
