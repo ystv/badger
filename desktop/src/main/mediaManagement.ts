@@ -45,69 +45,79 @@ type DownloadStatus = z.infer<typeof DownloadStatusSchema>;
 
 const downloadQueue: DownloadQueueItem[] = [];
 export const downloadStatus: Map<number, DownloadStatus> = new Map();
+let isDownloadRunning = false;
 
 async function doDownloadMedia() {
-  const task = downloadQueue.shift();
-  if (!task) {
+  if (isDownloadRunning) {
     return;
   }
-  if (!serverApiClient) {
-    throw new Error("Server API client not initialized");
-  }
-  const info = await serverApiClient.media.get.query({ id: task.mediaID });
-  const urlRaw = info.downloadURL;
-  if (!urlRaw) {
-    console.warn(
-      `Requested to download media ${info.id} [${info.name}], but it did not have a download URL.`,
-    );
-    process.nextTick(doDownloadMedia);
-    return;
-  }
-
-  const outputPath = path.join(await ensureMediaPath(), info.name);
-  console.log(
-    `Starting to download media ${info.id} [${info.name}] to ${outputPath}`,
-  );
-  const status: DownloadStatus = {
-    mediaID: info.id,
-    name: info.name,
-    status: "downloading",
-    progressPercent: 0,
-  };
-  downloadStatus.set(info.id, status);
-
+  // this is JS, no atomicity needed!
+  isDownloadRunning = true;
   try {
-    const download = wget.download(urlRaw, outputPath, {
-      // @ts-expect-error typings wrong, `download` does accept this
-      gunzip: true,
+    const task = downloadQueue.shift();
+    if (!task) {
+      return;
+    }
+    if (!serverApiClient) {
+      throw new Error("Server API client not initialized");
+    }
+    const info = await serverApiClient.media.get.query({ id: task.mediaID });
+    const urlRaw = info.downloadURL;
+    if (!urlRaw) {
+      console.warn(
+        `Requested to download media ${info.id} [${info.name}], but it did not have a download URL.`,
+      );
+      process.nextTick(doDownloadMedia);
+      return;
+    }
+
+    const outputPath = path.join(await ensureMediaPath(), info.name);
+    console.log(
+      `Starting to download media ${info.id} [${info.name}] to ${outputPath}`,
+    );
+    const status: DownloadStatus = {
+      mediaID: info.id,
+      name: info.name,
+      status: "downloading",
+      progressPercent: 0,
+    };
+    downloadStatus.set(info.id, status);
+
+    try {
+      const download = wget.download(urlRaw, outputPath, {
+        // @ts-expect-error typings wrong, `download` does accept this
+        gunzip: true,
+      });
+
+      download.on("progress", (progress: number) => {
+        status.progressPercent = progress * 100;
+      });
+      await new Promise<void>((resolve, reject) => {
+        download.on("error", reject);
+        download.on("end", resolve);
+      });
+    } catch (e) {
+      console.error(`Error downloading media ${info.id} [${info.name}]`, e);
+      status.status = "error";
+      status.error = String(e);
+      if (downloadQueue.length > 0) {
+        process.nextTick(doDownloadMedia);
+      }
+      return;
+    }
+
+    console.log(`Downloaded media ${info.id} [${info.name}] to ${outputPath}`);
+    status.status = "done";
+    await updateLocalMediaState(info.id, {
+      mediaID: info.id,
+      path: outputPath,
     });
 
-    download.on("progress", (progress: number) => {
-      status.progressPercent = progress * 100;
-    });
-    await new Promise<void>((resolve, reject) => {
-      download.on("error", reject);
-      download.on("end", resolve);
-    });
-  } catch (e) {
-    console.error(`Error downloading media ${info.id} [${info.name}]`, e);
-    status.status = "error";
-    status.error = String(e);
     if (downloadQueue.length > 0) {
       process.nextTick(doDownloadMedia);
     }
-    return;
-  }
-
-  console.log(`Downloaded media ${info.id} [${info.name}] to ${outputPath}`);
-  status.status = "done";
-  await updateLocalMediaState(info.id, {
-    mediaID: info.id,
-    path: outputPath,
-  });
-
-  if (downloadQueue.length > 0) {
-    process.nextTick(doDownloadMedia);
+  } finally {
+    isDownloadRunning = false;
   }
 }
 
