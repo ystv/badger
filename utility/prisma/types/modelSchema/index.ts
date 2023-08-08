@@ -8,3 +8,4 @@ export * from './MediaProcessingTaskSchema';
 export * from './BaseJobSchema';
 export * from './ProcessMediaJobSchema';
 export * from './LoadAssetJobSchema';
+export * from './DummyTestJobSchema';

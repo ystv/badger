@@ -183,6 +183,7 @@ model BaseJob {
 
   ProcessMediaJob ProcessMediaJob?
   LoadAssetJob    LoadAssetJob?
+  DummyTestJob    DummyTestJob[]
 
   @@map("base_jobs")
 }
@@ -218,4 +219,13 @@ model LoadAssetJob {
   base_job    BaseJob @relation(fields: [base_job_id], references: [id], onDelete: Cascade)
 
   @@map("load_asset_jobs")
+}
+
+/// Only used for testing.
+model DummyTestJob {
+  id        Int     @id @default(autoincrement())
+  base_job  BaseJob @relation(fields: [baseJobId], references: [id])
+  baseJobId Int
+
+  @@map("dummy_test_jobs")
 }

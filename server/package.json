@@ -8,9 +8,6 @@
     "start": "next start",
     "lint": "next lint",
     "test": "dotenv -e .env.test ../node_modules/.bin/vitest run --config ./vitest.config.ts",
-    "test:integration": "TEST_INTEGRATION=true dotenv -e .env.test ../node_modules/.bin/vitest run --config ./vitest.config-integration.ts",
-    "pretest:integration": "ts-node --esm scripts/prepare-integration-tests.mts",
-    "posttest:integration": "ts-node --esm scripts/teardown-integration-tests.mts",
     "prettify": "prettier --write .",
     "typecheck": "tsc --noEmit"
   },
