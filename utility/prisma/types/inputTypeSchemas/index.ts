@@ -9,6 +9,7 @@ export { MediaProcessingTaskScalarFieldEnumSchema } from './MediaProcessingTaskS
 export { BaseJobScalarFieldEnumSchema } from './BaseJobScalarFieldEnumSchema';
 export { ProcessMediaJobScalarFieldEnumSchema } from './ProcessMediaJobScalarFieldEnumSchema';
 export { LoadAssetJobScalarFieldEnumSchema } from './LoadAssetJobScalarFieldEnumSchema';
+export { DummyTestJobScalarFieldEnumSchema } from './DummyTestJobScalarFieldEnumSchema';
 export { SortOrderSchema } from './SortOrderSchema';
 export { QueryModeSchema } from './QueryModeSchema';
 export { NullsOrderSchema } from './NullsOrderSchema';
