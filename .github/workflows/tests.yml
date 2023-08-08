@@ -144,7 +144,7 @@ jobs:
       - run: yarn test --coverage
         working-directory: ./server
 
-  test-integration-server:
+  test-integration-server-jobrunner:
 
     runs-on: ubuntu-latest
 
@@ -170,11 +170,10 @@ jobs:
       - run: yarn install --immutable --inline-builds
 
       - run: yarn prisma migrate deploy
-        working-directory: ./server
+        working-directory: ./utility/prisma
         env:
           DATABASE_URL: postgres://root:postgres@localhost:5432/bowser_test
 
-      - run: yarn test:integration --coverage
-        working-directory: ./server
+      - run: yarn test:integration
         env:
             DATABASE_URL: postgres://root:postgres@localhost:5432/bowser_test
