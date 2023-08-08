@@ -1,3 +1,4 @@
+/** @type {import("@electron-forge/shared-types/dist/index").ForgeConfig} */
 module.exports = {
   packagerConfig: {
     prune: true,
@@ -6,7 +7,9 @@ module.exports = {
   makers: [
     {
       name: "@electron-forge/maker-squirrel",
-      config: {},
+      config: {
+        authors: "YSTV",
+      },
       platforms: ["win32"],
     },
     {
