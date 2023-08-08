@@ -5,6 +5,7 @@ import logging, { LogLevelNames } from "loglevel";
 import prefix from "loglevel-plugin-prefix";
 import ProcessMediaJob from "./jobs/ProcessMediaJob.js";
 import { LoadAssetJob } from "./jobs/LoadAssetJob.js";
+
 logging.setLevel(
   (process.env.LOG_LEVEL as LogLevelNames) ?? logging.levels.DEBUG,
 );
@@ -23,31 +24,35 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 (async function () {
   logger.info("Starting Job Runner");
+  // noinspection InfiniteLoopJS
   while (true) {
-    const nextJob = await db.baseJob.findFirst({
-      where: {
-        workerId: null,
-        state: JobState.Pending,
-      },
-      include: {
-        ProcessMediaJob: true,
-        LoadAssetJob: true,
-      },
-    });
-    if (!nextJob) {
+    // This SQL grabs the ID of one pending job, and atomically (because of the "SELECT ... FOR UPDATE") marks it as
+    // being run by this worker. The SKIP LOCKED avoids lock contention (likely won't be hit at our scale, but it
+    // can't hurt).
+    const jobID = await db.$queryRaw<{ id: number }[]>`
+      UPDATE base_jobs
+      SET state = ${JobState.Running}, "workerId" = ${workerID}
+      WHERE id = (
+          SELECT id FROM base_jobs
+            WHERE state = ${JobState.Pending}
+            LIMIT 1
+            FOR UPDATE SKIP LOCKED
+        )
+      RETURNING id
+    `;
+    if (jobID.length === 0) {
       logger.trace("No jobs available, sleeping");
       await sleep(2500);
       continue;
     }
-    logger.info(`Claiming job ${nextJob.id}`);
-    await db.baseJob.update({
+    logger.info(`Claimed job ${jobID[0].id}`);
+    const nextJob = await db.baseJob.findUniqueOrThrow({
       where: {
-        id: nextJob.id,
+        id: jobID[0].id,
       },
-      data: {
-        workerId: workerID,
-        state: JobState.Running,
-        startedAt: new Date(),
+      include: {
+        LoadAssetJob: true,
+        ProcessMediaJob: true,
       },
     });
     let handler: AbstractJob;
@@ -59,7 +64,17 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
       handler = await LoadAssetJob.init(db);
       payload = nextJob.LoadAssetJob;
     } else {
+      // TODO: This assumes that there will never be a jobrunner running that doesn't know how to handle a certain
+      //  job type. If we ever introduce heterogeneous jobrunners, this will need to be changed.
       logger.error(`Unknown job type for job ${nextJob.id}`);
+      await db.baseJob.update({
+        where: {
+          id: nextJob.id,
+        },
+        data: {
+          state: JobState.Failed,
+        },
+      });
       continue;
     }
     try {
