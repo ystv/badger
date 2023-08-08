@@ -16,7 +16,9 @@ integrate("doOneJob", () => {
       },
     });
     await doOneJob();
-    const baseJobs = await db.baseJob.findMany();
+    const [baseJobs] = await db.$transaction([db.baseJob.findMany()], {
+      isolationLevel: "Serializable",
+    });
     expect(baseJobs).toHaveLength(1);
     expect(baseJobs[0].state).toBe(JobState.Complete);
   });
