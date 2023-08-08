@@ -6324,6 +6324,7 @@ __metadata:
     "@vitest/coverage-v8": ^0.33.0
     autoprefixer: ^10.4.14
     bowser-server: "workspace:*"
+    bowser-utility-testing: "workspace:*"
     bufferutil: ^4.0.7
     classnames: ^2.3.2
     client-only: ^0.0.1
@@ -6370,6 +6371,7 @@ __metadata:
     "@googleapis/drive": ^8.0.0
     "@tsconfig/node18": ^18.2.0
     bowser-prisma: "workspace:*"
+    bowser-utility-testing: "workspace:*"
     esbuild: ^0.18.16
     got: ^13.0.0
     loglevel: ^1.8.1
@@ -6417,6 +6419,7 @@ __metadata:
     "@vitejs/plugin-react": ^4.0.3
     autoprefixer: ^10.4.14
     bowser-prisma: "workspace:*"
+    bowser-utility-testing: "workspace:*"
     classnames: ^2.3.2
     clsx: ^2.0.0
     date-fns: ^2.30.0
@@ -6458,7 +6461,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"bowser-utility-testing@workspace:utility/testing":
+"bowser-utility-testing@workspace:*, bowser-utility-testing@workspace:utility/testing":
   version: 0.0.0-use.local
   resolution: "bowser-utility-testing@workspace:utility/testing"
   dependencies:

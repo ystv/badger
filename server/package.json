@@ -29,6 +29,7 @@
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "latest",
     "bowser-prisma": "workspace:*",
+    "bowser-utility-testing": "workspace:*",
     "classnames": "^2.3.2",
     "clsx": "^2.0.0",
     "date-fns": "^2.30.0",

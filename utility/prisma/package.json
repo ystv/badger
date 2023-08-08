@@ -11,7 +11,7 @@
     "prisma:generateAll": "prisma generate",
     "postinstall": "yarn prisma:generate",
     "prisma:migrateDev": "dotenv -c -e ../../server/.env -- prisma migrate dev",
-    "prisma:migrateProd":  "dotenv -c -e ../../server/.env -- prisma migrate deploy"
+    "prisma:migrateProd": "dotenv -c -e ../../server/.env -- prisma migrate deploy"
   },
   "dependencies": {
     "@prisma/client": "5.1.1"
