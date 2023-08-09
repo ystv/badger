@@ -9,6 +9,7 @@ export const BaseJobSchema = z.object({
   state: JobStateSchema,
   id: z.number().int(),
   workerId: z.string().nullable(),
+  createdAt: z.coerce.date(),
   startedAt: z.coerce.date().nullable(),
   completedAt: z.coerce.date().nullable(),
 })

@@ -178,6 +178,7 @@ model BaseJob {
   id          Int       @id @default(autoincrement())
   workerId    String?
   state       JobState  @default(Pending)
+  createdAt   DateTime  @default(now())
   startedAt   DateTime?
   completedAt DateTime?
 
