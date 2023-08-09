@@ -7,8 +7,18 @@ version: 2
 updates:
   - package-ecosystem: "npm"
     directory: "/"
-    commit-message:
-      include: 'scope'
     open-pull-requests-limit: 3
     schedule:
       interval: "weekly"
+    groups:
+      electron-forge:
+        patterns:
+          - '@electron-forge/*'
+      next:
+        patterns:
+          - 'next'
+          - 'eslint-config-next'
+      prisma:
+        patterns:
+          - 'prisma'
+          - '@prisma/*'
