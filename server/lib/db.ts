@@ -1,5 +1,6 @@
 import "server-only";
 import { PrismaClient } from "bowser-prisma/client";
+import invariant from "tiny-invariant";
 
 declare global {
   // eslint-disable-next-line no-var
@@ -36,7 +37,19 @@ if (process.env.NODE_ENV === "development") {
     console.log(`${e.query}\n\t${e.params}`);
   });
 } else {
-  prisma = new PrismaClient({ log: ["warn", "error"] });
+  invariant(process.env.DATABASE_URL, "DATABASE_URL not set");
+  invariant(
+    !process.env.DATABASE_URL.includes("localhost"),
+    "DATABASE_URL must not be localhost in production",
+  );
+  prisma = new PrismaClient({
+    log: ["warn", "error"],
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL,
+      },
+    },
+  });
 }
 
 export const db = prisma;
