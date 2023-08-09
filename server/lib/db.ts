@@ -1,6 +1,7 @@
 import "server-only";
 import { PrismaClient } from "bowser-prisma/client";
-import invariant from "tiny-invariant";
+import invariant from "@/lib/invariant";
+import { PHASE_PRODUCTION_BUILD } from "next/constants";
 
 declare global {
   // eslint-disable-next-line no-var
@@ -37,11 +38,14 @@ if (process.env.NODE_ENV === "development") {
     console.log(`${e.query}\n\t${e.params}`);
   });
 } else {
-  invariant(process.env.DATABASE_URL, "DATABASE_URL not set");
-  invariant(
-    !process.env.DATABASE_URL.includes("localhost"),
-    "DATABASE_URL must not be localhost in production",
-  );
+  // Next will execute these as part of the build and fail
+  if (process.env.NEXT_PHASE !== PHASE_PRODUCTION_BUILD) {
+    invariant(process.env.DATABASE_URL, "DATABASE_URL not set");
+    invariant(
+      !process.env.DATABASE_URL.includes("localhost"),
+      "DATABASE_URL must not be localhost in production",
+    );
+  }
   prisma = new PrismaClient({
     log: ["warn", "error"],
     datasources: {
