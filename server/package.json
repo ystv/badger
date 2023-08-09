@@ -35,7 +35,7 @@
     "date-fns": "^2.30.0",
     "dayjs": "^1.11.9",
     "eslint": "8.45.0",
-    "eslint-config-next": "13.4.10",
+    "eslint-config-next": "13.4.13",
     "eslint-plugin-react": "latest",
     "flowbite": "^1.7.0",
     "flowbite-react": "^0.5.0",
