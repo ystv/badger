@@ -5221,10 +5221,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4.14.195":
-  version: 4.14.195
-  resolution: "@types/lodash@npm:4.14.195"
-  checksum: 39b75ca635b3fa943d17d3d3aabc750babe4c8212485a4df166fe0516e39288e14b0c60afc6e21913cc0e5a84734633c71e617e2bd14eaa1cf51b8d7799c432e
+"@types/lodash@npm:^4.14.196":
+  version: 4.14.196
+  resolution: "@types/lodash@npm:4.14.196"
+  checksum: 201d17c3e62ae02a93c99ec78e024b2be9bd75564dd8fd8c26f6ac51a985ab280d28ce2688c3bcdfe785b0991cd9814edff19ee000234c7b45d9a697f09feb6a
   languageName: node
   linkType: hard
 
@@ -6408,7 +6408,7 @@ __metadata:
     "@prisma/nextjs-monorepo-workaround-plugin": ^5.1.1
     "@tailwindcss/forms": ^0.5.4
     "@trpc/server": ^10.34.0
-    "@types/lodash": ^4.14.195
+    "@types/lodash": ^4.14.196
     "@types/node": 20.4.2
     "@types/react": 18.2.15
     "@types/react-beautiful-dnd": ^13.1.4
