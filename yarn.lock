@@ -6428,7 +6428,7 @@ __metadata:
     eslint: 8.45.0
     eslint-config-next: 13.4.12
     eslint-plugin-react: latest
-    flowbite: ^1.7.0
+    flowbite: ^1.8.1
     flowbite-react: ^0.5.0
     jsdom: ^22.1.0
     lodash: ^4.17.21
@@ -8984,13 +8984,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"flowbite@npm:^1.6.6, flowbite@npm:^1.7.0":
+"flowbite@npm:^1.6.6":
   version: 1.7.0
   resolution: "flowbite@npm:1.7.0"
   dependencies:
     "@popperjs/core": ^2.9.3
     mini-svg-data-uri: ^1.4.3
   checksum: 3efa24064bb4992e92893c3edee866aa4db570a2a308275ecbd77fe0068d7bd325963fd8f4c608b0de44b51411b13f33606fe7facc1239a3784b5a3f4ae63aea
+  languageName: node
+  linkType: hard
+
+"flowbite@npm:^1.8.1":
+  version: 1.8.1
+  resolution: "flowbite@npm:1.8.1"
+  dependencies:
+    "@popperjs/core": ^2.9.3
+    mini-svg-data-uri: ^1.4.3
+  checksum: 51fa33656082ae15e66fefdf595d76cad4e7d80795d5c4174e4cfcb56bd03d867a11d42fe83a6adc1272a895edd657a76b6bdad8ccf86781d9bf34a85c516525
   languageName: node
   linkType: hard
 
