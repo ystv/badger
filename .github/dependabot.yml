@@ -22,3 +22,9 @@ updates:
         patterns:
           - 'prisma'
           - '@prisma/*'
+      vite:
+        patterns:
+          - 'vite'
+          - '@vitejs/*'
+          - 'vitest'
+          - '@vitest/*'
