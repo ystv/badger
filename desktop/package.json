@@ -36,7 +36,7 @@
     "@typescript-eslint/parser": "^6.1.0",
     "@vitest/coverage-v8": "^0.33.0",
     "autoprefixer": "^10.4.14",
-    "electron": "25.3.1",
+    "electron": "25.4.0",
     "eslint": "^8.45.0",
     "eslint-plugin-react": "latest",
     "eslint-plugin-react-hooks": "^4.6.0",
