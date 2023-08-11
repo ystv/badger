@@ -166,6 +166,7 @@ if (require.main === module || (import.meta as any).main) {
         }
       }
       await doJob(parseInt(args.values.job, 10));
+      process.exit(0);
     }
     if (args.values.watch) {
       if (args.values.force) {
