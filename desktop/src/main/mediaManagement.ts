@@ -71,13 +71,16 @@ async function doDownloadMedia() {
       return;
     }
 
-    const outputPath = path.join(await ensureMediaPath(), info.name);
+    const extension = path.extname(info.name);
+    const newFileName =
+      info.name.slice(0, -extension.length) + ` (#${info.id})` + extension;
+    const outputPath = path.join(await ensureMediaPath(), newFileName);
     console.log(
-      `Starting to download media ${info.id} [${info.name}] to ${outputPath}`,
+      `Starting to download media ${info.id} [${newFileName}] to ${outputPath}`,
     );
     const status: DownloadStatus = {
       mediaID: info.id,
-      name: info.name,
+      name: newFileName,
       status: "downloading",
       progressPercent: 0,
     };
@@ -97,7 +100,7 @@ async function doDownloadMedia() {
         download.on("end", resolve);
       });
     } catch (e) {
-      console.error(`Error downloading media ${info.id} [${info.name}]`, e);
+      console.error(`Error downloading media ${info.id} [${newFileName}]`, e);
       status.status = "error";
       status.error = String(e);
       if (downloadQueue.length > 0) {
@@ -106,7 +109,9 @@ async function doDownloadMedia() {
       return;
     }
 
-    console.log(`Downloaded media ${info.id} [${info.name}] to ${outputPath}`);
+    console.log(
+      `Downloaded media ${info.id} [${newFileName}] to ${outputPath}`,
+    );
     status.status = "done";
     await updateLocalMediaState(info.id, {
       mediaID: info.id,
