@@ -1,5 +1,5 @@
 import { Client } from "undici";
-import invariant from "bowser-desktop/src/common/invariant";
+import invariant from "@/lib/invariant";
 
 let client: Client;
 function ensureClient() {
