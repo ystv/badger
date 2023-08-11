@@ -121,61 +121,65 @@ export async function doOneJob() {
   await doJob(jobID[0].id);
 }
 
-(async function () {
-  const args = parseArgs({
-    options: {
-      watch: {
-        type: "boolean",
-        default: false,
-        short: "w",
+if (require.main === module || (import.meta as any).main) {
+  (async function () {
+    const args = parseArgs({
+      options: {
+        watch: {
+          type: "boolean",
+          default: false,
+          short: "w",
+        },
+        job: {
+          type: "string",
+          short: "j",
+        },
+        force: {
+          type: "boolean",
+          default: false,
+        },
       },
-      job: {
-        type: "string",
-        short: "j",
-      },
-      force: {
-        type: "boolean",
-        default: false,
-      },
-    },
-  });
-  if (args.values.job) {
-    if (args.values.force) {
-      console.warn("Forcibly claiming job!");
-      await db.$executeRaw`
-        UPDATE base_jobs
-        SET state = ${JobState.Pending}::job_state, "workerId" = ${workerID}
-        WHERE id = ${parseInt(args.values.job, 10)}
-      `;
-    } else {
-      const rows = await db.$executeRaw`
-      UPDATE base_jobs
-        SET state = ${JobState.Pending}::job_state, "workerId" = ${workerID}
-        WHERE id = ${parseInt(args.values.job, 10)}
+    });
+    if (args.values.job) {
+      if (args.values.force) {
+        console.warn("Forcibly claiming job!");
+        await db.$executeRaw`
+          UPDATE base_jobs
+          SET state      = ${JobState.Pending}::job_state,
+              "workerId" = ${workerID}
+          WHERE id = ${parseInt(args.values.job, 10)}
+        `;
+      } else {
+        const rows = await db.$executeRaw`
+          UPDATE base_jobs
+          SET state      = ${JobState.Pending}::job_state,
+              "workerId" = ${workerID}
+          WHERE id = ${parseInt(args.values.job, 10)}
             AND "workerId" IS NULL
-      `;
-      if (rows === 0) {
-        logger.error(
-          `Job ${args.values.job} is already claimed by another worker. To forcibly claim it, use --force - ` +
-            `but only do this if you're sure that the other worker is dead!`,
-        );
+        `;
+        if (rows === 0) {
+          logger.error(
+            `Job ${args.values.job} is already claimed by another worker. To forcibly claim it, use --force - ` +
+              `but only do this if you're sure that the other worker is dead!`,
+          );
+          process.exit(1);
+        }
+      }
+      await doJob(parseInt(args.values.job, 10));
+    }
+    if (args.values.watch) {
+      if (args.values.force) {
+        console.error("Cannot use --force with --watch");
         process.exit(1);
       }
+      logger.info("Starting Job Runner");
+      // noinspection InfiniteLoopJS
+      while (true) {
+        await doOneJob();
+        await sleep(2500);
+      }
     }
-    await doJob(parseInt(args.values.job, 10));
-  }
-  if (args.values.watch) {
-    if (args.values.force) {
-      console.error("Cannot use --force with --watch");
-      process.exit(1);
-    }
-    logger.info("Starting Job Runner");
-    // noinspection InfiniteLoopJS
-    while (true) {
-      await doOneJob();
-      await sleep(2500);
-    }
-  }
-  console.error("Either --watch or --job must be specified");
-  process.exit(1);
-})();
+    console.error("Either --watch or --job must be specified");
+    process.exit(1);
+  })();
+}
