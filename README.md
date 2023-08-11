@@ -47,6 +47,7 @@ In terms of communication,
     * This is still done over IPC, not HTTP
   * Events are done through a custom system (defined in [common/ipcEvents.ts](./desktop/src/common/ipcEvents.ts))
 * Jobrunner and Server are entirely independent, and only communicate by reading and writing to the PostgreSQL database.
+  * Server triggers Jobrunner jobs through the Nomad job scheduler, so Jobrunner is not always running.
 
 ## Deployment
 
@@ -56,5 +57,5 @@ This is done automatically by Jenkins.
 Note that, if you need to deploy database migrations, this will need to be done manually:
 1. Deploy a build containing the new migrations
 2. Find the `bowser-server-dev` (or eventually `bowser-server-prod`) job in the [Nomad UI](https://nomad.comp.ystv.co.uk/)
-3. Click "Exec" and open a shell in the `jobrunner` task
+3. Click "Exec" and open a shell in the `server` task
 4. Run `npx prisma migrate deploy --schema=./utility/prisma/schema.prisma`
