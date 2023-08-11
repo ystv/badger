@@ -9,6 +9,8 @@ import { db } from "@/lib/db";
 import { escapeRegExp } from "lodash";
 import { revalidatePath } from "next/cache";
 
+import { dispatchJobForJobrunner } from "@/lib/jobs";
+
 export async function processAssetUpload(
   rundownID: number,
   type: AssetTypeType,
@@ -28,7 +30,7 @@ export async function processAssetUpload(
     },
   });
 
-  await db.asset.create({
+  const res = await db.asset.create({
     data: {
       name: fileName,
       type,
@@ -55,6 +57,9 @@ export async function processAssetUpload(
         },
       },
     },
+    include: {
+      loadJobs: true,
+    },
   });
   await db.rundown.update({
     where: {
@@ -71,6 +76,7 @@ export async function processAssetUpload(
     },
   });
 
+  await dispatchJobForJobrunner(res.loadJobs[0].base_job_id);
   revalidatePath("/shows/[show_id]/rundown/[rundown_id]");
   return { ok: true };
 }

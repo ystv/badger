@@ -10,6 +10,8 @@ import { zodErrorResponse } from "@/components/FormServerHelpers";
 import { MediaFileSourceType } from "bowser-prisma/client";
 import { escapeRegExp } from "lodash";
 
+import { dispatchJobForJobrunner } from "@/lib/jobs";
+
 export async function addItem(
   showID: number,
   type: "rundown" | "continuity_item",
@@ -353,7 +355,7 @@ export async function processUploadForContinuityItem(
     throw new Error("Invalid upload URL");
   }
 
-  await db.$transaction(async ($db) => {
+  const baseJobID = await db.$transaction(async ($db) => {
     await $db.media.deleteMany({
       where: {
         continuityItem: {
@@ -361,7 +363,7 @@ export async function processUploadForContinuityItem(
         },
       },
     });
-    await $db.media.create({
+    const res = await $db.media.create({
       data: {
         name: fileName,
         durationSeconds: 0,
@@ -384,6 +386,9 @@ export async function processUploadForContinuityItem(
           },
         },
       },
+      include: {
+        process_jobs: true,
+      },
     });
     await $db.show.update({
       where: {
@@ -395,7 +400,9 @@ export async function processUploadForContinuityItem(
         },
       },
     });
+    return res.process_jobs[0].base_job_id;
   });
+  await dispatchJobForJobrunner(baseJobID);
   revalidatePath(`/shows/${item.showId}`);
   return { ok: true };
 }
