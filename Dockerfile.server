@@ -26,4 +26,4 @@ COPY --from=build /app/server/.next/static /app/server/.next/static
 WORKDIR /app
 ENV NODE_ENV=production
 ENV HOSTNAME="0.0.0.0"
-CMD ["node", "server/server.js"]
+ENTRYPOINT ["node", "server/server.js"]
