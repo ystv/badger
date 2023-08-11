@@ -5120,6 +5120,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/dotenv-flow@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "@types/dotenv-flow@npm:3.2.0"
+  checksum: ff11155349578fe76f0b69556f3e22e13115b17a7684cef1dec9f5d7fdaa1bfc1848b1337e3d08093687a3e372cf1b4b0fd0c9900a2db62031a3ee02ffabe3e6
+  languageName: node
+  linkType: hard
+
 "@types/eslint@npm:^8.44.0":
   version: 8.44.0
   resolution: "@types/eslint@npm:8.44.0"
@@ -6370,8 +6377,10 @@ __metadata:
     "@aws-sdk/client-s3": ^3.374.0
     "@googleapis/drive": ^8.0.0
     "@tsconfig/node18": ^18.2.0
+    "@types/dotenv-flow": ^3.2.0
     bowser-prisma: "workspace:*"
     bowser-utility-testing: "workspace:*"
+    dotenv-flow: ^3.2.0
     esbuild: ^0.18.16
     got: ^13.0.0
     loglevel: ^1.8.1
@@ -7670,10 +7679,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dotenv-flow@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "dotenv-flow@npm:3.2.0"
+  dependencies:
+    dotenv: ^8.0.0
+  checksum: 8e34ea8f5cb216acb0f9cc602752dceef6e1c0b52c39045d6b92fadbefcbfecaf0cc868d3e115c9764860293d62d0bb31d46cfa41d29cb9fc7039797e20de03e
+  languageName: node
+  linkType: hard
+
 "dotenv@npm:^16.0.0":
   version: 16.3.1
   resolution: "dotenv@npm:16.3.1"
   checksum: 15d75e7279018f4bafd0ee9706593dd14455ddb71b3bcba9c52574460b7ccaf67d5cf8b2c08a5af1a9da6db36c956a04a1192b101ee102a3e0cf8817bbcf3dfd
+  languageName: node
+  linkType: hard
+
+"dotenv@npm:^8.0.0":
+  version: 8.6.0
+  resolution: "dotenv@npm:8.6.0"
+  checksum: 38e902c80b0666ab59e9310a3d24ed237029a7ce34d976796349765ac96b8d769f6df19090f1f471b77a25ca391971efde8a1ea63bb83111bd8bec8e5cc9b2cd
   languageName: node
   linkType: hard
 

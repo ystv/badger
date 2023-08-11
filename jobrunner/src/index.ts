@@ -1,4 +1,4 @@
-import "dotenv-flow";
+import dotenv from "dotenv-flow";
 import { parseArgs } from "node:util";
 import { JobState, PrismaClient } from "bowser-prisma/client";
 import * as os from "os";
@@ -9,6 +9,7 @@ import ProcessMediaJob from "./jobs/ProcessMediaJob.js";
 import { LoadAssetJob } from "./jobs/LoadAssetJob.js";
 import DummyTestJob from "./jobs/DummyTestJob.js";
 
+dotenv.config();
 logging.setLevel(
   (process.env.LOG_LEVEL as LogLevelNames) ?? logging.levels.DEBUG,
 );
