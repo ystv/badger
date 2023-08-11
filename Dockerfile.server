@@ -23,6 +23,9 @@ FROM base
 COPY --from=build /app/server/.next/standalone /app
 COPY --from=build /app/server/public /app/server/public
 COPY --from=build /app/server/.next/static /app/server/.next/static
+# Copy these in so that we can still run Prisma migrations in prod
+COPY --from=build /app/utility/prisma/schema.prisma /app/utility/prisma/schema.prisma
+COPY --from=build /app/utility/prisma/migrations /app/utility/prisma/migrations
 WORKDIR /app
 ENV NODE_ENV=production
 ENV HOSTNAME="0.0.0.0"
