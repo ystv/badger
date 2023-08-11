@@ -182,6 +182,10 @@ model BaseJob {
   startedAt   DateTime?
   completedAt DateTime?
 
+  externalJobProvider String?
+  /// The ID of the job in the external job execution system (e.g. Nomad)
+  externalJobID       String?
+
   ProcessMediaJob ProcessMediaJob?
   LoadAssetJob    LoadAssetJob?
   DummyTestJob    DummyTestJob[]

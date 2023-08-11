@@ -68,7 +68,11 @@ pipeline {
             steps {
                 build job: 'Deploy Nomad Job', parameters: [
                     string(name: 'JOB_FILE', value: 'bowser-dev.nomad'),
-                    text(name: 'TAG_REPLACEMENTS', value: "registry.comp.ystv.co.uk/ystv/bowser/server:${env.BUILD_NUMBER} registry.comp.ystv.co.uk/ystv/bowser/jobrunner:${env.BUILD_NUMBER}")
+                    text(name: 'TAG_REPLACEMENTS', value: "registry.comp.ystv.co.uk/ystv/bowser/server:${env.BUILD_NUMBER}")
+                ]
+                build job: 'Deploy Nomad Job', parameters: [
+                    string(name: 'JOB_FILE', value: 'bowser-jobrunner-dev.nomad'),
+                    text(name: 'TAG_REPLACEMENTS', value: "registry.comp.ystv.co.uk/ystv/bowser/jobrunner:${env.BUILD_NUMBER}")
                 ]
             }
         }
