@@ -31,6 +31,14 @@ jobs:
           field: productName
           value: "Bowser Desktop (DEV)"
 
+      - name: Set version for prereleases
+        if: github.event.action == 'prereleased' && contains(github.event.release.tag_name, '-') # semver prerelease
+        uses: jossef/action-set-json-field@v2.1
+        with:
+          file: ./desktop/package.json
+          field: version
+          value: ${{ github.event.release.tag_name }}
+
       - run: "yarn ${{ github.event_name == 'release' && 'publish' || 'make' }}"
         working-directory: ./desktop
         env:
