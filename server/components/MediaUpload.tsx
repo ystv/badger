@@ -1,6 +1,5 @@
 "use client";
 
-import { Dialog } from "@headlessui/react";
 import { createContext, ReactNode, useContext, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import * as tus from "tus-js-client";
@@ -67,7 +66,6 @@ export function MediaUploadDialog(props: {
   });
   return (
     <>
-      <Dialog.Title className="text-xl font-bold">{props.title}</Dialog.Title>
       {error && (
         <div className="bg-danger-4 text-light rounded-md p-2 mt-2">
           {error}

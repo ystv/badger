@@ -9,12 +9,20 @@ import {
   useFormContext,
 } from "react-hook-form";
 import { FieldPath } from "react-hook-form/dist/types/path";
-import DatePicker, { ReactDatePickerProps } from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import classNames from "classnames";
-import { useEffect, useMemo, useState } from "react";
-import Button from "@/components/Button";
+import { ForwardedRef, forwardRef, useEffect, useMemo, useState } from "react";
+import Button from "@/components/ui/button";
 import { identity } from "lodash";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { IoCalendarSharp } from "react-icons/io5";
+import { format, parse } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import { Input } from "@/components/ui/input";
 
 interface FieldBaseProps<
   TFields extends FieldValues,
@@ -33,26 +41,35 @@ interface FieldBaseProps<
  * Pass the `as` prop to render a different element type (e.g. `as="textarea"`), otherwise it will be an input.
  * `label` is rendered outside the element, all other props are passed to the element as if it were a normal <input>.
  */
-export function Field<
+export const Field = forwardRef(function Field<
   TFields extends FieldValues,
   TFieldName extends FieldPath<TFields> = FieldPath<TFields>,
-  TEl extends React.ElementType = "input",
+  TEl extends React.ElementType = typeof Input,
 >(
   props: FieldBaseProps<TFields, TFieldName, TEl> &
     React.ComponentPropsWithoutRef<TEl>,
+  ref: ForwardedRef<HTMLElement>,
 ) {
   const { label, registerParams, ...rest } = props;
   const ctx = useFormContext<TFields>();
-  const El = props.as ?? "input";
+  const El = props.as ?? Input;
+  const { ref: regRef, ...reg } = ctx.register(props.name, registerParams);
   const field = (
     <El
       {...rest}
-      {...ctx.register(props.name, registerParams)}
+      {...reg}
       className={classNames(
         props.className ??
           "mt-1 block w-full rounded-md border-2 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 ",
         ctx.formState.errors[props.name] ? "border-danger" : "border-gray-300",
       )}
+      ref={(e) => {
+        // Ensure that both hook-form and the parent component get a ref to the element
+        regRef(e);
+        if (ref) {
+          "current" in ref ? (ref.current = e) : ref(e);
+        }
+      }}
     />
   );
   if (!props.label) {
@@ -69,7 +86,7 @@ export function Field<
       {field}
     </label>
   );
-}
+});
 
 export function HiddenField<
   TFields extends FieldValues,
@@ -81,14 +98,13 @@ export function HiddenField<
   );
 }
 
-export function DatePickerField(
-  props: {
-    name: string;
-    defaultValue?: Date | string;
-    label: string;
-  } & Omit<ReactDatePickerProps, "value" | "onChange">,
-) {
-  const { name, defaultValue, label, ...rest } = props;
+export function DatePickerField(props: {
+  name: string;
+  defaultValue?: Date | string;
+  label: string;
+  showTimeSelect?: boolean;
+  timeIntervals?: number;
+}) {
   const controller = useController({
     name: props.name,
     defaultValue:
@@ -102,26 +118,51 @@ export function DatePickerField(
   );
   return (
     <label className="block">
-      <span className="block font-bold text-gray-700">{props.label}</span>
+      <span className="font-bold text-gray-700">{props.label}</span>
       {controller.fieldState.error && (
         <span className="block font-semibold text-danger">
-          {(controller.fieldState.error.message as string) ?? ""}
+          {(controller.fieldState.error?.message as string) ?? ""}
         </span>
       )}
-      <DatePicker
-        selected={v}
-        onChange={(v) => controller.field.onChange(v?.toISOString())}
-        onBlur={controller.field.onBlur}
-        ref={controller.field.ref}
-        className={classNames(
-          "mt-1 block w-full rounded-md shadow-sm",
-          controller.fieldState.error ? "border-danger" : "border-gray-300",
-          props.className,
-        )}
-        wrapperClassName="block"
-        {...rest}
-        selectsRange={false}
-      />
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            color="ghost"
+            className={cn(
+              "flex justify-start items-center text-left font-normal block",
+              !v && "text-muted-foreground",
+            )}
+          >
+            <IoCalendarSharp className="inline mr-2 h-4 w-4" />
+            {v ? format(v, "PPP") : <span className="h-4">Pick a date</span>}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0">
+          <Calendar
+            mode="single"
+            selected={v ?? undefined}
+            onSelect={controller.field.onChange}
+            initialFocus
+          />
+          {props.showTimeSelect && (
+            <div className="flex justify-end px-3 py-2">
+              <Input
+                type="time"
+                value={v ? format(v, "HH:mm") : ""}
+                onChange={(e) => {
+                  const newTime = parse(
+                    e.target.value,
+                    "HH:mm",
+                    v ?? new Date(),
+                  );
+                  console.log("New time", newTime);
+                  controller.field.onChange(newTime);
+                }}
+              />
+            </div>
+          )}
+        </PopoverContent>
+      </Popover>
     </label>
   );
 }
@@ -241,7 +282,9 @@ export function SelectField<TObj>(props: {
       label={label}
       as="select"
       registerParams={{
-        setValueAs: props.nullable ? (v) => (v === "" ? null : v) : identity,
+        setValueAs: props.nullable
+          ? (v: TObj) => (v === "" ? null : v)
+          : identity,
       }}
     >
       {nullable && <option value="">None</option>}

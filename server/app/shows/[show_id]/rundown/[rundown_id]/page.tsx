@@ -6,6 +6,7 @@ import Link from "next/link";
 import { TusEndpointProvider } from "@/components/MediaUpload";
 import { getTusEndpoint } from "@/lib/tus";
 import { Suspense } from "react";
+import { Button } from "@/components/ui/button";
 
 async function RundownAssetsFetcher(props: { rundownID: number }) {
   const rundown = await db.rundown.findFirstOrThrow({
@@ -61,12 +62,9 @@ export default async function RundownPage(props: {
     <div>
       <div className="flex-col space-y-4">
         <div>
-          <Link
-            href={`/shows/${rundown.showId}`}
-            className="ml-1 text-sm font-medium text-dark hover:text-primary-4 dark:hover:text-white mb-32"
-          >
-            Back
-          </Link>
+          <Button color="link" asChild>
+            <Link href={`/shows/${rundown.showId}`}>Back</Link>
+          </Button>
 
           <h2 className="text-xl">{rundown.name}</h2>
         </div>

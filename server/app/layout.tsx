@@ -21,7 +21,7 @@ export default function RootLayout({
         <DebugModeProvider
           value={cookies().get(DEBUG_MODE_COOKIE)?.value === "true"}
         >
-          <main className="max-w-2xl mx-auto">{children}</main>
+          <main className="max-w-3xl mx-auto">{children}</main>
         </DebugModeProvider>
       </body>
     </html>

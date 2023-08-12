@@ -3,6 +3,7 @@ import { Pagination } from "@/components/Pagination";
 import Link from "next/link";
 import { Fragment } from "react";
 import dayjs from "dayjs";
+import Button from "@/components/ui/button";
 
 const PAGE_SIZE = 25;
 
@@ -31,13 +32,17 @@ export default async function ShowsPage(props: {
   return (
     <div>
       <h1>Shows</h1>
-      <Link href="/shows/create">New Show</Link>
+      <Link href="/shows/create">
+        <Button color="primary">New Show</Button>
+      </Link>
       <div className="grid grid-cols-3">
         {shows.map((show) => (
           <Fragment key={show.id}>
             <span>{show.name}</span>
             <span>{dayjs(show.start).format("YYYY-MM-DD HH:mm")}</span>
-            <Link href={`/shows/${show.id}`}>Edit</Link>
+            <Link href={`/shows/${show.id}`}>
+              <Button color="link">Edit</Button>
+            </Link>
           </Fragment>
         ))}
       </div>

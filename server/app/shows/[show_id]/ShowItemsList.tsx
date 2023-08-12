@@ -16,6 +16,7 @@ import React, {
   forwardRef,
   useCallback,
   useMemo,
+  useState,
   useTransition,
 } from "react";
 import {
@@ -26,9 +27,7 @@ import {
   reorderShowItems,
 } from "./actions";
 import { Show } from "bowser-prisma/client";
-import Button from "@/components/Button";
-import { Popover } from "@headlessui/react";
-import { TextInput } from "flowbite-react";
+import Button from "@/components/ui/button";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { format } from "date-fns";
@@ -37,6 +36,12 @@ import Form from "@/components/Form";
 import { editContinuityItemSchema } from "./schema";
 import { Field, HiddenField } from "@/components/FormFields";
 import { ItemMediaState } from "@/components/MediaState";
+import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 // beautiful-dnd is not compatible with SSR
 const Droppable = dynamic(
@@ -59,11 +64,11 @@ function AddItemPopover(props: {
         })
       }
     >
-      <label>
+      <label className="my-1">
         Name
-        <TextInput required name="name" />
+        <Input required name="name" />
       </label>
-      <Button type="primary" isDisabled={isPending}>
+      <Button color="primary" disabled={isPending}>
         Create
       </Button>
     </form>
@@ -74,21 +79,21 @@ function AddItemButtons(props: { showID: number }) {
   return (
     <div className="flex flex-row space-x-2">
       <span>Add:</span>
-      <Popover title="New Rundown">
-        <Popover.Button className="bg-primary-4 text-light rounded-md py-1 px-2">
-          Rundown
-        </Popover.Button>
-        <Popover.Panel>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button color="primary">Rundown</Button>
+        </PopoverTrigger>
+        <PopoverContent>
           <AddItemPopover showID={props.showID} type="rundown" />
-        </Popover.Panel>
+        </PopoverContent>
       </Popover>
-      <Popover title="New Continuity Item">
-        <Popover.Button className="bg-purple-4 text-light rounded-md py-1 px-2">
-          Continuity
-        </Popover.Button>
-        <Popover.Panel>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button color="purple">Continuity</Button>
+        </PopoverTrigger>
+        <PopoverContent>
           <AddItemPopover showID={props.showID} type="continuity_item" />
-        </Popover.Panel>
+        </PopoverContent>
       </Popover>
     </div>
   );
@@ -102,14 +107,12 @@ function DeleteItemPopover(props: {
   const [isPending, startTransition] = useTransition();
   return (
     <Popover>
-      <Popover.Button className="border-danger border-[1px] text-danger hover:text-light hover:bg-danger-4 px-0.5 py-1 rounded-md">
-        Delet
-      </Popover.Button>
-      <Popover.Overlay className="fixed inset-0 bg-dark/40 z-20" />
-      <Popover.Panel className="absolute shadow-lg ml-4 z-50 p-0 m-0">
+      <PopoverTrigger asChild>
+        <Button color="danger">Delet</Button>
+      </PopoverTrigger>
+      <PopoverContent>
         <Button
           color="danger"
-          inverted
           onClick={() =>
             startTransition(async () => {
               deleteItem(props.showID, props.itemType, props.itemID);
@@ -121,7 +124,7 @@ function DeleteItemPopover(props: {
           {isPending && <Image src={Spinner} alt="" />}
           You sure boss?
         </Button>
-      </Popover.Panel>
+      </PopoverContent>
     </Popover>
   );
 }
@@ -147,9 +150,9 @@ const RundownRow = forwardRef<
       <td>{format(props.time, "HH:mm")}</td>
       <td>{format(new Date(props.runningDuration * 1000), "mm:ss")}</td>
       <td>
-        <Link href={`/shows/${item.showId}/rundown/${item.id}`}>
-          <Button size="small">Edit</Button>
-        </Link>
+        <Button size="small" asChild>
+          <Link href={`/shows/${item.showId}/rundown/${item.id}`}>Edit</Link>
+        </Button>
       </td>
       <td>
         <DeleteItemPopover
@@ -173,6 +176,7 @@ const ContinuityItemRow = forwardRef<
   }
 >(function ContinuityItemRow(props, ref) {
   const item = props.item;
+  const [isEditing, setIsEditing] = useState(false);
   return (
     <tr ref={ref} {...props.draggableProps} className="[&>td]:m-2 align-top">
       <td {...props.dragHandleProps} className="text-2xl cursor-grab">
@@ -193,27 +197,22 @@ const ContinuityItemRow = forwardRef<
       <td>{format(props.time, "HH:mm")}</td>
       <td>{format(new Date(props.runningDuration * 1000), "mm:ss")}</td>
       <td>
-        <Popover>
-          {({ close }) => (
-            <>
-              <Popover.Button className="bg-primary-4 text-light rounded-md py-1 px-2">
-                Edit
-              </Popover.Button>
-              <Popover.Overlay className="fixed inset-0 bg-dark/40 z-20" />
-              <Popover.Panel className="absolute bg-light shadow-lg rounded-sm ml-4 z-50 p-4 m-0">
-                <Form
-                  action={editContinuityItem}
-                  schema={editContinuityItemSchema}
-                  initialValues={item}
-                  onSuccess={() => close()}
-                  submitLabel="Save"
-                >
-                  <HiddenField name="itemID" value={item.id.toString(10)} />
-                  <Field name="name" label="Name" />
-                </Form>
-              </Popover.Panel>
-            </>
-          )}
+        <Popover open={isEditing} onOpenChange={setIsEditing}>
+          <PopoverTrigger asChild>
+            <Button color="primary">Edit</Button>
+          </PopoverTrigger>
+          <PopoverContent>
+            <Form
+              action={editContinuityItem}
+              schema={editContinuityItemSchema}
+              initialValues={item}
+              onSuccess={() => setIsEditing(false)}
+              submitLabel="Save"
+            >
+              <HiddenField name="itemID" value={item.id.toString(10)} />
+              <Field name="name" label="Name" />
+            </Form>
+          </PopoverContent>
         </Popover>
       </td>
       <td>

@@ -17,9 +17,20 @@ import Image from "next/image";
 import Spinner from "@/app/_assets/spinner.svg";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
-import { Dialog, Popover } from "@headlessui/react";
-import Button from "@/components/Button";
+import Button from "@/components/ui/button";
 import { MediaUploadDialog } from "@/components/MediaUpload";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { DialogBody } from "next/dist/client/components/react-dev-overlay/internal/components/Dialog";
 
 export interface CompleteMedia extends Media {
   tasks: MediaProcessingTask[];
@@ -98,11 +109,12 @@ function MediaProcessingState({
   }
   return (
     <Popover>
-      <Popover.Button className={clsx("rounded-md py-1 px-2", classNames)}>
-        {status}
-      </Popover.Button>
-      <Popover.Overlay className="fixed inset-0 bg-dark/20 z-20" />
-      <Popover.Panel className="absolute shadow-xl ml-4 z-50 m-0">
+      <PopoverTrigger asChild>
+        <Button className={classNames} size="small">
+          {status}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="absolute shadow-xl ml-4 z-50 m-0">
         <div className="bg-light text-dark p-4 rounded">
           <ul>
             {media.tasks.map((task) => (
@@ -117,11 +129,11 @@ function MediaProcessingState({
               </li>
             ))}
           </ul>
-          <Button color="warning" inverted onClick={() => doReplace()}>
+          <Button color="warning" onClick={() => doReplace()}>
             Replace
           </Button>
         </div>
-      </Popover.Panel>
+      </PopoverContent>
     </Popover>
   );
 }
@@ -153,10 +165,12 @@ export function ItemMediaState({
   return (
     <>
       {base}
-      <Dialog open={isUploadOpen} onClose={() => setIsUploadOpen(false)}>
-        <div className="fixed inset-0 bg-dark/60" aria-hidden="true" />
-        <div className="fixed inset-0 flex items-center justify-center p-4 shadow-xl">
-          <Dialog.Panel className="mx-auto max-w-sm rounded bg-light p-8 relative">
+      <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
+        <DialogContent className="mx-auto max-w-sm rounded bg-light p-8 relative">
+          <DialogHeader>
+            <DialogTitle>Upload media for {item.name}</DialogTitle>
+          </DialogHeader>
+          <DialogBody>
             <MediaUploadDialog
               title={`Upload '${item.name}'`}
               prompt="Drop video files here, or click to select"
@@ -169,8 +183,8 @@ export function ItemMediaState({
               }
             />
             {isPending && <em>Processing, please wait...</em>}
-          </Dialog.Panel>
-        </div>
+          </DialogBody>
+        </DialogContent>
       </Dialog>
     </>
   );

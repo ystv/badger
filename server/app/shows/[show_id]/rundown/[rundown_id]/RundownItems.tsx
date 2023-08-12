@@ -15,7 +15,6 @@ import {
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Spinner from "@/app/_assets/spinner.svg";
-import { Popover } from "@headlessui/react";
 import Form from "@/components/Form";
 import {
   addItem,
@@ -35,9 +34,14 @@ import {
   useRef,
   useTransition,
 } from "react";
-import Button from "@/components/Button";
+import Button from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { ItemMediaState } from "@/components/MediaState";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 // beautiful-dnd is not compatible with SSR
 const Droppable = dynamic(
@@ -64,42 +68,38 @@ function formatDuration(duration: number): string {
 }
 
 function AddSegment(props: { rundown: CompleteRundown }) {
+  const nameRef = useRef<HTMLElement>(null);
   return (
     <Popover>
-      {({ close }) => (
-        <>
-          <Popover.Button className="bg-dark text-light rounded-md py-1 px-2">
-            Add Segment
-          </Popover.Button>
-          <Popover.Overlay className="fixed inset-0 bg-dark/40 z-20" />
-          <Popover.Panel className="absolute shadow-lg bg-light p-4 ml-4 z-50 m-0">
-            <Form
-              action={addItem}
-              schema={AddItemSchema}
-              onSuccess={() => close()}
-            >
-              <HiddenField
-                name="showID"
-                value={props.rundown.showId.toString(10)}
-              />
-              <HiddenField
-                name="rundownID"
-                value={props.rundown.id.toString(10)}
-              />
-              <Field name="name" label="Name" />
-              <SelectField
-                name="type"
-                label="type"
-                options={Object.keys(ItemTypeSchema.enum)}
-                renderOption={identity}
-                getOptionValue={identity}
-                filter={false}
-              />
-              <Field name="durationSeconds" label="Duration (seconds)" />
-            </Form>
-          </Popover.Panel>
-        </>
-      )}
+      <PopoverTrigger asChild>
+        <Button className="dark">Add Segment</Button>
+      </PopoverTrigger>
+      <PopoverContent>
+        <Form
+          action={addItem}
+          schema={AddItemSchema}
+          onSuccess={(_, form) => {
+            form.reset();
+            nameRef.current?.focus();
+          }}
+        >
+          <HiddenField
+            name="showID"
+            value={props.rundown.showId.toString(10)}
+          />
+          <HiddenField name="rundownID" value={props.rundown.id.toString(10)} />
+          <Field name="name" label="Name" ref={nameRef} />
+          <SelectField
+            name="type"
+            label="type"
+            options={Object.keys(ItemTypeSchema.enum)}
+            renderOption={identity}
+            getOptionValue={identity}
+            filter={false}
+          />
+          <Field name="durationSeconds" label="Duration (seconds)" />
+        </Form>
+      </PopoverContent>
     </Popover>
   );
 }
@@ -242,31 +242,25 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
               <td>{formatDuration(dur)}</td>
               <td>
                 <Popover>
-                  {({ close }) => (
-                    <>
-                      <Popover.Button className="border-[1px] border-light rounded-md px-2 py-1">
-                        Edit
-                      </Popover.Button>
-                      <Popover.Overlay className="fixed inset-0 bg-dark/40 z-20" />
-                      <Popover.Panel className="absolute shadow-lg bg-light text-dark p-4 ml-4 z-50 m-0">
-                        <EditItem
-                          showID={props.rundown.showId}
-                          rundownID={props.rundown.id}
-                          item={item}
-                          done={close}
-                        />
-                      </Popover.Panel>{" "}
-                    </>
-                  )}
+                  <PopoverTrigger asChild>
+                    <Button>Edit</Button>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <EditItem
+                      showID={props.rundown.showId}
+                      rundownID={props.rundown.id}
+                      item={item}
+                      done={close}
+                    />
+                  </PopoverContent>{" "}
                 </Popover>
               </td>
               <td className="pr-4">
                 <Popover>
-                  <Popover.Button className="border-[1px] border-danger-2 rounded-md px-2 py-1">
-                    Delet
-                  </Popover.Button>
-                  <Popover.Overlay className="fixed inset-0 bg-dark/40 z-20" />
-                  <Popover.Panel className="absolute shadow-lg bg-light text-dark p-4 ml-4 z-50 m-0">
+                  <PopoverTrigger asChild>
+                    <Button color="danger">Delet</Button>
+                  </PopoverTrigger>
+                  <PopoverContent>
                     <Button
                       color="danger"
                       onClick={() => {
@@ -274,10 +268,11 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
                           await deleteItem(props.rundown.id, item.id);
                         });
                       }}
+                      disabled={isPending}
                     >
                       You sure boss?
                     </Button>
-                  </Popover.Panel>
+                  </PopoverContent>
                 </Popover>
               </td>
             </tr>

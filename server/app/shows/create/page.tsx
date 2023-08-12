@@ -1,9 +1,7 @@
 "use client";
 
-import { dateFormat, schema } from "./schema";
+import { schema } from "./schema";
 import { create } from "./actions";
-import { useRef, useState, startTransition, useTransition } from "react";
-import { isRedirectError } from "next/dist/client/components/redirect";
 import Form from "@/components/Form";
 import { DatePickerField, Field } from "@/components/FormFields";
 
@@ -18,7 +16,6 @@ export default function CreateShowPage() {
           label="Start"
           showTimeSelect
           timeIntervals={15}
-          dateFormat="yyyy-MM-dd HH:mm"
         />
       </Form>
     </div>
