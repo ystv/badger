@@ -71,6 +71,7 @@ async function doDownloadMedia() {
       return;
     }
 
+    // Transforms "foo.mp4" to "foo (#123).mp4"
     const extension = path.extname(info.name);
     const newFileName =
       info.name.slice(0, -extension.length) + ` (#${info.id})` + extension;
