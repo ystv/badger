@@ -4,7 +4,7 @@ import { Asset, AssetTypeSchema, Rundown } from "bowser-prisma/types";
 import React, { useEffect, useRef, useState, useTransition } from "react";
 import { AssetTypeType } from "bowser-prisma/types/inputTypeSchemas/AssetTypeSchema";
 import classNames from "classnames";
-import Button from "@/components/Button";
+import Button from "@/components/ui/button";
 import {
   IoAddCircleSharp,
   IoImageSharp,
@@ -14,7 +14,17 @@ import {
 } from "react-icons/io5";
 import { IconType } from "react-icons/lib/cjs/iconBase";
 import { MediaUploadDialog } from "@/components/MediaUpload";
-import { Dialog, Popover } from "@headlessui/react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import Spinner from "@/app/_assets/spinner.svg";
 import Image from "next/image";
 import { Media, MediaState } from "bowser-prisma/client";
@@ -134,14 +144,14 @@ export default function RundownAssets(props: { rundown: RundownWithAssets }) {
                 <div>{asset.name}</div>
                 <div>
                   <Popover>
-                    <Popover.Button className="border-danger border-[1px] text-danger hover:text-light hover:bg-danger-4 px-0.5 py-1 rounded-md">
-                      &times;
-                    </Popover.Button>
-                    <Popover.Overlay className="fixed inset-0 bg-dark/40 z-20" />
-                    <Popover.Panel className="absolute shadow-lg ml-4 z-50 p-0 m-0">
+                    <PopoverTrigger asChild>
+                      <Button color="ghost" size="icon">
+                        &times;
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent>
                       <Button
                         color="danger"
-                        inverted
                         onClick={() =>
                           startTransition(async () => {
                             await removeAsset(asset.id);
@@ -153,67 +163,63 @@ export default function RundownAssets(props: { rundown: RundownWithAssets }) {
                         {isPending && <Image src={Spinner} alt="" />}
                         You sure boss?
                       </Button>
-                    </Popover.Panel>
+                    </PopoverContent>
                   </Popover>
                 </div>
               </div>
             );
           })}
-          <button
-            className="flex flex-row text-mid-dark italic items-center cursor-pointer"
+          <Button
+            color="ghost"
+            className="self-start"
             onClick={() => setUploadDialogOpen(true)}
           >
-            <div>
-              <IoAddCircleSharp />
-            </div>
+            <IoAddCircleSharp className="inline" />
             <div>Upload new asset</div>
-          </button>
+          </Button>
         </div>
       </div>
-      <Dialog
-        open={isUploadDialogOpen}
-        onClose={() => setUploadDialogOpen(false)}
-      >
-        <div className="fixed inset-0 bg-dark/60" aria-hidden="true" />
-        <div className="fixed inset-0 flex items-center justify-center p-4 shadow-xl">
-          <Dialog.Panel className="mx-auto max-w-sm rounded bg-light p-8 relative">
-            <select
-              onChange={(e) =>
-                setNewUploadType(e.target.value as AssetTypeType)
-              }
-              value={String(newUploadType)}
-              className="border border-mid-dark rounded-md p-1 w-64"
-            >
-              <option value="$none" disabled>
-                Select type
+      <Dialog open={isUploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+        <DialogContent className="mx-auto max-w-sm rounded bg-light p-8 relative">
+          <DialogHeader>
+            <DialogTitle>
+              Upload new {newUploadType === "$none" ? "asset" : newUploadType}
+            </DialogTitle>
+          </DialogHeader>
+          <select
+            onChange={(e) => setNewUploadType(e.target.value as AssetTypeType)}
+            value={String(newUploadType)}
+            className="border border-mid-dark rounded-md p-1 w-64"
+          >
+            <option value="$none" disabled>
+              Select type
+            </option>
+            {AssetTypeSchema.options.map((option) => (
+              <option key={option} value={option}>
+                {option}
               </option>
-              {AssetTypeSchema.options.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-            {newUploadType !== "$none" && (
-              <MediaUploadDialog
-                title={"Upload new " + newUploadType}
-                prompt="Drop file here, or click to select"
-                accept={{}}
-                disabled={isPending}
-                onComplete={(url, name) => {
-                  startTransition(async () => {
-                    await processAssetUpload(
-                      props.rundown.id,
-                      newUploadType,
-                      name,
-                      url,
-                    );
-                    setUploadDialogOpen(false);
-                  });
-                }}
-              />
-            )}
-          </Dialog.Panel>
-        </div>
+            ))}
+          </select>
+          {newUploadType !== "$none" && (
+            <MediaUploadDialog
+              title={"Upload new " + newUploadType}
+              prompt="Drop file here, or click to select"
+              accept={{}}
+              disabled={isPending}
+              onComplete={(url, name) => {
+                startTransition(async () => {
+                  await processAssetUpload(
+                    props.rundown.id,
+                    newUploadType,
+                    name,
+                    url,
+                  );
+                  setUploadDialogOpen(false);
+                });
+              }}
+            />
+          )}
+        </DialogContent>
       </Dialog>
     </div>
   );

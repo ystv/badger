@@ -11,8 +11,9 @@ import { useCallback, useState, useTransition } from "react";
 import classNames from "classnames";
 import { FieldPath } from "react-hook-form/dist/types/path";
 import { DebugOnly } from "@/components/DebugMode";
-import Button from "@/components/Button";
+import Button from "@/components/ui/button";
 import { isRedirectError } from "next/dist/client/components/redirect";
+import { UseFormReturn } from "react-hook-form/dist/types/form";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface FormErrorResponse<Fields extends FieldValues = any> {
@@ -47,7 +48,10 @@ export default function Form<
   children: React.ReactNode;
   className?: string;
   submitLabel?: string;
-  onSuccess?: (res: SuccessfulResponse) => void;
+  onSuccess?: (
+    res: SuccessfulResponse,
+    form: UseFormReturn<z.infer<Schema>>,
+  ) => void;
 }) {
   const form = useForm<z.infer<Schema>>({
     resolver: zodResolver(props.schema),
@@ -83,7 +87,7 @@ export default function Form<
         }
         if (res.ok) {
           form.clearErrors();
-          onSuccess?.(res);
+          onSuccess?.(res, form);
           return;
         }
         form.clearErrors();
