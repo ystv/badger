@@ -49,6 +49,52 @@ In terms of communication,
 * Jobrunner and Server are entirely independent, and only communicate by reading and writing to the PostgreSQL database.
   * Server triggers Jobrunner jobs through the Nomad job scheduler, so Jobrunner is not always running.
 
+## Running
+
+You will need Node.js - the latest LTS (18 at the time of writing) should be fine.
+You will also need Yarn - if you don't have it, run `corepack enable` and [Corepack](https://nodejs.org/api/corepack.html) will take care of setting it up.
+
+Clone the repo and install the dependencies:
+
+```sh
+# Make sure you have a SSH key set up with GitHub (see https://docs.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh)
+$ git clone git@github.com:ystv/bowser.git
+$ cd bowser
+$ yarn
+```
+
+You will need a PostgreSQL instance, S3 or a S3-compatible object storage service, and a tusd server.
+The easiest way to set all these up is to use Docker Compose:
+
+```sh
+$ docker-compose up -d
+```
+
+Go into the `server/` folder and create a file called `.env.local`.
+There you can set environment variables that you don't want to accidentally commit and make public.
+For now, the only ones you'll need are `YSTV_SSO_USERNAME` and `YSTV_SSO_PASSWORD` - these are application credentials for our internal [SSO service](https://github.com/ystv/SSO) (not your usual login) and can be acquired by asking @markspolakovs.
+
+Then, run `yarn dev` (in the `server` folder) to start the server.
+
+To start the desktop app, run `yarn start` in the `desktop` folder, and to start Jobrunner run `yarn dev` in the `jobrunner` folder.
+
+If you get errors about missing database tables, most likely you haven't run the migrations, or there have been changes since you last pulled - run `yarn prisma:migrateDev`.
+
+## Developing
+
+We use [Linear](https://linear.app/ystv) to track issues - sign in using your @ystv.co.uk Google account (speak to a Computing Team member if you don't have one).
+
+We use [GitHub Flow](https://guides.github.com/introduction/flow/) for development.
+Linear has a handy button in the top-right (or press <kbd>Control</kbd><kbd>Shift</kbd><kbd>.</kbd>) to copy a name for an issue's branch, which will automatically link the pull request (when you open it) to the issue.
+
+### Code Style
+
+We use Prettier to automatically format code. If CI fails because of formatting, just run `yarn prettify`.
+
+When it comes to testing, the policy is "please".
+Write tests for non-trivial code and if you think it'd be valuable, but don't write tests for the sake of writing tests or just to get coverage up.
+We have unit tests (for code that can be tested on its own) and integration tests (for code that *needs* a database or object store to be meaningfully tested), and will at some point ([BOW-69](https://linear.app/ystv/issue/BOW-69/proper-end-to-end-testing) (nice)) have end-to-end testing.
+
 ## Deployment
 
 At YSTV, Bowser Server and Jobrunner are deployed to the [Nomad cluster](https://github.com/ystv/nomad).
