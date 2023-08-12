@@ -1,6 +1,14 @@
 "use client";
 
-import { createContext, ReactNode, useContext, useState } from "react";
+import {
+  createContext,
+  forwardRef,
+  ReactNode,
+  useContext,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import { useDropzone } from "react-dropzone";
 import * as tus from "tus-js-client";
 
@@ -19,44 +27,61 @@ export function TusEndpointProvider(props: {
 }
 export const useTusEndpoint = () => useContext(TusEndpointContext);
 
-export function MediaUploadDialog(props: {
+export interface MediaUploadDialogHandle {
+  cancel(): Promise<void> | undefined;
+
+  /**
+   * Returns the upload progress as a number between 0 and 1. Returns 0 if no
+   * upload is in progress, or 1 if the upload is complete.
+   */
+  getProgress(): number;
+}
+
+interface MediaUploadDialogProps {
   prompt: ReactNode;
   title: string;
   accept: Record<string, string[]>;
   onComplete: (url: string, fileName: string) => void;
   disabled?: boolean;
-}) {
+}
+
+export const MediaUploadDialog = forwardRef<
+  MediaUploadDialogHandle,
+  MediaUploadDialogProps
+>(function MediaUploadDialog(props, ref) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const endpoint = useTusEndpoint();
+  const uploadRef = useRef<tus.Upload | null>(null);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     disabled: props.disabled || isUploading,
     onDrop(files) {
-      const upload = new tus.Upload(files[0], {
+      uploadRef.current = new tus.Upload(files[0], {
         endpoint,
         onError: function (error) {
           setIsUploading(false);
           setError(error.message);
         },
         onProgress: function (bytesUploaded, bytesTotal) {
-          const percentage = (bytesUploaded / bytesTotal) * 100;
+          const percentage = bytesUploaded / bytesTotal;
           setUploadProgress(percentage);
         },
         onSuccess: function () {
           setIsUploading(false);
-          props.onComplete(upload.url!, files[0].name);
+          props.onComplete(uploadRef.current!.url!, files[0].name);
+          uploadRef.current = null;
         },
       });
       // Check if there are any previous uploads to continue.
-      upload.findPreviousUploads().then(function (previousUploads) {
+      uploadRef.current?.findPreviousUploads().then(function (previousUploads) {
         // Found previous uploads so we select the first one.
         if (previousUploads.length) {
-          upload.resumeFromPreviousUpload(previousUploads[0]);
+          uploadRef.current?.resumeFromPreviousUpload(previousUploads[0]);
         }
 
         // Start the upload
-        upload.start();
+        uploadRef.current?.start();
         setUploadProgress(0);
         setIsUploading(true);
       });
@@ -64,6 +89,14 @@ export function MediaUploadDialog(props: {
     accept: props.accept,
     maxFiles: 1,
   });
+  useImperativeHandle(ref, () => ({
+    cancel() {
+      return uploadRef.current?.abort();
+    },
+    getProgress() {
+      return uploadProgress;
+    },
+  }));
   return (
     <>
       {error && (
@@ -71,7 +104,7 @@ export function MediaUploadDialog(props: {
           {error}
         </div>
       )}
-      {/* TODO: Google Drive picker */}
+      {/* TODO [BOW-8]: Google Drive picker */}
       <div
         {...getRootProps()}
         className="p-8 m-1 rounded-md bg-mid-light text-dark w-64 h-24"
@@ -89,10 +122,10 @@ export function MediaUploadDialog(props: {
         <div
           className="absolute bottom-0 w-full h-2 left-0 bg-primary"
           style={{
-            width: `${uploadProgress}%`,
+            width: `${uploadProgress * 100}%`,
           }}
         />
       )}
     </>
   );
-}
+});

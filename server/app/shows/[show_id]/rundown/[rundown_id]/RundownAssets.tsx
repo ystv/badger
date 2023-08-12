@@ -13,7 +13,10 @@ import {
   IoVolumeMediumSharp,
 } from "react-icons/io5";
 import { IconType } from "react-icons/lib/cjs/iconBase";
-import { MediaUploadDialog } from "@/components/MediaUpload";
+import {
+  MediaUploadDialog,
+  MediaUploadDialogHandle,
+} from "@/components/MediaUpload";
 import {
   Dialog,
   DialogContent,
@@ -66,6 +69,7 @@ export default function RundownAssets(props: { rundown: RundownWithAssets }) {
   const [newUploadType, setNewUploadType] = useState<AssetTypeType | "$none">(
     "$none",
   );
+  const uploadRef = useRef<MediaUploadDialogHandle>(null);
 
   // Periodically refresh if any assets are pending
   const refreshIntervalRef = useRef<number | null>(null);
@@ -179,7 +183,24 @@ export default function RundownAssets(props: { rundown: RundownWithAssets }) {
           </Button>
         </div>
       </div>
-      <Dialog open={isUploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+      <Dialog
+        open={isUploadDialogOpen}
+        onOpenChange={(v) => {
+          if (uploadRef.current && !v) {
+            const progress = uploadRef.current.getProgress();
+            if (progress > 0 && progress < 1) {
+              if (confirm("Are you sure you want to cancel the upload?")) {
+                uploadRef.current.cancel();
+                setUploadDialogOpen(v);
+              }
+            } else {
+              setUploadDialogOpen(v);
+            }
+          } else {
+            setUploadDialogOpen(v);
+          }
+        }}
+      >
         <DialogContent className="mx-auto max-w-sm rounded bg-light p-8 relative">
           <DialogHeader>
             <DialogTitle>
@@ -202,6 +223,7 @@ export default function RundownAssets(props: { rundown: RundownWithAssets }) {
           </select>
           {newUploadType !== "$none" && (
             <MediaUploadDialog
+              ref={uploadRef}
               title={"Upload new " + newUploadType}
               prompt="Drop file here, or click to select"
               accept={{}}
