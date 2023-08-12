@@ -18,7 +18,10 @@ import Spinner from "@/app/_assets/spinner.svg";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import Button from "@/components/ui/button";
-import { MediaUploadDialog } from "@/components/MediaUpload";
+import {
+  MediaUploadDialog,
+  MediaUploadDialogHandle,
+} from "@/components/MediaUpload";
 import {
   Popover,
   PopoverContent,
@@ -147,6 +150,7 @@ export function ItemMediaState({
 }) {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const uploadRef = useRef<MediaUploadDialogHandle | null>(null);
   let base;
   if (item.media === null) {
     base = (
@@ -165,13 +169,31 @@ export function ItemMediaState({
   return (
     <>
       {base}
-      <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
+      <Dialog
+        open={isUploadOpen}
+        onOpenChange={(v) => {
+          if (uploadRef.current && !v) {
+            const progress = uploadRef.current.getProgress();
+            if (progress > 0 && progress < 1) {
+              if (confirm("Are you sure you want to cancel the upload?")) {
+                uploadRef.current.cancel();
+                setIsUploadOpen(v);
+              }
+            } else {
+              setIsUploadOpen(v);
+            }
+          } else {
+            setIsUploadOpen(v);
+          }
+        }}
+      >
         <DialogContent className="mx-auto max-w-sm rounded bg-light p-8 relative">
           <DialogHeader>
             <DialogTitle>Upload media for {item.name}</DialogTitle>
           </DialogHeader>
           <DialogBody>
             <MediaUploadDialog
+              ref={uploadRef}
               title={`Upload '${item.name}'`}
               prompt="Drop video files here, or click to select"
               accept={{ "video/*": [] }}
