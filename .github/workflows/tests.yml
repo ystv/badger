@@ -148,16 +148,8 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:13.3
-        env:
-          POSTGRES_USER: root
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: bowser_test
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    env:
+      DATABASE_URL: postgres://root:postgres@localhost:5432/bowser_test
 
     steps:
       - uses: actions/checkout@v3
@@ -167,13 +159,12 @@ jobs:
           node-version: 18.x
           cache: 'yarn'
           cache-dependency-path: 'yarn.lock'
+
+      - run: docker compose up -d
+
       - run: yarn install --immutable --inline-builds
 
       - run: yarn prisma migrate deploy
         working-directory: ./utility/prisma
-        env:
-          DATABASE_URL: postgres://root:postgres@localhost:5432/bowser_test
 
       - run: yarn test:integration
-        env:
-            DATABASE_URL: postgres://root:postgres@localhost:5432/bowser_test

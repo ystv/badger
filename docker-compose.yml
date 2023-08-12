@@ -1,5 +1,21 @@
 version: '3.8'
 services:
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: bowser_test
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "root"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
   
   minio:
     image: quay.io/minio/minio:latest
@@ -39,4 +55,5 @@ services:
     command: ['-s3-bucket=uploads', '-s3-endpoint=http://minio:9000', '-s3-object-prefix=/uploads', '-port=1080']
 
 volumes:
+  postgres_data: {}
   minio_data: {}
