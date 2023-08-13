@@ -2627,6 +2627,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@playwright/test@npm:^1.37.0":
+  version: 1.37.0
+  resolution: "@playwright/test@npm:1.37.0"
+  dependencies:
+    "@types/node": "*"
+    fsevents: 2.3.2
+    playwright-core: 1.37.0
+  dependenciesMeta:
+    fsevents:
+      optional: true
+  bin:
+    playwright: cli.js
+  checksum: 59ccc519396c5cd66ba27bfc821b6a6483a9a426824eedb85cbd05b1cfb817f62bc1e1d893878582cf88af441a8a45aa83e678ab1d3145b54838c7c2e917b8a2
+  languageName: node
+  linkType: hard
+
 "@popperjs/core@npm:^2.9.2":
   version: 2.11.8
   resolution: "@popperjs/core@npm:2.11.8"
@@ -6695,6 +6711,7 @@ __metadata:
     "@aws-sdk/s3-request-presigner": ^3.375.0
     "@aws-sdk/signature-v4-crt": ^3.370.0
     "@hookform/resolvers": ^3.1.1
+    "@playwright/test": ^1.37.0
     "@prisma/nextjs-monorepo-workaround-plugin": ^5.1.1
     "@radix-ui/react-dialog": ^1.0.4
     "@radix-ui/react-dropdown-menu": ^2.0.5
@@ -6721,6 +6738,7 @@ __metadata:
     date-fns: ^2.30.0
     dayjs: ^1.11.9
     dotenv-cli: ^7.2.1
+    dotenv-flow: ^3.2.0
     eslint: 8.45.0
     eslint-config-next: 13.4.12
     eslint-plugin-react: latest
@@ -9566,7 +9584,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fsevents@npm:~2.3.2":
+"fsevents@npm:2.3.2, fsevents@npm:~2.3.2":
   version: 2.3.2
   resolution: "fsevents@npm:2.3.2"
   dependencies:
@@ -9576,7 +9594,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fsevents@patch:fsevents@~2.3.2#~builtin<compat/fsevents>":
+"fsevents@patch:fsevents@2.3.2#~builtin<compat/fsevents>, fsevents@patch:fsevents@~2.3.2#~builtin<compat/fsevents>":
   version: 2.3.2
   resolution: "fsevents@patch:fsevents@npm%3A2.3.2#~builtin<compat/fsevents>::version=2.3.2&hash=df0bf1"
   dependencies:
@@ -13068,6 +13086,15 @@ __metadata:
     mlly: ^1.2.0
     pathe: ^1.1.0
   checksum: 4b305c834b912ddcc8a0fe77530c0b0321fe340396f84cbb87aecdbc126606f47f2178f23b8639e71a4870f9631c7217aef52ffed0ae17ea2dbbe7e43d116a6e
+  languageName: node
+  linkType: hard
+
+"playwright-core@npm:1.37.0":
+  version: 1.37.0
+  resolution: "playwright-core@npm:1.37.0"
+  bin:
+    playwright-core: cli.js
+  checksum: be91857b1bb56890b3929ed8cd529f5f5abe4b748f709abc8dbe5b0ee4c0e158247c3958fbccec6a52394dafe4619bc0e69c93d1b129a71b31ab3697771e4c5a
   languageName: node
   linkType: hard
 

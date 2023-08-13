@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "dotenv -e .env.test ../node_modules/.bin/vitest run --config ./vitest.config.ts",
+    "test:e2e": "NODE_ENV=test yarn playwright test",
+    "test:e2e:ui": "NODE_ENV=test yarn playwright test --ui --project=chromium",
     "prettify": "prettier --write .",
     "typecheck": "tsc --noEmit"
   },
@@ -61,11 +63,13 @@
     "zod-form-data": "^2.0.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.37.0",
     "@prisma/nextjs-monorepo-workaround-plugin": "^5.1.1",
     "@types/shelljs": "^0.8.12",
     "@vitejs/plugin-react": "^4.0.3",
     "autoprefixer": "^10.4.14",
     "dotenv-cli": "^7.2.1",
+    "dotenv-flow": "^3.2.0",
     "jsdom": "^22.1.0",
     "postcss": "^8.4.27",
     "prettier": "^3.0.0",
