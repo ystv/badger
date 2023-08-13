@@ -54,7 +54,6 @@
     "server-only": "^0.0.1",
     "superjson": "^1.13.1",
     "tailwind-merge": "^1.14.0",
-    "trpc-openapi": "https://cdn.ystv.co.uk/temporary-do-not-delete/trpc-openapi-1.3.0-ystv.3.tgz",
     "tus-js-client": "^3.1.0",
     "typescript": "5.1.6",
     "undici": "^5.23.0",
