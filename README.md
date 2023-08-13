@@ -95,6 +95,13 @@ When it comes to testing, the policy is "please".
 Write tests for non-trivial code and if you think it'd be valuable, but don't write tests for the sake of writing tests or just to get coverage up.
 We have unit tests (for code that can be tested on its own) and integration tests (for code that *needs* a database or object store to be meaningfully tested), and will at some point ([BOW-69](https://linear.app/ystv/issue/BOW-69/proper-end-to-end-testing) (nice)) have end-to-end testing.
 
+TODO comments are allowed, but must be associated with a Linear ticket prior to merging your pull request (e.g. `// TODO [BOW-123]: Fix this`).
+It's a good idea to wait until just before merging before you file the ticket, so you don't end up adding TODOs that you later remove.
+CI will remind you if you leave any.
+
+FIXME comments are not allowed, so you can use those as "notes to self" that you intend to address before merging.
+CI will not let you merge if you leave any in.
+
 ## Deployment
 
 At YSTV, Bowser Server and Jobrunner are deployed to the [Nomad cluster](https://github.com/ystv/nomad).

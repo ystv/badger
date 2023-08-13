@@ -6,6 +6,7 @@ async function findAddedAndRemovedTodoIssues() {
   const removed = new Set<string>();
   const added = new Set<string>();
   const linesWithoutKey = new Set<string>();
+  const fixmes = new Set<string>();
   for (const file of danger.git.modified_files) {
     const delta = await danger.git.structuredDiffForFile(file);
     if (!delta) {
@@ -29,15 +30,17 @@ async function findAddedAndRemovedTodoIssues() {
               linesWithoutKey.add(line.content);
             }
           }
+        } else if (line.content.includes("FIXME")) {
+          fixmes.add(line.content);
         }
       }
     }
   }
-  return { removed, added, linesWithoutKey };
+  return { removed, added, linesWithoutKey, fixmes };
 }
 
 export default async () => {
-  const { removed, added, linesWithoutKey } =
+  const { removed, added, linesWithoutKey, fixmes } =
     await findAddedAndRemovedTodoIssues();
   if (removed.size > 0) {
     message(`Removed TODOs: ${Array.from(removed)
@@ -63,6 +66,11 @@ You can also include \`Closes ${Array.from(removed).join(
       )
         .map((l) => " * `" + l + "`")
         .join("\n")}`,
+    );
+  }
+  if (fixmes.size > 0) {
+    fail(
+      `Found ${fixmes.size} FIXME comments. Please either remove them or convert them to TODOs (with an associated Linear ticket).`,
     );
   }
 };
