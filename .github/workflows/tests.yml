@@ -194,6 +194,7 @@ jobs:
         run: |
           yarn build
           cp -r public .next/standalone/public
+          mkdir -p .next/standalone/.next
           cp -r .next/static .next/standalone/.next/static
         working-directory: ./server
 
