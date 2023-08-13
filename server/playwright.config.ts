@@ -85,7 +85,8 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: process.env.CI ? "yarn start" : "yarn dev",
+    command: process.env.CI ? "node server/server.js" : "yarn dev",
+    cwd: process.env.CI ? ".next/standalone" : undefined,
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
   },

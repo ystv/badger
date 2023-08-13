@@ -189,17 +189,37 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --immutable --inline-builds
+
       - name: Build server
-        run: yarn build
+        run: |
+          yarn build
+          cp -r public .next/standalone/public
+          cp -r .next/static .next/standalone/.next/static
         working-directory: ./server
+
+      # Adapted from https://playwrightsolutions.com/playwright-github-action-to-cache-the-browser-binaries/
+      - name: Get installed Playwright version
+        id: playwright-version
+        run: yarn info --json @playwright/test >> $GITHUB_OUTPUT
+        working-directory: ./server
+
+      - name: Cache playwright binaries
+        uses: actions/cache@v3
+        id: playwright-cache
+        with:
+          path: |
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ fromJson(steps.playwright-version.outputs.stdout).children[0].Version }}
 
       - name: Install Playwright Browsers
         run: yarn playwright install --with-deps
         working-directory: ./server
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
 
       - name: Run Playwright tests
         run: yarn playwright test
         working-directory: ./server
+
       - uses: actions/upload-artifact@v3
         if: always()
         with:
