@@ -4,7 +4,8 @@ import { SignInSchema } from "@/app/login/schema";
 import { z } from "zod";
 import { FormResponse } from "@/components/Form";
 import { redirect } from "next/navigation";
-import { doSignIn, IncorrectUsernameOrPassword } from "@/lib/auth";
+import { doSignIn } from "@/lib/auth";
+import { InvalidCredentials } from "@/lib/auth/types";
 
 export async function handleSignIn(
   data: z.infer<typeof SignInSchema>,
@@ -20,7 +21,7 @@ export async function handleSignIn(
     }
     return { ok: true };
   } catch (e) {
-    if (e instanceof IncorrectUsernameOrPassword) {
+    if (e instanceof InvalidCredentials) {
       return {
         ok: false,
         errors: {
