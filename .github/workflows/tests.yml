@@ -168,3 +168,41 @@ jobs:
         working-directory: ./utility/prisma
 
       - run: yarn test:integration
+
+  test-e2e-server:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: 'yarn'
+          cache-dependency-path: 'yarn.lock'
+
+      - name: Start services
+        run: docker compose up -d
+
+      - name: Install dependencies
+        run: yarn install --immutable --inline-builds
+      - name: Build server
+        run: yarn build
+        working-directory: ./server
+
+      - name: Install Playwright Browsers
+        run: yarn playwright install --with-deps
+        working-directory: ./server
+
+      - name: Run Playwright tests
+        run: yarn playwright test
+        working-directory: ./server
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
