@@ -8,7 +8,7 @@ export default merge(
     test: {
       environment: "node",
       include: ["**/*.integration.{test,spec}.?(c|m)[jt]s?(x)"],
-      exclude: ["e2e/**/*"],
+      exclude: ["e2e/**/*", "node_modules/**/*"],
     },
   }),
 );
