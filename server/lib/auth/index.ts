@@ -15,7 +15,7 @@ if (process.env.NEXT_RUNTIME !== "edge") {
 function determineProvider() {
   if (process.env.USE_DUMMY_TEST_AUTH === "true") {
     invariant(
-      process.env.NODE_ENV !== "production" && process.env.E2E_TEST !== "true",
+      process.env.NODE_ENV !== "production" || process.env.E2E_TEST === "true",
       "Cannot enable dummy test auth in production",
     );
     console.warn("Using dummy test auth - do *not* use this in production!");
