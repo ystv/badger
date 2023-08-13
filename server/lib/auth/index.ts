@@ -14,7 +14,7 @@ if (process.env.NEXT_RUNTIME !== "edge") {
 
 function determineProvider() {
   if (process.env.USE_DUMMY_TEST_AUTH === "true") {
-    // Don't be tempted to put a NODE_ENV test here - even when built with NODE_ENV=test, Next sets
+    // Don't be tempted to put a NODE_ENV test check - even when built with NODE_ENV=test, Next sets
     // process.env.NODE_ENV to "production".
     // See https://github.com/vercel/next.js/issues/17032#issuecomment-691491353
     console.warn("Using dummy test auth - do *not* use this in production!");
