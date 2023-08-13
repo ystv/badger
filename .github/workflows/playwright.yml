@@ -17,6 +17,9 @@ jobs:
       run: docker compose up -d
     - name: Install dependencies
       run: yarn install --immutable --inline-builds
+    - name: Build server
+      run: yarn build
+      working-directory: ./server
     - name: Install Playwright Browsers
       run: yarn playwright install --with-deps
       working-directory: ./server
