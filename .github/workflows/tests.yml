@@ -201,7 +201,7 @@ jobs:
       # Adapted from https://playwrightsolutions.com/playwright-github-action-to-cache-the-browser-binaries/
       - name: Get installed Playwright version
         id: playwright-version
-        run: yarn info --json @playwright/test >> $GITHUB_OUTPUT
+        run: yarn info --json @playwright/test | jq -r '.children.Version' >> $GITHUB_OUTPUT
         working-directory: ./server
 
       - name: Cache playwright binaries
@@ -210,7 +210,7 @@ jobs:
         with:
           path: |
             ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ fromJson(steps.playwright-version.outputs.stdout).children[0].Version }}
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.stdout }}
 
       - name: Install Playwright Browsers
         run: yarn playwright install --with-deps
