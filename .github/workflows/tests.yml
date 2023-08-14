@@ -164,8 +164,7 @@ jobs:
 
       - run: yarn install --immutable --inline-builds
 
-      - run: yarn prisma migrate deploy
-        working-directory: ./utility/prisma
+      - run: yarn prisma:migrateProd
 
       - run: yarn test:integration
 
@@ -216,6 +215,9 @@ jobs:
         run: yarn playwright install --with-deps
         working-directory: ./server
         if: steps.playwright-cache.outputs.cache-hit != 'true'
+
+      - name: Migrate database
+        run: yarn prisma:migrateProd
 
       - name: Run Playwright tests
         run: yarn playwright test
