@@ -38,7 +38,7 @@
     "date-fns": "^2.30.0",
     "dayjs": "^1.11.9",
     "eslint": "8.45.0",
-    "eslint-config-next": "13.4.12",
+    "eslint-config-next": "13.4.13",
     "eslint-plugin-react": "latest",
     "lodash": "^4.17.21",
     "next": "13.4.12",
