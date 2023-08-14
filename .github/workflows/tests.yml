@@ -164,7 +164,71 @@ jobs:
 
       - run: yarn install --immutable --inline-builds
 
-      - run: yarn prisma migrate deploy
-        working-directory: ./utility/prisma
+      - run: yarn prisma:migrateProd
 
       - run: yarn test:integration
+
+  test-e2e-server:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+      E2E_TEST: 'true'
+      DATABASE_URL: postgres://root:postgres@localhost:5432/bowser_test
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: 'yarn'
+          cache-dependency-path: 'yarn.lock'
+
+      - name: Start services
+        run: docker compose up -d
+
+      - name: Install dependencies
+        run: yarn install --immutable --inline-builds
+
+      - name: Build server
+        run: |
+          yarn build
+          cp -r public .next/standalone/server/public
+          mkdir -p .next/standalone/server/.next
+          cp -r .next/static .next/standalone/server/.next/static
+        working-directory: ./server
+
+      # Adapted from https://playwrightsolutions.com/playwright-github-action-to-cache-the-browser-binaries/
+      - name: Get installed Playwright version
+        id: playwright-version
+        run: echo version=$(yarn info --json @playwright/test | jq -r '.children.Version') >> $GITHUB_OUTPUT
+        working-directory: ./server
+
+      - name: Cache playwright binaries
+        uses: actions/cache@v3
+        id: playwright-cache
+        with:
+          path: |
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+
+      - name: Install Playwright Browsers
+        run: yarn playwright install --with-deps
+        working-directory: ./server
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+
+      - name: Migrate database
+        run: yarn prisma:migrateProd
+
+      - name: Run Playwright tests
+        run: yarn playwright test
+        working-directory: ./server
+        env:
+          PLAYWRIGHT_HTML_REPORT: ${{ github.workspace }}/server/playwright-report
+
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: ./server/playwright-report/
+          retention-days: 30
