@@ -193,9 +193,9 @@ jobs:
       - name: Build server
         run: |
           yarn build
-          cp -r public .next/standalone/public
-          mkdir -p .next/standalone/.next
-          cp -r .next/static .next/standalone/.next/static
+          cp -r public .next/standalone/server/public
+          mkdir -p .next/standalone/server/.next
+          cp -r .next/static .next/standalone/server/.next/static
         working-directory: ./server
 
       # Adapted from https://playwrightsolutions.com/playwright-github-action-to-cache-the-browser-binaries/
