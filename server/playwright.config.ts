@@ -89,5 +89,7 @@ export default defineConfig({
     cwd: process.env.CI ? ".next/standalone" : undefined,
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
+    stdout: "pipe",
+    stderr: "pipe",
   },
 });

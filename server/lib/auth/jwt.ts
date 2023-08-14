@@ -1,10 +1,13 @@
+import invariant from "@/lib/invariant";
+
 let _signingKey: CryptoKey | null = null;
 
+invariant(process.env.JWT_SIGNING_KEY, "JWT_SIGNING_KEY not set");
 async function signingKey() {
   if (_signingKey) return _signingKey;
   return (_signingKey = await crypto.subtle.importKey(
     "raw",
-    new TextEncoder().encode(process.env.JWT_SIGNING_KEY!),
+    new TextEncoder().encode(process.env.JWT_SIGNING_KEY),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign", "verify"],
