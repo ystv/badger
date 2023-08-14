@@ -174,6 +174,7 @@ jobs:
     env:
       NODE_ENV: test
       E2E_TEST: 'true'
+      DATABASE_URL: postgres://root:postgres@localhost:5432/bowser_test
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 18.x
