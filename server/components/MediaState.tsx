@@ -32,6 +32,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { DialogBody } from "next/dist/client/components/react-dev-overlay/internal/components/Dialog";
 
@@ -141,7 +142,7 @@ function MediaProcessingState({
   );
 }
 
-export function ItemMediaState({
+export function ItemMediaStateAndUploadDialog({
   item,
   onUploadComplete,
 }: {
@@ -168,7 +169,6 @@ export function ItemMediaState({
   }
   return (
     <>
-      {base}
       <Dialog
         open={isUploadOpen}
         onOpenChange={(v) => {
@@ -187,7 +187,8 @@ export function ItemMediaState({
           }
         }}
       >
-        <DialogContent className="mx-auto max-w-sm rounded bg-light p-8 relative">
+        <DialogTrigger asChild>{base}</DialogTrigger>
+        <DialogContent className="mx-auto max-w-sm rounded bg-light p-8">
           <DialogHeader>
             <DialogTitle>Upload media for {item.name}</DialogTitle>
           </DialogHeader>

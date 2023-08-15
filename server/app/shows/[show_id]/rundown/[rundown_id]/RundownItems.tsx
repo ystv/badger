@@ -36,12 +36,21 @@ import {
 } from "react";
 import Button from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { ItemMediaState } from "@/components/MediaState";
+import { ItemMediaStateAndUploadDialog } from "@/components/MediaState";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 // beautiful-dnd is not compatible with SSR
 const Droppable = dynamic(
@@ -221,15 +230,18 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
           isDragDisabled={isPending}
         >
           {(provided) => (
-            <tr {...provided.draggableProps} ref={provided.innerRef}>
-              <td {...provided.dragHandleProps} className="text-2xl px-4">
+            <TableRow {...provided.draggableProps} ref={provided.innerRef}>
+              <TableCell
+                {...provided.dragHandleProps}
+                className="text-2xl px-4"
+              >
                 ☰
-              </td>
-              <td className="py-2 px-4">
+              </TableCell>
+              <TableCell className="py-2 px-4">
                 <div>
                   <span className="block">{item.name}</span>
                   {item.type === "VT" && (
-                    <ItemMediaState
+                    <ItemMediaStateAndUploadDialog
                       item={item}
                       onUploadComplete={async (url, fileName) =>
                         processUploadForRundownItem(item.id, fileName, url)
@@ -237,10 +249,10 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
                     />
                   )}
                 </div>
-              </td>
-              <td>{formatDuration(item.durationSeconds)}</td>
-              <td>{formatDuration(dur)}</td>
-              <td>
+              </TableCell>
+              <TableCell>{formatDuration(item.durationSeconds)}</TableCell>
+              <TableCell>{formatDuration(dur)}</TableCell>
+              <TableCell>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button>Edit</Button>
@@ -254,8 +266,8 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
                     />
                   </PopoverContent>{" "}
                 </Popover>
-              </td>
-              <td className="pr-4">
+              </TableCell>
+              <TableCell className="pr-4">
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button color="danger">Delet</Button>
@@ -274,8 +286,8 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
                     </Button>
                   </PopoverContent>
                 </Popover>
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           )}
         </Draggable>,
       );
@@ -285,26 +297,26 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
 
   return (
     <>
-      <div>
-        <strong>Total runtime:</strong> {formatDuration(runtime)}
-      </div>
       <DragDropContext onDragEnd={doMove}>
         <Droppable droppableId="0">
           {(provided) => (
-            <table>
-              <thead>
-                <tr>
-                  <th></th>
-                  <th className="px-2">Name</th>
-                  <th className="px-2">Duration</th>
-                  <th className="px-2">Running Total</th>
-                </tr>
-              </thead>
-              <tbody {...provided.droppableProps} ref={provided.innerRef}>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead></TableHead>
+                  <TableHead className="px-2">Name</TableHead>
+                  <TableHead className="px-2">Duration</TableHead>
+                  <TableHead className="px-2">Running Total</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody {...provided.droppableProps} ref={provided.innerRef}>
                 {items}
                 {provided.placeholder}
-              </tbody>
-            </table>
+              </TableBody>
+              <TableCaption>
+                <strong>Total runtime:</strong> {formatDuration(runtime)}
+              </TableCaption>
+            </Table>
           )}
         </Droppable>
       </DragDropContext>
