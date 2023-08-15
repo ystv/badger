@@ -1,5 +1,6 @@
 import dotenv from "dotenv-flow";
 import { parseArgs } from "node:util";
+import * as fs from "node:fs";
 import { JobState, PrismaClient } from "bowser-prisma/client";
 import * as os from "os";
 import AbstractJob from "./jobs/base.js";
@@ -121,6 +122,15 @@ export async function doOneJob() {
   await doJob(jobID[0].id);
 }
 
+function doWritePidFile(path: string) {
+  fs.writeFileSync(path, process.pid.toString(), {
+    encoding: "ascii",
+  });
+  process.on("exit", () => {
+    fs.unlinkSync(path!);
+  });
+}
+
 if (require.main === module || (import.meta as any).main) {
   (async function () {
     const args = parseArgs({
@@ -137,6 +147,9 @@ if (require.main === module || (import.meta as any).main) {
         force: {
           type: "boolean",
           default: false,
+        },
+        pidFile: {
+          type: "string",
         },
       },
     });
@@ -165,6 +178,9 @@ if (require.main === module || (import.meta as any).main) {
           process.exit(1);
         }
       }
+      if (args.values.pidFile) {
+        doWritePidFile(args.values.pidFile);
+      }
       await doJob(parseInt(args.values.job, 10));
       process.exit(0);
     }
@@ -174,6 +190,11 @@ if (require.main === module || (import.meta as any).main) {
         process.exit(1);
       }
       logger.info("Starting Job Runner");
+      // Check that the DB is available before writing the PID file to ensure we're ready
+      await db.$queryRaw`SELECT 1+1`;
+      if (args.values.pidFile) {
+        doWritePidFile(args.values.pidFile);
+      }
       // noinspection InfiniteLoopJS
       while (true) {
         await doOneJob();

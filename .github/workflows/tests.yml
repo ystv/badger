@@ -198,6 +198,12 @@ jobs:
           cp -r .next/static .next/standalone/server/.next/static
         working-directory: ./server
 
+      - name: Build Jobrunner
+        run: |
+          yarn build
+          cp ../utility/prisma/schema.prisma .
+        working-directory: ./jobrunner
+
       # Adapted from https://playwrightsolutions.com/playwright-github-action-to-cache-the-browser-binaries/
       - name: Get installed Playwright version
         id: playwright-version
@@ -217,8 +223,18 @@ jobs:
         working-directory: ./server
         if: steps.playwright-cache.outputs.cache-hit != 'true'
 
+      - name: Install Playwright OS dependencies
+        run: npx playwright install-deps
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+
       - name: Migrate database
         run: yarn prisma:migrateProd
+
+      - name: Start Jobrunner
+        run: |
+          node --enable-source-maps dist/index.cjs --watch --pidFile ${{ runner.temp }}/jobrunner.pid &
+          npx -y wait-on file:/${{ runner.temp }}/jobrunner.pid
+        working-directory: ./jobrunner
 
       - name: Run Playwright tests
         run: yarn playwright test
