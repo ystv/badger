@@ -198,6 +198,10 @@ jobs:
           cp -r .next/static .next/standalone/server/.next/static
         working-directory: ./server
 
+      - name: Build Jobrunner
+        run: yarn build
+        working-directory: ./jobrunner
+
       # Adapted from https://playwrightsolutions.com/playwright-github-action-to-cache-the-browser-binaries/
       - name: Get installed Playwright version
         id: playwright-version
@@ -219,6 +223,13 @@ jobs:
 
       - name: Migrate database
         run: yarn prisma:migrateProd
+
+      - name: Start Jobrunner
+        uses: JarvusInnovations/background-action@v1
+        with:
+          run: node dist/index.js --watch --pidFile ${{ runner.temp }}/jobrunner.pid
+          wait-on: file:${{ runner.temp }}/jobrunner.pid
+          log-output-if: failure
 
       - name: Run Playwright tests
         run: yarn playwright test
