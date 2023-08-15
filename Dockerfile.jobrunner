@@ -31,4 +31,4 @@ COPY --from=build /app/utility/prisma /app/utility/prisma
 
 WORKDIR /app
 ENV NODE_ENV=production
-ENTRYPOINT ["node", "--enable-source-maps", "index.js"]
+ENTRYPOINT ["node", "--enable-source-maps", "index.cjs"]

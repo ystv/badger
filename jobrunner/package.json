@@ -14,7 +14,7 @@
     "dev": "tsx watch src/index.ts",
     "prettify": "prettier --write .",
     "typecheck": "tsc --noEmit",
-    "build": "esbuild --bundle src/index.ts --outdir=dist --sourcemap --platform=node --target=node18"
+    "build": "esbuild --bundle src/index.ts --outfile=dist/index.cjs --sourcemap --platform=node --target=node18"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.374.0",
