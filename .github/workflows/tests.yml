@@ -245,6 +245,77 @@ jobs:
       - uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: playwright-report
+          name: playwright-report-server
           path: ./server/playwright-report/
           retention-days: 30
+
+  test-e2e-desktop:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+      E2E_TEST: 'true'
+      DATABASE_URL: postgres://root:postgres@localhost:5432/bowser_test
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: 'yarn'
+          cache-dependency-path: 'yarn.lock'
+
+      - name: Start services
+        run: docker compose up -d
+
+      - name: Install dependencies
+        run: yarn install --immutable --inline-builds
+
+      - name: Build server
+        run: |
+          yarn build
+          cp -r public .next/standalone/server/public
+          mkdir -p .next/standalone/server/.next
+          cp -r .next/static .next/standalone/server/.next/static
+        working-directory: ./server
+
+      - name: Build Jobrunner
+        run: |
+          yarn build
+          cp ../utility/prisma/schema.prisma .
+        working-directory: ./jobrunner
+
+      - name: Build desktop
+        run: yarn package
+        working-directory: ./desktop
+
+      - name: Migrate database
+        run: yarn prisma:migrateProd
+
+      - name: Start Jobrunner
+        run: |
+          node --enable-source-maps dist/index.cjs --watch --pidFile ${{ runner.temp }}/jobrunner.pid &
+          npx -y wait-on file:/${{ runner.temp }}/jobrunner.pid
+        working-directory: ./jobrunner
+
+      - name: Start server
+        run: |
+          node server/server.js &
+          npx -y wait-on http://localhost:3000
+        working-directory: ./server/.next/standalone
+
+      - name: Run Playwright tests
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn playwright test
+        working-directory: ./desktop
+        env:
+          PLAYWRIGHT_HTML_REPORT: ${{ github.workspace }}/server/playwright-report
+          DEBUG: ${{ runner.debug && 'pw:browser:*' || '' }}
+
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report-desktop
+          path: ./server/playwright-report/
+          retention-days: 30
+

@@ -1,5 +1,5 @@
 import settings from "electron-settings";
-import { safeStorage } from "electron";
+import { safeStorage } from "./safeStorage";
 import { z } from "zod";
 import * as fsp from "fs/promises";
 import { AssetTypeSchema } from "bowser-prisma/types";
