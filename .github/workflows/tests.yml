@@ -286,6 +286,10 @@ jobs:
           cp ../utility/prisma/schema.prisma .
         working-directory: ./jobrunner
 
+      - name: Build desktop
+        run: yarn package
+        working-directory: ./desktop
+
       - name: Migrate database
         run: yarn prisma:migrateProd
 
@@ -306,7 +310,7 @@ jobs:
         working-directory: ./desktop
         env:
           PLAYWRIGHT_HTML_REPORT: ${{ github.workspace }}/server/playwright-report
-          DEBUG: pw:browser*
+          DEBUG: ${{ runner.debug && 'pw:browser:*' || '' }}
 
       - uses: actions/upload-artifact@v3
         if: always()
