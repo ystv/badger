@@ -35,13 +35,21 @@ import Link from "next/link";
 import Form from "@/components/Form";
 import { editContinuityItemSchema } from "./schema";
 import { Field, HiddenField } from "@/components/FormFields";
-import { ItemMediaState } from "@/components/MediaState";
+import { ItemMediaStateAndUploadDialog } from "@/components/MediaState";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableRow,
+} from "@/components/ui/table";
 
 // beautiful-dnd is not compatible with SSR
 const Droppable = dynamic(
@@ -141,27 +149,29 @@ const RundownRow = forwardRef<
 >(function RundownRow(props, ref) {
   const item = props.rundown;
   return (
-    <tr ref={ref} {...props.draggableProps} className="[&>td]:m-2">
-      <td {...props.dragHandleProps} className="text-2xl cursor-grab">
+    <TableRow ref={ref} {...props.draggableProps} className="[&>td]:m-2">
+      <TableCell {...props.dragHandleProps} className="text-2xl cursor-grab">
         ☰
-      </td>
-      <td className={"font-bold text-primary"}>Rundown</td>
-      <td>{item.name}</td>
-      <td>{format(props.time, "HH:mm")}</td>
-      <td>{format(new Date(props.runningDuration * 1000), "mm:ss")}</td>
-      <td>
+      </TableCell>
+      <TableCell className={"font-bold text-primary"}>Rundown</TableCell>
+      <TableCell>{item.name}</TableCell>
+      <TableCell>{format(props.time, "HH:mm")}</TableCell>
+      <TableCell>
+        {format(new Date(props.runningDuration * 1000), "mm:ss")}
+      </TableCell>
+      <TableCell>
         <Button size="small" asChild>
           <Link href={`/shows/${item.showId}/rundown/${item.id}`}>Edit</Link>
         </Button>
-      </td>
-      <td>
+      </TableCell>
+      <TableCell>
         <DeleteItemPopover
           showID={props.rundown.showId}
           itemType="rundown"
           itemID={item.id}
         />
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 });
 
@@ -178,25 +188,31 @@ const ContinuityItemRow = forwardRef<
   const item = props.item;
   const [isEditing, setIsEditing] = useState(false);
   return (
-    <tr ref={ref} {...props.draggableProps} className="[&>td]:m-2 align-top">
-      <td {...props.dragHandleProps} className="text-2xl cursor-grab">
+    <TableRow
+      ref={ref}
+      {...props.draggableProps}
+      className="[&>td]:m-2 align-top"
+    >
+      <TableCell {...props.dragHandleProps} className="text-2xl cursor-grab">
         ☰
-      </td>
-      <td className={"font-bold text-purple"}>Continuity</td>
-      <td>
+      </TableCell>
+      <TableCell className={"font-bold text-purple"}>Continuity</TableCell>
+      <TableCell>
         <div>{item.name}</div>
         <div>
-          <ItemMediaState
+          <ItemMediaStateAndUploadDialog
             item={item}
             onUploadComplete={async (url, fileName) =>
               processUploadForContinuityItem(item.id, fileName, url)
             }
           />
         </div>
-      </td>
-      <td>{format(props.time, "HH:mm")}</td>
-      <td>{format(new Date(props.runningDuration * 1000), "mm:ss")}</td>
-      <td>
+      </TableCell>
+      <TableCell>{format(props.time, "HH:mm")}</TableCell>
+      <TableCell>
+        {format(new Date(props.runningDuration * 1000), "mm:ss")}
+      </TableCell>
+      <TableCell>
         <Popover open={isEditing} onOpenChange={setIsEditing}>
           <PopoverTrigger asChild>
             <Button color="primary">Edit</Button>
@@ -214,15 +230,15 @@ const ContinuityItemRow = forwardRef<
             </Form>
           </PopoverContent>
         </Popover>
-      </td>
-      <td>
+      </TableCell>
+      <TableCell>
         <DeleteItemPopover
           showID={props.item.showId}
           itemType="continuity_item"
           itemID={item.id}
         />
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 });
 
@@ -270,10 +286,10 @@ export function ShowItemsList(props: {
     [doOptimisticMove, props.show.id],
   );
 
-  const rows = useMemo(() => {
+  const [rows, durationTotal] = useMemo(() => {
     const rows = [];
-    let durationTotal = 0;
     let time = props.show.start;
+    let durationTotal = 0;
     for (let i = 0; i < optimisticItems.length; i++) {
       const itemStartTime = time;
       const item = optimisticItems[i];
@@ -319,7 +335,7 @@ export function ShowItemsList(props: {
       durationTotal += duration;
       time = new Date(time.getTime() + duration * 1000);
     }
-    return rows;
+    return [rows, durationTotal];
   }, [optimisticItems, isPending, props.show.start]);
 
   return (
@@ -328,12 +344,16 @@ export function ShowItemsList(props: {
         {isPending && <Image src={Spinner} alt="" />}
         <Droppable droppableId="0" isDropDisabled={isPending}>
           {(provided, snapshot) => (
-            <table ref={provided.innerRef} {...provided.droppableProps}>
-              <tbody>
+            <Table ref={provided.innerRef} {...provided.droppableProps}>
+              <TableBody>
                 {rows}
                 {provided.placeholder}
-              </tbody>
-            </table>
+              </TableBody>
+              <TableCaption>
+                <strong>Total runtime: </strong>
+                {format(new Date(durationTotal * 1000), "HH:mm:ss")}
+              </TableCaption>
+            </Table>
           )}
         </Droppable>
       </DragDropContext>
