@@ -227,12 +227,10 @@ jobs:
         run: yarn prisma:migrateProd
 
       - name: Start Jobrunner
-        uses: JarvusInnovations/background-action@v1
-        with:
-          run: node dist/index.cjs --watch --pidFile ${{ runner.temp }}/jobrunner.pid
-          wait-on: file:${{ runner.temp }}/jobrunner.pid
-          log-output-if: failure
-          working-directory: ./jobrunner
+        run: |
+          node --enable-source-maps dist/index.cjs --watch --pidFile ${{ runner.temp }}/jobrunner.pid &
+          npx -y wait-on file:/${{ runner.temp }}/jobrunner.pid
+        working-directory: ./jobrunner
 
       - name: Run Playwright tests
         run: yarn playwright test
