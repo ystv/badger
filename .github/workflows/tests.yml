@@ -306,6 +306,7 @@ jobs:
         working-directory: ./desktop
         env:
           PLAYWRIGHT_HTML_REPORT: ${{ github.workspace }}/server/playwright-report
+          DEBUG: pw:browser*
 
       - uses: actions/upload-artifact@v3
         if: always()
