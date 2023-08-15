@@ -229,7 +229,7 @@ jobs:
       - name: Start Jobrunner
         uses: JarvusInnovations/background-action@v1
         with:
-          run: node dist/index.js --watch --pidFile ${{ runner.temp }}/jobrunner.pid
+          run: node dist/index.cjs --watch --pidFile ${{ runner.temp }}/jobrunner.pid
           wait-on: file:${{ runner.temp }}/jobrunner.pid
           log-output-if: failure
           working-directory: ./jobrunner
