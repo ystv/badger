@@ -223,6 +223,10 @@ jobs:
         working-directory: ./server
         if: steps.playwright-cache.outputs.cache-hit != 'true'
 
+      - name: Install Playwright OS dependencies
+        run: npx playwright install-deps
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+
       - name: Migrate database
         run: yarn prisma:migrateProd
 
