@@ -230,6 +230,7 @@ jobs:
           run: node dist/index.js --watch --pidFile ${{ runner.temp }}/jobrunner.pid
           wait-on: file:${{ runner.temp }}/jobrunner.pid
           log-output-if: failure
+          working-directory: ./jobrunner
 
       - name: Run Playwright tests
         run: yarn playwright test
