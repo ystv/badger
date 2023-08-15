@@ -251,7 +251,7 @@ jobs:
 
   test-e2e-desktop:
     timeout-minutes: 60
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     env:
       NODE_ENV: test
       E2E_TEST: 'true'
@@ -302,7 +302,7 @@ jobs:
         working-directory: ./server/.next/standalone
 
       - name: Run Playwright tests
-        run: yarn playwright test
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn playwright test
         working-directory: ./desktop
         env:
           PLAYWRIGHT_HTML_REPORT: ${{ github.workspace }}/server/playwright-report
