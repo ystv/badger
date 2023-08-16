@@ -8,8 +8,6 @@ generator client {
 
 generator zod {
   provider         = "zod-prisma-types"
-  // TODO: Consider moving these to a separate package that desktop and server depend on
-  //  (desktop importing from server can cause things to get packaged that shouldn't)
   output           = "./types"
   useMultipleFiles = true
   writeBarrelFiles = true
