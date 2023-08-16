@@ -377,6 +377,7 @@ export async function processUploadForContinuityItem(
           create: {
             sourceType: MediaFileSourceType.Tus,
             source: uploadURL.replace(
+              // Strip off the Tus endpoint prefix so the source is just the ID
               new RegExp(`^${escapeRegExp(process.env.TUS_ENDPOINT!)}/?`),
               "",
             ),

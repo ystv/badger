@@ -157,7 +157,7 @@ export async function reorder(
       `Rundown ${rundownID}: moving ${oldItem.name} from ${oldOrder} to ${newOrder}`,
     );
 
-    // TODO: the rundowns_items tables don't have unique constraints.
+    // the rundowns_items tables don't have unique constraints.
     // See the comment in schema.prisma for the background on this.
 
     // If the item is moving down, we need to move all items between the old and new position (including new) up one.
@@ -304,6 +304,7 @@ export async function processUploadForRundownItem(
           create: {
             sourceType: MediaFileSourceType.Tus,
             source: uploadURL.replace(
+              // Strip off the Tus endpoint prefix so the source is just the ID
               new RegExp(`^${escapeRegExp(process.env.TUS_ENDPOINT!)}/?`),
               "",
             ),
