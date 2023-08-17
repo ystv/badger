@@ -8,9 +8,7 @@ on:
 
 jobs:
   prettier:
-
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 18.x
@@ -24,9 +22,7 @@ jobs:
       - run: yarn prettier --check '{desktop,jobrunner,server}/**/*.{ts,tsx}'
 
   lint-desktop:
-
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 18.x
@@ -41,9 +37,7 @@ jobs:
         working-directory: ./desktop
 
   lint-server:
-
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 18.x
@@ -57,12 +51,23 @@ jobs:
       - run: yarn lint
         working-directory: ./server
 
-  # TODO: jobrunner lint
+  lint-jobrunner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: 'yarn'
+          cache-dependency-path: 'yarn.lock'
+      - run: yarn install --immutable --inline-builds
+
+      - run: yarn lint
+        working-directory: ./jobrunner
 
   typecheck-desktop:
-
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 18.x
@@ -77,9 +82,7 @@ jobs:
         working-directory: ./desktop
 
   typecheck-server:
-
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 18.x
@@ -94,9 +97,7 @@ jobs:
         working-directory: ./server
 
   typecheck-jobrunner:
-
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 18.x
@@ -111,9 +112,7 @@ jobs:
         working-directory: ./jobrunner
 
   test-unit-desktop:
-
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 18.x
@@ -128,9 +127,7 @@ jobs:
         working-directory: ./desktop
 
   test-unit-server:
-
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 18.x
@@ -145,12 +142,9 @@ jobs:
         working-directory: ./server
 
   test-integration-server-jobrunner:
-
     runs-on: ubuntu-latest
-
     env:
       DATABASE_URL: postgres://root:postgres@localhost:5432/bowser_test
-
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 18.x

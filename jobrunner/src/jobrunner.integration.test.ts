@@ -1,5 +1,5 @@
 import { JobState } from "bowser-prisma/client";
-import { describe, it, beforeEach, expect } from "vitest";
+import { it, beforeEach, expect } from "vitest";
 import { db, doOneJob } from "./index.js";
 import { integrate } from "bowser-utility-testing";
 

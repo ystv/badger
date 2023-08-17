@@ -1,10 +1,10 @@
 import AbstractJob from "./base.js";
 
-export default class DummyTestJob extends AbstractJob<{}> {
+export default class DummyTestJob extends AbstractJob<object> {
   constructor() {
     super();
   }
-  run(params: {}): Promise<void> {
+  run(_: object): Promise<void> {
     return Promise.resolve(undefined);
   }
 }

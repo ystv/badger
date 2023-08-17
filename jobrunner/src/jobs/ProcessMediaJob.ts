@@ -1,4 +1,3 @@
-import * as os from "node:os";
 import * as path from "node:path";
 import * as fs from "node:fs";
 import { pipeline as streamPipeline } from "node:stream/promises";
@@ -18,8 +17,7 @@ import got, { Response as GotResponse } from "got";
 import * as child_process from "node:child_process";
 import * as util from "node:util";
 import { pEvent } from "p-event";
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { drive, drive_v3 } from "@googleapis/drive";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { FFProbeOutput, LoudnormOutput } from "./_types.js";
 
 const TARGET_LOUDNESS_LUFS = -14;
@@ -249,7 +247,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
         (await pEvent(stream, "response")) as GotResponse; // this ensures that any errors are thrown
         break;
 
-      case MediaFileSourceType.GoogleDrive:
+      case MediaFileSourceType.GoogleDrive: {
         const res = await this.driveClient.files.get(
           {
             fileId: params.source,
@@ -261,6 +259,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
         );
         stream = res.data;
         break;
+      }
 
       default:
         throw new Error("Unknown source type");
