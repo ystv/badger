@@ -11,6 +11,7 @@ export default defineConfig({
     coverage: {
       all: true,
       include: ["app/**/*", "components/**/*", "lib/**/*", "middleware.ts"],
+      exclude: ["**/*.test.{ts,tsx}", "**/*.test.integration.{ts,tsx}"],
     },
   },
   resolve: {

@@ -22,9 +22,9 @@ process.env.TEST_INTEGRATION = "true";
             enabled: true,
             provider: "v8",
             all: true,
-            include: ["server/app/**", "server/lib/**", "server/components/**", "server/middleware.ts", "jobrunner/src/**"],
+            include: ["server/app/**", "server/lib/**", "server/components/**", "server/middleware.ts", "jobrunner/src/**", "utility/**"],
             // Prisma client ships with broken sourcemaps, so exclude it
-            exclude: ["**/prisma/client/runtime/*"]
+            exclude: ["**/prisma/client/runtime/*", "**/*.test.{ts,tsx}", "**/*.test.integration.{ts,tsx}", "utility/testing/**"]
         },
     });
     await vitest?.close();
