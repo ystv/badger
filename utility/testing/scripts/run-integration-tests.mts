@@ -19,9 +19,11 @@ process.env.TEST_INTEGRATION = "true";
             "@": path.resolve(fileURLToPath(import.meta.url), "..", "..", "..", "..", "server")
         },
         coverage: {
+            enabled: true,
             provider: "v8",
-            all: true,
-        }
+            // Prisma client ships with broken sourcemaps, so exclude it
+            exclude: ["**/prisma/client/runtime/*"]
+        },
     });
     await vitest?.close();
 })();
