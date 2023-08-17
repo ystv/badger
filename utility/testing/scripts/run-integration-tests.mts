@@ -21,6 +21,8 @@ process.env.TEST_INTEGRATION = "true";
         coverage: {
             enabled: true,
             provider: "v8",
+            all: true,
+            include: ["server/app/**", "server/lib/**", "server/components/**", "server/middleware.ts", "jobrunner/src/**"],
             // Prisma client ships with broken sourcemaps, so exclude it
             exclude: ["**/prisma/client/runtime/*"]
         },
