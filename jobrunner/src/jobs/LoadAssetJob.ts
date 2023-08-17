@@ -125,7 +125,7 @@ export class LoadAssetJob extends AbstractJob<LoadAssetJobType> {
         await pEvent(stream, "response"); // this ensures that any errors are thrown
         break;
 
-      case MediaFileSourceType.GoogleDrive:
+      case MediaFileSourceType.GoogleDrive: {
         const res = await this.driveClient.files.get(
           {
             fileId: params.source,
@@ -137,6 +137,7 @@ export class LoadAssetJob extends AbstractJob<LoadAssetJobType> {
         );
         stream = res.data;
         break;
+      }
 
       default:
         throw new Error("Unknown source type");

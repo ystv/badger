@@ -4,7 +4,10 @@
   "packageManager": "yarn@3.6.1",
   "devDependencies": {
     "@tsconfig/node18": "^18.2.0",
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
     "esbuild": "^0.18.16",
+    "eslint": "latest",
     "prettier": "^3.0.0",
     "tsx": "^3.12.7",
     "typescript": "^5.1.6"
@@ -14,7 +17,8 @@
     "dev": "tsx watch src/index.ts",
     "prettify": "prettier --write .",
     "typecheck": "tsc --noEmit",
-    "build": "esbuild --bundle src/index.ts --outfile=dist/index.cjs --sourcemap --platform=node --target=node18"
+    "build": "esbuild --bundle src/index.ts --outfile=dist/index.cjs --sourcemap --platform=node --target=node18",
+    "lint": "eslint src/**/*.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.374.0",

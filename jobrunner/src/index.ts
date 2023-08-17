@@ -131,6 +131,7 @@ function doWritePidFile(path: string) {
   });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 if (require.main === module || (import.meta as any).main) {
   (async function () {
     const args = parseArgs({
@@ -196,7 +197,7 @@ if (require.main === module || (import.meta as any).main) {
         doWritePidFile(args.values.pidFile);
       }
       // noinspection InfiniteLoopJS
-      while (true) {
+      for (;;) {
         await doOneJob();
         await sleep(2500);
       }
