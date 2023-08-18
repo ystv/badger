@@ -39,15 +39,27 @@ function OBSConnection() {
       >
         <label className="block">
           OBS Host
-          <input type="text" {...register("host")} />
+          <input
+            type="text"
+            {...register("host")}
+            className="border-2 mx-4 my-2 p-1"
+          />
         </label>
         <label className="block">
           OBS WebSocket Port
-          <input type="number" {...register("port")} />
+          <input
+            type="number"
+            {...register("port")}
+            className="border-2 mx-4 my-2 p-1"
+          />
         </label>
         <label className="block">
           OBS WebSocket Password
-          <input type="text" {...register("password", { required: true })} />
+          <input
+            type="text"
+            {...register("password", { required: true })}
+            className="border-2 mx-4 my-2 p-1"
+          />
         </label>
         <Button type="submit" color="primary">
           Connect
