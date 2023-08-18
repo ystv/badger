@@ -89,23 +89,23 @@ function MediaProcessingState({
     };
   }, [media.state, router]);
 
-  let classNames = "";
+  let color;
   let status = "";
   switch (media.state) {
     case MediaState.Pending:
-      classNames = "bg-purple-4 text-light";
+      color = "purple" as const;
       status = "Media pending";
       break;
     case MediaState.Processing:
-      classNames = "bg-purple-4 text-light";
+      color = "purple" as const;
       status = "Media processing";
       break;
     case MediaState.Ready:
-      classNames = "bg-success-4 text-light";
+      color = "success" as const;
       status = "Good to go!";
       break;
     case MediaState.ProcessingFailed:
-      classNames = "bg-danger-4 text-light";
+      color = "danger" as const;
       status = "Media processing failed";
       break;
     default:
@@ -114,7 +114,7 @@ function MediaProcessingState({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button className={classNames} size="small">
+        <Button color={color} className="py-6" size="small">
           {status}
         </Button>
       </PopoverTrigger>
@@ -155,7 +155,11 @@ export function ItemMediaStateAndUploadDialog({
   let base;
   if (item.media === null) {
     base = (
-      <Button color="danger" onClick={() => setIsUploadOpen(true)}>
+      <Button
+        color="danger"
+        className="py-6"
+        onClick={() => setIsUploadOpen(true)}
+      >
         Media Missing
       </Button>
     );
