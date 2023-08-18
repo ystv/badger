@@ -100,7 +100,7 @@ export type FFMPEGSourceSettings = Partial<FFMPEGSourceDefaultSettings> &
 interface VLCSourceDefaultSettings {
   loop: boolean;
   network_caching: number;
-  playback_behaviour: "stop_restart" | "pause_unpause" | "always_play";
+  playback_behavior: "stop_restart" | "pause_unpause" | "always_play";
   shuffle: boolean;
   subtitle: number;
   subtitle_enable: number;
