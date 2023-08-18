@@ -52,6 +52,7 @@ import {
   TableHeader,
   TableRow,
 } from "@bowser/components/table";
+import { formatDurationMS } from "@/lib/time";
 
 // beautiful-dnd is not compatible with SSR
 const Droppable = dynamic(
@@ -159,9 +160,7 @@ const RundownRow = forwardRef<
       <TableCell className="font-bold">{item.name}</TableCell>
       <TableCell />
       <TableCell>{format(props.time, "HH:mm")}</TableCell>
-      <TableCell>
-        {format(new Date(props.runningDuration * 1000), "mm:ss")}
-      </TableCell>
+      <TableCell>{formatDurationMS(props.runningDuration)}</TableCell>
       <TableCell>
         <Button size="small" asChild>
           <Link href={`/shows/${item.showId}/rundown/${item.id}`}>Edit</Link>
@@ -210,9 +209,7 @@ const ContinuityItemRow = forwardRef<
         />
       </TableCell>
       <TableCell>{format(props.time, "HH:mm")}</TableCell>
-      <TableCell>
-        {format(new Date(props.runningDuration * 1000), "mm:ss")}
-      </TableCell>
+      <TableCell>{formatDurationMS(props.runningDuration)}</TableCell>
       <TableCell>
         <Popover open={isEditing} onOpenChange={setIsEditing}>
           <PopoverTrigger asChild>
@@ -362,7 +359,7 @@ export function ShowItemsList(props: {
               </TableBody>
               <TableCaption>
                 <strong>Total runtime: </strong>
-                {format(new Date(durationTotal * 1000), "HH:mm:ss")}
+                {formatDurationMS(durationTotal)}
               </TableCaption>
             </Table>
           )}
