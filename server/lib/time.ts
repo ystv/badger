@@ -6,9 +6,9 @@ export function formatDurationMS(ms: number): string {
   const secondsLeft = seconds % 60;
   const minutesLeft = minutes % 60;
 
-  const hoursString = hours > 0 ? `${hours}h ` : "";
-  const minutesString = minutesLeft > 0 ? `${minutesLeft}m ` : "";
-  const secondsString = secondsLeft > 0 ? `${secondsLeft}s` : "";
+  const hoursString = hours > 0 ? `${hours.toFixed(0).padStart(2, "0")}:` : "";
+  const minutesString = `${minutesLeft.toFixed(0).padStart(2, "0")}:`;
+  const secondsString = `${secondsLeft.toFixed(0).padStart(2, "0")}`;
 
   return `${hoursString}${minutesString}${secondsString}`;
 }
