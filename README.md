@@ -32,9 +32,9 @@ There are also some extra packages, currently our [Prisma](https://www.prisma.io
 
 In terms of imports,
 * `desktop` imports some types from `server`, namely tRPC definitions
-  * Note that only type imports are allowed, to avoid bundling server code into the desktop build. ESLint will warn you if you try to import anything else. (Importing from `bowser-prisma` is fine.)
+  * Note that only type imports are allowed, to avoid bundling server code into the desktop build. ESLint will warn you if you try to import anything else. (Importing from `@bowser/prisma` is fine.)
 * `jobrunner` is entirely separate from `server`
-* All three import `bowser-prisma` (the Prisma client, found in `utility/prisma`)
+* All three import `@bowser/prisma` (the Prisma client, found in `utility/prisma`)
 
 In terms of communication,
 * Server exposes a [tRPC](https://trpc.io/) API (in [app/api/_router.ts](./server/app/api/_router.ts), which is consumed by Desktop
@@ -87,6 +87,23 @@ We use [Linear](https://linear.app/ystv) to track issues - sign in using your @y
 
 We use [GitHub Flow](https://guides.github.com/introduction/flow/) for development.
 Linear has a handy button in the top-right (or press <kbd>Control</kbd><kbd>Shift</kbd><kbd>.</kbd>) to copy a name for an issue's branch, which will automatically link the pull request (when you open it) to the issue.
+
+### Libraries
+
+We use [Prisma](https://www.prisma.io/) as our database client.
+Note that our Prisma client lives in a utility package (`@bowser/prisma`, found in [utility/prisma](./utility/prisma)), which means that you need to run `yarn prisma:generate` rather than the usual `yarn prisma generate` after making changes to the schema.
+Similarly, when making a new migration, use `yarn prisma:migrateDev` rather than `yarn prisma migrate dev`.
+(Why in a utility package? Because we use [zod-prisma-types](https://github.com/chrishoermann/zod-prisma-types) to generate [Zod](https://github.com/colinhacks/zod) type definitions from the Prisma models, which are also used by Desktop.)
+
+We use [Tailwind CSS](https://tailwindcss.com/) for styling.
+This is a utility-first CSS framework, which means that rather than having a set of pre-defined components, you have a set of utility classes that you can use to build your own components.
+
+We use [shadcn/ui](https://ui.shadcn.com/) as our UI component library.
+shadcn is unique in that, rather than it being a library that you install, you copy-paste its components' source into your project.
+This means that we can easily customise it to our needs, and it's also easier to debug.
+shadcn internally uses [Tailwind CSS](https://tailwindcss.com/) and [Radix UI](https://www.radix-ui.com/).
+
+Note that our components live in a utility package (`@bowser/components`, found in [utility/components](./utility/components)), which confuses the shadcn CLI, so you may need to add new components by hand.
 
 ### Code Style
 

@@ -12,7 +12,7 @@ import {
   Rundown,
   RundownItem,
   Show,
-} from "bowser-prisma/client";
+} from "@bowser/prisma/client";
 import got, { Response as GotResponse } from "got";
 import * as child_process from "node:child_process";
 import * as util from "node:util";

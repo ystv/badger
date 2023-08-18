@@ -7,7 +7,7 @@ import {
   CompleteShowModel,
   PartialMediaModel,
   PartialShowModel,
-} from "bowser-prisma/utilityTypes";
+} from "@bowser/prisma/utilityTypes";
 import { Integration } from "../common/types";
 import { createOBSConnection, obsConnection } from "./obs";
 import {

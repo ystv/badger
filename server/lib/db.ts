@@ -1,5 +1,5 @@
 import "server-only";
-import { PrismaClient } from "bowser-prisma/client";
+import { PrismaClient } from "@bowser/prisma/client";
 import invariant from "@/lib/invariant";
 import { PHASE_PRODUCTION_BUILD } from "next/constants";
 

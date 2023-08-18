@@ -7,7 +7,7 @@ import { zodErrorResponse } from "@/components/FormServerHelpers";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
-import { MediaFileSourceType } from "bowser-prisma/client";
+import { MediaFileSourceType } from "@bowser/prisma/client";
 import { escapeRegExp } from "lodash";
 
 import { dispatchJobForJobrunner } from "@/lib/jobs";

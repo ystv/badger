@@ -7,7 +7,7 @@ import {
   CompleteAssetSchema,
   CompleteRundownItemSchema,
   CompleteRundownModel,
-} from "bowser-prisma/utilityTypes";
+} from "@bowser/prisma/utilityTypes";
 import { z } from "zod";
 import { VMIX_NAMES } from "../../common/constants";
 import { ListInput } from "../../main/vmixTypes";

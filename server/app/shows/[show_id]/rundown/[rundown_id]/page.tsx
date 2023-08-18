@@ -6,7 +6,7 @@ import Link from "next/link";
 import { TusEndpointProvider } from "@/components/MediaUpload";
 import { getTusEndpoint } from "@/lib/tus";
 import { Suspense } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@bowser/components/button";
 
 async function RundownAssetsFetcher(props: { rundownID: number }) {
   const rundown = await db.rundown.findFirstOrThrow({

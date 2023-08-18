@@ -1,6 +1,6 @@
 import { beforeAll, expect, test } from "vitest";
 import VMixConnection from "./vmix";
-import { integrate } from "bowser-utility-testing";
+import { integrate } from "@bowser/testing";
 
 integrate("VMixConnection integration", () => {
   let vmix: VMixConnection;

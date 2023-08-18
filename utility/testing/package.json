@@ -1,5 +1,5 @@
 {
-  "name": "bowser-utility-testing",
+  "name": "@bowser/testing",
   "private": true,
   "type": "module",
   "devDependencies": {

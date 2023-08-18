@@ -11,18 +11,18 @@ import {
 import { FieldPath } from "react-hook-form/dist/types/path";
 import classNames from "classnames";
 import { ForwardedRef, forwardRef, useEffect, useMemo, useState } from "react";
-import Button from "@/components/ui/button";
+import Button from "@bowser/components/button";
 import { identity } from "lodash";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+} from "@bowser/components/popover";
+import { cn } from "@bowser/components/utils";
 import { IoCalendarSharp } from "react-icons/io5";
 import { format, parse } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
-import { Input } from "@/components/ui/input";
+import { Calendar } from "@bowser/components/calendar";
+import { Input } from "@bowser/components/input";
 
 interface FieldBaseProps<
   TFields extends FieldValues,

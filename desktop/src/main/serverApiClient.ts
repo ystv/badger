@@ -41,6 +41,13 @@ export async function tryCreateAPIClient() {
     return;
   }
   if (settings !== null) {
-    serverApiClient = await newAPIClient(settings.endpoint, settings.password);
+    try {
+      serverApiClient = await newAPIClient(
+        settings.endpoint,
+        settings.password,
+      );
+    } catch (e) {
+      console.warn("Failed to connect to server (will continue)", e);
+    }
   }
 }

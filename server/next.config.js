@@ -7,7 +7,7 @@ const nextConfig = {
   experimental: {
     serverActions: true,
   },
-  transpilePackages: ["bowser-prisma"],
+  transpilePackages: ["@bowser/prisma"],
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.plugins = [...config.plugins, new PrismaPlugin()];
