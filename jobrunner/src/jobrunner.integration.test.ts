@@ -1,7 +1,7 @@
-import { JobState } from "bowser-prisma/client";
+import { JobState } from "@bowser/prisma/client";
 import { it, beforeEach, expect } from "vitest";
 import { db, doOneJob } from "./index.js";
-import { integrate } from "bowser-utility-testing";
+import { integrate } from "@bowser/testing";
 
 integrate("doOneJob", () => {
   beforeEach(async () => {

@@ -4,7 +4,7 @@ import {
   Media,
   RundownItem,
   MediaProcessingTask,
-} from "bowser-prisma/client";
+} from "@bowser/prisma/client";
 
 export interface CompleteMedia extends Media {
   tasks: MediaProcessingTask[];

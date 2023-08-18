@@ -1,5 +1,5 @@
 {
-  "name": "bowser-prisma",
+  "name": "@bowser/prisma",
   "private": true,
   "devDependencies": {
     "dotenv-cli": "^7.2.1",

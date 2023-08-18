@@ -8,7 +8,7 @@ import {
   IoEllipse as Circle,
 } from "react-icons/io5";
 
-import { cn } from "@/lib/utils";
+import { cn } from "./utils";
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
 

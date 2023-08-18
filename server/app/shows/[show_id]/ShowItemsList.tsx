@@ -26,8 +26,8 @@ import {
   processUploadForContinuityItem,
   reorderShowItems,
 } from "./actions";
-import { Show } from "bowser-prisma/client";
-import Button from "@/components/ui/button";
+import { Show } from "@bowser/prisma/client";
+import Button from "@bowser/components/button";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { format } from "date-fns";
@@ -36,12 +36,12 @@ import Form from "@/components/Form";
 import { editContinuityItemSchema } from "./schema";
 import { Field, HiddenField } from "@/components/FormFields";
 import { ItemMediaStateAndUploadDialog } from "@/components/MediaState";
-import { Input } from "@/components/ui/input";
+import { Input } from "@bowser/components/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@bowser/components/popover";
 import {
   Table,
   TableBody,
@@ -49,7 +49,7 @@ import {
   TableCell,
   TableFooter,
   TableRow,
-} from "@/components/ui/table";
+} from "@bowser/components/table";
 
 // beautiful-dnd is not compatible with SSR
 const Droppable = dynamic(

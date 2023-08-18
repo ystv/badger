@@ -3,7 +3,7 @@
 import {
   AssetTypeSchema,
   AssetTypeType,
-} from "bowser-prisma/types/inputTypeSchemas/AssetTypeSchema";
+} from "@bowser/prisma/types/inputTypeSchemas/AssetTypeSchema";
 import { FormResponse } from "@/components/Form";
 import { db } from "@/lib/db";
 import { escapeRegExp } from "lodash";

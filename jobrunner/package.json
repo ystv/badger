@@ -22,10 +22,10 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.374.0",
+    "@bowser/prisma": "workspace:*",
+    "@bowser/testing": "workspace:*",
     "@googleapis/drive": "^8.0.0",
     "@types/dotenv-flow": "^3.2.0",
-    "bowser-prisma": "workspace:*",
-    "bowser-utility-testing": "workspace:*",
     "dotenv-flow": "^3.2.0",
     "got": "^13.0.0",
     "loglevel": "^1.8.1",

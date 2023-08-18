@@ -11,7 +11,7 @@ import { useCallback, useState, useTransition } from "react";
 import classNames from "classnames";
 import { FieldPath } from "react-hook-form/dist/types/path";
 import { DebugOnly } from "@/components/DebugMode";
-import Button from "@/components/ui/button";
+import Button from "@bowser/components/button";
 import { isRedirectError } from "next/dist/client/components/redirect";
 import { UseFormReturn } from "react-hook-form/dist/types/form";
 

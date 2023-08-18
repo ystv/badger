@@ -3,7 +3,7 @@ import { Pagination } from "@/components/Pagination";
 import Link from "next/link";
 import { Fragment } from "react";
 import dayjs from "dayjs";
-import Button from "@/components/ui/button";
+import Button from "@bowser/components/button";
 
 const PAGE_SIZE = 25;
 

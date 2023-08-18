@@ -6,7 +6,7 @@ import {
   MediaState,
   Rundown,
   RundownItem,
-} from "bowser-prisma/client";
+} from "@bowser/prisma/client";
 import {
   DragDropContext,
   Draggable,
@@ -34,14 +34,14 @@ import {
   useRef,
   useTransition,
 } from "react";
-import Button from "@/components/ui/button";
+import Button from "@bowser/components/button";
 import { useRouter } from "next/navigation";
 import { ItemMediaStateAndUploadDialog } from "@/components/MediaState";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@bowser/components/popover";
 import {
   Table,
   TableBody,
@@ -50,7 +50,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@bowser/components/table";
 
 // beautiful-dnd is not compatible with SSR
 const Droppable = dynamic(

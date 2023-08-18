@@ -1,4 +1,4 @@
-import { PrismaClient } from "bowser-prisma/client";
+import { PrismaClient } from "@bowser/prisma/client";
 import { Logger, default as logging } from "loglevel";
 import { S3Client } from "@aws-sdk/client-s3";
 import { drive, drive_v3 } from "@googleapis/drive";

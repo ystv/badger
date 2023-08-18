@@ -1,4 +1,4 @@
-import { RundownItemType } from "bowser-prisma/client";
+import { RundownItemType } from "@bowser/prisma/client";
 import { z } from "zod";
 
 export const ItemTypeSchema = z.nativeEnum(RundownItemType);

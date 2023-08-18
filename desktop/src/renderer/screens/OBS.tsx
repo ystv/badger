@@ -6,7 +6,7 @@ import { getQueryKey } from "@trpc/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 
-import { CompleteContinuityItemModel } from "bowser-prisma/utilityTypes";
+import { CompleteContinuityItemModel } from "@bowser/prisma/utilityTypes";
 import { z } from "zod";
 import invariant from "../../common/invariant";
 
@@ -307,7 +307,7 @@ function ContinuityItem({
 }
 
 export default function OBSScreen() {
-  const show = ipc.getSelectedShow.useQuery().data!;
+  const show = ipc.getSelectedShow.useQuery(undefined).data!;
   const connectionState = ipc.obs.getConnectionState.useQuery();
 
   if (connectionState.isLoading) {

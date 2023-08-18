@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { test, vi, beforeEach, expect } from "vitest";
 import { reorderShowItems } from "./actions";
-import { integrate } from "bowser-utility-testing";
+import { integrate } from "@bowser/testing";
 
 vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ revalidatePath: () => {} }));

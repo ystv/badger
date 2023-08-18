@@ -1,7 +1,7 @@
 import dotenv from "dotenv-flow";
 import { parseArgs } from "node:util";
 import * as fs from "node:fs";
-import { JobState, PrismaClient } from "bowser-prisma/client";
+import { JobState, PrismaClient } from "@bowser/prisma/client";
 import * as os from "os";
 import AbstractJob from "./jobs/base.js";
 import logging, { LogLevelNames } from "loglevel";

@@ -5,7 +5,7 @@ import {
   MediaProcessingTaskState,
   MediaState,
   RundownItem,
-} from "bowser-prisma/client";
+} from "@bowser/prisma/client";
 import {
   IoAlertCircle,
   IoCheckmarkCircle,
@@ -17,7 +17,7 @@ import Image from "next/image";
 import Spinner from "@/app/_assets/spinner.svg";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
-import Button from "@/components/ui/button";
+import Button from "@bowser/components/button";
 import {
   MediaUploadDialog,
   MediaUploadDialogHandle,
@@ -26,14 +26,14 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@bowser/components/popover";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@bowser/components/dialog";
 import { DialogBody } from "next/dist/client/components/react-dev-overlay/internal/components/Dialog";
 
 export interface CompleteMedia extends Media {
