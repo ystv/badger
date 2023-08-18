@@ -188,6 +188,7 @@ export const appRouter = r({
           }
           invariant(obsConnection, "no OBS connection");
           return await obsConnection.callArbitraryDoNotUseOrYouWillBeFired(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             input.req as any,
             input.params,
           );
