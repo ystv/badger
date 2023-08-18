@@ -353,11 +353,11 @@ export function ShowItemsList(props: {
                   <TableHead>Running Total</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableBody data-testid="ShowItemsList.itemsTable">
                 {rows}
                 {provided.placeholder}
               </TableBody>
-              <TableCaption>
+              <TableCaption data-testid="ShowItemsList.runtime">
                 <strong>Total runtime: </strong>
                 {formatDurationMS(durationTotal)}
               </TableCaption>
