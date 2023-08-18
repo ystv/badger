@@ -8,7 +8,7 @@ const test = base.extend<{ showPage: Page }>({
     await page.getByLabel("Name").fill("Test Show");
     await page.getByLabel("Start").click();
     await page.getByText("27").click();
-    await page.getByLabel("Start").click();
+    await page.keyboard.press("Escape");
     await page.getByRole("button", { name: "Create" }).click();
     await expect(
       page.getByRole("heading", { name: "Test Show" }),
