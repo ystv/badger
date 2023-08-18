@@ -160,7 +160,7 @@ const RundownRow = forwardRef<
       <TableCell className="font-bold">{item.name}</TableCell>
       <TableCell />
       <TableCell>{format(props.time, "HH:mm")}</TableCell>
-      <TableCell>{formatDurationMS(props.runningDuration)}</TableCell>
+      <TableCell>{formatDurationMS(props.runningDuration * 1000)}</TableCell>
       <TableCell>
         <Button size="small" asChild>
           <Link href={`/shows/${item.showId}/rundown/${item.id}`}>Edit</Link>
@@ -209,7 +209,7 @@ const ContinuityItemRow = forwardRef<
         />
       </TableCell>
       <TableCell>{format(props.time, "HH:mm")}</TableCell>
-      <TableCell>{formatDurationMS(props.runningDuration)}</TableCell>
+      <TableCell>{formatDurationMS(props.runningDuration * 1000)}</TableCell>
       <TableCell>
         <Popover open={isEditing} onOpenChange={setIsEditing}>
           <PopoverTrigger asChild>
@@ -284,10 +284,10 @@ export function ShowItemsList(props: {
     [doOptimisticMove, props.show.id],
   );
 
-  const [rows, durationTotal] = useMemo(() => {
+  const [rows, durationTotalSeconds] = useMemo(() => {
     const rows = [];
     let time = props.show.start;
-    let durationTotal = 0;
+    let durationTotalSeconds = 0;
     for (let i = 0; i < optimisticItems.length; i++) {
       const itemStartTime = time;
       const item = optimisticItems[i];
@@ -330,10 +330,10 @@ export function ShowItemsList(props: {
           }
         </Draggable>,
       );
-      durationTotal += duration;
+      durationTotalSeconds += duration;
       time = new Date(time.getTime() + duration * 1000);
     }
-    return [rows, durationTotal];
+    return [rows, durationTotalSeconds];
   }, [optimisticItems, isPending, props.show.start]);
 
   return (
@@ -349,8 +349,8 @@ export function ShowItemsList(props: {
                   <TableHead>Type</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead />
+                  <TableHead>Start Time</TableHead>
                   <TableHead>Duration</TableHead>
-                  <TableHead>Running Total</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody data-testid="ShowItemsList.itemsTable">
@@ -359,7 +359,7 @@ export function ShowItemsList(props: {
               </TableBody>
               <TableCaption data-testid="ShowItemsList.runtime">
                 <strong>Total runtime: </strong>
-                {formatDurationMS(durationTotal)}
+                {formatDurationMS(durationTotalSeconds * 1000)}
               </TableCaption>
             </Table>
           )}
