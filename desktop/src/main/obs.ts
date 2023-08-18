@@ -73,6 +73,46 @@ export interface InputSettingsResult<T = unknown> {
   inputSettings: T;
 }
 
+interface FFMPEGSourceDefaultSettings {
+  buffering_mb: number;
+  clear_on_media_end: boolean;
+  is_local_file: boolean;
+  linear_alpha: boolean;
+  looping: boolean;
+  reconnect_delay_sec: number;
+  restart_on_activate: boolean;
+  speed_percent: number;
+}
+
+export type FFMPEGSourceSettings = Partial<FFMPEGSourceDefaultSettings> &
+  (
+    | {
+        is_local_file: true;
+        local_file: string;
+      }
+    | {
+        is_local_file: false;
+        input: string;
+        input_format: string;
+      }
+  );
+
+interface VLCSourceDefaultSettings {
+  loop: boolean;
+  network_caching: number;
+  playback_behavior: "stop_restart" | "pause_unpause" | "always_play";
+  shuffle: boolean;
+  subtitle: number;
+  subtitle_enable: number;
+  track: number;
+}
+
+export interface VLCSourceSettings extends Partial<VLCSourceDefaultSettings> {
+  playlist: Array<{
+    value: string;
+  }>;
+}
+
 export function castMediaSourceSettings(
   x: InputSettingsResult,
 ): x is InputSettingsResult<MediaSourceSettings> {
@@ -164,7 +204,7 @@ export default class OBSConnection {
         is_local_file: true,
         looping: false,
         restart_on_activate: true,
-      },
+      } satisfies FFMPEGSourceSettings,
     });
     return res.sceneItemId;
   }
@@ -221,6 +261,13 @@ export default class OBSConnection {
 
   public async ping() {
     return await this._call("GetVersion");
+  }
+
+  public async callArbitraryDoNotUseOrYouWillBeFired(
+    req: keyof OBSRequestTypes,
+    requestData?: OBSRequestTypes[keyof OBSRequestTypes],
+  ): Promise<OBSResponseTypes[keyof OBSResponseTypes]> {
+    return await this._call(req, requestData);
   }
 
   private async _call<K extends keyof OBSRequestTypes>(

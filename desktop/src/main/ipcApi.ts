@@ -17,15 +17,19 @@ import {
 } from "./mediaManagement";
 import {
   assetsSettingsSchema,
+  devToolsConfigSchema,
   getAssetsSettings,
+  getDevToolsConfig,
   getLocalMediaSettings,
   LocalMediaSettingsSchema,
+  saveDevToolsConfig,
 } from "./settings";
 import { addOrReplaceMediaAsScene, findContinuityScenes } from "./obsHelpers";
 import { createVMixConnection, getVMixConnection } from "./vmix";
 import { getInputTypeForAsset, reconcileList } from "./vmixHelpers";
 import { VMIX_NAMES } from "../common/constants";
 import { ListInput } from "./vmixTypes";
+import { IPCEvents } from "./ipcEventBus";
 
 function serverAPI() {
   invariant(serverApiClient !== null, "serverApiClient is null");
@@ -74,6 +78,17 @@ export const appRouter = r({
       return ["vmix", "obs"];
     }
     return ["obs"];
+  }),
+  devtools: r({
+    getSettings: proc
+      .output(devToolsConfigSchema)
+      .query(() => getDevToolsConfig()),
+    setSettings: proc
+      .input(devToolsConfigSchema)
+      .mutation(async ({ input }) => {
+        await saveDevToolsConfig(input);
+        IPCEvents.devToolsSettingsChange();
+      }),
   }),
   media: r({
     getDownloadStatus: proc
@@ -159,6 +174,26 @@ export const appRouter = r({
       .query(async () => {
         return await findContinuityScenes();
       }),
+    dev: r({
+      callArbitrary: proc
+        .input(z.object({ req: z.string(), params: z.any() }))
+        .output(z.any())
+        .mutation(async ({ input }) => {
+          const dtSettings = await getDevToolsConfig();
+          if (!dtSettings.enabled) {
+            throw new TRPCError({
+              code: "PRECONDITION_FAILED",
+              message: "Dev tools not enabled",
+            });
+          }
+          invariant(obsConnection, "no OBS connection");
+          return await obsConnection.callArbitraryDoNotUseOrYouWillBeFired(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            input.req as any,
+            input.params,
+          );
+        }),
+    }),
   }),
   vmix: r({
     getConnectionState: proc

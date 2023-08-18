@@ -175,3 +175,24 @@ export async function saveAssetsSettings(
   await settings.set("assets", val);
   IPCEvents.assetsSettingsChange();
 }
+
+export const devToolsConfigSchema = z.object({
+  enabled: z.boolean(),
+});
+export type DevToolsConfigType = z.infer<typeof devToolsConfigSchema>;
+
+export async function getDevToolsConfig(): Promise<
+  z.infer<typeof devToolsConfigSchema>
+> {
+  const settingsData = await settings.get("devTools");
+  if (settingsData === undefined) {
+    return { enabled: false };
+  }
+  return devToolsConfigSchema.parse(settingsData);
+}
+
+export async function saveDevToolsConfig(
+  val: z.infer<typeof devToolsConfigSchema>,
+): Promise<void> {
+  await settings.set("devTools", val);
+}

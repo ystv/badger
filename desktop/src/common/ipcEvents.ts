@@ -10,5 +10,6 @@ import { CompleteShowType } from "./types";
 export const Events = {
   selectedShowChange(newShow: CompleteShowType | null) {},
   assetsSettingsChange() {},
+  devToolsSettingsChange() {},
 } as const;
 export type Events = typeof Events;
