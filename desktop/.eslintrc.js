@@ -34,7 +34,7 @@ module.exports = {
           },
           {
             group: [`bowser-server/lib/db`],
-            message: "You probably wanted 'bowser-prisma'.",
+            message: "You probably wanted '@bowser/prisma'.",
           },
           {
             group: ["@"],

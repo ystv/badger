@@ -2,7 +2,7 @@ import { z } from "zod";
 import type {
   CompleteShowModel,
   PartialShowModel,
-} from "bowser-prisma/utilityTypes";
+} from "@bowser/prisma/utilityTypes";
 
 export interface ServerConnection {
   connected: true;
