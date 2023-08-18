@@ -208,14 +208,14 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
     };
   }, [props.rundown.items, router]);
 
-  const [items, runtime] = useMemo(() => {
+  const [items, runtimeSeconds] = useMemo(() => {
     const items = [];
-    let runningDuration = 0;
+    let runningDurationSeconds = 0;
     for (let idx = 0; idx < optimisticItems.length; idx++) {
       const item = optimisticItems[idx];
-      runningDuration += item.durationSeconds;
-      // Ensure the render prop closes over the current value of runningDuration
-      const dur = runningDuration;
+      runningDurationSeconds += item.durationSeconds;
+      // Ensure the render prop closes over the current value of runningDurationSeconds
+      const dur = runningDurationSeconds;
 
       items.push(
         <Draggable
@@ -243,8 +243,10 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
                   />
                 )}
               </TableCell>
-              <TableCell>{formatDurationMS(item.durationSeconds)}</TableCell>
-              <TableCell>{formatDurationMS(dur)}</TableCell>
+              <TableCell>
+                {formatDurationMS(item.durationSeconds * 1000)}
+              </TableCell>
+              <TableCell>{formatDurationMS(dur * 1000)}</TableCell>
               <TableCell>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -285,7 +287,7 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
         </Draggable>,
       );
     }
-    return [items, runningDuration];
+    return [items, runningDurationSeconds];
   }, [optimisticItems, isPending, props.rundown.id, props.rundown.showId]);
 
   return (
@@ -308,7 +310,8 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
                 {provided.placeholder}
               </TableBody>
               <TableCaption>
-                <strong>Total runtime:</strong> {formatDurationMS(runtime)}
+                <strong>Total runtime:</strong>{" "}
+                {formatDurationMS(runtimeSeconds * 1000)}
               </TableCaption>
             </Table>
           )}
