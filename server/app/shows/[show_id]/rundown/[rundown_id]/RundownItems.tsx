@@ -51,6 +51,7 @@ import {
   TableHeader,
   TableRow,
 } from "@bowser/components/table";
+import { formatDurationMS } from "@/lib/time";
 
 // beautiful-dnd is not compatible with SSR
 const Droppable = dynamic(
@@ -68,12 +69,6 @@ export interface ItemWithMedia extends RundownItem {
 
 export interface CompleteRundown extends Rundown {
   items: ItemWithMedia[];
-}
-
-function formatDuration(duration: number): string {
-  const mins = Math.floor(duration / 60);
-  const secs = duration % 60;
-  return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
 function AddSegment(props: { rundown: CompleteRundown }) {
@@ -248,8 +243,8 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
                   />
                 )}
               </TableCell>
-              <TableCell>{formatDuration(item.durationSeconds)}</TableCell>
-              <TableCell>{formatDuration(dur)}</TableCell>
+              <TableCell>{formatDurationMS(item.durationSeconds)}</TableCell>
+              <TableCell>{formatDurationMS(dur)}</TableCell>
               <TableCell>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -313,7 +308,7 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
                 {provided.placeholder}
               </TableBody>
               <TableCaption>
-                <strong>Total runtime:</strong> {formatDuration(runtime)}
+                <strong>Total runtime:</strong> {formatDurationMS(runtime)}
               </TableCaption>
             </Table>
           )}

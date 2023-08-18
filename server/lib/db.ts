@@ -1,7 +1,12 @@
-import "server-only";
 import { PrismaClient } from "@bowser/prisma/client";
 import invariant from "@/lib/invariant";
 import { PHASE_PRODUCTION_BUILD } from "next/constants";
+
+// Playwright can't handle the react-server import
+if (process.env.E2E_TEST !== "true") {
+  // @ts-expect-error no typedefs for server-only
+  import("server-only");
+}
 
 declare global {
   // eslint-disable-next-line no-var
