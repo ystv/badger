@@ -1,6 +1,6 @@
 {
   "name": "bowser-jobrunner",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "packageManager": "yarn@3.6.1",
   "devDependencies": {
     "@tsconfig/node18": "^18.2.0",
