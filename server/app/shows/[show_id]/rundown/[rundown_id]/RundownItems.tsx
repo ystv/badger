@@ -237,18 +237,16 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
               >
                 ☰
               </TableCell>
-              <TableCell className="py-2 px-4">
-                <div>
-                  <span className="block">{item.name}</span>
-                  {item.type === "VT" && (
-                    <ItemMediaStateAndUploadDialog
-                      item={item}
-                      onUploadComplete={async (url, fileName) =>
-                        processUploadForRundownItem(item.id, fileName, url)
-                      }
-                    />
-                  )}
-                </div>
+              <TableCell className="font-bold">{item.name}</TableCell>
+              <TableCell>
+                {item.type === "VT" && (
+                  <ItemMediaStateAndUploadDialog
+                    item={item}
+                    onUploadComplete={async (url, fileName) =>
+                      processUploadForRundownItem(item.id, fileName, url)
+                    }
+                  />
+                )}
               </TableCell>
               <TableCell>{formatDuration(item.durationSeconds)}</TableCell>
               <TableCell>{formatDuration(dur)}</TableCell>
@@ -304,9 +302,10 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
               <TableHeader>
                 <TableRow>
                   <TableHead></TableHead>
-                  <TableHead className="px-2">Name</TableHead>
-                  <TableHead className="px-2">Duration</TableHead>
-                  <TableHead className="px-2">Running Total</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead />
+                  <TableHead>Duration</TableHead>
+                  <TableHead>Running Total</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody {...provided.droppableProps} ref={provided.innerRef}>

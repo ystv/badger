@@ -48,6 +48,8 @@ import {
   TableCaption,
   TableCell,
   TableFooter,
+  TableHead,
+  TableHeader,
   TableRow,
 } from "@bowser/components/table";
 
@@ -153,8 +155,9 @@ const RundownRow = forwardRef<
       <TableCell {...props.dragHandleProps} className="text-2xl cursor-grab">
         ☰
       </TableCell>
-      <TableCell className={"font-bold text-primary"}>Rundown</TableCell>
-      <TableCell>{item.name}</TableCell>
+      <TableCell className="font-bold text-primary">Rundown</TableCell>
+      <TableCell className="font-bold">{item.name}</TableCell>
+      <TableCell />
       <TableCell>{format(props.time, "HH:mm")}</TableCell>
       <TableCell>
         {format(new Date(props.runningDuration * 1000), "mm:ss")}
@@ -196,17 +199,15 @@ const ContinuityItemRow = forwardRef<
       <TableCell {...props.dragHandleProps} className="text-2xl cursor-grab">
         ☰
       </TableCell>
-      <TableCell className={"font-bold text-purple"}>Continuity</TableCell>
+      <TableCell className="font-bold text-purple">Continuity</TableCell>
+      <TableCell className="font-bold">{item.name}</TableCell>
       <TableCell>
-        <div>{item.name}</div>
-        <div>
-          <ItemMediaStateAndUploadDialog
-            item={item}
-            onUploadComplete={async (url, fileName) =>
-              processUploadForContinuityItem(item.id, fileName, url)
-            }
-          />
-        </div>
+        <ItemMediaStateAndUploadDialog
+          item={item}
+          onUploadComplete={async (url, fileName) =>
+            processUploadForContinuityItem(item.id, fileName, url)
+          }
+        />
       </TableCell>
       <TableCell>{format(props.time, "HH:mm")}</TableCell>
       <TableCell>
@@ -345,6 +346,16 @@ export function ShowItemsList(props: {
         <Droppable droppableId="0" isDropDisabled={isPending}>
           {(provided, snapshot) => (
             <Table ref={provided.innerRef} {...provided.droppableProps}>
+              <TableHeader>
+                <TableRow>
+                  <TableHead />
+                  <TableHead>Type</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead />
+                  <TableHead>Duration</TableHead>
+                  <TableHead>Running Total</TableHead>
+                </TableRow>
+              </TableHeader>
               <TableBody>
                 {rows}
                 {provided.placeholder}
