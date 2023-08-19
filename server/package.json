@@ -1,6 +1,6 @@
 {
   "name": "bowser-server",
-  "version": "0.2.3",
+  "version": "0.2.4-0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -80,5 +80,6 @@
   },
   "prisma": {
     "schema": "../utility/prisma/schema.prisma"
-  }
+  },
+  "stableVersion": "0.2.3"
 }
