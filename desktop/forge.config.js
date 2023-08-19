@@ -5,12 +5,20 @@ module.exports = {
   },
   rebuildConfig: {},
   makers: [
+    // {
+    //   name: "@electron-forge/maker-squirrel",
+    //   config: {
+    //     authors: "YSTV",
+    //   },
+    //   platforms: ["win32"],
+    // },
     {
-      name: "@electron-forge/maker-squirrel",
+      name: "@electron-forge/maker-wix",
       config: {
-        authors: "YSTV",
-      },
-      platforms: ["win32"],
+        manufacturer: "YSTV",
+        upgradeCode: "f54b983c-0fbb-4f7c-983d-6682a973c28f",
+        ui: {}
+      }
     },
     {
       name: "@electron-forge/maker-zip",
