@@ -1,0 +1,53 @@
+on:
+    workflow_dispatch: 
+        inputs:
+            type:
+                type: choice
+                options: [major, minor, patch, prerelease]
+                required: true
+            prerelease:
+                type: boolean
+
+permissions:
+    contents: write
+    deployments: write
+
+jobs:
+    do-release:
+        environment: ${{ inputs.type == 'prerelease' && 'prerelease' || 'release' }}
+        runs-on: ubuntu-latest
+        steps:
+
+        -   uses: actions/checkout@v3
+
+        -   name: Use Node.js 18.x
+            uses: actions/setup-node@v3
+            with:
+                node-version: 18.x
+                cache: 'yarn'
+                cache-dependency-path: 'yarn.lock'
+
+        -   run: yarn install --immutable
+
+        -   name: Bump version
+            run: |
+                yarn workspace bowser-desktop version ${{ inputs.type }} --immediate
+                yarn workspace bowser-jobrunner version ${{ inputs.type }} --immediate
+                yarn workspace bowser-server version ${{ inputs.type }} --immediate
+
+        -   name: Get version
+            id: v
+            run: echo version=$(yarn info --json bowser-desktop | jq -r '.children.Version') >> $GITHUB_OUTPUT
+
+        -   name: Create and push tag
+            run: |
+                git tag v${{ steps.v.outputs.version }}
+                git config --global user.name "${{ github.actor }}"
+                git config --global user.email "github-actions@users.noreply.github.com"
+                git add */package.json
+                git commit -m "Bump version"
+                git push --tags
+        
+        -   name: Create GH release
+            run: |
+                gh release create v${{ steps.v.outputs.version }} --draft ${{ inputs.prerelease && '--prerelease' }} --verify-tag
