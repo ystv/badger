@@ -1,9 +1,21 @@
 name: Desktop Build (Windows)
 
 on:
-  workflow_dispatch: {}
-  release:
-    types: [prereleased, released]
+  workflow_dispatch:
+    inputs:
+      ref:
+        type: string
+        description: 'Branch, tag, or commit to build.'
+        required: true
+      do_release:
+        type: boolean
+        description: 'Whether to upload the release to GitHub.'
+        default: true
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        required: true
 
 jobs:
   build-desktop-windows:
@@ -15,6 +27,8 @@ jobs:
     
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.ref }}
       - name: Use Node.js 18.x
         uses: actions/setup-node@v3
         with:
@@ -39,7 +53,8 @@ jobs:
           field: version
           value: ${{ github.event.release.tag_name }}
 
-      - run: "yarn ${{ github.event_name == 'release' && 'publish' || 'make' }}"
+        # This is negated because a workflow_call won't have the do_release input, and we want to publish then.
+      - run: "yarn ${{ !inputs.do_release && 'make' || 'publish' }}"
         working-directory: ./desktop
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -50,4 +65,4 @@ jobs:
         with:
           name: desktop
           path: ./desktop/out/make
-        if: github.event_name != 'release' # because 'publish' will take care of it
+        if: !inputs.do_release # because 'publish' will take care of it
