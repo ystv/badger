@@ -39,7 +39,9 @@ jobs:
 
         -   name: Get version
             id: v
+            # We assume that server and jobrunner are on the same version.
             run: echo version=$(yarn info --json bowser-desktop | jq -r '.children.Version') >> $GITHUB_OUTPUT
+            working-directory: ./desktop
 
         -   name: Create and push tag
             run: |
