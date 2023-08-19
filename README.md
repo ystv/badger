@@ -104,6 +104,7 @@ This means that we can easily customise it to our needs, and it's also easier to
 shadcn internally uses [Tailwind CSS](https://tailwindcss.com/) and [Radix UI](https://www.radix-ui.com/).
 
 Note that our components live in a utility package (`@bowser/components`, found in [utility/components](./utility/components)), which confuses the shadcn CLI, so you may need to add new components by hand.
+When you do this, you'll probably also need to change the `@/lib/utils` import to `./utils`.
 
 ### Code Style
 

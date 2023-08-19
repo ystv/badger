@@ -1,18 +1,34 @@
 import { ipc } from "../ipc";
 import { useForm } from "react-hook-form";
-import Button from "../components/Button";
+import { Button } from "@bowser/components/Button";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import * as AlertDialog from "@radix-ui/react-alert-dialog";
+import { Alert } from "@bowser/components/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+} from "@bowser/components/alert-dialog";
 
 import { CompleteContinuityItemModel } from "@bowser/prisma/utilityTypes";
 import { z } from "zod";
 import invariant from "../../common/invariant";
+import { Label } from "@bowser/components/label";
+import { Input } from "@bowser/components/input";
 
-function OBSConnection() {
+export function OBSSettings() {
   const queryClient = useQueryClient();
-  const connect = ipc.obs.connect.useMutation();
+  const state = ipc.obs.getConnectionState.useQuery();
+  const connect = ipc.obs.connect.useMutation({
+    async onSettled() {
+      await queryClient.invalidateQueries(
+        getQueryKey(ipc.obs.getConnectionState),
+      );
+    },
+  });
   const { register, handleSubmit } = useForm({
     defaultValues: {
       host: "localhost",
@@ -23,7 +39,6 @@ function OBSConnection() {
   const [error, setError] = useState<string | null>(null);
   return (
     <div>
-      <h2>Connect to OBS</h2>
       <form
         className="space-y-2"
         onSubmit={handleSubmit(async (data) => {
@@ -37,34 +52,42 @@ function OBSConnection() {
           }
         })}
       >
-        <label className="block">
-          OBS Host
-          <input
+        <div>
+          <Label htmlFor="obsHost">OBS Host</Label>
+          <Input
+            id="obsHost"
             type="text"
             {...register("host")}
             className="border-2 mx-4 my-2 p-1"
           />
-        </label>
-        <label className="block">
-          OBS WebSocket Port
+        </div>
+        <div>
+          <Label htmlFor="obsPort">OBS WebSocket Port</Label>
           <input
+            id="obsPort"
             type="number"
             {...register("port")}
             className="border-2 mx-4 my-2 p-1"
           />
-        </label>
-        <label className="block">
-          OBS WebSocket Password
+        </div>
+        <div>
+          <Label htmlFor="obsPassword">OBS WebSocket Password</Label>
           <input
+            id="obsPassword"
             type="text"
             {...register("password", { required: true })}
             className="border-2 mx-4 my-2 p-1"
           />
-        </label>
+        </div>
         <Button type="submit" color="primary">
           Connect
         </Button>
-        {error && <div className="bg-danger-4 text-light">{error}</div>}
+        {state.data?.connected && (
+          <Alert>
+            Successfully connected to OBS version {state.data.version}
+          </Alert>
+        )}
+        {error && <Alert variant="danger">{error}</Alert>}
       </form>
     </div>
   );
@@ -75,7 +98,6 @@ function AddToOBS({
 }: {
   item: z.infer<typeof CompleteContinuityItemModel>;
 }) {
-  invariant(item.media, "AddToOBS rendered with no media");
   const queryClient = useQueryClient();
   const addToOBS = ipc.obs.addMediaAsScene.useMutation();
   const localMedia = ipc.media.getLocalMedia.useQuery(void 0);
@@ -162,7 +184,7 @@ function AddToOBS({
   let contents;
   switch (state) {
     case "no-media":
-      contents = <em>Media missing</em>;
+      contents = <em>No media uploaded</em>;
       break;
     case "loading":
       contents = <em>Please wait just one sec...</em>;
@@ -240,7 +262,7 @@ function AddToOBS({
   return (
     <>
       {contents}
-      <AlertDialog.Root
+      <AlertDialog
         open={alert !== null}
         onOpenChange={(open) => {
           if (!open) {
@@ -248,45 +270,40 @@ function AddToOBS({
           }
         }}
       >
-        <AlertDialog.Portal>
-          <AlertDialog.Overlay className="fixed w-full h-full top-0 left-0 bg-dark/60" />
-          <AlertDialog.Content className="absolute bg-light mx-auto p-8 rounded-md">
-            {alert && (
-              <>
-                <AlertDialog.Content className="my-2">
-                  {alert.warnings.length > 0 && (
-                    <ul>
-                      {alert.warnings.map((warning) => (
-                        <li key={warning}>{warning}</li>
-                      ))}
-                    </ul>
-                  )}
-                </AlertDialog.Content>
-                <AlertDialog.Cancel asChild>
-                  <Button color="light">Cancel</Button>
-                </AlertDialog.Cancel>
-                {alert.prompt === "ok" ? (
-                  <AlertDialog.Action asChild>
-                    <Button>Confirm</Button>
-                  </AlertDialog.Action>
-                ) : (
-                  <AlertDialog.Action asChild>
-                    <Button
-                      color={alert.prompt === "force" ? "danger" : "warning"}
-                      onClick={async () => {
-                        await doAdd(alert.prompt as "replace" | "force");
-                        setAlert(null);
-                      }}
-                    >
-                      {alert.prompt === "force" ? "Force Replace" : "Replace"}
-                    </Button>
-                  </AlertDialog.Action>
-                )}
-              </>
+        {alert && (
+          <AlertDialogContent>
+            {alert.warnings.length > 0 && (
+              <ul>
+                {alert.warnings.map((warning) => (
+                  <li key={warning}>{warning}</li>
+                ))}
+              </ul>
             )}
-          </AlertDialog.Content>
-        </AlertDialog.Portal>
-      </AlertDialog.Root>
+            <AlertDialogFooter>
+              <AlertDialogCancel asChild>
+                <Button color="light">Cancel</Button>
+              </AlertDialogCancel>
+              {alert.prompt === "ok" ? (
+                <AlertDialogAction asChild>
+                  <Button>Confirm</Button>
+                </AlertDialogAction>
+              ) : (
+                <AlertDialogAction asChild>
+                  <Button
+                    color={alert.prompt === "force" ? "danger" : "warning"}
+                    onClick={async () => {
+                      await doAdd(alert.prompt as "replace" | "force");
+                      setAlert(null);
+                    }}
+                  >
+                    {alert.prompt === "force" ? "Force Replace" : "Replace"}
+                  </Button>
+                </AlertDialogAction>
+              )}
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        )}
+      </AlertDialog>
     </>
   );
 }
@@ -323,14 +340,9 @@ export default function OBSScreen() {
   }
   if (!connectionState.data.connected) {
     return (
-      <div>
-        <OBSConnection />
-        {connectionState.data.error && (
-          <div className="bg-danger-4 text-light">
-            {connectionState.data.error}
-          </div>
-        )}
-      </div>
+      <Alert variant="warning">
+        Not connected to OBS. Please check the Bowser settings.
+      </Alert>
     );
   }
   return (
@@ -341,9 +353,6 @@ export default function OBSScreen() {
           <ContinuityItem item={item} key={item.id} />
         ))}
       </div>
-      <small className="absolute bottom-0">
-        Connected to OBS version {connectionState.data.version}
-      </small>
     </div>
   );
 }

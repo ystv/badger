@@ -1,8 +1,16 @@
 import { useCallback, useState } from "react";
 import { ipc } from "../ipc";
-import Button from "../components/Button";
+import { Button } from "@bowser/components/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@bowser/components/select";
 
 export default function OBSDevToolsScreen() {
+  const connState = ipc.obs.getConnectionState.useQuery();
   const [req, setReq] = useState("");
   const [args, setArgs] = useState("{}");
   const execute = ipc.obs.dev.callArbitrary.useMutation();
@@ -23,12 +31,20 @@ export default function OBSDevToolsScreen() {
       <div className="space-y-2">
         <label className="block border-2 p-1">
           Request
-          <input
-            type="text"
-            value={req}
-            onChange={(e) => setReq(e.target.value)}
-            className="border-2 mx-4 my-2 p-1 block"
-          />
+          <Select value={req} onValueChange={setReq}>
+            <SelectTrigger className="max-w-24">
+              <SelectValue placeholder="OBS Request" />
+            </SelectTrigger>
+            <SelectContent>
+              {connState.data?.availableRequests
+                ?.sort((a, b) => a.localeCompare(b))
+                ?.map((r) => (
+                  <SelectItem key={r} value={r}>
+                    {r}
+                  </SelectItem>
+                )) || null}
+            </SelectContent>
+          </Select>
         </label>
         <label className="blockborder-2 p-1">
           Parameters (JSON)
@@ -42,12 +58,16 @@ export default function OBSDevToolsScreen() {
       </div>
       <div className="mt-4">
         <h2 className="text-lg">Response</h2>
-        <pre>{JSON.stringify(execute.data, null, 2)}</pre>
+        <pre className="max-w-[80%] max-h-48 overflow-y-scroll overflow-x-scroll">
+          {JSON.stringify(execute.data, null, 2)}
+        </pre>
       </div>
       {execute.error && (
         <div className="mt-4">
           <h2 className="text-lg text-danger-4">Error</h2>
-          <pre>{JSON.stringify(execute.error, null, 2)}</pre>
+          <pre className="max-w-[80%] max-h-48 overflow-y-scroll">
+            {JSON.stringify(execute.error, null, 2)}
+          </pre>
         </div>
       )}
     </div>

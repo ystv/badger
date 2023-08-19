@@ -1,5 +1,5 @@
 import { ipc, useInvalidateQueryOnIPCEvent } from "../ipc";
-import Button from "../components/Button";
+import { Button } from "@bowser/components/Button";
 import { useCallback, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
@@ -181,13 +181,13 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
       <div>
         <div className="ml-auto">
           <Button
-            isDisabled={items.every((x) => x._state !== "no-local")}
+            disabled={items.every((x) => x._state !== "no-local")}
             onClick={doDownloadAll}
           >
             Download All
           </Button>
           <Button
-            isDisabled={doLoad.isLoading}
+            disabled={doLoad.isLoading}
             onClick={() => doLoad.mutate({ rundownID: props.rundown.id })}
           >
             Load All

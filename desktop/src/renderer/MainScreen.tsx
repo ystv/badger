@@ -1,15 +1,37 @@
 import { ipc, useInvalidateQueryOnIPCEvent } from "./ipc";
 import invariant from "../common/invariant";
-import { Dialog, Popover, Switch, Tab } from "@headlessui/react";
-import { IoCog, IoDownloadSharp } from "react-icons/io5";
-import OBSScreen from "./screens/OBS";
-import VMixScreen from "./screens/vMix";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTrigger,
+} from "@bowser/components/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@bowser/components/popover";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@bowser/components/dropdown-menu";
+import { Button } from "@bowser/components/button";
+import { Switch } from "@bowser/components/switch";
+import { Label } from "@bowser/components/label";
+import {
+  IoCog,
+  IoDownloadSharp,
+  IoCaretDownOutline,
+  IoEllipsisVertical,
+} from "react-icons/io5";
 import { usePopper } from "react-popper";
 import { useMemo, useState } from "react";
 import { getQueryKey } from "@trpc/react-query";
-import OBSDevToolsScreen from "./screens/OBSDevTools";
 import { useQueryClient } from "@tanstack/react-query";
-import Button from "./components/Button";
+import OBSScreen, { OBSSettings } from "./screens/OBS";
+import OBSDevToolsScreen from "./screens/OBSDevTools";
 
 function DownloadTrackerPopup() {
   const downloadStatus = ipc.media.getDownloadStatus.useQuery(void 0, {
@@ -33,10 +55,10 @@ function DownloadTrackerPopup() {
 
   return (
     <Popover>
-      <Popover.Button ref={setRefEl}>
+      <PopoverTrigger ref={setRefEl}>
         <IoDownloadSharp className="h-8 w-8" size={32} />
-      </Popover.Button>
-      <Popover.Panel
+      </PopoverTrigger>
+      <PopoverContent
         ref={setPopoverEl}
         style={styles.popper}
         {...attributes.popper}
@@ -48,7 +70,7 @@ function DownloadTrackerPopup() {
             {download.progressPercent?.toFixed(1)}%
           </div>
         ))}
-      </Popover.Panel>
+      </PopoverContent>
     </Popover>
   );
 }
@@ -84,35 +106,31 @@ function Settings() {
     },
   });
   return (
-    <div>
+    <div className="max-h-[90vh] overflow-y-scroll">
+      <h2 className="text-xl">OBS</h2>
+      <OBSSettings />
       <h2 className="text-xl">Developer Tools</h2>
       <p>
         Do not enable unless you know what you are doing, these open you up to
         (theoretical) security vulnerabilities.
       </p>
       {devToolsState.data && (
-        <Switch
-          checked={devToolsState.data.enabled}
-          onChange={() =>
-            setDevToolsState.mutate({ enabled: !devToolsState.data.enabled })
-          }
-          className={`${
-            devToolsState.data.enabled ? "bg-danger-4" : "bg-danger"
-          }
-          relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75`}
-        >
-          <span className="sr-only">Use setting</span>
-          <span
-            aria-hidden="true"
-            className={`${
-              devToolsState.data.enabled ? "translate-x-9" : "translate-x-0"
-            }
-            pointer-events-none inline-block h-[34px] w-[34px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="enable-devmode"
+            checked={devToolsState.data.enabled}
+            onCheckedChange={(v) => setDevToolsState.mutate({ enabled: v })}
           />
-        </Switch>
+          <Label htmlFor="enable-devmode">Enable Developer Mode</Label>
+        </div>
       )}
+      {devToolsState.data?.enabled && <OBSDevToolsScreen />}
     </div>
   );
+}
+
+function RundownScreen(props: { rundown: any }) {
+  return null;
 }
 
 export default function MainScreen() {
@@ -126,78 +144,78 @@ export default function MainScreen() {
   );
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
+  const [selectedRundown, setSelectedRundown] = useState<"continuity" | number>(
+    "continuity",
+  );
+  const selectedName =
+    selectedRundown === "continuity"
+      ? "Continuity"
+      : show.rundowns.find((rd) => rd.id === selectedRundown)?.name;
+  invariant(selectedName, "selected non-existent rundown");
+
   return (
     <div>
-      <nav className="absolute top-0 left-0 w-full h-12 mb-12 px-4 bg-dark text-light flex flex-nowrap items-center justify-between">
-        <span className="font-bold">{show.name}</span>
+      <nav className="relative top-0 left-0 w-full h-12 px-4 bg-dark text-light flex flex-nowrap items-center justify-between">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button color="ghost" className="font-bold">
+              {show.name}
+              <IoEllipsisVertical className="h-6 w-6 inline-block" size={24} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem>Download all media (NYI)</DropdownMenuItem>
+            <DropdownMenuItem>Change selected show (NYI)</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <div className="ml-auto flex flex-row flex-nowrap">
           <DownloadTrackerPopup />
-          <button
-            className="h-full aspect-square flex items-center justify-center"
-            onClick={() => setIsSettingsOpen(true)}
+          <Dialog
+            open={isSettingsOpen}
+            onOpenChange={(v) => setIsSettingsOpen(v)}
           >
-            <IoCog className="h-8 w-8" size={32} />
-          </button>
+            <DialogTrigger>
+              <IoCog className="h-6 w-6" size={24} />
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader className="text-3xl">Settings</DialogHeader>
+              {isSettingsOpen && <Settings />}
+            </DialogContent>
+          </Dialog>
         </div>
       </nav>
-      <div className="relative mb-12" />
-      <Tab.Group>
-        <Tab.List className="h-10 bg-mid-dark text-light space-x-2 px-2">
-          {integrations.includes("vmix") && (
-            <Tab
-              className={
-                "ui-selected:bg-primary ui-selected:color-light px-2 h-full"
-              }
-            >
-              vMix
-            </Tab>
-          )}
-          {integrations.includes("obs") && (
-            <>
-              <Tab className="ui-selected:bg-primary ui-selected:color-light px-2 h-full">
-                OBS
-              </Tab>
-              {devToolsState.data?.enabled && (
-                <Tab className="ui-selected:bg-primary ui-selected:color-light px-2 h-full">
-                  OBS Dev Tools
-                </Tab>
-              )}
-            </>
-          )}
-        </Tab.List>
-        <Tab.Panels>
-          {integrations.includes("vmix") && (
-            <Tab.Panel>
-              <VMixScreen />
-            </Tab.Panel>
-          )}
-          {integrations.includes("obs") && (
-            <>
-              <Tab.Panel>
-                <OBSScreen />
-              </Tab.Panel>
-              {devToolsState.data?.enabled && (
-                <Tab.Panel>
-                  <OBSDevToolsScreen />
-                </Tab.Panel>
-              )}
-            </>
-          )}
-        </Tab.Panels>
-      </Tab.Group>
-      <Dialog open={isSettingsOpen} onClose={() => setIsSettingsOpen(false)}>
-        <Dialog.Panel className="fixed inset-0 overflow-y-auto bg-light p-8">
-          <Dialog.Title className="text-3xl">Settings</Dialog.Title>
-          <Button
-            size="small"
-            color="dark"
-            onClick={() => setIsSettingsOpen(false)}
-          >
-            Close
-          </Button>
-          {isSettingsOpen && <Settings />}
-        </Dialog.Panel>
-      </Dialog>
+      <nav className="relative left-0 w-full h-12 mb-12 px-4 bg-mid-dark text-light flex flex-nowrap items-center justify-between">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button color="ghost" className="font-bold">
+              {selectedName}
+              <IoCaretDownOutline className="h-8 w-8 inline-block" size={32} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => setSelectedRundown("continuity")}>
+              Continuity
+            </DropdownMenuItem>
+            {show.rundowns.map((rd) => (
+              <DropdownMenuItem
+                key={rd.id}
+                onClick={() => setSelectedRundown(rd.id)}
+              >
+                {rd.name}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </nav>
+      <div className="relative mb-12">
+        {selectedRundown === "continuity" ? (
+          <OBSScreen />
+        ) : (
+          <RundownScreen
+            rundown={show.rundowns.find((rd) => rd.id === selectedRundown)!}
+          />
+        )}
+      </div>
     </div>
   );
 }

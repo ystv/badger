@@ -110,6 +110,7 @@ export const appRouter = r({
           connected: z.boolean(),
           version: z.string().optional(),
           error: z.string().optional(),
+          availableRequests: z.array(z.string()).optional(),
         }),
       )
       .query(async () => {
@@ -118,7 +119,11 @@ export const appRouter = r({
         }
         try {
           const version = await obsConnection.ping();
-          return { connected: true, version: version.obsVersion };
+          return {
+            connected: true,
+            version: version.obsVersion,
+            availableRequests: version.availableRequests,
+          };
         } catch (e) {
           console.warn("OBS connection error", e);
           return { connected: false, error: String(e) };
@@ -128,7 +133,7 @@ export const appRouter = r({
       .input(
         z.object({
           host: z.string(),
-          port: z.number(),
+          port: z.coerce.number(),
           password: z.string(),
         }),
       )
