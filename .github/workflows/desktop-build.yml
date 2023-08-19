@@ -65,4 +65,4 @@ jobs:
         with:
           name: desktop
           path: ./desktop/out/make
-        if: ! inputs.do_release # because 'publish' will take care of it
+        if: '! inputs.do_release' # because 'publish' will take care of it
