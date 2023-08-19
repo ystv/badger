@@ -55,3 +55,5 @@ jobs:
         -   name: Create GH release
             run: |
                 gh release create v${{ steps.v.outputs.version }} --draft ${{ inputs.prerelease && '--prerelease' }} --verify-tag
+            env:
+                GH_TOKEN: ${{ github.token }}
