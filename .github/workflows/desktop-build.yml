@@ -54,7 +54,7 @@ jobs:
           value: ${{ github.event.release.tag_name }}
 
         # This is negated because a workflow_call won't have the do_release input, and we want to publish then.
-      - run: "yarn ${{ !inputs.do_release && 'make' || 'publish' }}"
+      - run: "yarn ${{ ! inputs.do_release && 'make' || 'publish' }}"
         working-directory: ./desktop
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -65,4 +65,4 @@ jobs:
         with:
           name: desktop
           path: ./desktop/out/make
-        if: !inputs.do_release # because 'publish' will take care of it
+        if: ! inputs.do_release # because 'publish' will take care of it
