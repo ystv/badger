@@ -1,7 +1,7 @@
 {
   "name": "bowser-desktop",
   "productName": "Bowser Desktop",
-  "version": "0.2.4-0",
+  "version": "0.2.4",
   "description": "My Electron application description",
   "main": ".vite/build/main.js",
   "scripts": {
@@ -90,6 +90,5 @@
     "wget-improved": "^3.4.0",
     "ws": "^8.13.0",
     "zod": "^3.21.4"
-  },
-  "stableVersion": "0.2.3"
+  }
 }
