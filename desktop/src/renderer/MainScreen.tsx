@@ -31,6 +31,7 @@ import { useMemo, useState } from "react";
 import OBSScreen from "./screens/OBS";
 import VMixScreen from "./screens/vMix";
 import { Settings } from "./Settings";
+import { SelectShowForm } from "./ConnectAndSelectShowGate";
 
 function DownloadTrackerPopup() {
   const downloadStatus = ipc.media.getDownloadStatus.useQuery(void 0, {
@@ -81,6 +82,7 @@ export default function MainScreen() {
 
   const downloadAll = ipc.media.downloadAllMediaForSelectedShow.useMutation();
 
+  const [isChangeShowOpen, setIsChangeShowOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const [selectedRundown, setSelectedRundown] = useState<"continuity" | number>(
@@ -115,11 +117,17 @@ export default function MainScreen() {
               )}
               Download all media
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              Change selected show (NYI) {/*TODO*/}
+            <DropdownMenuItem onClick={() => setIsChangeShowOpen(true)}>
+              Change selected show
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <Dialog open={isChangeShowOpen} onOpenChange={setIsChangeShowOpen}>
+          <DialogContent>
+            <DialogHeader className="text-3xl">Change Show</DialogHeader>
+            <SelectShowForm onSelect={() => setIsChangeShowOpen(false)} />
+          </DialogContent>
+        </Dialog>
         <div className="ml-auto flex flex-row flex-nowrap">
           <DownloadTrackerPopup />
           <Dialog

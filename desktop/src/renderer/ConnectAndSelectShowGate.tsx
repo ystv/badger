@@ -53,12 +53,13 @@ function ServerConnectForm() {
   );
 }
 
-function SelectShowForm() {
+export function SelectShowForm(props: { onSelect?: () => void }) {
   const queryClient = useQueryClient();
   const listShows = ipc.listUpcomingShows.useQuery();
   const selectShow = ipc.setSelectedShow.useMutation({
     async onSuccess() {
       await queryClient.invalidateQueries(getQueryKey(ipc.getSelectedShow));
+      props.onSelect?.();
     },
   });
   if (listShows.isLoading) {
@@ -78,7 +79,6 @@ function SelectShowForm() {
   invariant(listShows.data, "listShows.data is null");
   return (
     <div>
-      <h2 className="text-2xl">Select a show</h2>
       {listShows.data.map((show) => (
         <div key={show.id}>
           <h3 className="text-xl">{show.name}</h3>
