@@ -1,0 +1,97 @@
+name: Compare main and PR
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: main
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: 'yarn'
+          cache-dependency-path: 'yarn.lock'
+      - run: yarn install --immutable --inline-builds
+
+      - name: Lint Desktop
+        run: yarn lint -o ../lint-desktop.json -f json || true
+        working-directory: ./desktop
+
+      - name: Lint Server
+        run: yarn lint -o ../lint-server.json -f json || true
+        working-directory: ./server
+
+      - name: Lint Jobrunner
+        run: yarn lint -o ../lint-jobrunner.json -f json || true
+        working-directory: ./jobrunner
+
+      - name: Upload results
+        uses: actions/upload-artifact@v2
+        with:
+          name: lint-results-main
+          retention-days: 1
+          path: |
+            lint-desktop.json
+            lint-server.json
+            lint-jobrunner.json
+
+  lint-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: 'yarn'
+          cache-dependency-path: 'yarn.lock'
+      - run: yarn install --immutable --inline-builds
+
+      - name: Lint Desktop
+        run: yarn lint -o ../lint-desktop.json -f json || true
+        working-directory: ./desktop
+
+      - name: Lint Server
+        run: yarn lint -o ../lint-server.json -f json || true
+        working-directory: ./server
+
+      - name: Lint Jobrunner
+        run: yarn lint -o ../lint-jobrunner.json -f json || true
+        working-directory: ./jobrunner
+
+      - name: Upload results
+        uses: actions/upload-artifact@v2
+        with:
+          name: lint-results-pr
+          retention-days: 1
+          path: |
+            lint-desktop.json
+            lint-server.json
+            lint-jobrunner.json
+
+  compare:
+    needs: [lint-main, lint-pr]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download Main results
+        id: r-main
+        uses: actions/download-artifact@v3
+        with:
+          name: lint-results-main
+      - name: Download PR results
+        id: r-pr
+        uses: actions/download-artifact@v3
+        with:
+          name: lint-results-pr
+      - name: Compare results
+        run: npx -y danger ci -d Dangerfile.compare-lint-results.ts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MAIN_RESULTS: ${{ steps.r-main.outputs.download-path }}
+          PR_RESULTS: ${{ steps.r-pr.outputs.download-path }}
