@@ -1,4 +1,4 @@
-import { ipc, useInvalidateQueryOnIPCEvent } from "./ipc";
+import { ipc } from "./ipc";
 import invariant from "../common/invariant";
 import {
   Dialog,
@@ -18,23 +18,19 @@ import {
   DropdownMenuTrigger,
 } from "@bowser/components/dropdown-menu";
 import { Button } from "@bowser/components/button";
-import { Switch } from "@bowser/components/switch";
-import { Label } from "@bowser/components/label";
 import {
+  IoAlertSharp,
+  IoCaretDownOutline,
+  IoCheckmarkSharp,
   IoCog,
   IoDownloadSharp,
-  IoCaretDownOutline,
   IoEllipsisVertical,
-  IoCheckmarkSharp,
-  IoAlertSharp,
 } from "react-icons/io5";
 import { usePopper } from "react-popper";
 import { useMemo, useState } from "react";
-import { getQueryKey } from "@trpc/react-query";
-import { useQueryClient } from "@tanstack/react-query";
-import OBSScreen, { OBSSettings } from "./screens/OBS";
-import OBSDevToolsScreen from "./screens/OBSDevTools";
+import OBSScreen from "./screens/OBS";
 import VMixScreen from "./screens/vMix";
+import { Settings } from "./Settings";
 
 function DownloadTrackerPopup() {
   const downloadStatus = ipc.media.getDownloadStatus.useQuery(void 0, {
@@ -75,60 +71,6 @@ function DownloadTrackerPopup() {
         ))}
       </PopoverContent>
     </Popover>
-  );
-}
-
-function Settings() {
-  const queryClient = useQueryClient();
-  const devToolsState = ipc.devtools.getSettings.useQuery();
-  const setDevToolsState = ipc.devtools.setSettings.useMutation({
-    // https://tanstack.com/query/latest/docs/react/guides/optimistic-updates
-    async onMutate(newSettings) {
-      await queryClient.cancelQueries(getQueryKey(ipc.devtools.getSettings));
-      const oldSettings = queryClient.getQueryData(
-        getQueryKey(ipc.devtools.getSettings),
-      );
-      queryClient.setQueryData(
-        getQueryKey(ipc.devtools.getSettings),
-        newSettings,
-      );
-      return { oldSettings };
-    },
-    async onError(err, newSettings, context) {
-      if (context) {
-        queryClient.setQueryData(
-          getQueryKey(ipc.devtools.getSettings),
-          context.oldSettings,
-        );
-      }
-    },
-    async onSettled() {
-      await queryClient.invalidateQueries(
-        getQueryKey(ipc.devtools.getSettings),
-      );
-    },
-  });
-  return (
-    <div className="max-h-[90vh] overflow-y-scroll">
-      <h2 className="text-xl">OBS</h2>
-      <OBSSettings />
-      <h2 className="text-xl">Developer Tools</h2>
-      <p>
-        Do not enable unless you know what you are doing, these open you up to
-        (theoretical) security vulnerabilities.
-      </p>
-      {devToolsState.data && (
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="enable-devmode"
-            checked={devToolsState.data.enabled}
-            onCheckedChange={(v) => setDevToolsState.mutate({ enabled: v })}
-          />
-          <Label htmlFor="enable-devmode">Enable Developer Mode</Label>
-        </div>
-      )}
-      {devToolsState.data?.enabled && <OBSDevToolsScreen />}
-    </div>
   );
 }
 

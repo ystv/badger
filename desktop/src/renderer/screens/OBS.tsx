@@ -92,7 +92,8 @@ export function OBSSettings() {
         </Button>
         {state.data?.connected && (
           <Alert>
-            Successfully connected to OBS version {state.data.version}
+            Successfully connected to OBS version {state.data.version} on{" "}
+            {state.data.platform}
           </Alert>
         )}
         {error && <Alert variant="danger">{error}</Alert>}

@@ -136,6 +136,7 @@ export const appRouter = r({
         z.object({
           connected: z.boolean(),
           version: z.string().optional(),
+          platform: z.string().optional(),
           error: z.string().optional(),
           availableRequests: z.array(z.string()).optional(),
         }),
@@ -149,6 +150,7 @@ export const appRouter = r({
           return {
             connected: true,
             version: version.obsVersion,
+            platform: version.platformDescription,
             availableRequests: version.availableRequests,
           };
         } catch (e) {
