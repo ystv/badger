@@ -24,7 +24,11 @@ import {
   LocalMediaSettingsSchema,
   saveDevToolsConfig,
 } from "./settings";
-import { addOrReplaceMediaAsScene, findContinuityScenes } from "./obsHelpers";
+import {
+  addOrReplaceMediaAsScene,
+  findContinuityScenes,
+  MediaType,
+} from "./obsHelpers";
 import { createVMixConnection, getVMixConnection } from "./vmix";
 import { getInputTypeForAsset, reconcileList } from "./vmixHelpers";
 import { VMIX_NAMES } from "../common/constants";
@@ -183,7 +187,45 @@ export const appRouter = r({
           info.continuityItem,
           "No continuity item for media in obs.addMediaAsScene",
         );
-        return await addOrReplaceMediaAsScene(info, input.replaceMode);
+        return await addOrReplaceMediaAsScene(
+          info as MediaType,
+          input.replaceMode,
+        );
+      }),
+    addAllSelectedShowMedia: proc
+      .output(
+        z.object({
+          done: z.number(),
+          warnings: z.array(z.string()),
+        }),
+      )
+      .mutation(async () => {
+        const show = selectedShow.value;
+        invariant(show, "No show selected");
+        const state = await getLocalMediaSettings();
+        let done = 0;
+        const warnings: string[] = [];
+        for (const item of show.continuityItems) {
+          if (
+            item.media &&
+            item.media.state === "Ready" &&
+            state.some((x) => x.mediaID === item.media!.id)
+          ) {
+            const r = await addOrReplaceMediaAsScene(
+              {
+                ...item.media,
+                continuityItem: item,
+              },
+              "replace",
+            );
+            if (r.done) {
+              done++;
+            } else if (r.warnings.length > 0) {
+              warnings.push(item.name + ": " + r.warnings.join(" "));
+            }
+          }
+        }
+        return { done, warnings };
       }),
     listContinuityItemScenes: proc
       .output(

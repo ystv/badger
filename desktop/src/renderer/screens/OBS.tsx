@@ -247,7 +247,6 @@ function AddToOBS({
     case "needs-force":
       contents = (
         <>
-          <em className="text-warning-4 mr-1">Manual OBS changes detected</em>
           <Button
             onClick={() =>
               setAlert({
@@ -257,8 +256,9 @@ function AddToOBS({
                 prompt: "force",
               })
             }
+            color="danger"
           >
-            Override
+            Override manual OBS changes
           </Button>
         </>
       );
@@ -270,7 +270,7 @@ function AddToOBS({
       invariant(false, "Unhandled state: " + state);
   }
   return (
-    <>
+    <div className="flex justify-center flex-col">
       {contents}
       <AlertDialog
         open={alert !== null}
@@ -289,13 +289,15 @@ function AddToOBS({
                 ))}
               </ul>
             )}
-            <AlertDialogFooter>
+            <AlertDialogFooter className="flex items-center">
               <AlertDialogCancel asChild>
-                <Button color="light">Cancel</Button>
+                <Button color="light" className="h-full my-0">
+                  Cancel
+                </Button>
               </AlertDialogCancel>
               {alert.prompt === "ok" ? (
                 <AlertDialogAction asChild>
-                  <Button>Confirm</Button>
+                  <Button className="h-full my-0">Confirm</Button>
                 </AlertDialogAction>
               ) : (
                 <AlertDialogAction asChild>
@@ -305,6 +307,7 @@ function AddToOBS({
                       await doAdd(alert.prompt as "replace" | "force");
                       setAlert(null);
                     }}
+                    className="h-full my-0"
                   >
                     {alert.prompt === "force" ? "Force Replace" : "Replace"}
                   </Button>
@@ -314,7 +317,7 @@ function AddToOBS({
           </AlertDialogContent>
         )}
       </AlertDialog>
-    </>
+    </div>
   );
 }
 
@@ -325,10 +328,10 @@ function ContinuityItem({
 }) {
   return (
     <>
-      <span className="text-lg font-bold">{item.name}</span>
-      <div className="flex justify-center">
-        <AddToOBS item={item} />
-      </div>
+      <span className="text-lg font-bold align-middle h-full flex items-center">
+        {item.name}
+      </span>
+      <AddToOBS item={item} />
     </>
   );
 }
@@ -336,6 +339,8 @@ function ContinuityItem({
 export default function OBSScreen() {
   const show = ipc.getSelectedShow.useQuery(undefined).data!;
   const connectionState = ipc.obs.getConnectionState.useQuery();
+
+  const addAll = ipc.obs.addAllSelectedShowMedia.useMutation();
 
   if (connectionState.isLoading) {
     return <div>Please wait...</div>;
@@ -351,22 +356,56 @@ export default function OBSScreen() {
   if (!connectionState.data.connected) {
     return (
       <Alert variant="warning">
-        Not connected to OBS. Please check the Bowser settings.
+        Not connected to OBS. Please ensure that OBS is open and check the
+        Bowser settings.
       </Alert>
     );
   }
   return (
     <div>
-      <div className="space-y-2 grid grid-cols-[1fr_auto]">
-        <div className="col-start-2">
-          <Button className="w-full" color="light">
-            Add All (NYI)
-          </Button>
-        </div>
+      <div className="space-y-2 grid grid-cols-[1fr_auto] auto-rows-1fr">
         {show.continuityItems.map((item) => (
           <ContinuityItem item={item} key={item.id} />
         ))}
+        <div className="col-start-2">
+          <Button
+            className="w-full"
+            color="light"
+            onClick={() => addAll.mutate()}
+          >
+            Add All
+          </Button>
+        </div>
       </div>
+      <AlertDialog
+        open={addAll.isSuccess || addAll.isError}
+        onOpenChange={() => addAll.reset()}
+      >
+        <AlertDialogContent>
+          {addAll.error ? (
+            <p>{addAll.error.message}</p>
+          ) : addAll.data ? (
+            <>
+              <p>
+                Added {addAll.data.done}{" "}
+                {addAll.data.done === 1 ? "item" : "items"} to OBS
+              </p>
+              {addAll.data.warnings.length > 0 && (
+                <ul>
+                  {addAll.data.warnings.map((warning) => (
+                    <li key={warning}>{warning}</li>
+                  ))}
+                </ul>
+              )}
+            </>
+          ) : null}
+          <AlertDialogFooter>
+            <AlertDialogAction asChild>
+              <Button>Ok</Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

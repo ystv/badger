@@ -204,14 +204,16 @@ export default function MainScreen() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            {integrations.includes("obs") && (
+            {integrations.includes("obs") ? (
               <DropdownMenuItem
                 onClick={() => setSelectedRundown("continuity")}
               >
                 Continuity
               </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem disabled>OBS not available</DropdownMenuItem>
             )}
-            {integrations.includes("vmix") &&
+            {integrations.includes("vmix") ? (
               show.rundowns.map((rd) => (
                 <DropdownMenuItem
                   key={rd.id}
@@ -219,7 +221,10 @@ export default function MainScreen() {
                 >
                   {rd.name}
                 </DropdownMenuItem>
-              ))}
+              ))
+            ) : (
+              <DropdownMenuItem disabled>vMix not available</DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </nav>
