@@ -31,7 +31,7 @@ jobs:
         working-directory: ./jobrunner
 
       - name: Upload results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: lint-results-main
           retention-days: 1
@@ -65,7 +65,7 @@ jobs:
         working-directory: ./jobrunner
 
       - name: Upload results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: lint-results-pr
           retention-days: 1
