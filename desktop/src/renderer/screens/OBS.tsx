@@ -14,6 +14,12 @@ import {
   AlertDialogContent,
   AlertDialogFooter,
 } from "@bowser/components/alert-dialog";
+import {
+  Table,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@bowser/components/table";
 
 import { CompleteContinuityItemModel } from "@bowser/prisma/utilityTypes";
 import { z } from "zod";
@@ -210,6 +216,7 @@ function AddToOBS({
           color="primary"
           disabled={downloadMedia.isLoading}
           onClick={() => downloadMedia.mutate({ id: item.media!.id })}
+          className="h-full"
         >
           Download
         </Button>
@@ -217,7 +224,7 @@ function AddToOBS({
       break;
     case "needs-add":
       contents = (
-        <Button color="primary" onClick={() => doAdd()}>
+        <Button color="primary" onClick={() => doAdd()} className="h-full">
           Add to OBS
         </Button>
       );
@@ -230,6 +237,7 @@ function AddToOBS({
             color="primary"
             disabled={downloadMedia.isLoading}
             onClick={() => downloadMedia.mutate({ id: item.media!.id })}
+            className="h-full"
           >
             Download
           </Button>
@@ -240,7 +248,9 @@ function AddToOBS({
       contents = (
         <>
           <Badge variant="warning">Needs replacement</Badge>
-          <Button onClick={() => doAdd("replace")}>Replace</Button>
+          <Button onClick={() => doAdd("replace")} className="h-full">
+            Replace
+          </Button>
         </>
       );
       break;
@@ -327,12 +337,14 @@ function ContinuityItem({
   item: z.infer<typeof CompleteContinuityItemModel>;
 }) {
   return (
-    <>
-      <span className="text-lg font-bold align-middle h-full flex items-center">
+    <TableRow>
+      <TableCell className="text-lg font-bold align-middle h-full flex items-center">
         {item.name}
-      </span>
-      <AddToOBS item={item} />
-    </>
+      </TableCell>
+      <TableCell>
+        <AddToOBS item={item} />
+      </TableCell>
+    </TableRow>
   );
 }
 
@@ -363,20 +375,29 @@ export default function OBSScreen() {
   }
   return (
     <div>
-      <div className="space-y-2 grid grid-cols-[1fr_auto] auto-rows-1fr">
-        {show.continuityItems.map((item) => (
-          <ContinuityItem item={item} key={item.id} />
-        ))}
-        <div className="col-start-2">
-          <Button
-            className="w-full"
-            color="light"
-            onClick={() => addAll.mutate()}
-          >
-            Add All
-          </Button>
-        </div>
-      </div>
+      <Table>
+        <colgroup>
+          <col />
+          <col style={{ width: "12rem" }} />
+        </colgroup>
+        <TableBody>
+          {show.continuityItems.map((item) => (
+            <ContinuityItem item={item} key={item.id} />
+          ))}
+          <TableRow>
+            <TableCell />
+            <TableCell>
+              <Button
+                className="w-full"
+                color="light"
+                onClick={() => addAll.mutate()}
+              >
+                Add All
+              </Button>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
       <AlertDialog
         open={addAll.isSuccess || addAll.isError}
         onOpenChange={() => addAll.reset()}
