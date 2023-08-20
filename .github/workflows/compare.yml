@@ -79,6 +79,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: 'yarn'
+          cache-dependency-path: 'yarn.lock'
+      - run: yarn install --immutable --inline-builds
       - name: Download Main results
         id: r-main
         uses: actions/download-artifact@v3
@@ -89,10 +96,8 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: lint-results-pr
-      - name: Install TypeScript
-        run: npm install typescript
       - name: Compare results
-        run: npx -y danger ci -d Dangerfile.compare-lint-results.ts
+        run: yarn danger ci -d Dangerfile.compare-lint-results.ts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAIN_RESULTS: ${{ steps.r-main.outputs.download-path }}
