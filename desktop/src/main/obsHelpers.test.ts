@@ -22,11 +22,8 @@ describe("addOrReplaceMediaAsScene", () => {
       showId: 0,
     },
     durationSeconds: 15,
-    downloadURL: "",
     continuityItemID: 1,
     rawPath: "",
-    rundownItem: null,
-    tasks: [],
     rundownItemID: null,
   };
   let mobs: MockOBSConnection;
