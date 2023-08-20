@@ -14,7 +14,12 @@ module.exports = {
             name: "electron-settings",
           },
         ],
-        patterns: ["../main/*"],
+        patterns: [
+          {
+            group: ["../main/*"],
+            allowTypeImports: true,
+          },
+        ],
       },
     ],
   },
