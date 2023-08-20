@@ -1,6 +1,6 @@
 import { ipc } from "../ipc";
 import { useForm } from "react-hook-form";
-import { Button } from "@bowser/components/Button";
+import { Button } from "@bowser/components/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";

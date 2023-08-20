@@ -1,6 +1,6 @@
 import { ReactNode, useCallback, useEffect, useState } from "react";
 import { ipc } from "./ipc";
-import Button from "@bowser/components/Button";
+import Button from "@bowser/components/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import invariant from "../common/invariant";

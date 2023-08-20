@@ -1,5 +1,5 @@
 import { ipc, useInvalidateQueryOnIPCEvent } from "../ipc";
-import { Button } from "@bowser/components/Button";
+import { Button } from "@bowser/components/button";
 import { useCallback, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
