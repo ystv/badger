@@ -29,14 +29,14 @@ for (const project of ["desktop", "server", "jobrunner"]) {
   const baseMessages = new Set<string>();
   for (const file of baseResults) {
     for (const msg of file.messages) {
-      const key = [file, msg.line, msg.messageId].join(":");
+      const key = [file.filePath, msg.line, msg.messageId].join(":");
       baseMessages.add(key);
     }
   }
 
   for (const file of prResults) {
     for (const msg of file.messages) {
-      const key = [file, msg.line, msg.messageId].join(":");
+      const key = [file.filePath, msg.line, msg.messageId].join(":");
       if (!baseMessages.has(key)) {
         newMessages.push({
           file: file.filePath.replace(process.env.GITHUB_WORKSPACE + "/", ""),
