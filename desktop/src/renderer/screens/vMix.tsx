@@ -12,6 +12,8 @@ import { z } from "zod";
 import { VMIX_NAMES } from "../../common/constants";
 import { ListInput } from "../../main/vmixTypes";
 import invariant from "../../common/invariant";
+import { Alert } from "@bowser/components/alert";
+import { Progress } from "@bowser/components/progress";
 
 function VMixConnection() {
   const tryConnect = ipc.vmix.tryConnect.useMutation();
@@ -393,9 +395,7 @@ function RundownAssets(props: {
                 <span className="text-warning-4">No media!</span>
               )}
               {asset._state === "downloading" && (
-                <span className="text-purple-4">
-                  Downloading {asset._downloadProgress?.toFixed(2)}%
-                </span>
+                <Progress value={asset._downloadProgress} />
               )}
               {asset._state === "no-local" && (
                 <Button
@@ -447,15 +447,15 @@ function Rundown(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
   );
 }
 
-export default function VMixScreen() {
-  const show = ipc.getSelectedShow.useQuery().data!;
+export default function VMixScreen(props: {
+  rundown: z.infer<typeof CompleteRundownModel>;
+}) {
   const connectionState = ipc.vmix.getConnectionState.useQuery();
-  const [activeRundownID, setActiveRundownID] = useState<number | null>(null);
 
   if (connectionState.isLoading) {
     return <div>Please wait...</div>;
   }
-  if (connectionState.error) {
+  if (connectionState.isError) {
     return (
       <div>
         <h2>Something went wrong inside Bowser</h2>
@@ -464,41 +464,12 @@ export default function VMixScreen() {
     );
   }
   if (!connectionState.data.connected) {
-    return <VMixConnection />;
+    return (
+      <Alert variant="danger">
+        Not connected to vMix. Please ensure vMix is running and the TCP API is
+        enabled.
+      </Alert>
+    );
   }
-  return (
-    <div className="mt-2">
-      {activeRundownID ? (
-        <>
-          <Button
-            size="small"
-            color="light"
-            onClick={() => setActiveRundownID(null)}
-          >
-            Change Rundown
-          </Button>
-          <Rundown
-            rundown={show.rundowns.find((x) => x.id === activeRundownID)!}
-          />
-        </>
-      ) : (
-        <div className="space-y-2">
-          {show.rundowns.map((rundown) => (
-            <div key={rundown.id} className="flex flex-row flex-wrap">
-              <span className="text-lg font-bold">{rundown.name}</span>
-              <div className="ml-auto">
-                <Button onClick={() => setActiveRundownID(rundown.id)}>
-                  Select
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-      <small className="absolute bottom-0">
-        Connected to vMix {connectionState.data.edition} version{" "}
-        {connectionState.data.version}
-      </small>
-    </div>
-  );
+  return <Rundown rundown={props.rundown} />;
 }

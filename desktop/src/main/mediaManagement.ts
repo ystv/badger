@@ -17,6 +17,7 @@ export async function getMediaPath(): Promise<string> {
     case "win32":
       return "C:\\bowser_media";
     case "darwin":
+      return `${os.userInfo().homedir}/Movies/Bowser Media`;
     case "linux":
       return `${os.userInfo().homedir}/Videos/Bowser Media`;
     default:

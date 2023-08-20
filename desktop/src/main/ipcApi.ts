@@ -102,6 +102,29 @@ export const appRouter = r({
     getLocalMedia: proc
       .output(LocalMediaSettingsSchema)
       .query(async () => await getLocalMediaSettings()),
+    downloadAllMediaForSelectedShow: proc.mutation(async () => {
+      const show = selectedShow.value;
+      invariant(show, "No show selected");
+      const state = await getLocalMediaSettings();
+      for (const rundown of show.rundowns) {
+        for (const item of rundown.items) {
+          if (
+            item.media?.state === "Ready" &&
+            !state.some((x) => x.mediaID === item.media?.id)
+          ) {
+            downloadMedia(item.media.id);
+          }
+        }
+      }
+      for (const item of show.continuityItems) {
+        if (
+          item.media?.state === "Ready" &&
+          !state.some((x) => x.mediaID === item.media?.id)
+        ) {
+          downloadMedia(item.media.id);
+        }
+      }
+    }),
   }),
   obs: r({
     getConnectionState: proc

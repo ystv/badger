@@ -25,6 +25,8 @@ import {
   IoDownloadSharp,
   IoCaretDownOutline,
   IoEllipsisVertical,
+  IoCheckmarkSharp,
+  IoAlertSharp,
 } from "react-icons/io5";
 import { usePopper } from "react-popper";
 import { useMemo, useState } from "react";
@@ -32,6 +34,7 @@ import { getQueryKey } from "@trpc/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import OBSScreen, { OBSSettings } from "./screens/OBS";
 import OBSDevToolsScreen from "./screens/OBSDevTools";
+import VMixScreen from "./screens/vMix";
 
 function DownloadTrackerPopup() {
   const downloadStatus = ipc.media.getDownloadStatus.useQuery(void 0, {
@@ -129,19 +132,13 @@ function Settings() {
   );
 }
 
-function RundownScreen(props: { rundown: any }) {
-  return null;
-}
-
 export default function MainScreen() {
   const { data: show } = ipc.getSelectedShow.useQuery();
   invariant(show, "no selected show"); // this is safe because MainScreen is rendered inside a ConnectAndSelectShowGate
   const [integrations] = ipc.supportedIntegrations.useSuspenseQuery();
-  const devToolsState = ipc.devtools.getSettings.useQuery();
-  useInvalidateQueryOnIPCEvent(
-    getQueryKey(ipc.devtools.getSettings),
-    "devToolsSettingsChange",
-  );
+
+  const downloadAll = ipc.media.downloadAllMediaForSelectedShow.useMutation();
+
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const [selectedRundown, setSelectedRundown] = useState<"continuity" | number>(
@@ -160,11 +157,22 @@ export default function MainScreen() {
           <DropdownMenuTrigger asChild>
             <Button color="ghost" className="font-bold">
               {show.name}
-              <IoEllipsisVertical className="h-6 w-6 inline-block" size={24} />
+              <IoEllipsisVertical
+                className="h-4 w-4 inline-block ml-1"
+                size={24}
+              />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem>Download all media (NYI)</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => downloadAll.mutate()}>
+              {downloadAll.status === "success" && (
+                <IoCheckmarkSharp className="h-4 w-4 inline-block" size={24} />
+              )}
+              {downloadAll.status === "error" && (
+                <IoAlertSharp className="h-4 w-4 inline-block" size={24} />
+              )}
+              Download all media
+            </DropdownMenuItem>
             <DropdownMenuItem>Change selected show (NYI)</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -184,34 +192,42 @@ export default function MainScreen() {
           </Dialog>
         </div>
       </nav>
-      <nav className="relative left-0 w-full h-12 mb-12 px-4 bg-mid-dark text-light flex flex-nowrap items-center justify-between">
+      <nav className="relative left-0 w-full h-12 mb-2 px-4 bg-mid-dark text-light flex flex-nowrap items-center justify-between">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button color="ghost" className="font-bold">
               {selectedName}
-              <IoCaretDownOutline className="h-8 w-8 inline-block" size={32} />
+              <IoCaretDownOutline
+                className="h-4 w-4 inline-block ml-1"
+                size={32}
+              />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => setSelectedRundown("continuity")}>
-              Continuity
-            </DropdownMenuItem>
-            {show.rundowns.map((rd) => (
+            {integrations.includes("obs") && (
               <DropdownMenuItem
-                key={rd.id}
-                onClick={() => setSelectedRundown(rd.id)}
+                onClick={() => setSelectedRundown("continuity")}
               >
-                {rd.name}
+                Continuity
               </DropdownMenuItem>
-            ))}
+            )}
+            {integrations.includes("vmix") &&
+              show.rundowns.map((rd) => (
+                <DropdownMenuItem
+                  key={rd.id}
+                  onClick={() => setSelectedRundown(rd.id)}
+                >
+                  {rd.name}
+                </DropdownMenuItem>
+              ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </nav>
-      <div className="relative mb-12">
+      <div className="relative mb-12 px-2">
         {selectedRundown === "continuity" ? (
           <OBSScreen />
         ) : (
-          <RundownScreen
+          <VMixScreen
             rundown={show.rundowns.find((rd) => rd.id === selectedRundown)!}
           />
         )}

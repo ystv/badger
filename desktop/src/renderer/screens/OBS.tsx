@@ -5,6 +5,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Alert } from "@bowser/components/alert";
+import { Progress } from "@bowser/components/progress";
+import { Badge } from "@bowser/components/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -184,25 +186,28 @@ function AddToOBS({
   let contents;
   switch (state) {
     case "no-media":
-      contents = <em>No media uploaded</em>;
+      contents = <Badge variant="dark">No media uploaded</Badge>;
       break;
     case "loading":
-      contents = <em>Please wait just one sec...</em>;
+      contents = <Badge variant="dark">Please wait, checking status...</Badge>;
       break;
     case "media-processing":
-      contents = <em className="text-purple-4">Media processing...</em>;
+      contents = <Badge variant="purple">Media processing on server...</Badge>;
       break;
     case "downloading":
       contents = (
         <div>
-          <em>Downloading...</em>
-          <progress value={ourDownloadStatus?.progressPercent ?? 0} max={100} />
+          <Progress
+            value={ourDownloadStatus?.progressPercent}
+            className="w-16"
+          />
         </div>
       );
       break;
     case "needs-download":
       contents = (
         <Button
+          color="primary"
           disabled={downloadMedia.isLoading}
           onClick={() => downloadMedia.mutate({ id: item.media!.id })}
         >
@@ -211,13 +216,18 @@ function AddToOBS({
       );
       break;
     case "needs-add":
-      contents = <Button onClick={() => doAdd()}>Add to OBS</Button>;
+      contents = (
+        <Button color="primary" onClick={() => doAdd()}>
+          Add to OBS
+        </Button>
+      );
       break;
     case "needs-replace-download":
       contents = (
         <>
-          <em className="text-warning-4 mr-1">Changed, needs replacement</em>
+          <Badge variant="warning">Needs replacement</Badge>
           <Button
+            color="primary"
             disabled={downloadMedia.isLoading}
             onClick={() => downloadMedia.mutate({ id: item.media!.id })}
           >
@@ -229,7 +239,7 @@ function AddToOBS({
     case "needs-replace":
       contents = (
         <>
-          <em className="text-warning-4 mr-1">Changed, needs replacement</em>
+          <Badge variant="warning">Needs replacement</Badge>
           <Button onClick={() => doAdd("replace")}>Replace</Button>
         </>
       );
@@ -254,7 +264,7 @@ function AddToOBS({
       );
       break;
     case "ok":
-      contents = <em className="text-success-4 mr-1">Good to go!</em>;
+      contents = <Badge variant="outline">Good to go!</Badge>;
       break;
     default:
       invariant(false, "Unhandled state: " + state);
@@ -314,12 +324,12 @@ function ContinuityItem({
   item: z.infer<typeof CompleteContinuityItemModel>;
 }) {
   return (
-    <div className="flex flex-row flex-wrap">
+    <>
       <span className="text-lg font-bold">{item.name}</span>
-      <div className="ml-auto">
+      <div className="flex justify-center">
         <AddToOBS item={item} />
       </div>
-    </div>
+    </>
   );
 }
 
@@ -347,8 +357,12 @@ export default function OBSScreen() {
   }
   return (
     <div>
-      <h1 className="text-3xl">Continuity</h1>
-      <div className="space-y-2">
+      <div className="space-y-2 grid grid-cols-[1fr_auto]">
+        <div className="col-start-2">
+          <Button className="w-full" color="light">
+            Add All (NYI)
+          </Button>
+        </div>
         {show.continuityItems.map((item) => (
           <ContinuityItem item={item} key={item.id} />
         ))}
