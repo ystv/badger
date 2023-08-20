@@ -8,7 +8,7 @@ if (!pathMain || !pathPR) {
   process.exit(1);
 }
 
-const newMessages = [];
+const newMessages: Array<{ file: string; message: string; line: number }> = [];
 
 for (const project of ["desktop", "server", "jobrunner"]) {
   let baseResults;

@@ -89,6 +89,8 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: lint-results-pr
+      - name: Install TypeScript
+        run: npm install typescript
       - name: Compare results
         run: npx -y danger ci -d Dangerfile.compare-lint-results.ts
         env:
