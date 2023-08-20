@@ -30,7 +30,7 @@ import {
   MediaType,
 } from "./obsHelpers";
 import { createVMixConnection, getVMixConnection } from "./vmix";
-import { getInputTypeForAsset, reconcileList } from "./vmixHelpers";
+import { getInputTypeForAsset, loadAssets, reconcileList } from "./vmixHelpers";
 import { VMIX_NAMES } from "../common/constants";
 import { ListInput } from "./vmixTypes";
 import { IPCEvents } from "./ipcEventBus";
@@ -364,68 +364,7 @@ export const appRouter = r({
             message: "Not all assets are in the rundown",
           });
         }
-        const localMedia = await getLocalMediaSettings();
-        const settings = await getAssetsSettings();
-        const vmix = getVMixConnection();
-        invariant(vmix, "No vMix connection");
-        const state = await vmix.getFullState();
-        for (const asset of assets) {
-          if (!asset.media || asset.media.state !== "Ready") {
-            throw new TRPCError({
-              code: "PRECONDITION_FAILED",
-              message: "Not all assets are ready",
-            });
-          }
-          const local = localMedia.find((x) => x.mediaID === asset.media!.id);
-          if (!local) {
-            throw new TRPCError({
-              code: "PRECONDITION_FAILED",
-              message: "Not all assets are downloaded locally",
-            });
-          }
-
-          // TODO: See if everything below here could be refactored out - not currently done to avoid needing to refetch
-          //  vMix state each time
-          const loadType = settings.loadTypes[asset.type];
-          if (!loadType) {
-            throw new TRPCError({
-              code: "PRECONDITION_FAILED",
-              message: "No load type for asset type",
-            });
-          }
-          if (loadType === "direct") {
-            const present = state.inputs.find(
-              (x) => x.title === asset.media!.name,
-            );
-            if (!present) {
-              await vmix.addInput(getInputTypeForAsset(asset), local.path);
-            }
-          } else if (loadType === "list") {
-            let present;
-            const list = state.inputs.find(
-              (x) => x.shortTitle === VMIX_NAMES.ASSET_LIST[asset.type],
-            );
-            let listKey;
-            if (!list) {
-              present = false;
-              listKey = await vmix.addInput("VideoList", "");
-              await vmix.renameInput(
-                listKey,
-                VMIX_NAMES.ASSET_LIST[asset.type],
-              );
-            } else {
-              listKey = list.key;
-              present = (list as ListInput).items.some(
-                (x) => x.source === local.path,
-              );
-            }
-            if (!present) {
-              await vmix.addInputToList(listKey, local.path);
-            }
-          } else {
-            invariant(false, "Invalid load type " + loadType);
-          }
-        }
+        await loadAssets(assets);
       }),
   }),
   assets: r({
