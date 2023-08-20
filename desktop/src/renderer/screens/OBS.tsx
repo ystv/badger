@@ -350,10 +350,17 @@ function ContinuityItem({
 }
 
 export default function OBSScreen() {
+  const queryClient = useQueryClient();
   const show = ipc.getSelectedShow.useQuery(undefined).data!;
   const connectionState = ipc.obs.getConnectionState.useQuery();
 
-  const addAll = ipc.obs.addAllSelectedShowMedia.useMutation();
+  const addAll = ipc.obs.addAllSelectedShowMedia.useMutation({
+    async onSuccess() {
+      await queryClient.invalidateQueries(
+        getQueryKey(ipc.obs.listContinuityItemScenes),
+      );
+    },
+  });
 
   if (connectionState.isLoading) {
     return <div>Please wait...</div>;
