@@ -115,7 +115,9 @@ export default function MainScreen() {
               )}
               Download all media
             </DropdownMenuItem>
-            <DropdownMenuItem>Change selected show (NYI)</DropdownMenuItem>
+            <DropdownMenuItem>
+              Change selected show (NYI) {/*TODO*/}
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
         <div className="ml-auto flex flex-row flex-nowrap">
