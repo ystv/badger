@@ -124,7 +124,14 @@ export default function ConnectAndSelectShowGate(props: {
       <div className="w-144 h-24 m-auto p-8">
         <h1 className="text-5xl text-light">Bowser</h1>
         <div className="m-2 p-4 bg-light text-dark rounded">
-          {connState.data !== true ? <ServerConnectForm /> : <SelectShowForm />}
+          {connState.data !== true ? (
+            <ServerConnectForm />
+          ) : (
+            <>
+              <h2 className="text-2xl">Select a show</h2>
+              <SelectShowForm />
+            </>
+          )}
         </div>
       </div>
     </div>
