@@ -30,6 +30,8 @@ if (isSquirrel) {
   app.quit();
 }
 
+let unused: number;
+
 const createWindow = async () => {
   await validateLocalMediaState();
   await tryCreateAPIClient();
