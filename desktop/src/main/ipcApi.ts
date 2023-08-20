@@ -30,9 +30,8 @@ import {
   MediaType,
 } from "./obsHelpers";
 import { createVMixConnection, getVMixConnection } from "./vmix";
-import { getInputTypeForAsset, loadAssets, reconcileList } from "./vmixHelpers";
+import { loadAssets, reconcileList } from "./vmixHelpers";
 import { VMIX_NAMES } from "../common/constants";
-import { ListInput } from "./vmixTypes";
 import { IPCEvents } from "./ipcEventBus";
 
 function serverAPI() {
