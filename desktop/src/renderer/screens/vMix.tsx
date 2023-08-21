@@ -384,7 +384,7 @@ function RundownAssets(props: {
         <TableBody>
           {assets?.map((asset) => (
             <TableRow key={asset.id}>
-              <TableCell className="text-lg font-bold align-middle h-full">
+              <TableCell className="text-lg align-middle h-full">
                 {asset.name}
               </TableCell>
               <TableCell className="flex justify-center flex-col">
