@@ -1,25 +1,46 @@
-import { ipc, useInvalidateQueryOnIPCEvent } from "./ipc";
+import { ipc } from "./ipc";
 import invariant from "../common/invariant";
-import { Dialog, Popover, Switch, Tab } from "@headlessui/react";
-import { IoCog, IoDownloadSharp } from "react-icons/io5";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTrigger,
+} from "@bowser/components/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@bowser/components/popover";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@bowser/components/dropdown-menu";
+import { Button } from "@bowser/components/button";
+import {
+  IoAlertSharp,
+  IoCaretDownOutline,
+  IoCheckmarkSharp,
+  IoCog,
+  IoDownloadSharp,
+  IoEllipsisVertical,
+} from "react-icons/io5";
+import { Suspense, useMemo, useState } from "react";
 import OBSScreen from "./screens/OBS";
 import VMixScreen from "./screens/vMix";
-import { usePopper } from "react-popper";
-import { useMemo, useState } from "react";
-import { getQueryKey } from "@trpc/react-query";
-import OBSDevToolsScreen from "./screens/OBSDevTools";
-import { useQueryClient } from "@tanstack/react-query";
-import Button from "./components/Button";
+import { Settings } from "./Settings";
+import { SelectShowForm } from "./ConnectAndSelectShowGate";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+} from "@bowser/components/table";
 
 function DownloadTrackerPopup() {
   const downloadStatus = ipc.media.getDownloadStatus.useQuery(void 0, {
     refetchInterval: 1000,
-  });
-
-  const [refEl, setRefEl] = useState<HTMLElement | null>(null);
-  const [popoverEl, setPopoverEl] = useState<HTMLElement | null>(null);
-  const { styles, attributes } = usePopper(refEl, popoverEl, {
-    placement: "bottom-end",
   });
 
   const downloads = useMemo(
@@ -33,85 +54,26 @@ function DownloadTrackerPopup() {
 
   return (
     <Popover>
-      <Popover.Button ref={setRefEl}>
+      <PopoverTrigger>
         <IoDownloadSharp className="h-8 w-8" size={32} />
-      </Popover.Button>
-      <Popover.Panel
-        ref={setPopoverEl}
-        style={styles.popper}
-        {...attributes.popper}
-        className="bg-light text-dark px-2 py-4 shadow-lg"
-      >
-        {downloads.map((download) => (
-          <div key={download.mediaID}>
-            <strong>{download.name}</strong>: {download.status},{" "}
-            {download.progressPercent?.toFixed(1)}%
-          </div>
-        ))}
-      </Popover.Panel>
+      </PopoverTrigger>
+      <PopoverContent className="bg-light text-dark px-2 py-4 shadow-lg">
+        <Table>
+          <TableBody>
+            {downloads.map((download) => (
+              <TableRow key={download.mediaID}>
+                <TableCell>{download.name}</TableCell>
+                <TableCell>
+                  {download.status[0].toUpperCase() + download.status.slice(1)}
+                  {download.progressPercent &&
+                    `, ${download.progressPercent.toFixed(1)}%`}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </PopoverContent>
     </Popover>
-  );
-}
-
-function Settings() {
-  const queryClient = useQueryClient();
-  const devToolsState = ipc.devtools.getSettings.useQuery();
-  const setDevToolsState = ipc.devtools.setSettings.useMutation({
-    // https://tanstack.com/query/latest/docs/react/guides/optimistic-updates
-    async onMutate(newSettings) {
-      await queryClient.cancelQueries(getQueryKey(ipc.devtools.getSettings));
-      const oldSettings = queryClient.getQueryData(
-        getQueryKey(ipc.devtools.getSettings),
-      );
-      queryClient.setQueryData(
-        getQueryKey(ipc.devtools.getSettings),
-        newSettings,
-      );
-      return { oldSettings };
-    },
-    async onError(err, newSettings, context) {
-      if (context) {
-        queryClient.setQueryData(
-          getQueryKey(ipc.devtools.getSettings),
-          context.oldSettings,
-        );
-      }
-    },
-    async onSettled() {
-      await queryClient.invalidateQueries(
-        getQueryKey(ipc.devtools.getSettings),
-      );
-    },
-  });
-  return (
-    <div>
-      <h2 className="text-xl">Developer Tools</h2>
-      <p>
-        Do not enable unless you know what you are doing, these open you up to
-        (theoretical) security vulnerabilities.
-      </p>
-      {devToolsState.data && (
-        <Switch
-          checked={devToolsState.data.enabled}
-          onChange={() =>
-            setDevToolsState.mutate({ enabled: !devToolsState.data.enabled })
-          }
-          className={`${
-            devToolsState.data.enabled ? "bg-danger-4" : "bg-danger"
-          }
-          relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75`}
-        >
-          <span className="sr-only">Use setting</span>
-          <span
-            aria-hidden="true"
-            className={`${
-              devToolsState.data.enabled ? "translate-x-9" : "translate-x-0"
-            }
-            pointer-events-none inline-block h-[34px] w-[34px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
-          />
-        </Switch>
-      )}
-    </div>
   );
 }
 
@@ -119,85 +81,120 @@ export default function MainScreen() {
   const { data: show } = ipc.getSelectedShow.useQuery();
   invariant(show, "no selected show"); // this is safe because MainScreen is rendered inside a ConnectAndSelectShowGate
   const [integrations] = ipc.supportedIntegrations.useSuspenseQuery();
-  const devToolsState = ipc.devtools.getSettings.useQuery();
-  useInvalidateQueryOnIPCEvent(
-    getQueryKey(ipc.devtools.getSettings),
-    "devToolsSettingsChange",
-  );
+
+  const downloadAll = ipc.media.downloadAllMediaForSelectedShow.useMutation();
+
+  const [isChangeShowOpen, setIsChangeShowOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  const [selectedRundown, setSelectedRundown] = useState<"continuity" | number>(
+    integrations.includes("obs") ? "continuity" : show.rundowns[0].id,
+  );
+  const selectedName =
+    selectedRundown === "continuity"
+      ? "Continuity"
+      : show.rundowns.find((rd) => rd.id === selectedRundown)?.name;
+  invariant(selectedName, "selected non-existent rundown");
 
   return (
     <div>
-      <nav className="absolute top-0 left-0 w-full h-12 mb-12 px-4 bg-dark text-light flex flex-nowrap items-center justify-between">
-        <span className="font-bold">{show.name}</span>
+      <nav className="relative top-0 left-0 w-full h-12 px-4 bg-dark text-light flex flex-nowrap items-center justify-between">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button color="ghost" className="font-bold">
+              {show.name}
+              <IoEllipsisVertical
+                className="h-4 w-4 inline-block ml-1"
+                size={24}
+              />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => downloadAll.mutate()}>
+              {downloadAll.status === "success" && (
+                <IoCheckmarkSharp className="h-4 w-4 inline-block" size={24} />
+              )}
+              {downloadAll.status === "error" && (
+                <IoAlertSharp className="h-4 w-4 inline-block" size={24} />
+              )}
+              Download all media
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setIsChangeShowOpen(true)}>
+              Change selected show
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <Dialog open={isChangeShowOpen} onOpenChange={setIsChangeShowOpen}>
+          <DialogContent>
+            <DialogHeader className="text-3xl">Change Show</DialogHeader>
+            <SelectShowForm onSelect={() => setIsChangeShowOpen(false)} />
+          </DialogContent>
+        </Dialog>
         <div className="ml-auto flex flex-row flex-nowrap">
           <DownloadTrackerPopup />
-          <button
-            className="h-full aspect-square flex items-center justify-center"
-            onClick={() => setIsSettingsOpen(true)}
+          <Dialog
+            open={isSettingsOpen}
+            onOpenChange={(v) => setIsSettingsOpen(v)}
           >
-            <IoCog className="h-8 w-8" size={32} />
-          </button>
+            <DialogTrigger>
+              <IoCog className="h-6 w-6" size={24} />
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader className="text-3xl">Settings</DialogHeader>
+              {isSettingsOpen && (
+                <Suspense fallback={<b>Please wait...</b>}>
+                  <Settings />
+                </Suspense>
+              )}
+            </DialogContent>
+          </Dialog>
         </div>
       </nav>
-      <div className="relative mb-12" />
-      <Tab.Group>
-        <Tab.List className="h-10 bg-mid-dark text-light space-x-2 px-2">
-          {integrations.includes("vmix") && (
-            <Tab
-              className={
-                "ui-selected:bg-primary ui-selected:color-light px-2 h-full"
-              }
-            >
-              vMix
-            </Tab>
-          )}
-          {integrations.includes("obs") && (
-            <>
-              <Tab className="ui-selected:bg-primary ui-selected:color-light px-2 h-full">
-                OBS
-              </Tab>
-              {devToolsState.data?.enabled && (
-                <Tab className="ui-selected:bg-primary ui-selected:color-light px-2 h-full">
-                  OBS Dev Tools
-                </Tab>
-              )}
-            </>
-          )}
-        </Tab.List>
-        <Tab.Panels>
-          {integrations.includes("vmix") && (
-            <Tab.Panel>
-              <VMixScreen />
-            </Tab.Panel>
-          )}
-          {integrations.includes("obs") && (
-            <>
-              <Tab.Panel>
-                <OBSScreen />
-              </Tab.Panel>
-              {devToolsState.data?.enabled && (
-                <Tab.Panel>
-                  <OBSDevToolsScreen />
-                </Tab.Panel>
-              )}
-            </>
-          )}
-        </Tab.Panels>
-      </Tab.Group>
-      <Dialog open={isSettingsOpen} onClose={() => setIsSettingsOpen(false)}>
-        <Dialog.Panel className="fixed inset-0 overflow-y-auto bg-light p-8">
-          <Dialog.Title className="text-3xl">Settings</Dialog.Title>
-          <Button
-            size="small"
-            color="dark"
-            onClick={() => setIsSettingsOpen(false)}
-          >
-            Close
-          </Button>
-          {isSettingsOpen && <Settings />}
-        </Dialog.Panel>
-      </Dialog>
+      <nav className="relative left-0 w-full h-12 mb-2 px-4 bg-mid-dark text-light flex flex-nowrap items-center justify-between">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button color="ghost" className="font-bold">
+              {selectedName}
+              <IoCaretDownOutline
+                className="h-4 w-4 inline-block ml-1"
+                size={32}
+              />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            {integrations.includes("obs") ? (
+              <DropdownMenuItem
+                onClick={() => setSelectedRundown("continuity")}
+              >
+                Continuity
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem disabled>OBS not available</DropdownMenuItem>
+            )}
+            {integrations.includes("vmix") ? (
+              show.rundowns.map((rd) => (
+                <DropdownMenuItem
+                  key={rd.id}
+                  onClick={() => setSelectedRundown(rd.id)}
+                >
+                  {rd.name}
+                </DropdownMenuItem>
+              ))
+            ) : (
+              <DropdownMenuItem disabled>vMix not available</DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </nav>
+      <div className="relative mb-12 px-2">
+        {selectedRundown === "continuity" ? (
+          <OBSScreen />
+        ) : (
+          <VMixScreen
+            rundown={show.rundowns.find((rd) => rd.id === selectedRundown)!}
+          />
+        )}
+      </div>
     </div>
   );
 }

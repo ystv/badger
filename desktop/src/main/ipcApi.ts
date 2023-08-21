@@ -24,11 +24,14 @@ import {
   LocalMediaSettingsSchema,
   saveDevToolsConfig,
 } from "./settings";
-import { addOrReplaceMediaAsScene, findContinuityScenes } from "./obsHelpers";
+import {
+  addOrReplaceMediaAsScene,
+  findContinuityScenes,
+  MediaType,
+} from "./obsHelpers";
 import { createVMixConnection, getVMixConnection } from "./vmix";
-import { getInputTypeForAsset, reconcileList } from "./vmixHelpers";
+import { loadAssets, reconcileList } from "./vmixHelpers";
 import { VMIX_NAMES } from "../common/constants";
-import { ListInput } from "./vmixTypes";
 import { IPCEvents } from "./ipcEventBus";
 
 function serverAPI() {
@@ -95,13 +98,44 @@ export const appRouter = r({
       .output(z.array(DownloadStatusSchema))
       .query(() => getDownloadStatus()),
     downloadMedia: proc
-      .input(z.object({ id: z.number() }))
+      .input(z.object({ id: z.number(), name: z.string().optional() }))
       .mutation(async ({ input }) => {
-        downloadMedia(input.id);
+        downloadMedia(input.id, input.name);
       }),
     getLocalMedia: proc
       .output(LocalMediaSettingsSchema)
       .query(async () => await getLocalMediaSettings()),
+    downloadAllMediaForSelectedShow: proc.mutation(async () => {
+      const show = selectedShow.value;
+      invariant(show, "No show selected");
+      const state = await getLocalMediaSettings();
+      for (const rundown of show.rundowns) {
+        for (const item of rundown.items) {
+          if (
+            item.media?.state === "Ready" &&
+            !state.some((x) => x.mediaID === item.media?.id)
+          ) {
+            downloadMedia(item.media.id, item.media.name);
+          }
+          for (const item of rundown.assets) {
+            if (
+              item.media?.state === "Ready" &&
+              !state.some((x) => x.mediaID === item.media?.id)
+            ) {
+              downloadMedia(item.media.id, item.media.name);
+            }
+          }
+        }
+      }
+      for (const item of show.continuityItems) {
+        if (
+          item.media?.state === "Ready" &&
+          !state.some((x) => x.mediaID === item.media?.id)
+        ) {
+          downloadMedia(item.media.id, item.media.name);
+        }
+      }
+    }),
   }),
   obs: r({
     getConnectionState: proc
@@ -109,7 +143,9 @@ export const appRouter = r({
         z.object({
           connected: z.boolean(),
           version: z.string().optional(),
+          platform: z.string().optional(),
           error: z.string().optional(),
+          availableRequests: z.array(z.string()).optional(),
         }),
       )
       .query(async () => {
@@ -118,7 +154,12 @@ export const appRouter = r({
         }
         try {
           const version = await obsConnection.ping();
-          return { connected: true, version: version.obsVersion };
+          return {
+            connected: true,
+            version: version.obsVersion,
+            platform: version.platformDescription,
+            availableRequests: version.availableRequests,
+          };
         } catch (e) {
           console.warn("OBS connection error", e);
           return { connected: false, error: String(e) };
@@ -128,7 +169,7 @@ export const appRouter = r({
       .input(
         z.object({
           host: z.string(),
-          port: z.number(),
+          port: z.coerce.number(),
           password: z.string(),
         }),
       )
@@ -155,7 +196,45 @@ export const appRouter = r({
           info.continuityItem,
           "No continuity item for media in obs.addMediaAsScene",
         );
-        return await addOrReplaceMediaAsScene(info, input.replaceMode);
+        return await addOrReplaceMediaAsScene(
+          info as MediaType,
+          input.replaceMode,
+        );
+      }),
+    addAllSelectedShowMedia: proc
+      .output(
+        z.object({
+          done: z.number(),
+          warnings: z.array(z.string()),
+        }),
+      )
+      .mutation(async () => {
+        const show = selectedShow.value;
+        invariant(show, "No show selected");
+        const state = await getLocalMediaSettings();
+        let done = 0;
+        const warnings: string[] = [];
+        for (const item of show.continuityItems) {
+          if (
+            item.media &&
+            item.media.state === "Ready" &&
+            state.some((x) => x.mediaID === item.media!.id)
+          ) {
+            const r = await addOrReplaceMediaAsScene(
+              {
+                ...item.media,
+                continuityItem: item,
+              },
+              "replace",
+            );
+            if (r.done) {
+              done++;
+            } else if (r.warnings.length > 0) {
+              warnings.push(item.name + ": " + r.warnings.join(" "));
+            }
+          }
+        }
+        return { done, warnings };
       }),
     listContinuityItemScenes: proc
       .output(
@@ -200,6 +279,8 @@ export const appRouter = r({
       .output(
         z.object({
           connected: z.boolean(),
+          host: z.string().optional(),
+          port: z.number().optional(),
           version: z.string().optional(),
           edition: z.string().optional(),
         }),
@@ -212,6 +293,8 @@ export const appRouter = r({
         const state = await conn.getFullState();
         return {
           connected: true,
+          host: conn.host,
+          port: conn.port,
           version: state.version,
           edition: state.edition,
         };
@@ -292,68 +375,7 @@ export const appRouter = r({
             message: "Not all assets are in the rundown",
           });
         }
-        const localMedia = await getLocalMediaSettings();
-        const settings = await getAssetsSettings();
-        const vmix = getVMixConnection();
-        invariant(vmix, "No vMix connection");
-        const state = await vmix.getFullState();
-        for (const asset of assets) {
-          if (!asset.media || asset.media.state !== "Ready") {
-            throw new TRPCError({
-              code: "PRECONDITION_FAILED",
-              message: "Not all assets are ready",
-            });
-          }
-          const local = localMedia.find((x) => x.mediaID === asset.media!.id);
-          if (!local) {
-            throw new TRPCError({
-              code: "PRECONDITION_FAILED",
-              message: "Not all assets are downloaded locally",
-            });
-          }
-
-          // TODO: See if everything below here could be refactored out - not currently done to avoid needing to refetch
-          //  vMix state each time
-          const loadType = settings.loadTypes[asset.type];
-          if (!loadType) {
-            throw new TRPCError({
-              code: "PRECONDITION_FAILED",
-              message: "No load type for asset type",
-            });
-          }
-          if (loadType === "direct") {
-            const present = state.inputs.find(
-              (x) => x.title === asset.media!.name,
-            );
-            if (!present) {
-              await vmix.addInput(getInputTypeForAsset(asset), local.path);
-            }
-          } else if (loadType === "list") {
-            let present;
-            const list = state.inputs.find(
-              (x) => x.shortTitle === VMIX_NAMES.ASSET_LIST[asset.type],
-            );
-            let listKey;
-            if (!list) {
-              present = false;
-              listKey = await vmix.addInput("VideoList", "");
-              await vmix.renameInput(
-                listKey,
-                VMIX_NAMES.ASSET_LIST[asset.type],
-              );
-            } else {
-              listKey = list.key;
-              present = (list as ListInput).items.some(
-                (x) => x.source === local.path,
-              );
-            }
-            if (!present) {
-              await vmix.addInputToList(listKey, local.path);
-            }
-          } else {
-            invariant(false, "Invalid load type " + loadType);
-          }
-        }
+        await loadAssets(assets);
       }),
   }),
   assets: r({

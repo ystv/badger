@@ -1,6 +1,6 @@
 import { ReactNode, useCallback, useEffect, useState } from "react";
 import { ipc } from "./ipc";
-import Button from "./components/Button";
+import Button from "@bowser/components/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import invariant from "../common/invariant";
@@ -53,12 +53,13 @@ function ServerConnectForm() {
   );
 }
 
-function SelectShowForm() {
+export function SelectShowForm(props: { onSelect?: () => void }) {
   const queryClient = useQueryClient();
   const listShows = ipc.listUpcomingShows.useQuery();
   const selectShow = ipc.setSelectedShow.useMutation({
     async onSuccess() {
       await queryClient.invalidateQueries(getQueryKey(ipc.getSelectedShow));
+      props.onSelect?.();
     },
   });
   if (listShows.isLoading) {
@@ -78,7 +79,6 @@ function SelectShowForm() {
   invariant(listShows.data, "listShows.data is null");
   return (
     <div>
-      <h2 className="text-2xl">Select a show</h2>
       {listShows.data.map((show) => (
         <div key={show.id}>
           <h3 className="text-xl">{show.name}</h3>
@@ -124,7 +124,14 @@ export default function ConnectAndSelectShowGate(props: {
       <div className="w-144 h-24 m-auto p-8">
         <h1 className="text-5xl text-light">Bowser</h1>
         <div className="m-2 p-4 bg-light text-dark rounded">
-          {connState.data !== true ? <ServerConnectForm /> : <SelectShowForm />}
+          {connState.data !== true ? (
+            <ServerConnectForm />
+          ) : (
+            <>
+              <h2 className="text-2xl">Select a show</h2>
+              <SelectShowForm />
+            </>
+          )}
         </div>
       </div>
     </div>

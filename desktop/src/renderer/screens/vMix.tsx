@@ -1,6 +1,6 @@
 import { ipc, useInvalidateQueryOnIPCEvent } from "../ipc";
-import Button from "../components/Button";
-import { useCallback, useMemo, useState } from "react";
+import { Button } from "@bowser/components/button";
+import { useCallback, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import {
@@ -12,57 +12,68 @@ import { z } from "zod";
 import { VMIX_NAMES } from "../../common/constants";
 import { ListInput } from "../../main/vmixTypes";
 import invariant from "../../common/invariant";
+import { Alert } from "@bowser/components/alert";
+import { Progress } from "@bowser/components/progress";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+} from "@bowser/components/table";
+import { Badge } from "@bowser/components/badge";
+import { Label } from "@bowser/components/label";
+import { Input } from "@bowser/components/input";
 
-function VMixConnection() {
-  const tryConnect = ipc.vmix.tryConnect.useMutation();
-  const queryClient = useQueryClient();
-
-  const [host, setHost] = useState("localhost");
-  const [port, setPort] = useState(8099);
-
-  const [error, setError] = useState<string | null>(null);
-
-  const doTryConnect = useCallback(async () => {
-    try {
-      await tryConnect.mutateAsync({ host, port });
+export function VMixConnection() {
+  const [state] = ipc.vmix.getConnectionState.useSuspenseQuery();
+  const tryConnect = ipc.vmix.tryConnect.useMutation({
+    async onSettled() {
       await queryClient.invalidateQueries(
         getQueryKey(ipc.vmix.getConnectionState),
       );
-    } catch (e) {
-      setError(String(e));
-    }
-  }, [host, port, queryClient, tryConnect]);
+    },
+  });
+  const queryClient = useQueryClient();
 
   return (
     <div>
-      <h2>Connect to vMix</h2>
       <form
         className="space-y-2"
-        onSubmit={async (e) => {
+        onSubmit={(e) => {
           e.preventDefault();
-          await doTryConnect();
+          const values = new FormData(e.currentTarget);
+          tryConnect.mutate({
+            host: values.get("host") as string,
+            port: parseInt(values.get("port") as string, 10),
+          });
         }}
       >
-        <label className="block">
-          vMix Host
-          <input
-            type="text"
-            value={host}
-            onChange={(e) => setHost(e.target.value)}
-          />
-        </label>
-        <label className="block">
-          vMix Port
-          <input
+        <div>
+          <Label htmlFor="host">vMix Host</Label>
+          <Input id="host" name="host" type="text" defaultValue={state.host} />
+        </div>
+        <div>
+          <Label htmlFor="port">vMix Port</Label>
+          <Input
+            id="port"
+            name="port"
             type="number"
-            value={port}
-            onChange={(e) => setPort(Number(e.target.value))}
+            defaultValue={state.port}
           />
-        </label>
-        <Button type="submit" color="primary">
+        </div>
+        <Button type="submit" color={state.connected ? "ghost" : "primary"}>
           Connect
         </Button>
-        {error && <div className="bg-danger-4 text-light">{error}</div>}
+        {tryConnect.error && (
+          <div className="bg-danger-4 text-light">
+            {tryConnect.error.message}
+          </div>
+        )}
+        {state.connected && (
+          <Alert>
+            Connected to vMix {state.edition} v{state.version}
+          </Alert>
+        )}
       </form>
     </div>
   );
@@ -170,7 +181,7 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
   const doDownloadAll = useCallback(() => {
     for (const item of items) {
       if (item._state === "no-local" && item.media) {
-        doDownload.mutate({ id: item.media.id });
+        doDownload.mutate({ id: item.media.id, name: item.media.name });
       }
     }
   }, [doDownload, items]);
@@ -178,63 +189,73 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
   return (
     <>
       <h2 className="text-xl font-light">VTs</h2>
-      <div>
-        <div className="ml-auto">
-          <Button
-            isDisabled={items.every((x) => x._state !== "no-local")}
-            onClick={doDownloadAll}
-          >
-            Download All
-          </Button>
-          <Button
-            isDisabled={doLoad.isLoading}
-            onClick={() => doLoad.mutate({ rundownID: props.rundown.id })}
-          >
-            Load All
-          </Button>
-        </div>
-      </div>
-      {doLoad.error && (
-        <div className="bg-danger-4 text-light">{doLoad.error.message}</div>
-      )}
-      <div className="space-y-2">
-        {items.map((item) => (
-          <div key={item.id} className="flex flex-row flex-wrap">
-            <span className="text-lg">{item.name}</span>
-            <div className="ml-auto">
-              {item._state === "no-media" && (
-                <span className="text-warning-4">No media!</span>
-              )}
-              {item._state === "downloading" && (
-                <span className="text-purple-4">
-                  Downloading {item._downloadProgress?.toFixed(2)}%
-                </span>
-              )}
-              {item._state === "no-local" && (
-                <Button
-                  color="primary"
-                  onClick={async () => {
-                    invariant(
-                      item.media,
-                      "no media for item in download button handler",
-                    );
-                    await doDownload.mutateAsync({ id: item.media.id });
-                    await queryClient.invalidateQueries(
-                      getQueryKey(ipc.media.getDownloadStatus),
-                    );
-                  }}
-                >
-                  Download
-                </Button>
-              )}
-              {item._state === "ready" && <span>Ready for load</span>}
-              {item._state === "loaded" && (
-                <span className="text-success-4">Good to go!</span>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
+      {doLoad.error && <Alert>{doLoad.error.message}</Alert>}
+      <Table>
+        <colgroup>
+          <col />
+          <col style={{ width: "12rem" }} />
+        </colgroup>
+        <TableBody>
+          {items.map((item) => (
+            <TableRow key={item.id}>
+              <TableCell className="text-lg">{item.name}</TableCell>
+              <TableCell>
+                {item._state === "no-media" && (
+                  <Badge variant="dark" className="w-full">
+                    No media uploaded
+                  </Badge>
+                )}
+                {item._state === "downloading" && (
+                  <Progress value={item._downloadProgress} className="w-16" />
+                )}
+                {item._state === "no-local" && (
+                  <Button
+                    color="primary"
+                    className="w-full"
+                    onClick={async () => {
+                      invariant(
+                        item.media,
+                        "no media for item in download button handler",
+                      );
+                      await doDownload.mutateAsync({ id: item.media.id });
+                      await queryClient.invalidateQueries(
+                        getQueryKey(ipc.media.getDownloadStatus),
+                      );
+                    }}
+                  >
+                    Download
+                  </Button>
+                )}
+                {item._state === "ready" && (
+                  <Badge variant="default" className="w-full">
+                    Ready for load
+                  </Badge>
+                )}
+                {item._state === "loaded" && (
+                  <Badge variant="outline" className="w-full">
+                    Good to go!
+                  </Badge>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+          <TableRow>
+            <TableCell />
+            <TableCell>
+              <Button
+                disabled={doLoad.isLoading}
+                onClick={() => doLoad.mutate({ rundownID: props.rundown.id })}
+                className="w-full"
+                color={
+                  items.some((x) => x._state === "ready") ? "primary" : "ghost"
+                }
+              >
+                Load All
+              </Button>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
     </>
   );
 }
@@ -357,82 +378,90 @@ function RundownAssets(props: {
   return (
     <>
       <h2 className="text-xl font-light">Assets</h2>
-      <div>
-        <div className="flex flex-row ml-auto">
-          <Button
-            onClick={() => {
-              invariant(assets, "no assets");
-              assets
-                .filter((x) => x._state === "no-local")
-                .forEach((a) => doDownload.mutate({ id: a.media!.id }));
-            }}
-          >
-            Download All
-          </Button>
-          <Button
-            onClick={() => {
-              invariant(assets, "no assets");
-              doLoad.mutate({
-                rundownID: props.rundown.id,
-                assetIDs: assets
-                  .filter((x) => x._state === "ready")
-                  .map((x) => x.id),
-              });
-            }}
-          >
-            Load All
-          </Button>
-        </div>
-      </div>
-      <div className="space-y-2">
-        {assets?.map((asset) => (
-          <div key={asset.id} className="flex flex-row flex-wrap">
-            <span className="text-lg">{asset.name}</span>
-            <div className="ml-auto">
-              {asset._state === "no-media" && (
-                <span className="text-warning-4">No media!</span>
-              )}
-              {asset._state === "downloading" && (
-                <span className="text-purple-4">
-                  Downloading {asset._downloadProgress?.toFixed(2)}%
-                </span>
-              )}
-              {asset._state === "no-local" && (
-                <Button
-                  color="primary"
-                  onClick={async () => {
-                    invariant(
-                      asset.media,
-                      "no media for asset in download button handler",
-                    );
-                    await doDownload.mutateAsync({ id: asset.media.id });
-                    await queryClient.invalidateQueries(
-                      getQueryKey(ipc.media.getDownloadStatus),
-                    );
-                  }}
-                >
-                  Download
-                </Button>
-              )}
-              {asset._state === "ready" && (
-                <Button
-                  onClick={() =>
-                    doLoad.mutate({
-                      rundownID: props.rundown.id,
-                      assetIDs: [asset.id],
-                    })
-                  }
-                >
-                  Load
-                </Button>
-              )}
-              {asset._state === "loaded" && (
-                <span className="text-success-4">Good to go!</span>
-              )}
-            </div>
-          </div>
-        )) ?? <div>Loading...</div>}
-      </div>
+      <Table className="space-y-2">
+        <colgroup>
+          <col />
+          <col style={{ width: "12rem" }} />
+        </colgroup>
+        <TableBody>
+          {assets?.map((asset) => (
+            <TableRow key={asset.id}>
+              <TableCell className="text-lg align-middle h-full">
+                {asset.name}
+              </TableCell>
+              <TableCell className="flex justify-center flex-col">
+                {asset._state === "no-media" && (
+                  <span className="text-warning-4">No media!</span>
+                )}
+                {asset._state === "downloading" && (
+                  <Progress value={asset._downloadProgress} />
+                )}
+                {asset._state === "no-local" && (
+                  <Button
+                    color="primary"
+                    onClick={async () => {
+                      invariant(
+                        asset.media,
+                        "no media for asset in download button handler",
+                      );
+                      await doDownload.mutateAsync({
+                        id: asset.media.id,
+                        name: asset.media.name,
+                      });
+                      await queryClient.invalidateQueries(
+                        getQueryKey(ipc.media.getDownloadStatus),
+                      );
+                    }}
+                    className="w-full"
+                  >
+                    Download
+                  </Button>
+                )}
+                {asset._state === "ready" && (
+                  <Button
+                    onClick={() =>
+                      doLoad.mutate({
+                        rundownID: props.rundown.id,
+                        assetIDs: [asset.id],
+                      })
+                    }
+                    color="primary"
+                    className="w-full"
+                  >
+                    Load
+                  </Button>
+                )}
+                {asset._state === "loaded" && (
+                  <Badge variant="outline">Good to go!</Badge>
+                )}
+              </TableCell>
+            </TableRow>
+          )) ?? <div>Loading...</div>}
+          <TableRow>
+            <TableCell />
+            <TableCell className="flex justify-center flex-col">
+              <Button
+                color={
+                  assets?.some((x) => x._state === "ready")
+                    ? "primary"
+                    : "ghost"
+                }
+                onClick={() => {
+                  invariant(assets, "no assets");
+                  doLoad.mutate({
+                    rundownID: props.rundown.id,
+                    assetIDs: assets
+                      .filter((x) => x._state === "ready")
+                      .map((x) => x.id),
+                  });
+                }}
+              >
+                Load All
+              </Button>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
     </>
   );
 }
@@ -447,15 +476,15 @@ function Rundown(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
   );
 }
 
-export default function VMixScreen() {
-  const show = ipc.getSelectedShow.useQuery().data!;
+export default function VMixScreen(props: {
+  rundown: z.infer<typeof CompleteRundownModel>;
+}) {
   const connectionState = ipc.vmix.getConnectionState.useQuery();
-  const [activeRundownID, setActiveRundownID] = useState<number | null>(null);
 
   if (connectionState.isLoading) {
     return <div>Please wait...</div>;
   }
-  if (connectionState.error) {
+  if (connectionState.isError) {
     return (
       <div>
         <h2>Something went wrong inside Bowser</h2>
@@ -464,41 +493,12 @@ export default function VMixScreen() {
     );
   }
   if (!connectionState.data.connected) {
-    return <VMixConnection />;
+    return (
+      <Alert variant="danger">
+        Not connected to vMix. Please ensure vMix is running and the TCP API is
+        enabled.
+      </Alert>
+    );
   }
-  return (
-    <div className="mt-2">
-      {activeRundownID ? (
-        <>
-          <Button
-            size="small"
-            color="light"
-            onClick={() => setActiveRundownID(null)}
-          >
-            Change Rundown
-          </Button>
-          <Rundown
-            rundown={show.rundowns.find((x) => x.id === activeRundownID)!}
-          />
-        </>
-      ) : (
-        <div className="space-y-2">
-          {show.rundowns.map((rundown) => (
-            <div key={rundown.id} className="flex flex-row flex-wrap">
-              <span className="text-lg font-bold">{rundown.name}</span>
-              <div className="ml-auto">
-                <Button onClick={() => setActiveRundownID(rundown.id)}>
-                  Select
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-      <small className="absolute bottom-0">
-        Connected to vMix {connectionState.data.edition} version{" "}
-        {connectionState.data.version}
-      </small>
-    </div>
-  );
+  return <Rundown rundown={props.rundown} />;
 }

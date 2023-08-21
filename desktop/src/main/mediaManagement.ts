@@ -17,6 +17,7 @@ export async function getMediaPath(): Promise<string> {
     case "win32":
       return "C:\\bowser_media";
     case "darwin":
+      return `${os.userInfo().homedir}/Movies/Bowser Media`;
     case "linux":
       return `${os.userInfo().homedir}/Videos/Bowser Media`;
     default:
@@ -127,11 +128,14 @@ async function doDownloadMedia() {
   }
 }
 
-export function downloadMedia(mediaID: number) {
+export function downloadMedia(mediaID: number, name?: string) {
   downloadQueue.push({ mediaID });
   downloadStatus.set(mediaID, {
     mediaID,
-    name: "Unknown",
+    // NB: This is technically untrusted data, as it's passed in from the renderer. However,
+    // this is safe, as this is only used for display purposes - the actual file name is determined
+    // (and this is overwritten) in doDownloadMedia after doing a server API fetch.
+    name: name ?? "Unknown",
     status: "pending",
   });
   process.nextTick(doDownloadMedia);

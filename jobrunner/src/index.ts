@@ -132,7 +132,7 @@ function doWritePidFile(path: string) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-if (require.main === module || (import.meta as any).main) {
+if (require.main === module) {
   (async function () {
     const args = parseArgs({
       options: {

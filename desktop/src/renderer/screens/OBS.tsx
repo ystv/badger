@@ -1,18 +1,42 @@
 import { ipc } from "../ipc";
 import { useForm } from "react-hook-form";
-import Button from "../components/Button";
+import { Button } from "@bowser/components/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import * as AlertDialog from "@radix-ui/react-alert-dialog";
+import { Alert } from "@bowser/components/alert";
+import { Progress } from "@bowser/components/progress";
+import { Badge } from "@bowser/components/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+} from "@bowser/components/alert-dialog";
+import {
+  Table,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@bowser/components/table";
 
 import { CompleteContinuityItemModel } from "@bowser/prisma/utilityTypes";
 import { z } from "zod";
 import invariant from "../../common/invariant";
+import { Label } from "@bowser/components/label";
+import { Input } from "@bowser/components/input";
 
-function OBSConnection() {
+export function OBSSettings() {
   const queryClient = useQueryClient();
-  const connect = ipc.obs.connect.useMutation();
+  const state = ipc.obs.getConnectionState.useQuery();
+  const connect = ipc.obs.connect.useMutation({
+    async onSettled() {
+      await queryClient.invalidateQueries(
+        getQueryKey(ipc.obs.getConnectionState),
+      );
+    },
+  });
   const { register, handleSubmit } = useForm({
     defaultValues: {
       host: "localhost",
@@ -23,7 +47,6 @@ function OBSConnection() {
   const [error, setError] = useState<string | null>(null);
   return (
     <div>
-      <h2>Connect to OBS</h2>
       <form
         className="space-y-2"
         onSubmit={handleSubmit(async (data) => {
@@ -37,34 +60,43 @@ function OBSConnection() {
           }
         })}
       >
-        <label className="block">
-          OBS Host
-          <input
+        <div>
+          <Label htmlFor="obsHost">OBS Host</Label>
+          <Input
+            id="obsHost"
             type="text"
             {...register("host")}
             className="border-2 mx-4 my-2 p-1"
           />
-        </label>
-        <label className="block">
-          OBS WebSocket Port
+        </div>
+        <div>
+          <Label htmlFor="obsPort">OBS WebSocket Port</Label>
           <input
+            id="obsPort"
             type="number"
             {...register("port")}
             className="border-2 mx-4 my-2 p-1"
           />
-        </label>
-        <label className="block">
-          OBS WebSocket Password
+        </div>
+        <div>
+          <Label htmlFor="obsPassword">OBS WebSocket Password</Label>
           <input
+            id="obsPassword"
             type="text"
             {...register("password", { required: true })}
             className="border-2 mx-4 my-2 p-1"
           />
-        </label>
+        </div>
         <Button type="submit" color="primary">
           Connect
         </Button>
-        {error && <div className="bg-danger-4 text-light">{error}</div>}
+        {state.data?.connected && (
+          <Alert>
+            Successfully connected to OBS version {state.data.version} on{" "}
+            {state.data.platform}
+          </Alert>
+        )}
+        {error && <Alert variant="danger">{error}</Alert>}
       </form>
     </div>
   );
@@ -75,7 +107,6 @@ function AddToOBS({
 }: {
   item: z.infer<typeof CompleteContinuityItemModel>;
 }) {
-  invariant(item.media, "AddToOBS rendered with no media");
   const queryClient = useQueryClient();
   const addToOBS = ipc.obs.addMediaAsScene.useMutation();
   const localMedia = ipc.media.getLocalMedia.useQuery(void 0);
@@ -162,42 +193,59 @@ function AddToOBS({
   let contents;
   switch (state) {
     case "no-media":
-      contents = <em>Media missing</em>;
+      contents = <Badge variant="dark">No media uploaded</Badge>;
       break;
     case "loading":
-      contents = <em>Please wait just one sec...</em>;
+      contents = <Badge variant="dark">Please wait, checking status...</Badge>;
       break;
     case "media-processing":
-      contents = <em className="text-purple-4">Media processing...</em>;
+      contents = <Badge variant="purple">Media processing on server...</Badge>;
       break;
     case "downloading":
       contents = (
         <div>
-          <em>Downloading...</em>
-          <progress value={ourDownloadStatus?.progressPercent ?? 0} max={100} />
+          <Progress
+            value={ourDownloadStatus?.progressPercent}
+            className="w-16"
+          />
         </div>
       );
       break;
     case "needs-download":
       contents = (
         <Button
+          color="primary"
           disabled={downloadMedia.isLoading}
-          onClick={() => downloadMedia.mutate({ id: item.media!.id })}
+          onClick={() =>
+            downloadMedia.mutate({ id: item.media!.id, name: item.media!.name })
+          }
+          className="h-full"
         >
           Download
         </Button>
       );
       break;
     case "needs-add":
-      contents = <Button onClick={() => doAdd()}>Add to OBS</Button>;
+      contents = (
+        <Button color="primary" onClick={() => doAdd()} className="h-full">
+          Add to OBS
+        </Button>
+      );
       break;
     case "needs-replace-download":
       contents = (
         <>
-          <em className="text-warning-4 mr-1">Changed, needs replacement</em>
+          <Badge variant="warning">Needs replacement</Badge>
           <Button
+            color="primary"
             disabled={downloadMedia.isLoading}
-            onClick={() => downloadMedia.mutate({ id: item.media!.id })}
+            onClick={() =>
+              downloadMedia.mutate({
+                id: item.media!.id,
+                name: item.media!.name,
+              })
+            }
+            className="h-full"
           >
             Download
           </Button>
@@ -207,15 +255,16 @@ function AddToOBS({
     case "needs-replace":
       contents = (
         <>
-          <em className="text-warning-4 mr-1">Changed, needs replacement</em>
-          <Button onClick={() => doAdd("replace")}>Replace</Button>
+          <Badge variant="warning">Needs replacement</Badge>
+          <Button onClick={() => doAdd("replace")} className="h-full">
+            Replace
+          </Button>
         </>
       );
       break;
     case "needs-force":
       contents = (
         <>
-          <em className="text-warning-4 mr-1">Manual OBS changes detected</em>
           <Button
             onClick={() =>
               setAlert({
@@ -225,22 +274,23 @@ function AddToOBS({
                 prompt: "force",
               })
             }
+            color="danger"
           >
-            Override
+            Override manual OBS changes
           </Button>
         </>
       );
       break;
     case "ok":
-      contents = <em className="text-success-4 mr-1">Good to go!</em>;
+      contents = <Badge variant="outline">Good to go!</Badge>;
       break;
     default:
       invariant(false, "Unhandled state: " + state);
   }
   return (
-    <>
+    <div className="flex justify-center flex-col">
       {contents}
-      <AlertDialog.Root
+      <AlertDialog
         open={alert !== null}
         onOpenChange={(open) => {
           if (!open) {
@@ -248,46 +298,44 @@ function AddToOBS({
           }
         }}
       >
-        <AlertDialog.Portal>
-          <AlertDialog.Overlay className="fixed w-full h-full top-0 left-0 bg-dark/60" />
-          <AlertDialog.Content className="absolute bg-light mx-auto p-8 rounded-md">
-            {alert && (
-              <>
-                <AlertDialog.Content className="my-2">
-                  {alert.warnings.length > 0 && (
-                    <ul>
-                      {alert.warnings.map((warning) => (
-                        <li key={warning}>{warning}</li>
-                      ))}
-                    </ul>
-                  )}
-                </AlertDialog.Content>
-                <AlertDialog.Cancel asChild>
-                  <Button color="light">Cancel</Button>
-                </AlertDialog.Cancel>
-                {alert.prompt === "ok" ? (
-                  <AlertDialog.Action asChild>
-                    <Button>Confirm</Button>
-                  </AlertDialog.Action>
-                ) : (
-                  <AlertDialog.Action asChild>
-                    <Button
-                      color={alert.prompt === "force" ? "danger" : "warning"}
-                      onClick={async () => {
-                        await doAdd(alert.prompt as "replace" | "force");
-                        setAlert(null);
-                      }}
-                    >
-                      {alert.prompt === "force" ? "Force Replace" : "Replace"}
-                    </Button>
-                  </AlertDialog.Action>
-                )}
-              </>
+        {alert && (
+          <AlertDialogContent>
+            {alert.warnings.length > 0 && (
+              <ul>
+                {alert.warnings.map((warning) => (
+                  <li key={warning}>{warning}</li>
+                ))}
+              </ul>
             )}
-          </AlertDialog.Content>
-        </AlertDialog.Portal>
-      </AlertDialog.Root>
-    </>
+            <AlertDialogFooter className="flex items-center">
+              <AlertDialogCancel asChild>
+                <Button color="light" className="h-full my-0">
+                  Cancel
+                </Button>
+              </AlertDialogCancel>
+              {alert.prompt === "ok" ? (
+                <AlertDialogAction asChild>
+                  <Button className="h-full my-0">Confirm</Button>
+                </AlertDialogAction>
+              ) : (
+                <AlertDialogAction asChild>
+                  <Button
+                    color={alert.prompt === "force" ? "danger" : "warning"}
+                    onClick={async () => {
+                      await doAdd(alert.prompt as "replace" | "force");
+                      setAlert(null);
+                    }}
+                    className="h-full my-0"
+                  >
+                    {alert.prompt === "force" ? "Force Replace" : "Replace"}
+                  </Button>
+                </AlertDialogAction>
+              )}
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        )}
+      </AlertDialog>
+    </div>
   );
 }
 
@@ -297,18 +345,29 @@ function ContinuityItem({
   item: z.infer<typeof CompleteContinuityItemModel>;
 }) {
   return (
-    <div className="flex flex-row flex-wrap">
-      <span className="text-lg font-bold">{item.name}</span>
-      <div className="ml-auto">
+    <TableRow>
+      <TableCell className="text-lg font-bold align-middle h-full flex items-center">
+        {item.name}
+      </TableCell>
+      <TableCell>
         <AddToOBS item={item} />
-      </div>
-    </div>
+      </TableCell>
+    </TableRow>
   );
 }
 
 export default function OBSScreen() {
+  const queryClient = useQueryClient();
   const show = ipc.getSelectedShow.useQuery(undefined).data!;
   const connectionState = ipc.obs.getConnectionState.useQuery();
+
+  const addAll = ipc.obs.addAllSelectedShowMedia.useMutation({
+    async onSuccess() {
+      await queryClient.invalidateQueries(
+        getQueryKey(ipc.obs.listContinuityItemScenes),
+      );
+    },
+  });
 
   if (connectionState.isLoading) {
     return <div>Please wait...</div>;
@@ -323,27 +382,66 @@ export default function OBSScreen() {
   }
   if (!connectionState.data.connected) {
     return (
-      <div>
-        <OBSConnection />
-        {connectionState.data.error && (
-          <div className="bg-danger-4 text-light">
-            {connectionState.data.error}
-          </div>
-        )}
-      </div>
+      <Alert variant="warning">
+        Not connected to OBS. Please ensure that OBS is open and check the
+        Bowser settings.
+      </Alert>
     );
   }
   return (
     <div>
-      <h1 className="text-3xl">Continuity</h1>
-      <div className="space-y-2">
-        {show.continuityItems.map((item) => (
-          <ContinuityItem item={item} key={item.id} />
-        ))}
-      </div>
-      <small className="absolute bottom-0">
-        Connected to OBS version {connectionState.data.version}
-      </small>
+      <Table>
+        <colgroup>
+          <col />
+          <col style={{ width: "12rem" }} />
+        </colgroup>
+        <TableBody>
+          {show.continuityItems.map((item) => (
+            <ContinuityItem item={item} key={item.id} />
+          ))}
+          <TableRow>
+            <TableCell />
+            <TableCell>
+              <Button
+                className="w-full"
+                color="light"
+                onClick={() => addAll.mutate()}
+              >
+                Add All
+              </Button>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+      <AlertDialog
+        open={addAll.isSuccess || addAll.isError}
+        onOpenChange={() => addAll.reset()}
+      >
+        <AlertDialogContent>
+          {addAll.error ? (
+            <p>{addAll.error.message}</p>
+          ) : addAll.data ? (
+            <>
+              <p>
+                Added {addAll.data.done}{" "}
+                {addAll.data.done === 1 ? "item" : "items"} to OBS
+              </p>
+              {addAll.data.warnings.length > 0 && (
+                <ul>
+                  {addAll.data.warnings.map((warning) => (
+                    <li key={warning}>{warning}</li>
+                  ))}
+                </ul>
+              )}
+            </>
+          ) : null}
+          <AlertDialogFooter>
+            <AlertDialogAction asChild>
+              <Button>Ok</Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

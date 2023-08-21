@@ -6,14 +6,15 @@ import {
 } from "./obs";
 import { getLocalMediaSettings, LocalMediaType } from "./settings";
 import invariant from "../common/invariant";
-import { inferProcedureOutput } from "@trpc/server";
-import type { AppRouter } from "bowser-server/app/api/_router";
+import type { Media, ContinuityItem } from "@bowser/prisma/client";
 
 /*
  * This file contains helper functions that wrap obsConnection in obs.ts.
  */
 
-export type MediaType = inferProcedureOutput<AppRouter["media"]["get"]>;
+export type MediaType = Media & {
+  continuityItem: ContinuityItem;
+};
 
 const MEDIA_SOURCE_PREFIX = "Bowser Media ";
 export const CONTINUITY_SCENE_NAME_REGEXP = /^\d+ - .+? \[#(\d+)]$/;
