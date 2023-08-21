@@ -21,8 +21,11 @@ import {
   getAssetsSettings,
   getDevToolsConfig,
   getLocalMediaSettings,
+  getOntimeSettings,
   LocalMediaSettingsSchema,
+  ontimeSettingsSchema,
   saveDevToolsConfig,
+  saveOntimeSettings,
 } from "./settings";
 import {
   addOrReplaceMediaAsScene,
@@ -33,6 +36,12 @@ import { createVMixConnection, getVMixConnection } from "./vmix";
 import { loadAssets, reconcileList } from "./vmixHelpers";
 import { VMIX_NAMES } from "../common/constants";
 import { IPCEvents } from "./ipcEventBus";
+import {
+  createOntimeConnection,
+  getOntimeInstance,
+  isOntimeConnected,
+} from "./ontime";
+import { showToOntimeEvents } from "./ontimeHelpers";
 
 function serverAPI() {
   invariant(serverApiClient !== null, "serverApiClient is null");
@@ -78,9 +87,9 @@ export const appRouter = r({
   supportedIntegrations: proc.output(z.array(Integration)).query(() => {
     // TODO: this is a fairly rudimentary check
     if (process.platform === "win32") {
-      return ["vmix", "obs"];
+      return ["vmix", "obs", "ontime"];
     }
-    return ["obs"];
+    return ["obs", "ontime"];
   }),
   devtools: r({
     getSettings: proc
@@ -382,6 +391,70 @@ export const appRouter = r({
     getSettings: proc
       .output(assetsSettingsSchema)
       .query(() => getAssetsSettings()),
+  }),
+  ontime: r({
+    getSettings: proc
+      .output(ontimeSettingsSchema.nullable())
+      .query(async () => {
+        return getOntimeSettings();
+      }),
+    getConnectionStatus: proc
+      .output(z.object({ host: z.string() }).nullable())
+      .query(async () => {
+        if (!isOntimeConnected()) {
+          return null;
+        }
+        return { host: getOntimeInstance().host };
+      }),
+    connect: proc
+      .input(ontimeSettingsSchema)
+      .output(z.boolean())
+      .mutation(async ({ input }) => {
+        await createOntimeConnection(input.host);
+        await saveOntimeSettings(input);
+        return true;
+      }),
+    pushEvents: proc
+      .input(
+        z.object({
+          rundownId: z.number().optional(),
+          replacementMode: z.enum(["force"]).optional(),
+        }),
+      )
+      .output(
+        z.object({
+          done: z.boolean(),
+        }),
+      )
+      .mutation(async ({ input }) => {
+        const show = selectedShow.value;
+        invariant(show, "No show selected");
+        const events = showToOntimeEvents(show, input.rundownId);
+        console.log("Ready for Ontime push");
+        console.dir(events);
+
+        const current = await getOntimeInstance().getEvents();
+        if (input.replacementMode === "force" || current.length === 0) {
+          const ontime = await getOntimeInstance();
+          await ontime.deleteAllEvents();
+          // Not in a Promise.all to ensure they're done in order
+          // NB: A new event is added to the *top* of the rundown in Ontime, so we need to add them in reverse order
+          for (const event of events.reverse()) {
+            await ontime.createEvent(event);
+          }
+          return { done: true };
+        }
+
+        if (current.length !== events.length) {
+          return { done: false };
+        }
+        for (let i = 0; i < current.length; i++) {
+          if (events[i] && current[i].title !== events[i].title) {
+            return { done: false };
+          }
+        }
+        return { done: true };
+      }),
   }),
 });
 export type AppRouter = typeof appRouter;

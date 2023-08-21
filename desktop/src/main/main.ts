@@ -12,6 +12,7 @@ import logging, { LogLevelNames } from "loglevel";
 import prefix from "loglevel-plugin-prefix";
 import { tryCreateVMixConnection } from "./vmix";
 import Icon from "../icon/png/64x64.png";
+import { tryCreateOntimeConnection } from "./ontime";
 logging.setLevel(
   (process.env.LOG_LEVEL as LogLevelNames) ?? logging.levels.DEBUG,
 );
@@ -32,12 +33,15 @@ if (isSquirrel) {
 }
 
 const createWindow = async () => {
-  await validateLocalMediaState();
-  await tryCreateAPIClient();
-  await tryCreateOBSConnection(); // TODO: check if OBS is even installed
-  if (process.platform === "win32") {
-    await tryCreateVMixConnection();
-  }
+  await Promise.all([
+    validateLocalMediaState(),
+    tryCreateAPIClient(),
+    tryCreateOBSConnection(),
+    process.platform === "win32"
+      ? tryCreateVMixConnection()
+      : Promise.resolve(),
+    tryCreateOntimeConnection(),
+  ]);
 
   // Create the browser window.
   const mainWindow = new BrowserWindow({

@@ -37,6 +37,7 @@ import {
   TableCell,
   TableRow,
 } from "@bowser/components/table";
+import { OntimePush } from "./screens/Ontime";
 
 function DownloadTrackerPopup() {
   const downloadStatus = ipc.media.getDownloadStatus.useQuery(void 0, {
@@ -96,6 +97,9 @@ export default function MainScreen() {
       : show.rundowns.find((rd) => rd.id === selectedRundown)?.name;
   invariant(selectedName, "selected non-existent rundown");
 
+  const ontimeState = ipc.ontime.getConnectionStatus.useQuery();
+  const [ontimePushOpen, setOntimePushOpen] = useState(false);
+
   return (
     <div>
       <nav className="relative top-0 left-0 w-full h-12 px-4 bg-dark text-light flex flex-nowrap items-center justify-between">
@@ -121,6 +125,12 @@ export default function MainScreen() {
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setIsChangeShowOpen(true)}>
               Change selected show
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => setOntimePushOpen(true)}
+              disabled={!ontimeState.isSuccess || ontimeState.data === null}
+            >
+              Push to Ontime
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -195,6 +205,11 @@ export default function MainScreen() {
           />
         )}
       </div>
+      <OntimePush
+        show={show}
+        dialogOpen={ontimePushOpen}
+        setDialogOpen={setOntimePushOpen}
+      />
     </div>
   );
 }

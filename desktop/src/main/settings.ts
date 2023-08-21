@@ -196,3 +196,20 @@ export async function saveDevToolsConfig(
 ): Promise<void> {
   await settings.set("devTools", val);
 }
+
+export const ontimeSettingsSchema = z.object({
+  host: z.string().url(),
+});
+export type OntimeSettings = z.infer<typeof ontimeSettingsSchema>;
+
+export async function getOntimeSettings(): Promise<OntimeSettings | null> {
+  const settingsData = await settings.get("ontime");
+  if (settingsData === undefined) {
+    return null;
+  }
+  return ontimeSettingsSchema.parse(settingsData);
+}
+
+export async function saveOntimeSettings(val: OntimeSettings): Promise<void> {
+  await settings.set("ontime", val);
+}

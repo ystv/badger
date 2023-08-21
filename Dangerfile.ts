@@ -7,7 +7,9 @@ async function findAddedAndRemovedTodoIssues() {
   const added = new Set<string>();
   const linesWithoutKey = new Set<string>();
   const fixmes = new Set<string>();
-  for (const file of danger.git.modified_files) {
+  for (const file of danger.git.modified_files.concat(
+    ...danger.git.created_files,
+  )) {
     const delta = await danger.git.structuredDiffForFile(file);
     if (!delta) {
       continue;

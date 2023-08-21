@@ -23,6 +23,9 @@ export const PartialMediaModel = MediaSchema.extend({});
 export const CompleteContinuityItemModel = ContinuityItemSchema.extend({
   media: PartialMediaModel.nullable(),
 });
+export type CompleteContinuityItemModel = z.infer<
+  typeof CompleteContinuityItemModel
+>;
 export const CompleteRundownItemSchema = RundownItemSchema.extend({
   media: PartialMediaModel.nullable(),
 });
@@ -33,6 +36,7 @@ export const CompleteRundownModel = RundownSchema.extend({
   items: z.array(CompleteRundownItemSchema),
   assets: z.array(CompleteAssetSchema),
 });
+export type CompleteRundownType = z.infer<typeof CompleteRundownModel>;
 export const CompleteShowModel = ShowSchema.extend({
   continuityItems: z.array(CompleteContinuityItemModel),
   rundowns: z.array(CompleteRundownModel),

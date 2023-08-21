@@ -14,5 +14,5 @@ export type ServerConnectionStatus = ServerConnection | { connected: false };
 export type PartialShowType = z.infer<typeof PartialShowModel>;
 export type CompleteShowType = z.infer<typeof CompleteShowModel>;
 
-export const Integration = z.enum(["vmix", "obs"]);
+export const Integration = z.enum(["vmix", "obs", "ontime"]);
 export type Integration = z.infer<typeof Integration>;

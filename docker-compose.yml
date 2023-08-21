@@ -54,6 +54,14 @@ services:
       AWS_REGION: us-east-1
     command: ['-s3-bucket=uploads', '-s3-endpoint=http://minio:9000', '-s3-object-prefix=/uploads', '-port=1080']
 
+  ontime:
+    image: getontime/ontime:v2.3.9
+    ports:
+      - '4001:4001'
+    volumes:
+      - ontime_data:/server/preloaded-db
+
 volumes:
   postgres_data: {}
   minio_data: {}
+  ontime_data: {}
