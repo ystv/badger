@@ -86,7 +86,7 @@ export default function MainScreen() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const [selectedRundown, setSelectedRundown] = useState<"continuity" | number>(
-    "continuity",
+    integrations.includes("obs") ? "continuity" : show.rundowns[0].id,
   );
   const selectedName =
     selectedRundown === "continuity"

@@ -14,6 +14,8 @@ import { ListInput } from "../../main/vmixTypes";
 import invariant from "../../common/invariant";
 import { Alert } from "@bowser/components/alert";
 import { Progress } from "@bowser/components/progress";
+import { Table, TableBody, TableCell, TableRow } from "@bowser/components/table";
+import { Badge } from "@bowser/components/badge";
 
 function VMixConnection() {
   const tryConnect = ipc.vmix.tryConnect.useMutation();
@@ -180,63 +182,67 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
   return (
     <>
       <h2 className="text-xl font-light">VTs</h2>
-      <div>
-        <div className="ml-auto">
-          <Button
-            disabled={items.every((x) => x._state !== "no-local")}
-            onClick={doDownloadAll}
-          >
-            Download All
-          </Button>
-          <Button
+      {doLoad.error && (
+        <Alert>{doLoad.error.message}</Alert>
+      )}
+      <Table>
+      <colgroup>
+          <col />
+          <col style={{ width: "12rem" }} />
+        </colgroup>
+        <TableBody>
+          {items.map((item) => (
+            <TableRow key={item.id}>
+              <TableCell className="text-lg">{item.name}</TableCell>
+              <TableCell>
+                {item._state === "no-media" && (
+                  <Badge variant="dark" className="w-full">No media uploaded</Badge>
+                )}
+                {item._state === "downloading" && (
+                  <Progress
+                  value={item._downloadProgress}
+                  className="w-16"
+                />
+                )}
+                {item._state === "no-local" && (
+                  <Button
+                    color="primary"
+                    className="w-full"
+                    onClick={async () => {
+                      invariant(
+                        item.media,
+                        "no media for item in download button handler",
+                      );
+                      await doDownload.mutateAsync({ id: item.media.id });
+                      await queryClient.invalidateQueries(
+                        getQueryKey(ipc.media.getDownloadStatus),
+                      );
+                    }}
+                  >
+                    Download
+                  </Button>
+                )}
+                {item._state === "ready" && <Badge variant="default" className="w-full">Ready for load</Badge>}
+                {item._state === "loaded" && (
+                  <Badge variant="outline" className="w-full">Good to go!</Badge>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+          <TableRow>
+            <TableCell />
+            <TableCell>
+            <Button
             disabled={doLoad.isLoading}
             onClick={() => doLoad.mutate({ rundownID: props.rundown.id })}
+            className="w-full"
           >
             Load All
           </Button>
-        </div>
-      </div>
-      {doLoad.error && (
-        <div className="bg-danger-4 text-light">{doLoad.error.message}</div>
-      )}
-      <div className="space-y-2">
-        {items.map((item) => (
-          <div key={item.id} className="flex flex-row flex-wrap">
-            <span className="text-lg">{item.name}</span>
-            <div className="ml-auto">
-              {item._state === "no-media" && (
-                <span className="text-warning-4">No media!</span>
-              )}
-              {item._state === "downloading" && (
-                <span className="text-purple-4">
-                  Downloading {item._downloadProgress?.toFixed(2)}%
-                </span>
-              )}
-              {item._state === "no-local" && (
-                <Button
-                  color="primary"
-                  onClick={async () => {
-                    invariant(
-                      item.media,
-                      "no media for item in download button handler",
-                    );
-                    await doDownload.mutateAsync({ id: item.media.id });
-                    await queryClient.invalidateQueries(
-                      getQueryKey(ipc.media.getDownloadStatus),
-                    );
-                  }}
-                >
-                  Download
-                </Button>
-              )}
-              {item._state === "ready" && <span>Ready for load</span>}
-              {item._state === "loaded" && (
-                <span className="text-success-4">Good to go!</span>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
     </>
   );
 }
@@ -359,38 +365,16 @@ function RundownAssets(props: {
   return (
     <>
       <h2 className="text-xl font-light">Assets</h2>
-      <div>
-        <div className="flex flex-row ml-auto">
-          <Button
-            onClick={() => {
-              invariant(assets, "no assets");
-              assets
-                .filter((x) => x._state === "no-local")
-                .forEach((a) => doDownload.mutate({ id: a.media!.id }));
-            }}
-          >
-            Download All
-          </Button>
-          <Button
-            onClick={() => {
-              invariant(assets, "no assets");
-              doLoad.mutate({
-                rundownID: props.rundown.id,
-                assetIDs: assets
-                  .filter((x) => x._state === "ready")
-                  .map((x) => x.id),
-              });
-            }}
-          >
-            Load All
-          </Button>
-        </div>
-      </div>
-      <div className="space-y-2">
+      <Table className="space-y-2">
+        <colgroup>
+          <col />
+          <col style={{ width: "12rem" }} />
+        </colgroup>
+        <TableBody>
         {assets?.map((asset) => (
-          <div key={asset.id} className="flex flex-row flex-wrap">
-            <span className="text-lg">{asset.name}</span>
-            <div className="ml-auto">
+          <TableRow key={asset.id}>
+            <TableCell className="text-lg font-bold align-middle h-full">{asset.name}</TableCell>
+            <TableCell className="flex justify-center flex-col">
               {asset._state === "no-media" && (
                 <span className="text-warning-4">No media!</span>
               )}
@@ -410,6 +394,7 @@ function RundownAssets(props: {
                       getQueryKey(ipc.media.getDownloadStatus),
                     );
                   }}
+                  className="w-full"
                 >
                   Download
                 </Button>
@@ -422,17 +407,37 @@ function RundownAssets(props: {
                       assetIDs: [asset.id],
                     })
                   }
+                  className="w-full"
                 >
                   Load
                 </Button>
               )}
               {asset._state === "loaded" && (
-                <span className="text-success-4">Good to go!</span>
+                <Badge variant="outline">Good to go!</Badge>
               )}
-            </div>
-          </div>
+            </TableCell>
+          </TableRow>
         )) ?? <div>Loading...</div>}
-      </div>
+        <TableRow>
+          <TableCell />
+          <TableCell className="flex justify-center flex-col">
+          <Button
+            onClick={() => {
+              invariant(assets, "no assets");
+              doLoad.mutate({
+                rundownID: props.rundown.id,
+                assetIDs: assets
+                  .filter((x) => x._state === "ready")
+                  .map((x) => x.id),
+              });
+            }}
+          >
+            Load All
+          </Button>
+          </TableCell>
+        </TableRow>
+        </TableBody>
+      </Table>
     </>
   );
 }
