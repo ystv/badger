@@ -21,57 +21,59 @@ import {
   TableRow,
 } from "@bowser/components/table";
 import { Badge } from "@bowser/components/badge";
+import { Label } from "@bowser/components/label";
+import { Input } from "@bowser/components/input";
 
-function VMixConnection() {
-  const tryConnect = ipc.vmix.tryConnect.useMutation();
-  const queryClient = useQueryClient();
-
-  const [host, setHost] = useState("localhost");
-  const [port, setPort] = useState(8099);
-
-  const [error, setError] = useState<string | null>(null);
-
-  const doTryConnect = useCallback(async () => {
-    try {
-      await tryConnect.mutateAsync({ host, port });
+export function VMixConnection() {
+  const [state] = ipc.vmix.getConnectionState.useSuspenseQuery();
+  const tryConnect = ipc.vmix.tryConnect.useMutation({
+    async onSettled() {
       await queryClient.invalidateQueries(
         getQueryKey(ipc.vmix.getConnectionState),
       );
-    } catch (e) {
-      setError(String(e));
-    }
-  }, [host, port, queryClient, tryConnect]);
+    },
+  });
+  const queryClient = useQueryClient();
 
   return (
     <div>
-      <h2>Connect to vMix</h2>
       <form
         className="space-y-2"
-        onSubmit={async (e) => {
+        onSubmit={(e) => {
           e.preventDefault();
-          await doTryConnect();
+          const values = new FormData(e.currentTarget);
+          tryConnect.mutate({
+            host: values.get("host") as string,
+            port: parseInt(values.get("port") as string, 10),
+          });
         }}
       >
-        <label className="block">
-          vMix Host
-          <input
-            type="text"
-            value={host}
-            onChange={(e) => setHost(e.target.value)}
-          />
-        </label>
-        <label className="block">
-          vMix Port
-          <input
+        <div>
+          <Label htmlFor="host">vMix Host</Label>
+          <Input id="host" name="host" type="text" defaultValue={state.host} />
+        </div>
+        <div>
+          <Label htmlFor="port">vMix Port</Label>
+          <Input
+            id="port"
+            name="port"
             type="number"
-            value={port}
-            onChange={(e) => setPort(Number(e.target.value))}
+            defaultValue={state.port}
           />
-        </label>
-        <Button type="submit" color="primary">
+        </div>
+        <Button type="submit" color={state.connected ? "ghost" : "primary"}>
           Connect
         </Button>
-        {error && <div className="bg-danger-4 text-light">{error}</div>}
+        {tryConnect.error && (
+          <div className="bg-danger-4 text-light">
+            {tryConnect.error.message}
+          </div>
+        )}
+        {state.connected && (
+          <Alert>
+            Connected to vMix {state.edition} v{state.version}
+          </Alert>
+        )}
       </form>
     </div>
   );

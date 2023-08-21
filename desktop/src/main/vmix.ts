@@ -67,7 +67,10 @@ export default class VMixConnection {
     attributeNamePrefix: "@_",
     allowBooleanAttributes: true,
   });
-  private constructor() {
+  private constructor(
+    public readonly host: string,
+    public readonly port: number,
+  ) {
     this.replyAwaiting = new Map();
   }
 
@@ -84,7 +87,7 @@ export default class VMixConnection {
       });
       sock.on("error", reject);
     });
-    const vmix = new VMixConnection();
+    const vmix = new VMixConnection(host, port);
     vmix.sock = sock;
     sock.on("data", vmix.onData.bind(vmix));
     sock.on("close", vmix.onClose.bind(vmix));

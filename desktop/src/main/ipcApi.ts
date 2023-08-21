@@ -279,6 +279,8 @@ export const appRouter = r({
       .output(
         z.object({
           connected: z.boolean(),
+          host: z.string().optional(),
+          port: z.number().optional(),
           version: z.string().optional(),
           edition: z.string().optional(),
         }),
@@ -291,6 +293,8 @@ export const appRouter = r({
         const state = await conn.getFullState();
         return {
           connected: true,
+          host: conn.host,
+          port: conn.port,
           version: state.version,
           edition: state.edition,
         };

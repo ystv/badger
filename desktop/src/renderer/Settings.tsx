@@ -11,10 +11,12 @@ import {
   TabsTrigger,
   TabsContent,
 } from "@bowser/components/tabs";
+import { VMixConnection } from "./screens/vMix";
 
 export function Settings() {
   const queryClient = useQueryClient();
-  const devToolsState = ipc.devtools.getSettings.useQuery();
+  const [devToolsState] = ipc.devtools.getSettings.useSuspenseQuery();
+  const [integrations] = ipc.supportedIntegrations.useSuspenseQuery();
   const setDevToolsState = ipc.devtools.setSettings.useMutation({
     // https://tanstack.com/query/latest/docs/react/guides/optimistic-updates
     async onMutate(newSettings) {
@@ -46,32 +48,40 @@ export function Settings() {
     <Tabs defaultValue="obs">
       <TabsList className="w-full">
         <TabsTrigger value="obs">OBS</TabsTrigger>
+        {integrations.includes("vmix") && (
+          <TabsTrigger value="vmix">vMix</TabsTrigger>
+        )}
         <TabsTrigger value="advanced">Advanced</TabsTrigger>
-        {devToolsState.data?.enabled && (
+        {devToolsState.enabled && (
           <TabsTrigger value="devtools">Developer Tools</TabsTrigger>
         )}
       </TabsList>
       <TabsContent value="obs">
         <OBSSettings />
       </TabsContent>
+      {integrations.includes("vmix") && (
+        <TabsContent value="vmix">
+          <VMixConnection />
+        </TabsContent>
+      )}
       <TabsContent value="advanced">
         <h2 className="text-xl">Developer Tools</h2>
         <p>
           Do not enable unless you know what you are doing, these open you up to
           (theoretical) security vulnerabilities.
         </p>
-        {devToolsState.data && (
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="enable-devmode"
-              checked={devToolsState.data.enabled}
-              onCheckedChange={(v) => setDevToolsState.mutate({ enabled: v })}
-            />
-            <Label htmlFor="enable-devmode">Enable Developer Mode</Label>
-          </div>
-        )}
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="enable-devmode"
+            checked={devToolsState.enabled}
+            onCheckedChange={(v: boolean) =>
+              setDevToolsState.mutate({ enabled: v })
+            }
+          />
+          <Label htmlFor="enable-devmode">Enable Developer Mode</Label>
+        </div>
       </TabsContent>
-      {devToolsState.data?.enabled && (
+      {devToolsState.enabled && (
         <TabsContent value="devtools">
           <div className="max-h-[90vh] overflow-y-scroll">
             <OBSDevToolsScreen />

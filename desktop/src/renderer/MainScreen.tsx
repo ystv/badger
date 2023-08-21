@@ -26,7 +26,7 @@ import {
   IoDownloadSharp,
   IoEllipsisVertical,
 } from "react-icons/io5";
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import OBSScreen from "./screens/OBS";
 import VMixScreen from "./screens/vMix";
 import { Settings } from "./Settings";
@@ -141,7 +141,11 @@ export default function MainScreen() {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader className="text-3xl">Settings</DialogHeader>
-              {isSettingsOpen && <Settings />}
+              {isSettingsOpen && (
+                <Suspense fallback={<b>Please wait...</b>}>
+                  <Settings />
+                </Suspense>
+              )}
             </DialogContent>
           </Dialog>
         </div>
