@@ -98,9 +98,9 @@ export const appRouter = r({
       .output(z.array(DownloadStatusSchema))
       .query(() => getDownloadStatus()),
     downloadMedia: proc
-      .input(z.object({ id: z.number() }))
+      .input(z.object({ id: z.number(), name: z.string().optional() }))
       .mutation(async ({ input }) => {
-        downloadMedia(input.id);
+        downloadMedia(input.id, input.name);
       }),
     getLocalMedia: proc
       .output(LocalMediaSettingsSchema)
@@ -115,14 +115,14 @@ export const appRouter = r({
             item.media?.state === "Ready" &&
             !state.some((x) => x.mediaID === item.media?.id)
           ) {
-            downloadMedia(item.media.id);
+            downloadMedia(item.media.id, item.media.name);
           }
           for (const item of rundown.assets) {
             if (
               item.media?.state === "Ready" &&
               !state.some((x) => x.mediaID === item.media?.id)
             ) {
-              downloadMedia(item.media.id);
+              downloadMedia(item.media.id, item.media.name);
             }
           }
         }
@@ -132,7 +132,7 @@ export const appRouter = r({
           item.media?.state === "Ready" &&
           !state.some((x) => x.mediaID === item.media?.id)
         ) {
-          downloadMedia(item.media.id);
+          downloadMedia(item.media.id, item.media.name);
         }
       }
     }),

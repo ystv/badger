@@ -128,11 +128,11 @@ async function doDownloadMedia() {
   }
 }
 
-export function downloadMedia(mediaID: number) {
+export function downloadMedia(mediaID: number, name?: string) {
   downloadQueue.push({ mediaID });
   downloadStatus.set(mediaID, {
     mediaID,
-    name: "Unknown",
+    name: name ?? "Unknown",
     status: "pending",
   });
   process.nextTick(doDownloadMedia);

@@ -26,22 +26,21 @@ import {
   IoDownloadSharp,
   IoEllipsisVertical,
 } from "react-icons/io5";
-import { usePopper } from "react-popper";
 import { useMemo, useState } from "react";
 import OBSScreen from "./screens/OBS";
 import VMixScreen from "./screens/vMix";
 import { Settings } from "./Settings";
 import { SelectShowForm } from "./ConnectAndSelectShowGate";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+} from "@bowser/components/table";
 
 function DownloadTrackerPopup() {
   const downloadStatus = ipc.media.getDownloadStatus.useQuery(void 0, {
     refetchInterval: 1000,
-  });
-
-  const [refEl, setRefEl] = useState<HTMLElement | null>(null);
-  const [popoverEl, setPopoverEl] = useState<HTMLElement | null>(null);
-  const { styles, attributes } = usePopper(refEl, popoverEl, {
-    placement: "bottom-end",
   });
 
   const downloads = useMemo(
@@ -55,21 +54,24 @@ function DownloadTrackerPopup() {
 
   return (
     <Popover>
-      <PopoverTrigger ref={setRefEl}>
+      <PopoverTrigger>
         <IoDownloadSharp className="h-8 w-8" size={32} />
       </PopoverTrigger>
-      <PopoverContent
-        ref={setPopoverEl}
-        style={styles.popper}
-        {...attributes.popper}
-        className="bg-light text-dark px-2 py-4 shadow-lg"
-      >
-        {downloads.map((download) => (
-          <div key={download.mediaID}>
-            <strong>{download.name}</strong>: {download.status},{" "}
-            {download.progressPercent?.toFixed(1)}%
-          </div>
-        ))}
+      <PopoverContent className="bg-light text-dark px-2 py-4 shadow-lg">
+        <Table>
+          <TableBody>
+            {downloads.map((download) => (
+              <TableRow key={download.mediaID}>
+                <TableCell>{download.name}</TableCell>
+                <TableCell>
+                  {download.status[0].toUpperCase() + download.status.slice(1)}
+                  {download.progressPercent &&
+                    `, ${download.progressPercent.toFixed(1)}%`}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </PopoverContent>
     </Popover>
   );

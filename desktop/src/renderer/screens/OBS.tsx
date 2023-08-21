@@ -216,7 +216,9 @@ function AddToOBS({
         <Button
           color="primary"
           disabled={downloadMedia.isLoading}
-          onClick={() => downloadMedia.mutate({ id: item.media!.id })}
+          onClick={() =>
+            downloadMedia.mutate({ id: item.media!.id, name: item.media!.name })
+          }
           className="h-full"
         >
           Download
@@ -237,7 +239,12 @@ function AddToOBS({
           <Button
             color="primary"
             disabled={downloadMedia.isLoading}
-            onClick={() => downloadMedia.mutate({ id: item.media!.id })}
+            onClick={() =>
+              downloadMedia.mutate({
+                id: item.media!.id,
+                name: item.media!.name,
+              })
+            }
             className="h-full"
           >
             Download

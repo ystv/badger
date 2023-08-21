@@ -179,7 +179,7 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
   const doDownloadAll = useCallback(() => {
     for (const item of items) {
       if (item._state === "no-local" && item.media) {
-        doDownload.mutate({ id: item.media.id });
+        doDownload.mutate({ id: item.media.id, name: item.media.name });
       }
     }
   }, [doDownload, items]);
@@ -402,7 +402,10 @@ function RundownAssets(props: {
                         asset.media,
                         "no media for asset in download button handler",
                       );
-                      await doDownload.mutateAsync({ id: asset.media.id });
+                      await doDownload.mutateAsync({
+                        id: asset.media.id,
+                        name: asset.media.name,
+                      });
                       await queryClient.invalidateQueries(
                         getQueryKey(ipc.media.getDownloadStatus),
                       );
