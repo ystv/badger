@@ -1,7 +1,13 @@
 /** @type {import("@electron-forge/shared-types/dist/index").ForgeConfig} */
 module.exports = {
   packagerConfig: {
-    icon: "./src/icon",
+    icon: `./src/icon/${
+      process.platform === "win32"
+        ? "win/icon"
+        : process.platform === "darwin"
+        ? "mac/icon"
+        : "png/64x64.png"
+    }`,
     prune: true,
   },
   rebuildConfig: {},
@@ -18,7 +24,7 @@ module.exports = {
       config: {
         manufacturer: "YSTV",
         upgradeCode: "f54b983c-0fbb-4f7c-983d-6682a973c28f",
-        icon: "./src/icon/win/icon.ico"
+        icon: "./src/icon/win/icon.ico",
       },
     },
     {
