@@ -117,6 +117,14 @@ export const appRouter = r({
           ) {
             downloadMedia(item.media.id);
           }
+          for (const item of rundown.assets) {
+            if (
+              item.media?.state === "Ready" &&
+              !state.some((x) => x.mediaID === item.media?.id)
+            ) {
+              downloadMedia(item.media.id);
+            }
+          }
         }
       }
       for (const item of show.continuityItems) {
