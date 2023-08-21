@@ -22,6 +22,13 @@ export default function RootLayout({
           value={cookies().get(DEBUG_MODE_COOKIE)?.value === "true"}
         >
           <main className="max-w-3xl mx-auto">{children}</main>
+          <footer className="max-w-3xl mx-auto">
+            <hr />
+            <span className="text-sm text-gray-500">
+              Bowser Server v{process.env.VERSION} build {process.env.BUILD} (
+              {process.env.COMMIT}). Created in 2023 by the YSTV Computing Team.
+            </span>
+          </footer>
         </DebugModeProvider>
       </body>
     </html>

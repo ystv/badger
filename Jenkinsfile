@@ -30,12 +30,12 @@ pipeline {
             parallel {
                 stage('Server') {
                     steps {
-                        sh "docker build --build-arg GIT_REV=${env.GIT_COMMIT} -t registry.comp.ystv.co.uk/ystv/bowser/server:${imageNamePrefix}${env.BUILD_NUMBER} -f Dockerfile.server ."
+                        sh "docker build --build-arg GIT_COMMIT=${env.GIT_COMMIT} --build-arg BUILD_ID=${env.BUILD_ID} -t registry.comp.ystv.co.uk/ystv/bowser/server:${imageNamePrefix}${env.BUILD_NUMBER} -f Dockerfile.server ."
                     }
                 }
                 stage('Jobrunner') {
                     steps {
-                        sh "docker build --build-arg GIT_REV=${env.GIT_COMMIT} -t registry.comp.ystv.co.uk/ystv/bowser/jobrunner:${imageNamePrefix}${env.BUILD_NUMBER} -f Dockerfile.jobrunner ."
+                        sh "docker build -t registry.comp.ystv.co.uk/ystv/bowser/jobrunner:${imageNamePrefix}${env.BUILD_NUMBER} -f Dockerfile.jobrunner ."
                     }
                 }
             }

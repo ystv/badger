@@ -17,7 +17,9 @@ const ExtendedMediaModelWithDownloadURL = CompleteMediaModel.extend({
 });
 export const appRouter = router({
   ping: publicProcedure.query(() => {
-    return "pong";
+    return {
+      version: process.env.VERSION,
+    };
   }),
   shows: router({
     listUpcoming: publicProcedure
