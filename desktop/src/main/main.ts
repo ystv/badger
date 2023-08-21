@@ -11,6 +11,7 @@ import { selectedShow } from "./selectedShow";
 import logging, { LogLevelNames } from "loglevel";
 import prefix from "loglevel-plugin-prefix";
 import { tryCreateVMixConnection } from "./vmix";
+import Icon from "../icon/png/64x64.png";
 logging.setLevel(
   (process.env.LOG_LEVEL as LogLevelNames) ?? logging.levels.DEBUG,
 );
@@ -43,6 +44,7 @@ const createWindow = async () => {
     width: 900,
     maxWidth: 1280,
     height: 720,
+    icon: Icon,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
     },
