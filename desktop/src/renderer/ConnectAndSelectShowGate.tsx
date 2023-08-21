@@ -116,7 +116,7 @@ export default function ConnectAndSelectShowGate(props: {
   if (connState.isLoading || selectedShow.isLoading) {
     return <div>Please wait...</div>;
   }
-  if (connState.data === true && selectedShow.data !== null) {
+  if (connState.isSuccess && selectedShow.data !== null) {
     return props.children;
   }
   return (
@@ -124,7 +124,7 @@ export default function ConnectAndSelectShowGate(props: {
       <div className="w-144 h-24 m-auto p-8">
         <h1 className="text-5xl text-light">Bowser</h1>
         <div className="m-2 p-4 bg-light text-dark rounded">
-          {connState.data !== true ? <ServerConnectForm /> : <SelectShowForm />}
+          {connState.isSuccess ? <ServerConnectForm /> : <SelectShowForm />}
         </div>
       </div>
     </div>

@@ -42,10 +42,7 @@ const proc = t.procedure;
 
 export const appRouter = r({
   serverConnectionStatus: proc.query(async () => {
-    return (
-      serverApiClient !== null &&
-      (await serverApiClient.ping.query()) === "pong"
-    );
+    return serverApiClient !== null && (await serverApiClient.ping.query());
   }),
   connectToServer: proc
     .input(
