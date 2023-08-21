@@ -70,3 +70,4 @@ jobs:
         with:
             ref: v${{ needs.do-release.outputs.version }}
             prerelease: ${{ inputs.prerelease }}
+            do_release: true
