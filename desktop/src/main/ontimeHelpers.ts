@@ -15,6 +15,9 @@ function dateToTimeMs(date: Date) {
   );
 }
 
+const vtColour = "#3E75E8";
+const continuityColour = "#FF7878";
+
 export function showToOntimeEvents(show: CompleteShowType, rundownId?: number) {
   const events: Omit<OntimeFullEvent, "id" | "revision">[] = [];
   let startTime = show.start;
@@ -28,7 +31,7 @@ export function showToOntimeEvents(show: CompleteShowType, rundownId?: number) {
         timeStart: dateToTimeMs(startTime),
         duration: item.durationSeconds * 1000,
         timeEnd: dateToTimeMs(startTime) + item.durationSeconds * 1000,
-        colour: item.type === "VT" ? "#3E75E8" : "", //FIXME
+        colour: item.type === "VT" ? vtColour : "",
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } satisfies Partial<OntimeEvent> as any);
       startTime = new Date(startTime.getTime() + item.durationSeconds * 1000);
@@ -52,7 +55,7 @@ export function showToOntimeEvents(show: CompleteShowType, rundownId?: number) {
           events.push({
             type: "event",
             title: item.name,
-            colour: item.type === "VT" ? "#3E75E8" : "", //FIXME
+            colour: item.type === "VT" ? vtColour : "",
             timeStart: dateToTimeMs(startTime),
             duration: item.durationSeconds * 1000,
             timeEnd: dateToTimeMs(startTime) + item.durationSeconds * 1000,
@@ -69,7 +72,7 @@ export function showToOntimeEvents(show: CompleteShowType, rundownId?: number) {
         events.push({
           type: "event",
           title: container.name,
-          colour: "#FF7878", //FIXME
+          colour: continuityColour,
           timeStart: dateToTimeMs(startTime),
           duration: container.durationSeconds * 1000,
           timeEnd: dateToTimeMs(startTime) + container.durationSeconds * 1000,
