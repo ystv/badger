@@ -12,6 +12,7 @@ import {
   TabsContent,
 } from "@bowser/components/tabs";
 import { VMixConnection } from "./screens/vMix";
+import { OntimeSettings } from "./screens/Ontime";
 
 export function Settings() {
   const queryClient = useQueryClient();
@@ -47,21 +48,33 @@ export function Settings() {
   return (
     <Tabs defaultValue="obs">
       <TabsList className="w-full">
-        <TabsTrigger value="obs">OBS</TabsTrigger>
+        {integrations.includes("obs") && (
+          <TabsTrigger value="obs">OBS</TabsTrigger>
+        )}
         {integrations.includes("vmix") && (
           <TabsTrigger value="vmix">vMix</TabsTrigger>
+        )}
+        {integrations.includes("ontime") && (
+          <TabsTrigger value="ontime">Ontime</TabsTrigger>
         )}
         <TabsTrigger value="advanced">Advanced</TabsTrigger>
         {devToolsState.enabled && (
           <TabsTrigger value="devtools">Developer Tools</TabsTrigger>
         )}
       </TabsList>
-      <TabsContent value="obs">
-        <OBSSettings />
-      </TabsContent>
+      {integrations.includes("obs") && (
+        <TabsContent value="obs">
+          <OBSSettings />
+        </TabsContent>
+      )}
       {integrations.includes("vmix") && (
         <TabsContent value="vmix">
           <VMixConnection />
+        </TabsContent>
+      )}
+      {integrations.includes("ontime") && (
+        <TabsContent value="ontime">
+          <OntimeSettings />
         </TabsContent>
       )}
       <TabsContent value="advanced">
