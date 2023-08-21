@@ -68,6 +68,8 @@ export default class VMixConnection {
     allowBooleanAttributes: true,
   });
   private constructor(
+    // This is only used for display purposes, the actual connection is established in `connect()`,
+    // before this constructor is called.
     public readonly host: string,
     public readonly port: number,
   ) {
