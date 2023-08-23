@@ -2,9 +2,9 @@ name: Run Tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   prettier:
@@ -15,8 +15,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          cache: 'yarn'
-          cache-dependency-path: 'yarn.lock'
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
       - run: yarn install --immutable --inline-builds
 
       - run: yarn prettier --check '{desktop,jobrunner,server}/**/*.{ts,tsx}'
@@ -29,8 +29,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          cache: 'yarn'
-          cache-dependency-path: 'yarn.lock'
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
       - run: yarn install --immutable --inline-builds
 
       - run: yarn lint
@@ -44,8 +44,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          cache: 'yarn'
-          cache-dependency-path: 'yarn.lock'
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
       - run: yarn install --immutable --inline-builds
 
       - run: yarn lint
@@ -59,8 +59,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          cache: 'yarn'
-          cache-dependency-path: 'yarn.lock'
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
       - run: yarn install --immutable --inline-builds
 
       - run: yarn lint
@@ -74,8 +74,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          cache: 'yarn'
-          cache-dependency-path: 'yarn.lock'
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
       - run: yarn install --immutable --inline-builds
 
       - run: yarn typecheck
@@ -89,8 +89,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          cache: 'yarn'
-          cache-dependency-path: 'yarn.lock'
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
       - run: yarn install --immutable --inline-builds
 
       - run: yarn typecheck
@@ -104,8 +104,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          cache: 'yarn'
-          cache-dependency-path: 'yarn.lock'
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
       - run: yarn install --immutable --inline-builds
 
       - run: yarn typecheck
@@ -119,8 +119,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          cache: 'yarn'
-          cache-dependency-path: 'yarn.lock'
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
       - run: yarn install --immutable --inline-builds
 
       - run: yarn test --coverage
@@ -140,8 +140,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          cache: 'yarn'
-          cache-dependency-path: 'yarn.lock'
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
       - run: yarn install --immutable --inline-builds
 
       - run: yarn test --coverage
@@ -157,14 +157,22 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: postgres://root:postgres@localhost:5432/bowser_test
+      TUS_ENDPOINT: "http://localhost:1080/files"
+      S3_ENDPOINT: "http://localhost:9000"
+      AWS_ACCESS_KEY_ID: root
+      AWS_SECRET_ACCESS_KEY: rootroot
+      AWS_REGION: us-east-1
+      STORAGE_BUCKET: bowser
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 18.x
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          cache: 'yarn'
-          cache-dependency-path: 'yarn.lock'
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
+
+      - uses: FedericoCarboni/setup-ffmpeg@v2
 
       - run: docker compose up -d
 
@@ -185,7 +193,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NODE_ENV: test
-      E2E_TEST: 'true'
+      E2E_TEST: "true"
       DATABASE_URL: postgres://root:postgres@localhost:5432/bowser_test
     steps:
       - uses: actions/checkout@v3
@@ -193,8 +201,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          cache: 'yarn'
-          cache-dependency-path: 'yarn.lock'
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
 
       - name: Start services
         run: docker compose up -d
@@ -266,7 +274,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NODE_ENV: test
-      E2E_TEST: 'true'
+      E2E_TEST: "true"
       DATABASE_URL: postgres://root:postgres@localhost:5432/bowser_test
       PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
     steps:
@@ -275,8 +283,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          cache: 'yarn'
-          cache-dependency-path: 'yarn.lock'
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
 
       - name: Start services
         run: docker compose up -d
@@ -330,4 +338,3 @@ jobs:
           name: playwright-report-desktop
           path: ./server/playwright-report/
           retention-days: 30
-

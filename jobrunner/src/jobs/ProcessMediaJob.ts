@@ -72,6 +72,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
         state: MediaState.Processing,
       },
     });
+
     try {
       const rawTempPath = await this._wrapTask(
         media,
@@ -79,6 +80,8 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
         () => this._downloadSourceFile(params),
         true,
       );
+
+      // Promise.all would cancel the other tasks if one failed, so we use Promise.allSettled instead
       const results = await Promise.allSettled([
         (async () => {
           const rawPath = await this._wrapTask(
@@ -96,6 +99,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
             },
           });
         })(),
+
         (async () => {
           await this._updateTaskStatus(
             media,
@@ -146,6 +150,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
             `Duration: ${durationMMSS}`,
           );
         })(),
+
         (async () => {
           const normalisedPath = await this._wrapTask(
             media,
@@ -170,6 +175,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
           });
         })(),
       ]);
+
       if (results.some((x) => x.status === "rejected")) {
         results
           .filter((x) => x.status === "rejected")
@@ -265,6 +271,15 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
         throw new Error("Unknown source type");
     }
     await streamPipeline(stream, output);
+
+    // Once we have the file locally, we can delete it from Tus.
+    if (params.sourceType === MediaFileSourceType.Tus) {
+      await got.delete(process.env.TUS_ENDPOINT + "/" + params.source, {
+        headers: {
+          "Tus-Resumable": "1.0.0",
+        },
+      });
+    }
     return filePath;
   }
 

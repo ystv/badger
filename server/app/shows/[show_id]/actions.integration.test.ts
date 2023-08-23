@@ -10,7 +10,7 @@ const TEST_TIME = new Date("2023-07-21T16:46:35.036Z");
 
 integrate("reorderShowItems", () => {
   beforeEach(async () => {
-    await db.$executeRawUnsafe("TRUNCATE TABLE shows CASCADE");
+    await db.$executeRawUnsafe("TRUNCATE TABLE shows RESTART IDENTITY CASCADE");
     await db.show.create({
       data: {
         id: 1,
