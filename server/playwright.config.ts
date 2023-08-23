@@ -87,7 +87,7 @@ export default defineConfig({
   webServer: {
     command: process.env.CI ? "node server/server.js" : "yarn dev",
     cwd: process.env.CI ? ".next/standalone" : undefined,
-    url: "http://localhost:3000",
+    url: "http://localhost:3000/api/healthz",
     reuseExistingServer: !process.env.CI,
     stdout: "pipe",
     stderr: "pipe",

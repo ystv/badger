@@ -4,6 +4,12 @@ import Link from "next/link";
 import { Fragment } from "react";
 import dayjs from "dayjs";
 import Button from "@bowser/components/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+} from "@bowser/components/table";
 
 const PAGE_SIZE = 25;
 
@@ -31,21 +37,27 @@ export default async function ShowsPage(props: {
 
   return (
     <div>
-      <h1>Shows</h1>
+      <h1 className="text-4xl">Shows</h1>
       <Link href="/shows/create">
         <Button color="primary">New Show</Button>
       </Link>
-      <div className="grid grid-cols-3">
-        {shows.map((show) => (
-          <Fragment key={show.id}>
-            <span>{show.name}</span>
-            <span>{dayjs(show.start).format("YYYY-MM-DD HH:mm")}</span>
-            <Link href={`/shows/${show.id}`}>
-              <Button color="link">Edit</Button>
-            </Link>
-          </Fragment>
-        ))}
-      </div>
+      <Table>
+        <TableBody>
+          {shows.map((show) => (
+            <TableRow key={show.id}>
+              <TableCell className="font-bold">{show.name}</TableCell>
+              <TableCell>
+                {dayjs(show.start).format("YYYY-MM-DD HH:mm")}
+              </TableCell>
+              <TableCell>
+                <Link href={`/shows/${show.id}`}>
+                  <Button color="light">View/Edit</Button>
+                </Link>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
       <Pagination current={page + 1} total={total} pageSize={PAGE_SIZE} />
     </div>
   );

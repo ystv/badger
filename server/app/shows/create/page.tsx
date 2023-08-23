@@ -8,7 +8,7 @@ import { DatePickerField, Field } from "@/components/FormFields";
 export default function CreateShowPage() {
   return (
     <div>
-      <h1>New Show</h1>
+      <h1 className="text-4xl">New Show</h1>
       <Form action={create} schema={schema}>
         <Field name="name" label="Name" />
         <DatePickerField
