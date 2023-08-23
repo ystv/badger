@@ -12,7 +12,7 @@ const test = base.extend<{ showPage: Page }>({
     await page.keyboard.press("Escape");
     await page.getByRole("button", { name: "Create" }).click();
     await expect(
-      page.getByRole("heading", { name: "Test Show" })
+      page.getByRole("heading", { name: "Test Show" }),
     ).toBeVisible();
 
     await use(page);
@@ -40,18 +40,20 @@ test("add, reorder, remove items", async ({ showPage }) => {
   await expect(table.locator("tr")).toHaveCount(3);
 
   // Work out how far to drag it
-  const heightOfOneRow = await showPage
-    .getByRole("row")
-    .nth(1)
-    .evaluate((r) => r.clientHeight);
+  const rowEl = (await showPage.$("tbody tr:nth-child(1)"))!;
+  const heightOfOneRow: number = await (
+    await rowEl.getProperty("offsetHeight")
+  ).jsonValue();
 
   await showPage.getByTestId("dragHandle").nth(0).hover();
   await showPage.mouse.down();
+  await rowEl.waitForElementState("stable");
   // Height of three rows + safety margin
   await showPage.mouse.move(0, heightOfOneRow * 3 + 100, { steps: 10 });
   await showPage.mouse.up();
+  await rowEl.waitForElementState("stable");
   await expect(
-    showPage.getByRole("row").nth(3).getByTestId("RundownRow.name")
+    showPage.getByRole("row").nth(3).getByTestId("RundownRow.name"),
   ).toHaveText("Test 1");
 
   await showPage.getByRole("button", { name: "Delet" }).nth(2).click();
@@ -150,13 +152,13 @@ test("add media", async ({ showPage }) => {
     .dispatchEvent("drop", { dataTransfer });
 
   await expect(
-    showPage.getByRole("button", { name: "Media pending" })
+    showPage.getByRole("button", { name: "Media pending" }),
   ).toBeVisible();
   await expect(
-    showPage.getByRole("button", { name: "Media processing" })
+    showPage.getByRole("button", { name: "Media processing" }),
   ).toBeVisible();
   await expect(
-    showPage.getByRole("button", { name: "Good to go!" })
+    showPage.getByRole("button", { name: "Good to go!" }),
   ).toBeVisible({
     timeout: 30_000,
   });
