@@ -133,7 +133,7 @@ export class LoadAssetJob extends AbstractJob<LoadAssetJobType> {
           },
           {
             responseType: "stream",
-          },
+          }
         );
         stream = res.data;
         break;
@@ -143,6 +143,10 @@ export class LoadAssetJob extends AbstractJob<LoadAssetJobType> {
         throw new Error("Unknown source type");
     }
     await streamPipeline(stream, output);
+    // Once we have the file locally, we can delete it from Tus.
+    if (params.sourceType === MediaFileSourceType.Tus) {
+      await got.delete(process.env.TUS_ENDPOINT + "/" + params.source);
+    }
     return filePath;
   }
 
