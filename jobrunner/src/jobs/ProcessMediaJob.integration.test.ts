@@ -51,6 +51,9 @@ integrate("ProcessMediaJob", () => {
     await db.$executeRawUnsafe(
       `TRUNCATE TABLE "base_jobs" RESTART IDENTITY CASCADE`
     );
+    await db.$executeRawUnsafe(
+      `TRUNCATE TABLE "shows" RESTART IDENTITY CASCADE`
+    );
   });
   it("works", async () => {
     const testMediaID = await uploadTestFileToTus();
