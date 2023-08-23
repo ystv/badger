@@ -57,7 +57,7 @@ import { formatDurationMS } from "@/lib/time";
 // beautiful-dnd is not compatible with SSR
 const Droppable = dynamic(
   () => import("react-beautiful-dnd").then((res) => res.Droppable),
-  { ssr: false, loading: () => <Image src={Spinner} alt="" /> },
+  { ssr: false, loading: () => <Image src={Spinner} alt="" /> }
 );
 
 function AddItemPopover(props: {
@@ -174,8 +174,12 @@ const RundownRow = forwardRef<
         {item.name}
       </TableCell>
       <TableCell />
-      <TableCell>{format(props.time, "HH:mm")}</TableCell>
-      <TableCell>{formatDurationMS(props.runningDuration * 1000)}</TableCell>
+      <TableCell data-testid="RundownRow.time">
+        {format(props.time, "HH:mm")}
+      </TableCell>
+      <TableCell data-testid="RundownRow.duration">
+        {formatDurationMS(props.runningDuration * 1000)}
+      </TableCell>
       <TableCell>
         <Button size="small" asChild>
           <Link href={`/shows/${item.showId}/rundown/${item.id}`}>Edit</Link>
@@ -229,8 +233,12 @@ const ContinuityItemRow = forwardRef<
           }
         />
       </TableCell>
-      <TableCell>{format(props.time, "HH:mm")}</TableCell>
-      <TableCell>{formatDurationMS(props.runningDuration * 1000)}</TableCell>
+      <TableCell data-testid="ContinuityItemRow.time">
+        {format(props.time, "HH:mm")}
+      </TableCell>
+      <TableCell data-testid="ContinuityItemRow.duration">
+        {formatDurationMS(props.runningDuration * 1000)}
+      </TableCell>
       <TableCell>
         <Popover open={isEditing} onOpenChange={setIsEditing}>
           <PopoverTrigger asChild>
@@ -270,7 +278,7 @@ export function ShowItemsList(props: {
     props.items,
     (state, action: { type: string; id: number; newIdx: number }) => {
       const idx = state.findIndex(
-        (i) => i._type == action.type && i.id == action.id,
+        (i) => i._type == action.type && i.id == action.id
       );
       if (idx === -1) {
         return state;
@@ -280,7 +288,7 @@ export function ShowItemsList(props: {
       newState.splice(idx, 1);
       newState.splice(action.newIdx, 0, item);
       return newState;
-    },
+    }
   );
   const onDragEnd: OnDragEndResponder = useCallback(
     (result) => {
@@ -298,11 +306,11 @@ export function ShowItemsList(props: {
           props.show.id,
           type as "rundown" | "continuity_item",
           parseInt(id, 10),
-          result.destination.index,
+          result.destination.index
         );
       });
     },
-    [doOptimisticMove, props.show.id],
+    [doOptimisticMove, props.show.id]
   );
 
   const [rows, durationTotalSeconds] = useMemo(() => {
@@ -349,7 +357,7 @@ export function ShowItemsList(props: {
               />
             )
           }
-        </Draggable>,
+        </Draggable>
       );
       durationTotalSeconds += duration;
       time = new Date(time.getTime() + duration * 1000);
