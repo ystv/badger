@@ -172,6 +172,8 @@ jobs:
           cache: "yarn"
           cache-dependency-path: "yarn.lock"
 
+      - uses: FedericoCarboni/setup-ffmpeg@v2
+
       - run: docker compose up -d
 
       - run: yarn install --immutable --inline-builds
