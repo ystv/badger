@@ -53,7 +53,9 @@ async function uploadTestFileToTus() {
 
 integrate("ProcessMediaJob", () => {
   beforeEach(async () => {
-    await db.$executeRawUnsafe(`TRUNCATE TABLE "base_jobs" CASCADE`);
+    await db.$executeRawUnsafe(
+      `TRUNCATE TABLE "base_jobs" RESTART IDENTITY CASCADE`
+    );
   });
   it("works", async () => {
     const testMediaID = await uploadTestFileToTus();
