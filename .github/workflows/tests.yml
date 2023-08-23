@@ -322,7 +322,7 @@ jobs:
       - name: Start server
         run: |
           node server/server.js &
-          npx -y wait-on http://localhost:3000
+          npx -y wait-on http://localhost:3000/api/healthz
         working-directory: ./server/.next/standalone
 
       - name: Run Playwright tests

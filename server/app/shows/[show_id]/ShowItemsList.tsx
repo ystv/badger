@@ -30,7 +30,7 @@ import { Show } from "@bowser/prisma/client";
 import Button from "@bowser/components/button";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { format } from "date-fns";
+import { add, format } from "date-fns";
 import Link from "next/link";
 import Form from "@/components/Form";
 import { editContinuityItemSchema } from "./schema";
@@ -390,7 +390,12 @@ export function ShowItemsList(props: {
               </TableBody>
               <TableCaption data-testid="ShowItemsList.runtime">
                 <strong>Total runtime: </strong>
-                {formatDurationMS(durationTotalSeconds * 1000)}
+                {formatDurationMS(durationTotalSeconds * 1000)};{" "}
+                <strong>expected finish </strong>
+                {format(
+                  add(props.show.start, { seconds: durationTotalSeconds }),
+                  "HH:mm",
+                )}
               </TableCaption>
             </Table>
           )}
