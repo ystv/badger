@@ -77,9 +77,13 @@ function AddItemPopover(props: {
     >
       <label className="my-1">
         Name
-        <Input required name="name" />
+        <Input required name="name" data-testid={"name-" + props.type} />
       </label>
-      <Button color="primary" disabled={isPending}>
+      <Button
+        color="primary"
+        data-testid={"create-" + props.type}
+        disabled={isPending}
+      >
         Create
       </Button>
     </form>
@@ -92,7 +96,9 @@ function AddItemButtons(props: { showID: number }) {
       <span>Add:</span>
       <Popover>
         <PopoverTrigger asChild>
-          <Button color="primary">Rundown</Button>
+          <Button color="primary">
+            <span className="sr-only">New</span> Rundown
+          </Button>
         </PopoverTrigger>
         <PopoverContent>
           <AddItemPopover showID={props.showID} type="rundown" />
@@ -100,7 +106,10 @@ function AddItemButtons(props: { showID: number }) {
       </Popover>
       <Popover>
         <PopoverTrigger asChild>
-          <Button color="purple">Continuity</Button>
+          <Button color="purple">
+            <span className="sr-only">New</span> Continuity{" "}
+            <span className="sr-only">Item</span>
+          </Button>
         </PopoverTrigger>
         <PopoverContent>
           <AddItemPopover showID={props.showID} type="continuity_item" />
@@ -153,11 +162,17 @@ const RundownRow = forwardRef<
   const item = props.rundown;
   return (
     <TableRow ref={ref} {...props.draggableProps} className="[&>td]:m-2">
-      <TableCell {...props.dragHandleProps} className="text-2xl cursor-grab">
+      <TableCell
+        {...props.dragHandleProps}
+        className="text-2xl cursor-grab"
+        data-testid="dragHandle"
+      >
         ☰
       </TableCell>
       <TableCell className="font-bold text-primary">Rundown</TableCell>
-      <TableCell className="font-bold">{item.name}</TableCell>
+      <TableCell className="font-bold" data-testid="RundownRow.name">
+        {item.name}
+      </TableCell>
       <TableCell />
       <TableCell>{format(props.time, "HH:mm")}</TableCell>
       <TableCell>{formatDurationMS(props.runningDuration * 1000)}</TableCell>
@@ -195,11 +210,17 @@ const ContinuityItemRow = forwardRef<
       {...props.draggableProps}
       className="[&>td]:m-2 align-top"
     >
-      <TableCell {...props.dragHandleProps} className="text-2xl cursor-grab">
+      <TableCell
+        {...props.dragHandleProps}
+        className="text-2xl cursor-grab"
+        data-testid="dragHandle"
+      >
         ☰
       </TableCell>
       <TableCell className="font-bold text-purple">Continuity</TableCell>
-      <TableCell className="font-bold">{item.name}</TableCell>
+      <TableCell className="font-bold" data-testid="ContinuityItemRow.name">
+        {item.name}
+      </TableCell>
       <TableCell>
         <ItemMediaStateAndUploadDialog
           item={item}
@@ -339,7 +360,9 @@ export function ShowItemsList(props: {
   return (
     <>
       <DragDropContext onDragEnd={onDragEnd}>
-        {isPending && <Image src={Spinner} alt="" />}
+        {isPending && (
+          <Image src={Spinner} alt="" data-testid="reorderPending" />
+        )}
         <Droppable droppableId="0" isDropDisabled={isPending}>
           {(provided, snapshot) => (
             <Table ref={provided.innerRef} {...provided.droppableProps}>

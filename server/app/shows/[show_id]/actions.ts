@@ -326,7 +326,10 @@ async function ensureContiguousDEV(
         }
       }
     }
-    if (allItems[allItems.length - 1] !== allItems.length - 1) {
+    if (
+      allItems.length > 0 &&
+      allItems[allItems.length - 1] !== allItems.length - 1
+    ) {
       throw new Error(
         `Invariant violation: non-contiguous order for items of show ${showID}; last item has order ${
           allItems[allItems.length - 1]
