@@ -7,7 +7,7 @@ const test = base.extend<{ showPage: Page }>({
 
     await page.goto("/shows/create");
     await page.getByLabel("Name").fill("Test Show");
-    await page.getByLabel("Start").click();
+    await page.getByLabel("Start").fill("19:30");
     await page.getByText("27").click();
     await page.keyboard.press("Escape");
     await page.getByRole("button", { name: "Create" }).click();
@@ -23,7 +23,7 @@ const test = base.extend<{ showPage: Page }>({
 test("add, reorder, remove items", async ({ showPage }) => {
   await expect
     .soft(showPage.getByTestId("ShowItemsList.runtime"))
-    .toHaveText("Total runtime: 00:00");
+    .toHaveText("Total runtime: 00:00; expected finish 19:30");
 
   await showPage.getByRole("button", { name: "New Rundown" }).click();
   await showPage.getByTestId("name-rundown").fill("Test 1");
@@ -64,7 +64,7 @@ test("add, reorder, remove items", async ({ showPage }) => {
 test("add rundown items + check runtime", async ({ showPage }) => {
   await expect
     .soft(showPage.getByTestId("ShowItemsList.runtime"))
-    .toHaveText("Total runtime: 00:00");
+    .toHaveText("Total runtime: 00:00; expected finish 19:30");
 
   await showPage.getByRole("button", { name: "New Rundown" }).click();
   await showPage.getByTestId("name-rundown").fill("Test 1");
@@ -101,7 +101,7 @@ test("add rundown items + check runtime", async ({ showPage }) => {
   await showPage.getByRole("link", { name: "Back" }).click();
   await expect
     .soft(showPage.getByTestId("ShowItemsList.runtime"))
-    .toHaveText("Total runtime: 02:00");
+    .toHaveText("Total runtime: 02:00; expected finish 19:32");
   await expect
     .soft(showPage.getByRole("row").nth(1).getByTestId("RundownRow.time"))
     .toHaveText("00:00");
@@ -153,7 +153,7 @@ test("add media", async ({ showPage }) => {
 
   await expect
     .soft(showPage.getByTestId("ShowItemsList.runtime"))
-    .toHaveText("Total runtime: 00:15");
+    .toHaveText("Total runtime: 00:15; expected finish 19:30");
   await expect
     .soft(showPage.getByTestId("ContinuityItemRow.duration"))
     .toHaveText("00:15");
