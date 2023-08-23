@@ -133,7 +133,7 @@ export class LoadAssetJob extends AbstractJob<LoadAssetJobType> {
           },
           {
             responseType: "stream",
-          }
+          },
         );
         stream = res.data;
         break;

@@ -13,7 +13,7 @@ async function uploadTestFileToTus() {
   }
   const sourceStat = await fsp.stat(__dirname + "/testdata/smpte_bars_15s.mp4");
   const sourceFile = fs.createReadStream(
-    __dirname + "/testdata/smpte_bars_15s.mp4"
+    __dirname + "/testdata/smpte_bars_15s.mp4",
   );
 
   const createRes = await got.post(process.env.TUS_ENDPOINT, {
@@ -42,17 +42,17 @@ async function uploadTestFileToTus() {
   }
   return createRes.headers.location!.replace(
     process.env.TUS_ENDPOINT + "/",
-    ""
+    "",
   );
 }
 
 integrate("ProcessMediaJob", () => {
   beforeEach(async () => {
     await db.$executeRawUnsafe(
-      `TRUNCATE TABLE "base_jobs" RESTART IDENTITY CASCADE`
+      `TRUNCATE TABLE "base_jobs" RESTART IDENTITY CASCADE`,
     );
     await db.$executeRawUnsafe(
-      `TRUNCATE TABLE "shows" RESTART IDENTITY CASCADE`
+      `TRUNCATE TABLE "shows" RESTART IDENTITY CASCADE`,
     );
   });
   it("works", async () => {
@@ -106,7 +106,7 @@ integrate("ProcessMediaJob", () => {
       process.env.TUS_ENDPOINT + "/" + testMediaID,
       {
         throwHttpErrors: false,
-      }
+      },
     );
     expect(tusRes.statusCode).not.toBe(200);
   });

@@ -12,7 +12,7 @@ import DummyTestJob from "./jobs/DummyTestJob.js";
 
 dotenv.config();
 logging.setLevel(
-  (process.env.LOG_LEVEL as LogLevelNames) ?? logging.levels.DEBUG
+  (process.env.LOG_LEVEL as LogLevelNames) ?? logging.levels.DEBUG,
 );
 prefix.reg(logging);
 prefix.apply(logging, {
@@ -174,7 +174,7 @@ if (require.main === module) {
         if (rows === 0) {
           logger.error(
             `Job ${args.values.job} is already claimed by another worker. To forcibly claim it, use --force - ` +
-              `but only do this if you're sure that the other worker is dead!`
+              `but only do this if you're sure that the other worker is dead!`,
           );
           process.exit(1);
         }

@@ -6,7 +6,7 @@ import { integrate } from "@bowser/testing";
 integrate("doOneJob", () => {
   beforeEach(async () => {
     await db.$executeRawUnsafe(
-      `TRUNCATE TABLE "base_jobs" RESTART IDENTITY CASCADE`
+      `TRUNCATE TABLE "base_jobs" RESTART IDENTITY CASCADE`,
     );
   });
   it("works", async () => {

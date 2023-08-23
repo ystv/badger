@@ -78,7 +78,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
         media,
         "Downloading source file",
         () => this._downloadSourceFile(params),
-        true
+        true,
       );
 
       // Promise.all would cancel the other tasks if one failed, so we use Promise.allSettled instead
@@ -88,7 +88,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
             media,
             "Uploading source file to storage",
             () => this._uploadFileToS3(rawTempPath, "raw", media),
-            true
+            true,
           );
           await this.db.media.update({
             where: {
@@ -104,13 +104,13 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
           await this._updateTaskStatus(
             media,
             "Determining duration",
-            MediaProcessingTaskState.Running
+            MediaProcessingTaskState.Running,
           );
           const duration = await this._wrapTask(
             media,
             "Determining duration",
             () => this._determineDuration(rawTempPath),
-            false
+            false,
           );
           await this.db.media.update({
             where: {
@@ -147,7 +147,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
             media,
             "Determining duration",
             MediaProcessingTaskState.Complete,
-            `Duration: ${durationMMSS}`
+            `Duration: ${durationMMSS}`,
           );
         })(),
 
@@ -157,13 +157,13 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
             "Normalising loudness",
             () =>
               this._normaliseLoudness(rawTempPath, path.extname(media.name)),
-            true
+            true,
           );
           const finalS3Path = await this._wrapTask(
             media,
             "Uploading processed file",
             () => this._uploadFileToS3(normalisedPath, "final", media),
-            true
+            true,
           );
           await this.db.media.update({
             where: {
@@ -182,7 +182,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
           .forEach((x) => {
             this.logger.error(
               "Task failed",
-              (x as PromiseRejectedResult).reason
+              (x as PromiseRejectedResult).reason,
             );
           });
         await this.db.media.update({
@@ -261,7 +261,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
           },
           {
             responseType: "stream",
-          }
+          },
         );
         stream = res.data;
         break;
@@ -286,7 +286,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
   private async _determineDuration(path: string) {
     // This is safe because we created path in _downloadSourceFile
     const res = await exec(
-      `ffprobe -v error -print_format json -show_format ${path}`
+      `ffprobe -v error -print_format json -show_format ${path}`,
     );
     const data: FFProbeOutput = JSON.parse(res.stdout);
     return parseFloat(data.format.duration);
@@ -295,7 +295,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
   private async _normaliseLoudness(rawPath: string, extension: string) {
     // Step 1: determine the loudness of the file
     const output = await exec(
-      `ffmpeg -hide_banner -nostats -loglevel info -i ${rawPath} -af loudnorm=print_format=json -f null -`
+      `ffmpeg -hide_banner -nostats -loglevel info -i ${rawPath} -af loudnorm=print_format=json -f null -`,
     );
     // Find the loudnorm output. It's a bit of JSON immediately after a line like `[Parsed_loudnorm_0 @ 0x600003670fd0]`
     const loudnormJSON =
@@ -315,7 +315,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     // Step 2: renormalise
     const normalisedPath = path.join(
       this.temporaryDir,
-      "normalised" + extension
+      "normalised" + extension,
     );
     await exec(
       [
@@ -347,7 +347,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
         "-c:v",
         "copy",
         normalisedPath,
-      ].join(" ")
+      ].join(" "),
     );
     return normalisedPath;
   }
@@ -355,7 +355,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
   private async _uploadFileToS3(
     path: string,
     fileType: "raw" | "final",
-    item: CompleteMedia
+    item: CompleteMedia,
   ) {
     const stream = fs.createReadStream(path);
     const s3Path = item.continuityItem
@@ -365,7 +365,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
       : null;
     if (!s3Path) {
       throw new Error(
-        "Impossible: media item without either continuity or rundown item parent"
+        "Impossible: media item without either continuity or rundown item parent",
       );
     }
     const command = new PutObjectCommand({
@@ -385,12 +385,12 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     media: CompleteMedia,
     descr: string,
     task: () => Promise<T>,
-    autoComplete: boolean
+    autoComplete: boolean,
   ): Promise<T> {
     await this._updateTaskStatus(
       media,
       descr,
-      MediaProcessingTaskState.Running
+      MediaProcessingTaskState.Running,
     );
     try {
       const r = await task();
@@ -398,7 +398,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
         await this._updateTaskStatus(
           media,
           descr,
-          MediaProcessingTaskState.Complete
+          MediaProcessingTaskState.Complete,
         );
       }
       return r;
@@ -408,7 +408,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
         media,
         descr,
         MediaProcessingTaskState.Failed,
-        errorMessage
+        errorMessage,
       );
       throw e;
     }
@@ -418,7 +418,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     media: CompleteMedia,
     descr: string,
     state: MediaProcessingTaskState,
-    extra?: string
+    extra?: string,
   ) {
     this.logger.info(`[${media.id}] ${descr}: ${state} ${extra}`);
     await this.db.mediaProcessingTask.upsert({
