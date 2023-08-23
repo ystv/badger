@@ -24,9 +24,7 @@ const workerID = `${hostname}-${Date.now()}`;
 const logger = logging.getLogger("main");
 
 // Only exported for testing
-export const db = new PrismaClient({
-  log: ["error", "info", "warn", "query"],
-});
+export const db = new PrismaClient();
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
