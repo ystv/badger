@@ -10,7 +10,7 @@ import { zodErrorResponse } from "@/components/FormServerHelpers";
 import { z } from "zod";
 
 export async function create(
-  data: z.infer<typeof schema>,
+  data: z.infer<typeof schema>
 ): Promise<FormResponse> {
   "use server";
   const result = schema.safeParse(data);
@@ -24,7 +24,7 @@ export async function create(
       start: result.data.start,
     },
   });
-  revalidatePath(`/shows`);
+  revalidatePath(`/`);
   revalidatePath(`/shows/${res.id}`);
   redirect(`/shows/${res.id}`);
 }
