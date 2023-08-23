@@ -118,30 +118,34 @@ export const appRouter = r({
       const show = selectedShow.value;
       invariant(show, "No show selected");
       const state = await getLocalMediaSettings();
-      for (const rundown of show.rundowns) {
-        for (const item of rundown.items) {
-          if (
-            item.media?.state === "Ready" &&
-            !state.some((x) => x.mediaID === item.media?.id)
-          ) {
-            downloadMedia(item.media.id, item.media.name);
-          }
-          for (const item of rundown.assets) {
+      if (getVMixConnection() !== null) {
+        for (const rundown of show.rundowns) {
+          for (const item of rundown.items) {
             if (
               item.media?.state === "Ready" &&
               !state.some((x) => x.mediaID === item.media?.id)
             ) {
               downloadMedia(item.media.id, item.media.name);
             }
+            for (const item of rundown.assets) {
+              if (
+                item.media?.state === "Ready" &&
+                !state.some((x) => x.mediaID === item.media?.id)
+              ) {
+                downloadMedia(item.media.id, item.media.name);
+              }
+            }
           }
         }
       }
-      for (const item of show.continuityItems) {
-        if (
-          item.media?.state === "Ready" &&
-          !state.some((x) => x.mediaID === item.media?.id)
-        ) {
-          downloadMedia(item.media.id, item.media.name);
+      if (obsConnection !== null) {
+        for (const item of show.continuityItems) {
+          if (
+            item.media?.state === "Ready" &&
+            !state.some((x) => x.mediaID === item.media?.id)
+          ) {
+            downloadMedia(item.media.id, item.media.name);
+          }
         }
       }
     }),
