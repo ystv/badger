@@ -9,11 +9,20 @@
   "packageManager": "yarn@3.6.1",
   "devDependencies": {
     "danger": "^11.2.8",
+    "husky": "^8.0.3",
+    "lint-staged": "^14.0.1",
     "prettier": "^3.0.0"
   },
   "scripts": {
     "lint": "yarn workspaces foreach run lint",
     "prettify": "yarn workspaces foreach run prettify",
-    "test": "yarn workspaces foreach run test"
+    "test": "yarn workspaces foreach run test",
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "prettier",
+      "eslint"
+    ]
   }
 }
