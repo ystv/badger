@@ -7,8 +7,9 @@ const test = base.extend<{ showPage: Page }>({
 
     await page.goto("/shows/create");
     await page.getByLabel("Name").fill("Test Show");
-    await page.getByLabel("Start").fill("19:30");
+    await page.getByLabel("Start").click();
     await page.getByText("27").click();
+    await page.locator("input[type=time]").fill("19:30");
     await page.keyboard.press("Escape");
     await page.getByRole("button", { name: "Create" }).click();
     await expect(
@@ -104,13 +105,13 @@ test("add rundown items + check runtime", async ({ showPage }) => {
     .toHaveText("Total runtime: 02:00; expected finish 19:32");
   await expect
     .soft(showPage.getByRole("row").nth(1).getByTestId("RundownRow.time"))
-    .toHaveText("00:00");
+    .toHaveText("19:30");
   await expect
     .soft(showPage.getByRole("row").nth(1).getByTestId("RundownRow.duration"))
     .toHaveText("02:00");
   await expect
     .soft(showPage.getByRole("row").nth(2).getByTestId("RundownRow.time"))
-    .toHaveText("00:02");
+    .toHaveText("19:32");
 });
 
 test("add media", async ({ showPage }) => {
