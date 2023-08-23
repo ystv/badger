@@ -1,16 +1,11 @@
-import {
-  JobState,
-  MediaFileSourceType,
-  MediaState,
-} from "@bowser/prisma/client";
-import { it, beforeEach, expect, beforeAll } from "vitest";
+import { MediaFileSourceType, MediaState } from "@bowser/prisma/client";
+import { it, beforeEach, expect } from "vitest";
 import { db, doOneJob } from "../index.js";
 import { integrate } from "@bowser/testing";
 import * as fs from "fs";
 import * as fsp from "fs/promises";
 import got from "got";
 import { pEvent } from "p-event";
-import ProcessMediaJob from "./ProcessMediaJob.js";
 
 async function uploadTestFileToTus() {
   if (!process.env.TUS_ENDPOINT) {
