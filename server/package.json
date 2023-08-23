@@ -33,6 +33,7 @@
     "@typescript-eslint/parser": "latest",
     "class-variance-authority": "^0.7.0",
     "classnames": "^2.3.2",
+    "client-only": "^0.0.1",
     "clsx": "^2.0.0",
     "date-fns": "^2.30.0",
     "dayjs": "^1.11.9",

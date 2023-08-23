@@ -5485,6 +5485,7 @@ __metadata:
     autoprefixer: ^10.4.14
     class-variance-authority: ^0.7.0
     classnames: ^2.3.2
+    client-only: ^0.0.1
     clsx: ^2.0.0
     date-fns: ^2.30.0
     dayjs: ^1.11.9
@@ -12810,11 +12811,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    client-only: ^0.0.1
     danger: ^11.2.8
-    dayjs: ^1.11.9
     prettier: ^3.0.0
-    server-only: ^0.0.1
   languageName: unknown
   linkType: soft
 

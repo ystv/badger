@@ -7,13 +7,13 @@
     "./utility/*"
   ],
   "packageManager": "yarn@3.6.1",
-  "dependencies": {
-    "client-only": "^0.0.1",
-    "dayjs": "^1.11.9",
-    "server-only": "^0.0.1"
-  },
   "devDependencies": {
     "danger": "^11.2.8",
     "prettier": "^3.0.0"
+  },
+  "scripts": {
+    "lint": "yarn workspaces foreach run lint",
+    "prettify": "yarn workspaces foreach run prettify",
+    "test": "yarn workspaces foreach run test"
   }
 }
