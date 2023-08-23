@@ -24,7 +24,7 @@ export async function create(
       start: result.data.start,
     },
   });
-  revalidatePath(`/shows`);
+  revalidatePath(`/`);
   revalidatePath(`/shows/${res.id}`);
   redirect(`/shows/${res.id}`);
 }

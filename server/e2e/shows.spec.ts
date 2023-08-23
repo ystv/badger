@@ -5,13 +5,13 @@ test.beforeAll(async ({ request }) => {
 });
 
 test("loads", async ({ page }) => {
-  await page.goto("/shows");
+  await page.goto("/");
 
   await expect(page.getByRole("heading", { name: "Shows" })).toBeVisible();
 });
 
 test("create show", async ({ page }) => {
-  await page.goto("/shows");
+  await page.goto("/");
   await page.getByRole("button", { name: "New Show" }).click();
   await page.getByLabel("Name").fill("Test Show");
   await page.getByLabel("Start").click();
