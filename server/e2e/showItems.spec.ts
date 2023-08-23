@@ -1,4 +1,5 @@
 import { test as base, expect, Page } from "@playwright/test";
+import { readFileSync } from "fs";
 
 const test = base.extend<{ showPage: Page }>({
   showPage: async ({ page, request }, use) => {
@@ -11,7 +12,7 @@ const test = base.extend<{ showPage: Page }>({
     await page.keyboard.press("Escape");
     await page.getByRole("button", { name: "Create" }).click();
     await expect(
-      page.getByRole("heading", { name: "Test Show" })
+      page.getByRole("heading", { name: "Test Show" }),
     ).toBeVisible();
 
     await use(page);
@@ -43,7 +44,7 @@ test("add, reorder, remove items", async ({ showPage }) => {
   await showPage.mouse.move(0, 400, { steps: 10 });
   await showPage.mouse.up();
   await expect(
-    showPage.getByRole("row").nth(3).getByTestId("RundownRow.name")
+    showPage.getByRole("row").nth(3).getByTestId("RundownRow.name"),
   ).toHaveText("Test 1");
 
   await showPage.getByRole("button", { name: "Delet" }).nth(2).click();
@@ -107,4 +108,56 @@ test("add rundown items + check runtime", async ({ showPage }) => {
   await expect
     .soft(showPage.getByRole("row").nth(2).getByTestId("RundownRow.time"))
     .toHaveText("00:02");
+});
+
+test("add media", async ({ showPage }) => {
+  const testFile = readFileSync(__dirname + "/testdata/smpte_bars_15s.mp4");
+
+  await showPage.getByRole("button", { name: "New Continuity Item" }).click();
+  await showPage.getByTestId("name-continuity_item").fill("Test");
+  await showPage.getByTestId("create-continuity_item").click();
+  await showPage.locator("body").press("Escape");
+
+  await showPage.getByRole("button", { name: "Media Missing" }).click();
+
+  // Playwright doesn't natively support dropping files, so we need to dispatch
+  // the DataTransfer event ourselves. In order to do that, we need to get the file
+  // from Node-world into JS-world, which we do by base64 encoding it and converting
+  // it to an ArrayBuffer in the browser.
+  const dataTransfer = await showPage.evaluateHandle((dataB64) => {
+    const dt = new DataTransfer();
+    const dataStr = atob(dataB64);
+    const buf = new ArrayBuffer(dataStr.length);
+    const bufView = new Uint8Array(buf);
+    for (let i = 0; i < dataStr.length; i++) {
+      bufView[i] = dataStr.charCodeAt(i);
+    }
+    const file = new File([buf], "smpte_bars_15s.mp4", {
+      type: "video/mp4",
+    });
+    dt.items.add(file);
+    return dt;
+  }, testFile.toString("base64"));
+  await showPage
+    .getByText("Drop video files here, or click to select")
+    .dispatchEvent("drop", { dataTransfer });
+
+  await expect(
+    showPage.getByRole("button", { name: "Media pending" }),
+  ).toBeVisible();
+  await expect(
+    showPage.getByRole("button", { name: "Media processing" }),
+  ).toBeVisible();
+  await expect(
+    showPage.getByRole("button", { name: "Good to go!" }),
+  ).toBeVisible({
+    timeout: 30_000,
+  });
+
+  await expect
+    .soft(showPage.getByTestId("ShowItemsList.runtime"))
+    .toHaveText("Total runtime: 00:15");
+  await expect
+    .soft(showPage.getByTestId("ContinuityItemRow.duration"))
+    .toHaveText("00:15");
 });
