@@ -86,11 +86,15 @@ test("add rundown items + check runtime", async ({ showPage }) => {
   await showPage.getByRole("button", { name: "Add Segment" }).click();
   await showPage.getByLabel("Name").fill("Segment 1");
   await showPage.getByLabel("Duration (seconds)").fill("60");
+  const r1 = showPage.waitForRequest((r) => r.method() === "POST");
   await showPage.getByRole("button", { name: "Create" }).click();
+  await r1;
 
   await showPage.getByLabel("Name").fill("Segment 2");
   await showPage.getByLabel("Duration (seconds)").fill("60");
+  const r2 = showPage.waitForRequest((r) => r.method() === "POST");
   await showPage.getByRole("button", { name: "Create" }).click();
+  await r2;
 
   await showPage.getByLabel("Name").press("Escape");
 
