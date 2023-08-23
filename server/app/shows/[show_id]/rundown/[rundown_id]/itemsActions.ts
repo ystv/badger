@@ -250,7 +250,7 @@ async function ensureContiguousDEV(
         }
       }
     }
-    if (items[items.length - 1] !== items.length - 1) {
+    if (items.length > 0 && items[items.length - 1] !== items.length - 1) {
       throw new Error(
         `Invariant violation: non-contiguous order for items of rundown ${rundownID}; last item has order ${
           items[items.length - 1]
