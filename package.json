@@ -20,7 +20,7 @@
     "prepare": "husky install"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": "eslint --fix",
+    "{desktop,server,jobrunner,utility}/*.{js,jsx,ts,tsx}": "eslint --fix",
     "*": "prettier --ignore-unknown --write"
   }
 }

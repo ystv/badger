@@ -1,7 +1,6 @@
 import { message, danger, fail, warn } from "danger";
 
-const issueKeyRe = /([A-Z]+-\d+)/g;
-const issueKeyReIgnoreCase = /([A-Z]+-\d+)/gi;
+const issueKeyRe = /(BOW-\d+)/g;
 
 async function findAddedAndRemovedTodoIssues() {
   const removed = new Set<string>();
@@ -78,12 +77,14 @@ You can also include \`Closes ${Array.from(removed).join(
   }
 };
 
+const ticketBranchPrefixRe = /^bow-\d+/i;
+
 if (danger.github.pr) {
   if (
     !(
       issueKeyRe.test(danger.github.pr.title) ||
       issueKeyRe.test(danger.github.pr.body) ||
-      issueKeyReIgnoreCase.test(danger.github.pr.head.ref)
+      ticketBranchPrefixRe.test(danger.github.pr.head.ref)
     )
   ) {
     warn(
