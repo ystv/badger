@@ -5,7 +5,7 @@ export const UserSchema = z.object({
   first_name: z.string(),
   last_name: z.string(),
   server_name: z.string(),
-  its_name: z.string(),
+  its_name: z.string().optional(),
   email: z.string().email(),
   groups: z.array(z.string()),
 });
