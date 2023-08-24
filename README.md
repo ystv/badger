@@ -28,12 +28,13 @@ It also interfaces with a few other services:
 
 `desktop`, `jobrunner`, and `server` are all independent projects with their own `package.json` files.
 They are combined into a single project using [Yarn Workspaces](https://yarnpkg.com/features/workspaces).
-There are also some extra packages, currently our [Prisma](https://www.prisma.io/) database client, in the `utility` folder.
+There are also some extra packages, currently our [shadcn/ui](https://ui.shadcn.com) components and our [Prisma](https://www.prisma.io/) database client, in the `utility` folder.
 
 In terms of imports,
 * `desktop` imports some types from `server`, namely tRPC definitions
   * Note that only type imports are allowed, to avoid bundling server code into the desktop build. ESLint will warn you if you try to import anything else. (Importing from `@bowser/prisma` is fine.)
 * `jobrunner` is entirely separate from `server`
+* Desktop and Server use `@bowser/prisma` (our UI components library, found in `utility/components`)
 * All three import `@bowser/prisma` (the Prisma client, found in `utility/prisma`)
 
 In terms of communication,
