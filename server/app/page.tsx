@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import type { Prisma } from "@bowser/prisma/client";
 import { Pagination } from "@/components/Pagination";
 import Link from "next/link";
 import { Fragment } from "react";
@@ -14,16 +15,17 @@ import {
 const PAGE_SIZE = 25;
 
 export default async function ShowsPage(props: {
-  searchParams: { page?: string };
+  searchParams: { page?: string; includePast?: string };
 }) {
   const page = props.searchParams.page
     ? parseInt(props.searchParams.page) - 1
     : 0;
-  const conditions = {
-    start: {
+  const conditions: Prisma.ShowWhereInput = {};
+  if (props.searchParams.includePast !== "true") {
+    conditions["start"] = {
       gt: new Date(),
-    },
-  };
+    };
+  }
   const [shows, total] = await db.$transaction([
     db.show.findMany({
       where: conditions,
@@ -41,6 +43,15 @@ export default async function ShowsPage(props: {
       <Link href="/shows/create">
         <Button color="primary">New Show</Button>
       </Link>
+      {props.searchParams.includePast !== "true" ? (
+        <Button color="ghost" asChild>
+          <Link href="/?includePast=true">Include shows in the past</Link>
+        </Button>
+      ) : (
+        <Button color="ghost" asChild>
+          <Link href="/">Hide shows in the past</Link>
+        </Button>
+      )}
       <Table>
         <TableBody>
           {shows.map((show) => (
