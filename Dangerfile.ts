@@ -1,6 +1,7 @@
-import { message, danger, fail } from "danger";
+import { message, danger, fail, warn } from "danger";
 
 const issueKeyRe = /([A-Z]+-\d+)/g;
+const issueKeyReIgnoreCase = /([A-Z]+-\d+)/gi;
 
 async function findAddedAndRemovedTodoIssues() {
   const removed = new Set<string>();
@@ -76,3 +77,17 @@ You can also include \`Closes ${Array.from(removed).join(
     );
   }
 };
+
+if (danger.github.pr) {
+  if (
+    !(
+      issueKeyRe.test(danger.github.pr.title) ||
+      issueKeyRe.test(danger.github.pr.body) ||
+      issueKeyReIgnoreCase.test(danger.github.pr.head.ref)
+    )
+  ) {
+    warn(
+      "No Linear ticket found. Please include one in either the pull request title (e.g. `[BOW-123] Fix something`), the description (`Fixes BOW-123.`), or the branch name (`bow-123-fix-something`).",
+    );
+  }
+}
