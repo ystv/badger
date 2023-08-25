@@ -29,6 +29,7 @@ pipeline {
         stage('Build Images') {
             environment {
                 SENTRY_DSN = credentials('bowser-sentry-dsn')
+                SENTRY_AUTH_TOKEN = credentials('bowser-sentry-auth-token')
             }
             parallel {
                 stage('Server') {
@@ -36,6 +37,7 @@ pipeline {
                         sh """docker build \\
                                 --build-arg GIT_REV=${env.GIT_COMMIT} \\
                                 --build-arg SENTRY_DSN=\$SENTRY_DSN \\
+                                --build-arg SENTRY_AUTH_TOKEN=\$SENTRY_AUTH_TOKEN \\
                                 --build-arg IS_PRODUCTION_BUILD=${env.BRANCH_NAME == 'main' ? 'true' : ''} \\
                                 -t registry.comp.ystv.co.uk/ystv/bowser/server:${imageNamePrefix}${env.BUILD_NUMBER} \\
                                 -f Dockerfile.server ."""
@@ -46,6 +48,8 @@ pipeline {
                         sh """docker build \\
                                 --build-arg GIT_REV=${env.GIT_COMMIT} \\
                                 --build-arg SENTRY_DSN=\$SENTRY_DSN \\
+                                --build-arg SENTRY_AUTH_TOKEN=\$SENTRY_AUTH_TOKEN \\
+                                --build-arg IS_PRODUCTION_BUILD=${env.BRANCH_NAME == 'main' ? 'true' : ''} \\
                                 -t registry.comp.ystv.co.uk/ystv/bowser/jobrunner:${imageNamePrefix}${env.BUILD_NUMBER} \\
                                 -f Dockerfile.jobrunner ."""
                     }
