@@ -35,7 +35,7 @@ pipeline {
                     steps {
                         sh """docker build 
                                 --build-arg GIT_REV=${env.GIT_COMMIT} 
-                                --build-arg SENTRY_DSN=${env.SENTRY_DSN} 
+                                --build-arg SENTRY_DSN=\$SENTRY_DSN
                                 --build-arg IS_PRODUCTION_BUILD=${env.BRANCH_NAME == 'main'}
                                 -t registry.comp.ystv.co.uk/ystv/bowser/server:${imageNamePrefix}${env.BUILD_NUMBER} 
                                 -f Dockerfile.server ."""
@@ -45,7 +45,7 @@ pipeline {
                     steps {
                         sh """docker build
                                 --build-arg GIT_REV=${env.GIT_COMMIT}
-                                --build-arg SENTRY_DSN=${env.SENTRY_DSN} 
+                                --build-arg SENTRY_DSN=\$SENTRY_DSN
                                 -t registry.comp.ystv.co.uk/ystv/bowser/jobrunner:${imageNamePrefix}${env.BUILD_NUMBER}
                                 -f Dockerfile.jobrunner ."""
                     }
