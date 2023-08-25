@@ -61,6 +61,7 @@ export function Settings() {
         {devToolsState.enabled && (
           <TabsTrigger value="devtools">Developer Tools</TabsTrigger>
         )}
+        <TabsTrigger value="about">About</TabsTrigger>
       </TabsList>
       {integrations.includes("obs") && (
         <TabsContent value="obs">
@@ -101,6 +102,18 @@ export function Settings() {
           </div>
         </TabsContent>
       )}
+      <TabsContent value="about">
+        <h2 className="text-xl">Bowser</h2>
+        <p>
+          Version <code>{global.__APP_VERSION__}</code>, built on{" "}
+          {new Date(global.__BUILD_TIME__).toLocaleString()} from{" "}
+          <code>{global.__GIT_COMMIT__.slice(0, 7)}</code>
+        </p>
+        <p>
+          Originally created by Marks Polakovs in 2023, maintained by the YSTV
+          Computing Team.
+        </p>
+      </TabsContent>
     </Tabs>
   );
 }

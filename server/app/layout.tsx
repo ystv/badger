@@ -28,6 +28,10 @@ export default async function RootLayout({
         >
           <UserProvider value={user}>
             <main className="max-w-3xl mx-auto">{children}</main>
+            <footer className="max-w-3xl mx-auto text-sm text-mid-dark mt-2">
+              This is Bowser {process.env.NEXT_PUBLIC_VERSION} (code version{" "}
+              <code>{process.env.NEXT_PUBLIC_GIT_COMMIT?.slice(0, 7)})</code>.
+            </footer>
           </UserProvider>
         </DebugModeProvider>
       </body>

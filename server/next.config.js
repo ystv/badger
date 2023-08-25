@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { PrismaPlugin } = require("@prisma/nextjs-monorepo-workaround-plugin");
 const { withSentryConfig } = require("@sentry/nextjs");
+const { execFileSync } = require("child_process");
+
+const packageJSON = require("./package.json");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -16,6 +19,12 @@ const nextConfig = {
 
     return config;
   },
+  env: {
+    NEXT_PUBLIC_VERSION: packageJSON.version,
+    NEXT_PUBLIC_GIT_COMMIT: execFileSync("git", ["rev-parse", "HEAD"])
+      .toString()
+      .trim(),
+  },
 };
 
 module.exports = withSentryConfig(
@@ -30,6 +39,7 @@ module.exports = withSentryConfig(
     org: "ystv",
     project: "bowser",
     authToken: process.env.SENTRY_AUTH_TOKEN,
+    release: packageJSON.version,
   },
   {
     // For all available options, see:

@@ -17,7 +17,7 @@
     "dev": "tsx watch src/index.ts",
     "prettify": "prettier --write .",
     "typecheck": "tsc --noEmit",
-    "build": "esbuild --bundle src/index.ts --outfile=dist/index.cjs --sourcemap --platform=node --target=node18",
+    "build": "esbuild --bundle src/index.ts --outfile=dist/index.cjs --sourcemap --platform=node --target=node18 --define:__APP_VERSION__=\\\"$npm_package_version\\\" --define:__GIT_COMMIT__=\\\"$(git rev-parse HEAD)\\\"",
     "lint": "eslint src/**/*.ts"
   },
   "dependencies": {

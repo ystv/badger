@@ -11,6 +11,10 @@ import { LoadAssetJob } from "./jobs/LoadAssetJob.js";
 import DummyTestJob from "./jobs/DummyTestJob.js";
 import * as Sentry from "@sentry/node";
 
+// Set in the esbuild command line
+declare const __APP_VERSION__: string | undefined;
+declare const __GIT_COMMIT__: string | undefined;
+
 if (process.env.SENTRY_DSN) {
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
@@ -18,7 +22,13 @@ if (process.env.SENTRY_DSN) {
     // We recommend adjusting this value in production, or using tracesSampler
     // for finer control
     tracesSampleRate: 1.0,
+
+    release:
+      __APP_VERSION__ &&
+      __GIT_COMMIT__ &&
+      __APP_VERSION__ + "-" + __GIT_COMMIT__.slice(0, 7),
   });
+  console.log("[Jobrunner] Sentry enabled");
 }
 
 dotenv.config();
