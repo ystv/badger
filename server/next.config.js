@@ -38,8 +38,7 @@ module.exports = withSentryConfig(
     tunnelRoute: "/monitoring",
     hideSourceMaps: true,
     disableLogger: true,
-    // FIXME: uncomment this once tested that sourcemap uploads work
-    // disableClientWebpackPlugin: !process.env.IS_PRODUCTION_BUILD,
-    // disableServerWebpackPlugin: !process.env.IS_PRODUCTION_BUILD,
+    disableClientWebpackPlugin: process.env.IS_PRODUCTION_BUILD !== "true",
+    disableServerWebpackPlugin: process.env.IS_PRODUCTION_BUILD !== "true",
   },
 );
