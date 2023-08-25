@@ -42,7 +42,7 @@ module.exports = {
               "Next's @-prefixed imports won't work. Import from bowser-server instead.",
           },
           {
-            group: ["electron"],
+            group: ["^electron"],
             importNames: ["safeStorage"],
             message:
               "Use main/safeStorage.ts instead to avoid E2E test failures.",

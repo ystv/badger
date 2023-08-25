@@ -21,6 +21,7 @@
     "@bowser/prisma": "workspace:*",
     "@bowser/testing": "workspace:*",
     "@hookform/resolvers": "^3.1.1",
+    "@sentry/nextjs": "latest",
     "@tailwindcss/forms": "^0.5.4",
     "@trpc/server": "^10.34.0",
     "@types/lodash": "^4.14.196",

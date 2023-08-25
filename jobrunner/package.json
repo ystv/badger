@@ -25,6 +25,7 @@
     "@bowser/prisma": "workspace:*",
     "@bowser/testing": "workspace:*",
     "@googleapis/drive": "^8.0.0",
+    "@sentry/node": "^7.64.0",
     "@types/dotenv-flow": "^3.2.0",
     "dotenv-flow": "^3.2.0",
     "got": "^13.0.0",

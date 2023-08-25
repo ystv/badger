@@ -22,7 +22,7 @@ export function LoginForm(props: { return?: string }) {
         placeholder="********"
         autoComplete="current-password"
       />
-      <HiddenField name="return" value={props.return ?? pathname} />
+      <HiddenField name="return" value={props.return ?? pathname ?? "/"} />
     </Form>
   );
 }

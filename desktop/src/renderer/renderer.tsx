@@ -25,8 +25,21 @@
  *  });
  * ```
  */
+import * as Sentry from "@sentry/electron/renderer";
+import { init as reactInit } from "@sentry/react";
 import * as ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
+
+if (import.meta.env.VITE_SENTRY_DSN) {
+  Sentry.init(
+    {
+      dsn: import.meta.env.VITE_SENTRY_DSN,
+    },
+    // @ts-expect-error something wrong with Sentry's typings
+    reactInit,
+  );
+  console.log("[Renderer] Sentry enabled");
+}
 
 ReactDOM.createRoot(document.getElementById("root")!).render(<App />);

@@ -14,7 +14,7 @@ export function Pagination(props: {
 
   const goToPage = useCallback(
     (page: number) => {
-      const url = new URL(path, window.location.href);
+      const url = new URL(path ?? "", window.location.href);
       url.searchParams.set("page", page.toString());
       router.push(url.toString());
     },

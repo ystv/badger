@@ -17,6 +17,8 @@ RUN --mount=type=cache,id=bowser-yarn,target=.yarn/cache yarn workspaces focus b
 
 # NB: Please keep everything above this line the same in all the Dockerfiles, to properly leverage the Docker cache
 ENV NODE_ENV=production
+ARG SENTRY_DSN
+ENV SENTRY_DSN=$SENTRY_DSN
 RUN yarn workspace bowser-server run build
 
 FROM base

@@ -13,6 +13,15 @@ import prefix from "loglevel-plugin-prefix";
 import { tryCreateVMixConnection } from "./vmix";
 import Icon from "../icon/png/64x64.png";
 import { tryCreateOntimeConnection } from "./ontime";
+import * as Sentry from "@sentry/electron/main";
+
+if (import.meta.env.VITE_SENTRY_DSN) {
+  Sentry.init({
+    dsn: import.meta.env.VITE_SENTRY_DSN,
+  });
+  console.log("[Main] Sentry enabled");
+}
+
 logging.setLevel(
   (process.env.LOG_LEVEL as LogLevelNames) ?? logging.levels.DEBUG,
 );
