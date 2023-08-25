@@ -1,10 +1,11 @@
 import { makeJWT, parseAndVerifyJWT } from "@/lib/auth/jwt";
 import { NextRequest } from "next/server";
 import { redirect } from "next/navigation";
-import { User, UserSchema } from "@/lib/auth/types";
+import { UserSchema } from "@/lib/auth/types";
 import invariant from "@/lib/invariant";
 import { DummyTestAuth } from "@/lib/auth/dummyTest";
 import { YSTVAuth } from "@/lib/auth/ystv";
+import * as Sentry from "@sentry/nextjs";
 
 // HACK: middleware runs in the edge runtime and for some reason fails the server-only check
 if (process.env.NEXT_RUNTIME !== "edge") {
@@ -48,6 +49,13 @@ export async function doSignIn(username: string, password: string) {
   cookies().set(cookieName, token, {
     maxAge: 60 * 60 * 24 * 7,
   });
+  if (Sentry.getCurrentHub().getClient()) {
+    Sentry.setUser({
+      id: user.id,
+      username: user.server_name ?? user.its_name ?? user.email,
+      email: user.email,
+    });
+  }
 }
 
 export function makePublicURL(baseUrl: URL | string) {
@@ -77,16 +85,24 @@ async function getSessionFromCookie(req?: NextRequest) {
 export async function checkSession(req?: NextRequest) {
   const sid = await getSessionFromCookie(req);
   if (!sid) return null;
-  let user;
+  let rawUser;
   try {
-    user = await parseAndVerifyJWT(sid, {
+    rawUser = await parseAndVerifyJWT(sid, {
       iss: process.env.PUBLIC_URL!,
     });
   } catch (e) {
     console.warn("Failed to parse JWT", e);
     return null;
   }
-  return UserSchema.parse(user);
+  const user = UserSchema.parse(rawUser);
+  if (Sentry.getCurrentHub().getClient()) {
+    Sentry.setUser({
+      id: user.id,
+      username: user.server_name ?? user.its_name ?? user.email,
+      email: user.email,
+    });
+  }
+  return user;
 }
 
 export async function auth(req?: NextRequest) {

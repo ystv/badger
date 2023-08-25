@@ -42,6 +42,13 @@ export function Pagination(props: {
           Next
         </button>
       )}
+      <button
+        onClick={() => {
+          throw new Error("crash");
+        }}
+      >
+        Crash me
+      </button>
     </div>
   );
 }
