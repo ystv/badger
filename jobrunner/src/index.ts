@@ -9,6 +9,17 @@ import prefix from "loglevel-plugin-prefix";
 import ProcessMediaJob from "./jobs/ProcessMediaJob.js";
 import { LoadAssetJob } from "./jobs/LoadAssetJob.js";
 import DummyTestJob from "./jobs/DummyTestJob.js";
+import * as Sentry from "@sentry/node";
+
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+
+    // We recommend adjusting this value in production, or using tracesSampler
+    // for finer control
+    tracesSampleRate: 1.0,
+  });
+}
 
 dotenv.config();
 logging.setLevel(

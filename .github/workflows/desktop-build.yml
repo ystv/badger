@@ -5,11 +5,11 @@ on:
     inputs:
       ref:
         type: string
-        description: 'Branch, tag, or commit to build.'
+        description: "Branch, tag, or commit to build."
         required: true
       do_release:
         type: boolean
-        description: 'Whether to upload the release to GitHub.'
+        description: "Whether to upload the release to GitHub."
         default: false
   workflow_call:
     inputs:
@@ -21,7 +21,7 @@ on:
         default: false
       do_release:
         type: boolean
-        description: 'Whether to upload the release to GitHub.'
+        description: "Whether to upload the release to GitHub."
         default: true
 
 jobs:
@@ -31,7 +31,7 @@ jobs:
     permissions:
       contents: write
       statuses: write
-    
+
     steps:
       - uses: actions/checkout@v3
         with:
@@ -40,8 +40,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          cache: 'yarn'
-          cache-dependency-path: 'yarn.lock'
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
       - run: yarn install --immutable
 
       - name: Set DEV label for productName
@@ -61,6 +61,7 @@ jobs:
         working-directory: ./desktop
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN || '' }}
 
       - run: ls desktop/out/make
 
@@ -68,4 +69,4 @@ jobs:
         with:
           name: desktop
           path: ./desktop/out/make
-        if: '! inputs.do_release' # because 'publish' will take care of it
+        if: "! inputs.do_release" # because 'publish' will take care of it

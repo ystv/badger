@@ -1,7 +1,15 @@
+import * as Sentry from "@sentry/electron";
 import { contextBridge, ipcRenderer } from "electron";
 import { exposeElectronTRPC } from "electron-trpc/main";
 import { Events } from "./ipcEvents";
 import invariant from "./invariant";
+
+if (import.meta.env.VITE_SENTRY_DSN) {
+  Sentry.init({
+    dsn: import.meta.env.VITE_SENTRY_DSN,
+  });
+  console.log("[Preload] Sentry enabled");
+}
 
 process.once("loaded", async () => {
   exposeElectronTRPC();
