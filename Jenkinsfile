@@ -33,7 +33,7 @@ pipeline {
             parallel {
                 stage('Server') {
                     steps {
-                        sh """docker build 
+                        sh """docker build \\
                                 --build-arg GIT_REV=${env.GIT_COMMIT} \\
                                 --build-arg SENTRY_DSN=\$SENTRY_DSN \\
                                 --build-arg IS_PRODUCTION_BUILD=${env.BRANCH_NAME == 'main' ? 'true' : ''} \\
