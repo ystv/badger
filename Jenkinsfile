@@ -47,7 +47,7 @@ pipeline {
                                 --build-arg GIT_REV=${env.GIT_COMMIT}
                                 --build-arg SENTRY_DSN=${env.SENTRY_DSN} 
                                 -t registry.comp.ystv.co.uk/ystv/bowser/jobrunner:${imageNamePrefix}${env.BUILD_NUMBER}
-                                -f Dockerfile.jobrunner ."
+                                -f Dockerfile.jobrunner ."""
                     }
                 }
             }
