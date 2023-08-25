@@ -33,12 +33,21 @@ pipeline {
             parallel {
                 stage('Server') {
                     steps {
-                        sh "docker build --build-arg GIT_REV=${env.GIT_COMMIT} --build-arg SENTRY_DSN=${env.SENTRY_DSN} -t registry.comp.ystv.co.uk/ystv/bowser/server:${imageNamePrefix}${env.BUILD_NUMBER} -f Dockerfile.server ."
+                        sh """docker build 
+                                --build-arg GIT_REV=${env.GIT_COMMIT} 
+                                --build-arg SENTRY_DSN=${env.SENTRY_DSN} 
+                                --build-arg IS_PRODUCTION_BUILD=${env.BRANCH_NAME == 'main'}
+                                -t registry.comp.ystv.co.uk/ystv/bowser/server:${imageNamePrefix}${env.BUILD_NUMBER} 
+                                -f Dockerfile.server ."""
                     }
                 }
                 stage('Jobrunner') {
                     steps {
-                        sh "docker build --build-arg GIT_REV=${env.GIT_COMMIT} --build-arg SENTRY_DSN=${env.SENTRY_DSN} -t registry.comp.ystv.co.uk/ystv/bowser/jobrunner:${imageNamePrefix}${env.BUILD_NUMBER} -f Dockerfile.jobrunner ."
+                        sh """docker build
+                                --build-arg GIT_REV=${env.GIT_COMMIT}
+                                --build-arg SENTRY_DSN=${env.SENTRY_DSN} 
+                                -t registry.comp.ystv.co.uk/ystv/bowser/jobrunner:${imageNamePrefix}${env.BUILD_NUMBER}
+                                -f Dockerfile.jobrunner ."
                     }
                 }
             }
