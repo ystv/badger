@@ -75,6 +75,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.prerelease && 'prerelease' || 'release' }}
     steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: v${{ needs.do-release.outputs.version }}
       - name: Publish release
         run: |
           gh release edit v${{ needs.do-release.outputs.version }} --draft=false
