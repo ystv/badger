@@ -29,4 +29,10 @@ Sentry.init({
   ],
 
   release: process.env.NEXT_PUBLIC_SENTRY_RELEASE,
+
+  tracePropagationTargets: [
+    "http://localhost:3000",
+    "https://bowser.dev.ystv.co.uk",
+    "https://bowser.ystv.co.uk",
+  ],
 });
