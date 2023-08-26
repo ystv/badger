@@ -13,11 +13,16 @@ import {
 } from "@bowser/components/tabs";
 import { VMixConnection } from "./screens/vMix";
 import { OntimeSettings } from "./screens/Ontime";
+import Button from "@bowser/components/button";
 
 export function Settings() {
   const queryClient = useQueryClient();
   const [devToolsState] = ipc.devtools.getSettings.useSuspenseQuery();
   const [integrations] = ipc.supportedIntegrations.useSuspenseQuery();
+
+  const doMainError = ipc.devtools.throwException.useMutation();
+  const doMainCrash = ipc.devtools.crash.useMutation();
+
   const setDevToolsState = ipc.devtools.setSettings.useMutation({
     // https://tanstack.com/query/latest/docs/react/guides/optimistic-updates
     async onMutate(newSettings) {
@@ -59,7 +64,7 @@ export function Settings() {
         )}
         <TabsTrigger value="advanced">Advanced</TabsTrigger>
         {devToolsState.enabled && (
-          <TabsTrigger value="devtools">Developer Tools</TabsTrigger>
+          <TabsTrigger value="obs-devtools">OBS Developer Tools</TabsTrigger>
         )}
         <TabsTrigger value="about">About</TabsTrigger>
       </TabsList>
@@ -94,9 +99,37 @@ export function Settings() {
           />
           <Label htmlFor="enable-devmode">Enable Developer Mode</Label>
         </div>
+        {devToolsState.enabled && (
+          <div className="flex flex-col items-start space-y-2">
+            <Button
+              color="warning"
+              onClick={() => {
+                throw new Error("Test Renderer Exception");
+              }}
+            >
+              Throw unhandled exception
+            </Button>
+            <Button
+              color="danger"
+              onClick={() => {
+                doMainError.mutate();
+              }}
+            >
+              Throw error in main process
+            </Button>
+            <Button
+              color="danger"
+              onClick={() => {
+                doMainCrash.mutate();
+              }}
+            >
+              Crash main process
+            </Button>
+          </div>
+        )}
       </TabsContent>
       {devToolsState.enabled && (
-        <TabsContent value="devtools">
+        <TabsContent value="obs-devtools">
           <div className="max-h-[90vh] overflow-y-scroll">
             <OBSDevToolsScreen />
           </div>

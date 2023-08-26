@@ -101,6 +101,24 @@ export const appRouter = r({
         await saveDevToolsConfig(input);
         IPCEvents.devToolsSettingsChange();
       }),
+    throwException: proc.mutation(async () => {
+      if (!(await getDevToolsConfig()).enabled) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Dev tools not enabled",
+        });
+      }
+      throw new Error("Test Main Process Exception");
+    }),
+    crash: proc.mutation(async () => {
+      if (!(await getDevToolsConfig()).enabled) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Dev tools not enabled",
+        });
+      }
+      process.crash();
+    }),
   }),
   media: r({
     getDownloadStatus: proc
