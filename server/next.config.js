@@ -39,7 +39,7 @@ module.exports = withSentryConfig(
     silent: true,
 
     org: "ystv",
-    project: "bowser",
+    project: "bowser-server",
     authToken: process.env.SENTRY_AUTH_TOKEN,
     release: sentryRelease,
   },

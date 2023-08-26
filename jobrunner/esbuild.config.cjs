@@ -25,7 +25,7 @@ require("esbuild").build({
   plugins: [
     sentryEsbuildPlugin({
       org: "ystv",
-      project: "bowser",
+      project: "bowser-jobrunner",
       authToken: process.env.SENTRY_AUTH_TOKEN,
       release: sentryRelease,
       disable: process.env.IS_PRODUCTION_BUILD !== "true",

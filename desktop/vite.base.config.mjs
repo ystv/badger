@@ -12,7 +12,7 @@ export default defineConfig({
   plugins: [
     sentryVitePlugin({
       org: "ystv",
-      project: "bowser",
+      project: "bowser-desktop",
       authToken: process.env.SENTRY_AUTH_TOKEN,
       release: {
         name: sentryRelease,
