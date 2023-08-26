@@ -221,6 +221,7 @@ if (require.main === module) {
         doWritePidFile(args.values.pidFile);
       }
       await doJob(parseInt(args.values.job, 10));
+      await Sentry.close();
       process.exit(0);
     }
     if (args.values.watch) {
