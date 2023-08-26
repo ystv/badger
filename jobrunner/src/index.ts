@@ -120,7 +120,8 @@ async function doJob(jobID: number) {
     });
     return;
   } finally {
-    transaction.finish();
+    // The transaction may be undefined if Sentry is not initialised
+    transaction?.finish();
   }
   logger.info(`Job ${nextJob.id} complete`);
   await db.baseJob.update({
