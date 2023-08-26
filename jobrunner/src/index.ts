@@ -79,6 +79,9 @@ async function doJob(jobID: number) {
     // TODO: This assumes that there will never be a jobrunner running that doesn't know how to handle a certain
     //  job type. If we ever introduce heterogeneous jobrunners, this will need to be changed.
     logger.error(`Unknown job type for job ${nextJob.id}`);
+    Sentry.captureMessage(`Unknown job type for job ${nextJob.id}`, {
+      level: "error",
+    });
     await db.baseJob.update({
       where: {
         id: nextJob.id,
@@ -94,6 +97,15 @@ async function doJob(jobID: number) {
   } catch (e) {
     logger.error(`Job ${nextJob.id} failed!`);
     logger.error(e);
+    Sentry.captureException(e, (scope) =>
+      scope
+        .setContext("job", {
+          type: handler.constructor.name,
+          id: nextJob.id,
+        })
+        .setTag("job.name", handler.constructor.name)
+        .setLevel("error"),
+    );
     await db.baseJob.update({
       where: {
         id: nextJob.id,
