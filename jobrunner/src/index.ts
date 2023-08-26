@@ -92,6 +92,10 @@ async function doJob(jobID: number) {
     });
     return;
   }
+  const transaction = Sentry.startTransaction({
+    op: handler.constructor.name,
+    name: `${handler.constructor.name}#${nextJob.id}`,
+  });
   try {
     await handler.run(payload);
   } catch (e) {
@@ -115,6 +119,8 @@ async function doJob(jobID: number) {
       },
     });
     return;
+  } finally {
+    transaction.finish();
   }
   logger.info(`Job ${nextJob.id} complete`);
   await db.baseJob.update({
