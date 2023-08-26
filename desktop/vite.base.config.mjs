@@ -5,7 +5,7 @@ import { execFileSync } from "child_process";
 const packageJSON = require("./package.json");
 const gitCommit =
   process.env.GIT_REV ??
-  execFileSync("/usr/bin/git", ["rev-parse", "HEAD"]).toString().trim();
+  execFileSync("git", ["rev-parse", "HEAD"]).toString().trim();
 const sentryRelease =
   "bowser-desktop@" + packageJSON.version + "-" + gitCommit.slice(0, 7);
 
