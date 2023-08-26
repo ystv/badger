@@ -35,7 +35,7 @@ if (import.meta.env.VITE_SENTRY_DSN) {
   Sentry.init(
     {
       dsn: import.meta.env.VITE_SENTRY_DSN,
-      release: global.__APP_VERSION__ + "-" + global.__GIT_COMMIT__.slice(0, 7),
+      release: global.__SENTRY_RELEASE__,
     },
     // @ts-expect-error something wrong with Sentry's typings
     reactInit,

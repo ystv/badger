@@ -14,6 +14,7 @@ import * as Sentry from "@sentry/node";
 // Set in the esbuild command line
 declare const __APP_VERSION__: string | undefined;
 declare const __GIT_COMMIT__: string | undefined;
+declare const __SENTRY_RELEASE__: string | undefined;
 
 if (process.env.SENTRY_DSN) {
   Sentry.init({
@@ -23,10 +24,7 @@ if (process.env.SENTRY_DSN) {
     // for finer control
     tracesSampleRate: 1.0,
 
-    release:
-      __APP_VERSION__ &&
-      __GIT_COMMIT__ &&
-      __APP_VERSION__ + "-" + __GIT_COMMIT__.slice(0, 7),
+    release: __SENTRY_RELEASE__,
   });
   console.log("[Jobrunner] Sentry enabled");
 }
@@ -211,7 +209,12 @@ if (require.main === module) {
         console.error("Cannot use --force with --watch");
         process.exit(1);
       }
-      logger.info("Starting Job Runner");
+      logger.info(
+        `Starting Job Runner v${__APP_VERSION__} (${__GIT_COMMIT__?.slice(
+          0,
+          7,
+        )})`,
+      );
       // Check that the DB is available before writing the PID file to ensure we're ready
       await db.$queryRaw`SELECT 1+1`;
       if (args.values.pidFile) {

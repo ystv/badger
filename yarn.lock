@@ -3609,6 +3609,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sentry/esbuild-plugin@npm:^2.7.0":
+  version: 2.7.0
+  resolution: "@sentry/esbuild-plugin@npm:2.7.0"
+  dependencies:
+    "@sentry/bundler-plugin-core": 2.7.0
+    unplugin: 1.0.1
+    uuid: ^9.0.0
+  checksum: 61a5e1a8264ce30f720e265b8952cf71b57765587d95962b07fc452702b6e20b8e897be3820f3346195bff32c087d591ed393b4259d6580a5edd0c4e9227101b
+  languageName: node
+  linkType: hard
+
 "@sentry/integrations@npm:7.64.0":
   version: 7.64.0
   resolution: "@sentry/integrations@npm:7.64.0"
@@ -5759,6 +5770,7 @@ __metadata:
     "@bowser/prisma": "workspace:*"
     "@bowser/testing": "workspace:*"
     "@googleapis/drive": ^8.0.0
+    "@sentry/esbuild-plugin": ^2.7.0
     "@sentry/node": ^7.64.0
     "@tsconfig/node18": ^18.2.0
     "@types/dotenv-flow": ^3.2.0

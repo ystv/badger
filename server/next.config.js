@@ -4,6 +4,9 @@ const { withSentryConfig } = require("@sentry/nextjs");
 const { execFileSync } = require("child_process");
 
 const packageJSON = require("./package.json");
+const gitCommit = execFileSync("git", ["rev-parse", "HEAD"]).toString().trim();
+const sentryRelease =
+  "bowser-server@" + packageJSON.version + "-" + gitCommit.slice(0, 7);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -21,9 +24,8 @@ const nextConfig = {
   },
   env: {
     NEXT_PUBLIC_VERSION: packageJSON.version,
-    NEXT_PUBLIC_GIT_COMMIT: execFileSync("git", ["rev-parse", "HEAD"])
-      .toString()
-      .trim(),
+    NEXT_PUBLIC_GIT_COMMIT: gitCommit,
+    NEXT_PUBLIC_SENTRY_RELEASE: sentryRelease,
   },
 };
 
@@ -39,7 +41,7 @@ module.exports = withSentryConfig(
     org: "ystv",
     project: "bowser",
     authToken: process.env.SENTRY_AUTH_TOKEN,
-    release: packageJSON.version,
+    release: sentryRelease,
   },
   {
     // For all available options, see:
