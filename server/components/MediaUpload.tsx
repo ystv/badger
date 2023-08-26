@@ -59,6 +59,7 @@ export const MediaUploadDialog = forwardRef<
     onDrop(files) {
       uploadRef.current = new tus.Upload(files[0], {
         endpoint,
+        retryDelays: [0, 1000, 3000, 5000],
         onError: function (error) {
           setIsUploading(false);
           setError(error.message);
