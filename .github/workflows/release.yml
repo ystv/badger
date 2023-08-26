@@ -69,6 +69,7 @@ jobs:
       ref: v${{ needs.do-release.outputs.version }}
       prerelease: ${{ inputs.prerelease }}
       do_release: true
+    secrets: inherit
 
   publish-release:
     needs: [desktop-build, do-release]
