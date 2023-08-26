@@ -4,7 +4,9 @@ const { withSentryConfig } = require("@sentry/nextjs");
 const { execFileSync } = require("child_process");
 
 const packageJSON = require("./package.json");
-const gitCommit = execFileSync("git", ["rev-parse", "HEAD"]).toString().trim();
+const gitCommit =
+  process.env.GIT_REV ??
+  execFileSync("/usr/bin/git", ["rev-parse", "HEAD"]).toString().trim();
 const sentryRelease =
   "bowser-server@" + packageJSON.version + "-" + gitCommit.slice(0, 7);
 

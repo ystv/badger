@@ -3,7 +3,9 @@ import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { execFileSync } from "child_process";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJSON = require("./package.json");
-const gitCommit = execFileSync("git", ["rev-parse", "HEAD"]).toString().trim();
+const gitCommit =
+  process.env.GIT_REV ??
+  execFileSync("/usr/bin/git", ["rev-parse", "HEAD"]).toString().trim();
 const sentryRelease =
   "bowser-desktop@" + packageJSON.version + "-" + gitCommit.slice(0, 7);
 

@@ -2,10 +2,12 @@
 const { sentryEsbuildPlugin } = require("@sentry/esbuild-plugin");
 
 const packageJSON = require("./package.json");
-const gitCommit = require("child_process")
-  .execFileSync("git", ["rev-parse", "HEAD"])
-  .toString()
-  .trim();
+const gitCommit =
+  process.env.GIT_REV ??
+  require("child_process")
+    .execFileSync("/usr/bin/git", ["rev-parse", "HEAD"])
+    .toString()
+    .trim();
 const sentryRelease =
   "bowser-jobrunner@" + packageJSON.version + "-" + gitCommit.slice(0, 7);
 
