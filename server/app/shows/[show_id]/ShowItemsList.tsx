@@ -18,6 +18,7 @@ import React, {
   useMemo,
   useState,
   useTransition,
+  useRef,
 } from "react";
 import {
   addItem,
@@ -66,18 +67,28 @@ function AddItemPopover(props: {
   close?: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
+  const nameRef = useRef<HTMLInputElement>(null);
   return (
     <form
       action={(data) =>
         startTransition(async () => {
           await addItem(props.showID, props.type, data.get("name") as string);
           props.close?.();
+          if (nameRef.current) {
+            nameRef.current.value = "";
+            nameRef.current.focus();
+          }
         })
       }
     >
       <label className="my-1">
         Name
-        <Input required name="name" data-testid={"name-" + props.type} />
+        <Input
+          required
+          name="name"
+          data-testid={"name-" + props.type}
+          ref={nameRef}
+        />
       </label>
       <Button
         color="primary"
