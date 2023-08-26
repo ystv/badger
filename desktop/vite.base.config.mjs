@@ -14,7 +14,9 @@ export default defineConfig({
       org: "ystv",
       project: "bowser",
       authToken: process.env.SENTRY_AUTH_TOKEN,
-      release: sentryRelease,
+      release: {
+        name: sentryRelease,
+      },
     }),
   ],
   define: {
