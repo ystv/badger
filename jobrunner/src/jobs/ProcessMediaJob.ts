@@ -193,7 +193,11 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
             state: MediaState.ProcessingFailed,
           },
         });
-        return;
+        throw new AggregateError(
+          results
+            .filter((x) => x.status === "rejected")
+            .map((x) => (x as PromiseRejectedResult).reason),
+        );
       }
       await this.db.media.update({
         where: {
