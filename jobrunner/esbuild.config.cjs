@@ -29,7 +29,9 @@ require("esbuild").build({
       org: "ystv",
       project: "bowser-jobrunner",
       authToken: process.env.SENTRY_AUTH_TOKEN,
-      release: sentryRelease,
+      release: {
+        name: sentryRelease,
+      },
       disable: process.env.IS_PRODUCTION_BUILD !== "true",
     }),
   ],
