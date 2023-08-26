@@ -334,7 +334,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
           `I=${TARGET_LOUDNESS_LUFS}`,
           `LRA=${TARGET_LOUDNESS_RANGE_LUFS}`,
           `TP=${TARGET_TRUE_PEAK_DBTP}`,
-          `measured_I=${loudnormData.input_i}`,
+          `measured_I=${Math.min(parseFloat(loudnormData.input_i), 0)}`,
           `measured_LRA=${loudnormData.input_lra}`,
           `measured_TP=${loudnormData.input_tp}`,
           `measured_thresh=${loudnormData.input_thresh}`,
