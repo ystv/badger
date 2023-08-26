@@ -16,9 +16,9 @@ declare const __APP_VERSION__: string | undefined;
 declare const __GIT_COMMIT__: string | undefined;
 declare const __SENTRY_RELEASE__: string | undefined;
 
-if (process.env.SENTRY_DSN) {
+if (process.env.JOBRUNNER_SENTRY_DSN) {
   Sentry.init({
-    dsn: process.env.SENTRY_DSN,
+    dsn: process.env.JOBRUNNER_SENTRY_DSN,
 
     // We recommend adjusting this value in production, or using tracesSampler
     // for finer control
