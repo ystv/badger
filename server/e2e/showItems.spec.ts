@@ -1,9 +1,40 @@
 import { test as base, expect, Page } from "@playwright/test";
 import { readFileSync } from "fs";
 
+/** Playwright doesn't natively support dropping files, so we need to dispatch
+   the DataTransfer event ourselves. In order to do that, we need to get the file
+   from Node-world into JS-world, which we do by base64 encoding it and converting
+   it to an ArrayBuffer in the browser. */
+async function fileToDataTransfer(
+  page: Page,
+  file: Buffer,
+  name: string,
+  type: string,
+) {
+  return await page.evaluateHandle(
+    ([dataB64, name, type]) => {
+      const dt = new DataTransfer();
+      const dataStr = atob(dataB64);
+      const buf = new ArrayBuffer(dataStr.length);
+      const bufView = new Uint8Array(buf);
+      for (let i = 0; i < dataStr.length; i++) {
+        bufView[i] = dataStr.charCodeAt(i);
+      }
+      const file = new File([buf], name, {
+        type: type,
+      });
+      dt.items.add(file);
+      return dt;
+    },
+    [file.toString("base64"), name, type],
+  );
+}
+
 const test = base.extend<{ showPage: Page }>({
   showPage: async ({ page, request }, use) => {
     await request.post("/api/resetDBInTestsDoNotUseOrYouWillBeFired");
+
+    await page.goto("/enableDebugMode?value=false");
 
     await page.goto("/shows/create");
     await page.getByLabel("Name").fill("Test Show");
@@ -125,28 +156,16 @@ test("add media", async ({ showPage }) => {
   await showPage.locator("body").press("Escape");
 
   await showPage.getByRole("button", { name: "Media Missing" }).click();
-
-  // Playwright doesn't natively support dropping files, so we need to dispatch
-  // the DataTransfer event ourselves. In order to do that, we need to get the file
-  // from Node-world into JS-world, which we do by base64 encoding it and converting
-  // it to an ArrayBuffer in the browser.
-  const dataTransfer = await showPage.evaluateHandle((dataB64) => {
-    const dt = new DataTransfer();
-    const dataStr = atob(dataB64);
-    const buf = new ArrayBuffer(dataStr.length);
-    const bufView = new Uint8Array(buf);
-    for (let i = 0; i < dataStr.length; i++) {
-      bufView[i] = dataStr.charCodeAt(i);
-    }
-    const file = new File([buf], "smpte_bars_15s.mp4", {
-      type: "video/mp4",
-    });
-    dt.items.add(file);
-    return dt;
-  }, testFile.toString("base64"));
   await showPage
     .getByText("Drop video files here, or click to select")
-    .dispatchEvent("drop", { dataTransfer });
+    .dispatchEvent("drop", {
+      dataTransfer: await fileToDataTransfer(
+        showPage,
+        testFile,
+        "smpte_bars_15s.mp4",
+        "video/mp4",
+      ),
+    });
 
   await expect(
     showPage.getByRole("button", { name: "Good to go!" }),
@@ -160,4 +179,72 @@ test("add media", async ({ showPage }) => {
   await expect
     .soft(showPage.getByTestId("ContinuityItemRow.duration"))
     .toHaveText("00:15");
+});
+
+test("media/assets for long rundowns", async ({ showPage }) => {
+  const testFile = readFileSync(__dirname + "/testdata/smpte_bars_15s.mp4");
+  await showPage.getByRole("button", { name: "New Rundown" }).click();
+  await expect(showPage.getByTestId("name-rundown")).toBeVisible();
+  await showPage.getByTestId("name-rundown").fill("Test");
+  await showPage.getByTestId("create-rundown").click();
+  await expect(showPage.getByLabel("Name")).toHaveValue("");
+  await showPage.locator("body").press("Escape");
+
+  await showPage.getByRole("link", { name: "Edit" }).click();
+  await showPage.waitForURL("**/shows/*/rundown/*");
+
+  await showPage.getByRole("button", { name: "Add Segment" }).click();
+  for (let i = 0; i < 25; i++) {
+    await showPage.keyboard.press("End");
+    await showPage.getByLabel("Name").fill("Segment " + i);
+    await showPage.getByLabel("Duration (seconds)").fill("60");
+    await showPage.getByRole("button", { name: "Create" }).click();
+    await expect(showPage.getByLabel("Name")).toHaveValue("");
+  }
+
+  await showPage.getByLabel("Name").press("Escape");
+
+  await showPage.getByRole("button", { name: "Add Segment" }).click();
+  await showPage.getByLabel("Name").fill("Test VT");
+  await showPage.getByLabel("Type").selectOption("VT");
+  await showPage.getByRole("button", { name: "Create" }).click();
+  await expect(showPage.getByLabel("Name")).toHaveValue("");
+
+  await showPage
+    .getByRole("button", { name: "Media Missing" })
+    .scrollIntoViewIfNeeded();
+  await showPage.getByRole("button", { name: "Media Missing" }).click();
+  await expect(
+    showPage.getByText("Drop video files here, or click to select"),
+  ).toBeInViewport();
+  await showPage
+    .getByText("Drop video files here, or click to select")
+    .dispatchEvent("drop", {
+      dataTransfer: await fileToDataTransfer(
+        showPage,
+        testFile,
+        "smpte_bars_15s.mp4",
+        "video/mp4",
+      ),
+    });
+
+  await showPage
+    .getByRole("button", { name: "Upload new asset" })
+    .scrollIntoViewIfNeeded();
+  await showPage.getByRole("button", { name: "Upload new asset" }).click();
+  // assert it isn't off-screen (BOW-89)
+  await expect(showPage.getByRole("combobox")).toBeInViewport();
+  await showPage.getByRole("combobox").selectOption("Graphic");
+  const req = showPage.waitForRequest("http://localhost:1080/*");
+  await showPage
+    .getByText("Drop file here, or click to select")
+    .dispatchEvent("drop", {
+      dataTransfer: await fileToDataTransfer(
+        showPage,
+        testFile,
+        "smpte_bars_15s.mp4",
+        "video/mp4",
+      ),
+    });
+  await req;
 });
