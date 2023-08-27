@@ -195,10 +195,9 @@ test("media/assets for long rundowns", async ({ showPage }) => {
 
   await showPage.getByRole("button", { name: "Add Segment" }).click();
   for (let i = 0; i < 25; i++) {
-    await showPage.keyboard.press("End");
     await showPage.getByLabel("Name").fill("Segment " + i);
     await showPage.getByLabel("Duration (seconds)").fill("60");
-    await showPage.getByRole("button", { name: "Create" }).click();
+    await showPage.getByLabel("Duration (seconds)").press("Enter");
     await expect(showPage.getByLabel("Name")).toHaveValue("");
   }
 
