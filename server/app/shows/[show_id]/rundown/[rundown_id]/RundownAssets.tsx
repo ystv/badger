@@ -201,7 +201,7 @@ export default function RundownAssets(props: { rundown: RundownWithAssets }) {
           }
         }}
       >
-        <DialogContent className="mx-auto max-w-sm rounded bg-light p-8 relative">
+        <DialogContent className="mx-auto max-w-sm rounded bg-light p-8">
           <DialogHeader>
             <DialogTitle>
               Upload new {newUploadType === "$none" ? "asset" : newUploadType}
