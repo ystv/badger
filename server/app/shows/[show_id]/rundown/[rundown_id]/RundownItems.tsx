@@ -95,7 +95,7 @@ function AddSegment(props: { rundown: CompleteRundown }) {
           <Field name="name" label="Name" ref={nameRef} />
           <SelectField
             name="type"
-            label="type"
+            label="Type"
             options={Object.keys(ItemTypeSchema.enum)}
             renderOption={identity}
             getOptionValue={identity}
