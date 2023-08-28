@@ -1,17 +1,20 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { sentryEsbuildPlugin } = require("@sentry/esbuild-plugin");
+import * as esbuild from "esbuild";
+import { sentryEsbuildPlugin } from "@sentry/esbuild-plugin";
+import packageJSON from "./package.json" assert { type: "json" };
+import { execFileSync } from "child_process";
+import { copyFile } from "fs/promises";
+import * as glob from "glob";
+import path from "path";
 
-const packageJSON = require("./package.json");
 const gitCommit =
   process.env.GIT_REV ??
-  require("child_process")
-    .execFileSync("/usr/bin/git", ["rev-parse", "HEAD"])
-    .toString()
-    .trim();
+  execFileSync("/usr/bin/git", ["rev-parse", "HEAD"]).toString().trim();
+
 const sentryRelease =
   "bowser-jobrunner@" + packageJSON.version + "-" + gitCommit.slice(0, 7);
 
-require("esbuild").build({
+await esbuild.build({
   bundle: true,
   entryPoints: ["./src/index.ts"],
   outfile: "./dist/index.cjs",
@@ -36,3 +39,11 @@ require("esbuild").build({
     }),
   ],
 });
+
+// Ensure Prisma still works
+await copyFile("../utility/prisma/schema.prisma", "dist/schema.prisma");
+const enginesPath = glob.globSync("../utility/prisma/client/*.node");
+if (enginesPath.length !== 1) {
+  throw new Error("Expected exactly one Prisma engine binary");
+}
+await copyFile(enginesPath[0], "dist/" + path.basename(enginesPath[0]));

@@ -5779,6 +5779,7 @@ __metadata:
     dotenv-flow: ^3.2.0
     esbuild: ^0.18.16
     eslint: latest
+    glob: ^10.3.3
     got: ^13.0.0
     loglevel: ^1.8.1
     loglevel-plugin-prefix: ^0.8.4
@@ -9073,7 +9074,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob@npm:^10.2.2":
+"glob@npm:^10.2.2, glob@npm:^10.3.3":
   version: 10.3.3
   resolution: "glob@npm:10.3.3"
   dependencies:

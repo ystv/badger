@@ -9,6 +9,7 @@
     "@typescript-eslint/parser": "latest",
     "esbuild": "^0.18.16",
     "eslint": "latest",
+    "glob": "^10.3.3",
     "prettier": "^3.0.0",
     "tsx": "^3.12.7",
     "typescript": "^5.1.6"
@@ -18,7 +19,7 @@
     "dev": "tsx watch src/index.ts",
     "prettify": "prettier --write .",
     "typecheck": "tsc --noEmit",
-    "build": "node esbuild.config.cjs",
+    "build": "node esbuild.config.mjs",
     "lint": "eslint src/**/*.ts"
   },
   "dependencies": {

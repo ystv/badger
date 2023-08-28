@@ -31,9 +31,6 @@ COPY --from=mwader/static-ffmpeg:6.0 /ffmpeg /usr/local/bin/
 COPY --from=mwader/static-ffmpeg:6.0 /ffprobe /usr/local/bin/
 
 COPY --from=build /app/jobrunner/dist /app
-# Ensure Prisma still works
-COPY --from=build /app/utility/prisma/schema.prisma /app/schema.prisma
-COPY --from=build /app/utility/prisma /app/utility/prisma
 
 WORKDIR /app
 ENV NODE_ENV=production
