@@ -264,7 +264,12 @@ if (require.main === module) {
       }
       // noinspection InfiniteLoopJS
       for (;;) {
-        await doOneJob();
+        try {
+          await doOneJob();
+        } catch (e) {
+          logger.error("You had one job!");
+          logger.error(e);
+        }
         await sleep(2500);
       }
     }
