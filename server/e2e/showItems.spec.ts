@@ -43,9 +43,9 @@ const test = base.extend<{ showPage: Page }>({
     await page.locator("input[type=time]").fill("19:30");
     await page.keyboard.press("Escape");
     await page.getByRole("button", { name: "Create" }).click();
-    await expect(
-      page.getByRole("heading", { name: "Test Show" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Test Show" })).toBeVisible({
+      timeout: 10_000,
+    });
 
     await use(page);
     await request.post("/api/resetDBInTestsDoNotUseOrYouWillBeFired");

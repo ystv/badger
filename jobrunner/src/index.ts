@@ -1,6 +1,7 @@
 import dotenv from "dotenv-flow";
 import { parseArgs } from "node:util";
 import * as fs from "node:fs";
+import { createServer } from "node:http";
 import { JobState, PrismaClient } from "@bowser/prisma/client";
 import * as os from "os";
 import AbstractJob from "./jobs/base.js";
@@ -169,6 +170,17 @@ function doWritePidFile(path: string) {
   });
 }
 
+function doStartHealthServer(port: number) {
+  const server = createServer((req, res) => {
+    res.writeHead(200);
+    res.end("ok");
+  });
+  server.listen(port);
+  process.on("exit", () => {
+    server.close();
+  });
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 if (require.main === module) {
   (async function () {
@@ -188,6 +200,9 @@ if (require.main === module) {
           default: false,
         },
         pidFile: {
+          type: "string",
+        },
+        healthPort: {
           type: "string",
         },
       },
@@ -220,6 +235,9 @@ if (require.main === module) {
       if (args.values.pidFile) {
         doWritePidFile(args.values.pidFile);
       }
+      if (args.values.healthPort) {
+        doStartHealthServer(parseInt(args.values.healthPort, 10));
+      }
       await doJob(parseInt(args.values.job, 10));
       await Sentry.close();
       process.exit(0);
@@ -239,6 +257,9 @@ if (require.main === module) {
       await db.$queryRaw`SELECT 1+1`;
       if (args.values.pidFile) {
         doWritePidFile(args.values.pidFile);
+      }
+      if (args.values.healthPort) {
+        doStartHealthServer(parseInt(args.values.healthPort, 10));
       }
       // noinspection InfiniteLoopJS
       for (;;) {

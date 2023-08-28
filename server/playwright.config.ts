@@ -84,12 +84,24 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: {
-    command: process.env.CI ? "node server/server.js" : "yarn dev",
-    cwd: process.env.CI ? ".next/standalone" : undefined,
-    url: "http://localhost:3000/api/healthz",
-    reuseExistingServer: !process.env.CI,
-    stdout: "pipe",
-    stderr: "pipe",
-  },
+  webServer: [
+    {
+      command: process.env.CI ? "node server/server.js" : "yarn dev",
+      cwd: process.env.CI ? ".next/standalone" : undefined,
+      url: "http://localhost:3000/api/healthz",
+      reuseExistingServer: !process.env.CI,
+      stdout: "pipe",
+      stderr: "pipe",
+    },
+    {
+      command: process.env.CI
+        ? "node dist/index.cjs --watch --healthPort 28342"
+        : "",
+      cwd: process.env.CI ? "../jobrunner" : undefined,
+      port: 28342,
+      reuseExistingServer: !process.env.CI,
+      stdout: "pipe",
+      stderr: "pipe",
+    },
+  ],
 });
