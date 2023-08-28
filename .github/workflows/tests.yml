@@ -195,6 +195,8 @@ jobs:
       NODE_ENV: test
       E2E_TEST: "true"
       DATABASE_URL: postgres://root:postgres@localhost:5432/bowser_test
+    container:
+      image: mcr.microsoft.com/playwright:v1.37.0-jammy
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 18.x
@@ -223,29 +225,6 @@ jobs:
           yarn build
           cp ../utility/prisma/schema.prisma .
         working-directory: ./jobrunner
-
-      # Adapted from https://playwrightsolutions.com/playwright-github-action-to-cache-the-browser-binaries/
-      - name: Get installed Playwright version
-        id: playwright-version
-        run: echo version=$(yarn info --json @playwright/test | jq -r '.children.Version') >> $GITHUB_OUTPUT
-        working-directory: ./server
-
-      - name: Cache playwright binaries
-        uses: actions/cache@v3
-        id: playwright-cache
-        with:
-          path: |
-            ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
-
-      - name: Install Playwright Browsers
-        run: yarn playwright install --with-deps
-        working-directory: ./server
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-
-      - name: Install Playwright OS dependencies
-        run: npx playwright install-deps
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
 
       - name: Migrate database
         run: yarn prisma:migrateProd
