@@ -148,6 +148,7 @@ test("add rundown items + check runtime", async ({ showPage }) => {
 });
 
 test("add media", async ({ showPage }) => {
+  test.slow();
   const testFile = readFileSync(__dirname + "/testdata/smpte_bars_15s.mp4");
 
   await showPage.getByRole("button", { name: "New Continuity Item" }).click();

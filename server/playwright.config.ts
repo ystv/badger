@@ -96,8 +96,8 @@ export default defineConfig({
     {
       command: process.env.CI
         ? "node dist/index.cjs --watch --healthPort 28342"
-        : "",
-      cwd: process.env.CI ? "../jobrunner" : undefined,
+        : "yarn dev --watch --healthPort 28342",
+      cwd: "../jobrunner",
       port: 28342,
       reuseExistingServer: !process.env.CI,
       stdout: "pipe",
