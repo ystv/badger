@@ -107,13 +107,32 @@ shadcn internally uses [Tailwind CSS](https://tailwindcss.com/) and [Radix UI](h
 Note that our components live in a utility package (`@bowser/components`, found in [utility/components](./utility/components)), which confuses the shadcn CLI, so you may need to add new components by hand.
 When you do this, you'll probably also need to change the `@/lib/utils` import to `./utils`.
 
-### Code Style
-
-We use Prettier to automatically format code. If CI fails because of formatting, just run `yarn prettify`.
+### Testing
 
 When it comes to testing, the policy is "please".
 Write tests for non-trivial code and if you think it'd be valuable, but don't write tests for the sake of writing tests or just to get coverage up.
-We have unit tests (for code that can be tested on its own) and integration tests (for code that *needs* a database or object store to be meaningfully tested), and will at some point ([BOW-69](https://linear.app/ystv/issue/BOW-69/proper-end-to-end-testing) (nice)) have end-to-end testing.
+We have unit tests (for code that can be tested on its own), integration tests (for code that *needs* a database or object store to be meaningfully tested), and end-to-end tests (that start a browser or Electron window and click around like a real user would).
+
+Write the smallest test you can to validate your behaviour - if it can be unit tested, unit test it.
+Integration and E2E tests are slower and more prone to flake (tests failing for seemingly no reason).
+
+We use [Vitest](https://vitest.dev) for our unit and integration tests, and [Playwright](https://playwright.dev/) for our end-to-end tests.
+All tests are run on every pull request by CI (GitHub Actions), and the E2E tests run against Chrome, Firefox, and WebKit (Safari) to validate cross-browser compatibility.
+
+GitHub is configured to not allow merging a pull request untill all tests (including E2E) are passing.
+This not only serves as a safeguard, but also means you can use the "auto-merge" button to automatically merge the PR once all tests have passed.
+
+If a test fails on your PR, fix it.
+We rely on a broad test suite to ensure that Bowser remains functional.
+In some cases the E2E tests can "flake", or fail for seemingly no reason - in this case it's acceptable to re-run the test to see if it'll pass on the second run, but please file a [Linear](https://linear.app/ystv/team/BOW) ticket, with the Playwright test trace (downloadable from the Artifacts section on the GitHub Actions summary), to remind us to track down the cause of the flake and fix it.
+Playwright's [trace](https://playwright.dev/docs/trace-viewer-intro) feature is very useful for tracking down the cause of a failure.
+
+
+As an absolute last resort, if the test keeps failing and you're _sure_ that the failure is unrelated to your code, @markspolakovs and @dan-wade42 can override the merge requirements - though please still file a ticket. 
+
+### Code Style
+
+We use Prettier to automatically format code. If CI fails because of formatting, just run `yarn prettify`.
 
 TODO comments are allowed, but must be associated with a Linear ticket prior to merging your pull request (e.g. `// TODO [BOW-123]: Fix this`).
 It's a good idea to wait until just before merging before you file the ticket, so you don't end up adding TODOs that you later remove.
