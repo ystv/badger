@@ -22,9 +22,9 @@ await esbuild.build({
   platform: "node",
   target: "node18",
   define: {
-    __APP_VERSION__: JSON.stringify(packageJSON.version),
-    __GIT_COMMIT__: JSON.stringify(gitCommit),
-    __SENTRY_RELEASE__: JSON.stringify(sentryRelease),
+    "global.__APP_VERSION__": JSON.stringify(packageJSON.version),
+    "global.__GIT_COMMIT__": JSON.stringify(gitCommit),
+    "global.__SENTRY_RELEASE__": JSON.stringify(sentryRelease),
     "process.env.NODE_ENV": JSON.stringify("production"),
   },
   plugins: [

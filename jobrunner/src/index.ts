@@ -13,9 +13,11 @@ import DummyTestJob from "./jobs/DummyTestJob.js";
 import * as Sentry from "@sentry/node";
 
 // Set in the esbuild command line
-declare const __APP_VERSION__: string | undefined;
-declare const __GIT_COMMIT__: string | undefined;
-declare const __SENTRY_RELEASE__: string | undefined;
+declare const global: {
+  __APP_VERSION__: string | undefined;
+  __GIT_COMMIT__: string | undefined;
+  __SENTRY_RELEASE__: string | undefined;
+};
 
 if (process.env.JOBRUNNER_SENTRY_DSN) {
   Sentry.init({
@@ -25,7 +27,7 @@ if (process.env.JOBRUNNER_SENTRY_DSN) {
     // for finer control
     tracesSampleRate: 1.0,
 
-    release: __SENTRY_RELEASE__,
+    release: global.__SENTRY_RELEASE__,
   });
   console.log("[Jobrunner] Sentry enabled");
 }
@@ -248,10 +250,9 @@ if (require.main === module) {
         process.exit(1);
       }
       logger.info(
-        `Starting Job Runner v${__APP_VERSION__} (${__GIT_COMMIT__?.slice(
-          0,
-          7,
-        )})`,
+        `Starting Job Runner v${
+          global.__APP_VERSION__
+        } (${global.__GIT_COMMIT__?.slice(0, 7)})`,
       );
       // Check that the DB is available before writing the PID file to ensure we're ready
       await db.$queryRaw`SELECT 1+1`;

@@ -16,7 +16,7 @@
   },
   "type": "commonjs",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch --clear-screen=false src/index.ts",
     "prettify": "prettier --write .",
     "typecheck": "tsc --noEmit",
     "build": "node esbuild.config.mjs",
