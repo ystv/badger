@@ -14,6 +14,9 @@
     "lint-staged": "^14.0.1",
     "prettier": "^3.0.3"
   },
+  "resolutions": {
+    "zod": "<=3.21.1"
+  },
   "scripts": {
     "lint": "yarn workspaces foreach -p --exclude bowser-root-workspace run lint",
     "prettify": "yarn workspaces foreach -p --exclude bowser-root-workspace run prettify",
@@ -24,8 +27,5 @@
   "lint-staged": {
     "{desktop,server,jobrunner,utility}/*.{js,jsx,ts,tsx}": "eslint --fix",
     "*": "prettier --ignore-unknown --write"
-  },
-  "resolutions": {
-    "zod": "<=3.21.1"
   }
 }
