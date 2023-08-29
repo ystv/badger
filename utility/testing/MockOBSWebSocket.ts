@@ -207,12 +207,34 @@ class OBSSocket {
 /**
  * A mock OBS WebSocket server.
  * This class is intended to be used in tests to simulate an OBS WebSocket server.
- * To start a mock server, call `MockOBSWebSocket.create` with your test runner's `expect` function (currently Jest and Vitest are supported),
- * and an "actor" function which can be used to respond to client requests and simulate OBS responses.
- * Then, connect your OBS WebSocket client using the server's `port` property.
  * Note that authentication and batched requests are not supported.
  *
- * @example
+ * There are two ways to use the mock OBS server.
+ * The first is to use an "actor" function that drives the simulated OBS connection,
+ * responding to client requests and sending events.
+ * The other is to use the server's `ctx` property directly. This supports all the
+ * features of the actor function, and it may be easier to use, however it only
+ * supports one concurrent client. Its behaviour in the presence of more than one
+ * client connection is undefined.
+ *
+ * @example // used directly
+ *   test("something", async () => {
+ *    const ts = await MockOBSWebSocket.create(expect);
+ *    const client = new OBSWebSocket();
+ *    await client.connect(`ws://localhost:${ts.port}`);
+ *    const evtPromise = ts.ctx.waitForRequest("GetVersion");
+ *    const resPromise = client.call("GetVersion")
+ *    const [req, respond] = await evtPromise;
+ *    respond(true, 100, {
+ *      obsVersion: "1",
+ *      // ...
+ *    });
+ *    expect(resPromise).resolves.toMatchSnapshot();
+ *    await ts.close();
+ *   });
+ *
+ *
+ * @example // with an actor function
  *   test("something", async () => {
  *     const ts = await MockOBSWebSocket.create(expect, async obs => {
  *       const [data, respond] = await obs.waitForRequest("GetVersion");
@@ -241,11 +263,33 @@ export default class MockOBSWebSocket {
     public readonly port: number,
   ) {}
 
+  private _ctx: MockOBSContext | null = null;
+  /**
+   * The WebSocket client connection.
+   * Note that this is *only* available if the server was created *without* an actor function.
+   * If the server was created with an actor function, this access will fail.
+   */
+  public get ctx() {
+    if (this._ctx === null) {
+      throw new Error(
+        "No MockOBSWebSocket context available. Either the server has not received a connection yet, or it was created with an actor function.",
+      );
+    }
+    return this._ctx!;
+  }
+
+  private _ready!: () => void;
+  public readonly waitForConnection = new Promise<void>((resolve) => {
+    this._ready = resolve;
+  });
+
   public static async create(
     expect: typeof vitestExpect,
-    actor: (obs: MockOBSContext) => Promise<unknown>,
+    actor?: (obs: MockOBSContext) => Promise<unknown>,
   ) {
-    const server = new WebSocketServer({ port: 0 });
+    const server = new WebSocketServer({
+      port: 0 /* dynamically allocate a free port */,
+    });
     const mows = new MockOBSWebSocket(
       expect,
       server,
@@ -274,13 +318,25 @@ export default class MockOBSWebSocket {
       const res = await socket.receive();
       expect(res.op).toBe(1); // identify
       expect(res.d.rpcVersion).toBe(1);
+
       // Set up the context now so it's ready as soon as we send the identified message
       const ctx = new MockOBSContext(
         expect,
         socket,
         res.d.eventSubscriptions ?? EventSubscription.All,
       );
-      const actorPromise = actor(ctx);
+      let actorPromise: Promise<unknown> | null = null;
+      if (actor) {
+        actorPromise = actor(ctx);
+      } else {
+        if (mows.openConnections > 0) {
+          expect.unreachable(
+            "only one connection supported without an actor function",
+          );
+        }
+        mows._ctx = ctx;
+      }
+      mows._ready();
       socket.onMessage(async (payload: any) => {
         expect(payload).toBeTypeOf("object");
         switch (payload.op) {
@@ -307,16 +363,24 @@ export default class MockOBSWebSocket {
         evt.resolve();
       }
       mows.openConnections++;
-      await actorPromise;
-      mows.openConnections--;
-      socket.ws.close();
+      if (actorPromise) {
+        await actorPromise;
+        mows.openConnections--;
+        socket.ws.close();
+      } else {
+        socket.ws.on("close", () => {
+          mows.openConnections--;
+        });
+      }
     });
 
     return mows;
   }
 
   public async close() {
-    this.expect.soft(this.openConnections).toBe(0);
+    if (!this._ctx) {
+      this.expect.soft(this.openConnections).toBe(0);
+    }
     this.server.close();
   }
 }
