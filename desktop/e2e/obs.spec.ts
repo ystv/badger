@@ -5,18 +5,21 @@ import {
   _electron as electron,
   expect,
 } from "@playwright/test";
-import { createTRPCProxyClient, httpBatchLink } from "@trpc/client";
+import { createTRPCProxyClient, httpBatchLink, loggerLink } from "@trpc/client";
 import type { AppRouter } from "bowser-server/app/api/_router";
 import MockOBSWebSocket from "@bowser/testing/MockOBSWebSocket.ts";
 import SuperJSON from "superjson";
+import { fetch } from "undici";
 
 const api = createTRPCProxyClient<AppRouter>({
   links: [
     httpBatchLink({
-      url: "http://localhost:3000/trpc",
+      url: "http://localhost:3000/api/trpc",
       headers: () => ({
         Authorization: "Bearer aaa",
       }),
+      // @ts-expect-error the undici types don't match what TRPC is expecting, but they're close enough
+      fetch,
     }),
   ],
   transformer: SuperJSON,
@@ -24,10 +27,9 @@ const api = createTRPCProxyClient<AppRouter>({
 
 const test = base.extend<{
   app: [ElectronApplication, Page];
-  obs: MockOBSWebSocket;
 }>({
   app: async ({}, use) => {
-    const app = await electron.launch({ args: [".vite/build/main.js"] });
+    const app = await electron.launch({ args: [".vite/build/main.cjs"] });
     const win = await app.firstWindow();
 
     await win.waitForLoadState("domcontentloaded");
@@ -43,13 +45,12 @@ const test = base.extend<{
 
     await use([app, win]);
 
+    await expect(
+      app.evaluate(({ ipcMain }) => ipcMain.emit("resetTestSettings")),
+    ).not.toBe(false);
+
     await win.close();
     await app.close();
-  },
-  obs: async ({}, use) => {
-    const mows = await MockOBSWebSocket.create(expect);
-    await use(mows);
-    await mows.close();
   },
 });
 
@@ -70,7 +71,24 @@ test.beforeEach(async ({ request }) => {
   });
 });
 
-test("continuity works", async ({ app: [app, win], obs }) => {
+test("can connect to OBS", async ({ app: [app, win] }) => {
+  const obs = await MockOBSWebSocket.create(expect, async (obs) => {
+    obs.alwaysRespond("GetVersion", () => ({
+      success: true,
+      code: 100,
+      data: {
+        obsVersion: "1",
+        obsWebSocketVersion: "1",
+        availableRequests: [],
+        supportedImageFormats: [],
+        platform: "test",
+        platformDescription: "",
+        rpcVersion: 1,
+      },
+    }));
+    await obs.waitUntilClosed;
+  });
+
   await win.getByRole("button", { name: "Select" }).click();
 
   await expect(win.getByLabel("Settings")).toBeVisible();
@@ -81,7 +99,9 @@ test("continuity works", async ({ app: [app, win], obs }) => {
   await win.getByLabel("OBS Host").fill("localhost");
   await win.getByLabel("OBS WebSocket Port").fill(obs.port.toString(10));
   await win.getByLabel("OBS WebSocket Password").fill("there is no password");
+
   await win.getByRole("button", { name: "Connect" }).click();
+  await obs.waitForConnection;
   await expect(win.getByTestId("OBSSettings.error")).not.toBeVisible();
   await expect(win.getByTestId("OBSSettings.success")).toBeVisible();
 });
