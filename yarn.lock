@@ -1022,7 +1022,7 @@ __metadata:
     tailwind-merge: ^1.14.0
   peerDependencies:
     date-fns: "*"
-    react: ^18.2.0
+    react: ^18.3.0
     react-dom: ^18.3.0
   languageName: unknown
   linkType: soft
