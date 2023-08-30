@@ -12,16 +12,13 @@ import type { Expect as PlaywrightExpect } from "@playwright/test";
 
 type Expect = VitestExpect | PlaywrightExpect;
 
+type OBSResponse<T extends keyof OBSRequestTypes = keyof OBSRequestTypes> =
+  | { success: true; code: number; data: OBSResponseTypes[T] }
+  | { success: false; code: number; comment: string };
+
 type OBSRequestHandler<
   T extends keyof OBSRequestTypes = keyof OBSRequestTypes,
-> = [
-  OBSRequestTypes[T],
-  (
-    ok: boolean,
-    code: number,
-    dataOrComment: OBSResponseTypes[T] | string,
-  ) => void,
-];
+> = [OBSRequestTypes[T], (resp: OBSResponse<T>) => void];
 
 /** This class is an implementation detail of MockOBSWebSocket and should not be directly created outside of it. */
 export class MockOBSContext {
@@ -29,6 +26,7 @@ export class MockOBSContext {
     string,
     ((h: OBSRequestHandler) => void)[]
   >();
+  private fallbackResponders = new Map<string, (data: any) => OBSResponse>();
   constructor(
     private readonly expect: Expect,
     private readonly socket: OBSSocket,
@@ -72,6 +70,19 @@ export class MockOBSContext {
     }
   }
 
+  public alwaysRespond<T extends keyof OBSRequestTypes>(
+    requestType: T,
+    respond: (data: OBSRequestTypes[T]) => OBSResponse<T>,
+  ) {
+    this.fallbackResponders.set(requestType, respond);
+  }
+
+  /** This method is an implementation detail and should not be used outside MockOBSWebSocket. */
+  public _closed!: () => void;
+  public readonly waitUntilClosed = new Promise<void>((resolve) => {
+    this._closed = resolve;
+  });
+
   /**
    * Send an event to the client.
    * Note that this will fail the test if the client is not subscribed to the given category of event.
@@ -112,30 +123,33 @@ export class MockOBSContext {
     requestData: OBSRequestTypes[keyof OBSRequestTypes],
   ) {
     const queue = this.pendingRequests.get(requestType);
-    this.expect(queue).toBeDefined();
-    const responder = queue!.shift();
-    this.expect(responder).toBeDefined();
-    responder!([requestData, this._makeResponder(requestType, requestId)]);
+    if (queue) {
+      const responder = queue.shift();
+      if (responder) {
+        responder([requestData, this._makeResponder(requestType, requestId)]);
+      }
+    }
+
+    const fallback = this.fallbackResponders.get(requestType);
+    if (fallback) {
+      this._makeResponder(requestType, requestId)(fallback(requestData));
+    }
   }
 
   private _makeResponder(type: string, rid: string) {
-    return (
-      ok: boolean,
-      code: number,
-      dataOrComment: OBSResponseTypes[keyof OBSResponseTypes] | string,
-    ) => {
+    return (resp: OBSResponse<any>) => {
       let res;
-      if (ok) {
+      if (resp.success) {
         res = {
           op: 7,
           d: {
             requestType: type,
             requestId: rid,
             requestStatus: {
-              result: ok,
-              code,
+              result: resp.success,
+              code: resp.code,
             },
-            responseData: dataOrComment,
+            responseData: resp.data,
           },
         };
       } else {
@@ -145,9 +159,9 @@ export class MockOBSContext {
             requestType: type,
             requestId: rid,
             requestStatus: {
-              result: ok,
-              code,
-              comment: dataOrComment,
+              result: resp.success,
+              code: resp.code,
+              comment: resp.comment,
             },
           },
         };
@@ -331,6 +345,7 @@ export default class MockOBSWebSocket {
         socket,
         res.d.eventSubscriptions ?? EventSubscription.All,
       );
+      rawSocket.on("close", () => ctx._closed());
       let actorPromise: Promise<unknown> | null = null;
       if (actor) {
         actorPromise = actor(ctx);

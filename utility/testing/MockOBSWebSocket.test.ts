@@ -8,14 +8,18 @@ describe("MockOBSWebSocket", async () => {
   it("works", async () => {
     const ts = await MockOBSWebSocket.create(expect, async (obs) => {
       const [data, respond] = await obs.waitForRequest("GetVersion");
-      respond(true, 100, {
-        obsVersion: "1",
-        obsWebSocketVersion: "2",
-        availableRequests: [],
-        platform: "test",
-        platformDescription: "",
-        rpcVersion: 1,
-        supportedImageFormats: [],
+      respond({
+        success: true,
+        code: 100,
+        data: {
+          obsVersion: "1",
+          obsWebSocketVersion: "2",
+          availableRequests: [],
+          platform: "test",
+          platformDescription: "",
+          rpcVersion: 1,
+          supportedImageFormats: [],
+        },
       });
     });
     const ws = new WebSocket(`ws://localhost:${ts.port}`, "obswebsocket.json");
@@ -124,14 +128,18 @@ describe("MockOBSWebSocket", async () => {
     );
     const [evt, respond] = await evtPromise;
     expect(evt).toMatchInlineSnapshot("undefined");
-    await respond(true, 100, {
-      obsVersion: "1",
-      obsWebSocketVersion: "2",
-      availableRequests: [],
-      platform: "test",
-      platformDescription: "",
-      rpcVersion: 1,
-      supportedImageFormats: [],
+    await respond({
+      success: true,
+      code: 100,
+      data: {
+        obsVersion: "1",
+        obsWebSocketVersion: "2",
+        availableRequests: [],
+        platform: "test",
+        platformDescription: "",
+        rpcVersion: 1,
+        supportedImageFormats: [],
+      },
     });
     const data3: Buffer = await pEvent(ws, "message");
     expect(JSON.parse(data3.toString("utf-8"))).toMatchInlineSnapshot(`
@@ -219,14 +227,18 @@ describe("MockOBSWebSocket", async () => {
   it("works with a real OBS WebSocket implementation [actor]", async () => {
     const ts = await MockOBSWebSocket.create(expect, async (obs) => {
       const [data, respond] = await obs.waitForRequest("GetVersion");
-      respond(true, 100, {
-        obsVersion: "1",
-        obsWebSocketVersion: "2",
-        availableRequests: [],
-        platform: "test",
-        platformDescription: "",
-        rpcVersion: 1,
-        supportedImageFormats: [],
+      respond({
+        success: true,
+        code: 100,
+        data: {
+          obsVersion: "1",
+          obsWebSocketVersion: "2",
+          availableRequests: [],
+          platform: "test",
+          platformDescription: "",
+          rpcVersion: 1,
+          supportedImageFormats: [],
+        },
       });
     });
     const obs = new OBSWebSocket();
@@ -255,14 +267,18 @@ describe("MockOBSWebSocket", async () => {
     const resPromise = obs.call("GetVersion");
     const [req, respond] = await reqPromise;
     expect(req).toMatchInlineSnapshot("null");
-    await respond(true, 100, {
-      obsVersion: "1",
-      obsWebSocketVersion: "2",
-      availableRequests: [],
-      platform: "test",
-      platformDescription: "",
-      rpcVersion: 1,
-      supportedImageFormats: [],
+    await respond({
+      success: true,
+      code: 100,
+      data: {
+        obsVersion: "1",
+        obsWebSocketVersion: "2",
+        availableRequests: [],
+        platform: "test",
+        platformDescription: "",
+        rpcVersion: 1,
+        supportedImageFormats: [],
+      },
     });
     expect(resPromise).resolves.toMatchInlineSnapshot(`
       {
@@ -280,5 +296,37 @@ describe("MockOBSWebSocket", async () => {
   it("doesn't have a ctx if an actor is defined", async () => {
     const ts = await MockOBSWebSocket.create(expect, async (obs) => {});
     expect(() => ts.ctx).toThrow();
+  });
+
+  it("fallback response", async () => {
+    const ts = await MockOBSWebSocket.create(expect, async (obs) => {
+      obs.alwaysRespond("GetOutputStatus", () => ({
+        success: true,
+        code: 100,
+        data: {
+          outputActive: false,
+          outputBytes: 0,
+          outputCongestion: 0,
+          outputDuration: 0,
+          outputReconnecting: false,
+          outputSkippedFrames: 0,
+          outputTimecode: "",
+          outputTotalFrames: 0,
+        },
+      }));
+      await obs.waitUntilClosed;
+    });
+
+    const client = new OBSWebSocket();
+    await client.connect(`ws://localhost:${ts.port}`);
+    await expect(client.call("GetOutputStatus")).resolves.toHaveProperty(
+      "outputActive",
+    );
+    await expect(client.call("GetOutputStatus")).resolves.toHaveProperty(
+      "outputActive",
+    );
+    await expect(client.call("GetOutputStatus")).resolves.toHaveProperty(
+      "outputActive",
+    );
   });
 });
