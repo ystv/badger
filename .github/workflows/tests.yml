@@ -219,13 +219,14 @@ jobs:
           cp ../utility/prisma/schema.prisma .
         working-directory: ./jobrunner
 
+      - name: Compress builds
+        run: tar -cavf builds.tar.zstd server/.next/standalone jobrunner/dist
+
       - name: Upload builds
         uses: actions/upload-artifact@v3
         with:
           name: server-jobrunner-build
-          path: |
-            server/.next/standalone
-            jobrunner/dist
+          path: builds.tar.zstd
           retention-days: 1
 
   test-e2e-server:
@@ -255,6 +256,9 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: server-jobrunner-build
+
+      - name: Extract builds
+        run: tar -xavf builds.tar.zstd
 
       # Adapted from https://playwrightsolutions.com/playwright-github-action-to-cache-the-browser-binaries/
       - name: Get installed Playwright version
@@ -323,6 +327,9 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: server-jobrunner-build
+
+      - name: Extract builds
+        run: tar -xavf builds.tar.zstd
 
       - name: Build desktop
         run: yarn package
