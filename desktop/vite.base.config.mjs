@@ -27,4 +27,10 @@ export default defineConfig({
     "global.__GIT_COMMIT__": JSON.stringify(gitCommit),
     "global.__SENTRY_RELEASE__": JSON.stringify(sentryRelease),
   },
+  build: {
+    rollupOptions: {
+      // This shouldn't even be making it into the build if tree shaking is working properly
+      external: ["@aws-sdk/client-s3"],
+    },
+  },
 });

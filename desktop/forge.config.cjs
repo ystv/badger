@@ -8,7 +8,7 @@ module.exports = {
         ? "mac/icon"
         : "png/64x64.png"
     }`,
-    prune: true,
+    prune: false, // TODO
   },
   rebuildConfig: {},
   makers: [
