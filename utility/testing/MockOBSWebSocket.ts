@@ -1,4 +1,3 @@
-import { type expect as vitestExpect } from "vitest";
 import {
   EventSubscription,
   OBSEventTypes,
@@ -8,6 +7,10 @@ import {
 import { AddressInfo, WebSocket, WebSocketServer } from "ws";
 import { pEvent } from "p-event";
 import * as msgpack from "@msgpack/msgpack";
+import type { ExpectStatic as VitestExpect } from "vitest";
+import type { Expect as PlaywrightExpect } from "@playwright/test";
+
+type Expect = VitestExpect | PlaywrightExpect;
 
 type OBSRequestHandler<
   T extends keyof OBSRequestTypes = keyof OBSRequestTypes,
@@ -27,7 +30,7 @@ export class MockOBSContext {
     ((h: OBSRequestHandler) => void)[]
   >();
   constructor(
-    private readonly expect: typeof vitestExpect,
+    private readonly expect: Expect,
     private readonly socket: OBSSocket,
     public eventIntent: EventSubscription,
   ) {}
@@ -258,7 +261,7 @@ class OBSSocket {
 export default class MockOBSWebSocket {
   private openConnections = 0;
   private constructor(
-    private readonly expect: typeof vitestExpect,
+    private readonly expect: Expect,
     private readonly server: WebSocketServer,
     public readonly port: number,
   ) {}
@@ -284,7 +287,7 @@ export default class MockOBSWebSocket {
   });
 
   public static async create(
-    expect: typeof vitestExpect,
+    expect: Expect,
     actor?: (obs: MockOBSContext) => Promise<unknown>,
   ) {
     const server = new WebSocketServer({
@@ -305,7 +308,10 @@ export default class MockOBSWebSocket {
           socket = new OBSSocket(rawSocket, "msgpack");
           break;
         default:
-          expect.fail("unknown protocol " + rawSocket.protocol);
+          throw new Error(
+            "MockOBSWebSocket: unrecognised obs-websocket protocol " +
+              rawSocket.protocol,
+          );
       }
       socket.send({
         op: 0,
@@ -330,15 +336,15 @@ export default class MockOBSWebSocket {
         actorPromise = actor(ctx);
       } else {
         if (mows.openConnections > 0) {
-          expect.unreachable(
-            "only one connection supported without an actor function",
+          throw new Error(
+            "MockOBSWebSocket: test error: only one connection is supported without an actor function",
           );
         }
         mows._ctx = ctx;
       }
       mows._ready();
       socket.onMessage(async (payload: any) => {
-        expect(payload).toBeTypeOf("object");
+        expect(typeof payload).toBe("object");
         switch (payload.op) {
           case 3: // reidentify
             ctx.eventIntent =
@@ -353,7 +359,7 @@ export default class MockOBSWebSocket {
             );
             break;
           case 8: // request batch
-            expect.fail("request batch not handled yet");
+            throw new Error("MockOBSWebSocket: request batch not implemented");
         }
       });
       socket.send({ op: 2, d: { negotiatedRpcVersion: 1 } });

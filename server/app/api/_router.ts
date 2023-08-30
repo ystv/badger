@@ -1,4 +1,4 @@
-import { publicProcedure, router } from "./_base";
+import { publicProcedure, router, testOnlyProcedure } from "./_base";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import {
@@ -8,7 +8,14 @@ import {
   PartialShowModel,
 } from "@bowser/prisma/utilityTypes";
 import { getPresignedURL } from "@/lib/s3";
-import { ContinuityItemSchema, RundownItemSchema } from "@bowser/prisma/types";
+import {
+  ContinuityItemSchema,
+  MediaCreateInputSchema,
+  MediaFileSourceTypeSchema,
+  RundownItemSchema,
+  ShowCreateInputSchema,
+} from "@bowser/prisma/types";
+import { dispatchJobForJobrunner } from "@/lib/jobs";
 
 const ExtendedMediaModelWithDownloadURL = CompleteMediaModel.extend({
   continuityItem: ContinuityItemSchema.nullable(),
@@ -80,6 +87,35 @@ export const appRouter = router({
         });
         return obj;
       }),
+    create: testOnlyProcedure
+      .input(ShowCreateInputSchema)
+      .output(CompleteShowModel)
+      .mutation(async ({ input }) => {
+        return await db.show.create({
+          data: input,
+          include: {
+            continuityItems: {
+              include: {
+                media: true,
+              },
+            },
+            rundowns: {
+              include: {
+                items: {
+                  include: {
+                    media: true,
+                  },
+                },
+                assets: {
+                  include: {
+                    media: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+      }),
   }),
   media: router({
     get: publicProcedure
@@ -102,6 +138,45 @@ export const appRouter = router({
           ).downloadURL = await getPresignedURL(obj.path);
         }
         return obj as z.infer<typeof ExtendedMediaModelWithDownloadURL>;
+      }),
+    create: testOnlyProcedure
+      .input(
+        z.object({
+          media: MediaCreateInputSchema,
+          sourceType: MediaFileSourceTypeSchema,
+          source: z.string(),
+        }),
+      )
+      .output(ExtendedMediaModelWithDownloadURL)
+      .mutation(async ({ input }) => {
+        const [media, job] = await db.$transaction(async ($db) => {
+          const media = await $db.media.create({
+            data: input.media,
+            include: {
+              rundownItem: true,
+              continuityItem: true,
+              tasks: true,
+            },
+          });
+          const job = await $db.processMediaJob.create({
+            data: {
+              sourceType: input.sourceType,
+              source: input.source,
+              media: {
+                connect: {
+                  id: media.id,
+                },
+              },
+              base_job: { create: {} },
+            },
+          });
+          return [media, job] as const;
+        });
+        await dispatchJobForJobrunner(job.base_job_id);
+        return {
+          ...media,
+          downloadURL: null,
+        };
       }),
   }),
   rundowns: router({

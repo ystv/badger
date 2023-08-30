@@ -91,12 +91,16 @@ export function OBSSettings() {
           Connect
         </Button>
         {state.data?.connected && (
-          <Alert>
+          <Alert data-testid="OBSSettings.success">
             Successfully connected to OBS version {state.data.version} on{" "}
             {state.data.platform}
           </Alert>
         )}
-        {error && <Alert variant="danger">{error}</Alert>}
+        {error && (
+          <Alert variant="danger" data-testid="OBSSettings.error">
+            {error}
+          </Alert>
+        )}
       </form>
     </div>
   );

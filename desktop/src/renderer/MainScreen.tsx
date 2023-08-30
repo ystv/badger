@@ -146,7 +146,7 @@ export default function MainScreen() {
             open={isSettingsOpen}
             onOpenChange={(v) => setIsSettingsOpen(v)}
           >
-            <DialogTrigger>
+            <DialogTrigger aria-label="Settings">
               <IoCog className="h-6 w-6" size={24} />
             </DialogTrigger>
             <DialogContent>
