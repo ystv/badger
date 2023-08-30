@@ -7,7 +7,7 @@ import {
 } from "@playwright/test";
 import { createTRPCProxyClient, httpBatchLink } from "@trpc/client";
 import type { AppRouter } from "bowser-server/app/api/_router";
-import MockOBSWebSocket from "@bowser/testing/MockOBSWebSocket";
+import MockOBSWebSocket from "@bowser/testing/MockOBSWebSocket.ts";
 import SuperJSON from "superjson";
 
 const api = createTRPCProxyClient<AppRouter>({
@@ -26,7 +26,7 @@ const test = base.extend<{
   app: [ElectronApplication, Page];
   obs: MockOBSWebSocket;
 }>({
-  app: async ({ request }, use) => {
+  app: async ({}, use) => {
     const app = await electron.launch({ args: [".vite/build/main.js"] });
     const win = await app.firstWindow();
 
@@ -46,7 +46,7 @@ const test = base.extend<{
     await win.close();
     await app.close();
   },
-  obs: async (_, use) => {
+  obs: async ({}, use) => {
     const mows = await MockOBSWebSocket.create(expect);
     await use(mows);
     await mows.close();

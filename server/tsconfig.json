@@ -29,7 +29,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "../utility/testing/scripts/run-integration-tests.mts",
-    "../utility/testing/vitest.config-integration.ts"
+    "../utility/testing/vitest-config-integration-base.ts"
   ],
   "exclude": ["node_modules"]
 }
