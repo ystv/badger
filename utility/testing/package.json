@@ -16,8 +16,7 @@
     "vitest": "^0.34.3"
   },
   "scripts": {
-    "test": "vitest",
-    "test:integration": "ts-node --esm scripts/run-integration-tests.mts"
+    "test": "vitest"
   },
   "dependencies": {
     "p-event": "^6.0.0",

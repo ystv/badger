@@ -20,6 +20,7 @@
     "lint": "yarn workspaces foreach run lint",
     "prettify": "yarn workspaces foreach run prettify",
     "test": "yarn workspaces foreach run test",
+    "test:integration": "yarn workspaces foreach run test:integration",
     "prepare": "husky install"
   },
   "lint-staged": {
