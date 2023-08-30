@@ -13,6 +13,9 @@
     "lint-staged": "^14.0.1",
     "prettier": "^3.0.0"
   },
+  "resolutions": {
+    "zod": "<=3.21.1"
+  },
   "scripts": {
     "lint": "yarn workspaces foreach run lint",
     "prettify": "yarn workspaces foreach run prettify",
