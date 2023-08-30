@@ -14,6 +14,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  },
   "keywords": [],
   "author": {
     "name": "Marks Polakovs",
