@@ -20,6 +20,7 @@
     "email": "marks@markspolakovs.me"
   },
   "license": "MIT",
+  "type": "module",
   "devDependencies": {
     "@electron-forge/cli": "^6.4.1",
     "@electron-forge/maker-deb": "^6.4.1",
