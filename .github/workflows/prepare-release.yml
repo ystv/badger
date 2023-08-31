@@ -1,0 +1,55 @@
+name: Prepare Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      type:
+        type: choice
+        options: [major, minor, patch, prerelease]
+        required: true
+      prerelease:
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  prepare-release:
+    environment: ${{ inputs.prerelease && 'prerelease' || 'release' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: main
+
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
+
+      - run: yarn install --immutable
+
+      - name: Bump version
+        run: |
+          yarn workspace bowser-desktop version ${{ inputs.type }} --immediate
+          yarn workspace bowser-jobrunner version ${{ inputs.type }} --immediate
+          yarn workspace bowser-server version ${{ inputs.type }} --immediate
+
+      - name: Get version
+        id: v
+        # We assume that everything is on the same version.
+        run: echo version=$(yarn info --json bowser-desktop | jq -r '.children.Version') >> $GITHUB_OUTPUT
+        working-directory: ./desktop
+
+      - name: Propose version bump PR
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions@users.noreply.github.com"
+          git checkout -b version-bump-${{ steps.v.outputs.version }}
+          git add .
+          git commit -m "Bump version to ${{ steps.v.outputs.version }}"
+          git push -u origin version-bump-${{ steps.v.outputs.version }}
+          gh pr create --title "${{ inputs.prerelease && 'Prerelease' || 'Release' }} ${{ steps.v.outputs.version }}" --base main --head version-bump-${{ steps.v.outputs.version }}
+          gh pr merge version-bump-${{ steps.v.outputs.version }} --auto --squash --delete-branch
