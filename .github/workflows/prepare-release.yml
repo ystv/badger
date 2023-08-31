@@ -16,7 +16,6 @@ permissions:
 
 jobs:
   prepare-release:
-    environment: ${{ inputs.prerelease && 'prerelease' || 'release' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -53,6 +52,5 @@ jobs:
           git commit -m "Bump version to ${{ steps.v.outputs.version }}"
           git push -u origin version-bump-${{ steps.v.outputs.version }}
           gh pr create --title "${{ inputs.prerelease && 'Prerelease' || 'Release' }} ${{ steps.v.outputs.version }}" --body 'Prepare for release ${{ steps.v.outputs.version }}.' --base main --head version-bump-${{ steps.v.outputs.version }}
-          gh pr merge version-bump-${{ steps.v.outputs.version }} --auto --squash --delete-branch
         env:
           GH_TOKEN: ${{ github.token }}

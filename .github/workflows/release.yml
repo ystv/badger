@@ -12,7 +12,7 @@ permissions:
 jobs:
   do-release:
     runs-on: ubuntu-latest
-    if: (startsWith(github.event.head_commit.message, 'Release ') || startsWith(github.event.head_commit.message, 'Prerelease ')) && github.event.pusher.email == 'github-actions@users.noreply.github.com'
+    if: (startsWith(github.event.head_commit.message, 'Release ') || startsWith(github.event.head_commit.message, 'Prerelease ')) && github.event.pusher.name == 'github-actions[bot]'
     steps:
       - uses: actions/checkout@v3
         with:
