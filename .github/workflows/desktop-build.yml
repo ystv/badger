@@ -28,8 +28,6 @@ jobs:
   build-desktop-windows:
     runs-on: windows-latest
 
-    environment: ${{ inputs.do_release && (inputs.prerelease && 'prerelease' || 'release') || '' }}
-
     permissions:
       contents: write
       statuses: write
@@ -72,4 +70,5 @@ jobs:
         with:
           name: desktop
           path: ./desktop/out/make
-        if: "! inputs.do_release" # because 'publish' will take care of it
+        # prettier-ignore
+        if: '! inputs.do_release' # because 'publish' will take care of it

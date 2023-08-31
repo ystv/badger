@@ -1,14 +1,8 @@
 name: Make Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      type:
-        type: choice
-        options: [major, minor, patch, prerelease]
-        required: true
-      prerelease:
-        type: boolean
+  push:
+    branches: [main]
 
 permissions:
   contents: write
@@ -18,10 +12,11 @@ permissions:
 jobs:
   do-release:
     runs-on: ubuntu-latest
+    if: (startsWith(github.event.head_commit.message, 'Release ') || startsWith(github.event.head_commit.message, 'Prerelease ')) && github.event.pusher.email == 'github-actions@users.noreply.github.com'
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: main
+          ref: ${{ github.event.head_commit.id }}
 
       - name: Use Node.js 18.x
         uses: actions/setup-node@v3
@@ -32,30 +27,15 @@ jobs:
 
       - run: yarn install --immutable
 
-      - name: Bump version
-        run: |
-          yarn workspace bowser-desktop version ${{ inputs.type }} --immediate
-          yarn workspace bowser-jobrunner version ${{ inputs.type }} --immediate
-          yarn workspace bowser-server version ${{ inputs.type }} --immediate
-
       - name: Get version
         id: v
         # We assume that server and jobrunner are on the same version.
         run: echo version=$(yarn info --json bowser-desktop | jq -r '.children.Version') >> $GITHUB_OUTPUT
         working-directory: ./desktop
 
-      - name: Create and push tag
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions@users.noreply.github.com"
-          git add */package.json
-          git commit -m "Bump version"
-          git tag v${{ steps.v.outputs.version }}
-          git push --atomic origin main v${{ steps.v.outputs.version }}
-
       - name: Create GH release
         run: |
-          gh release create v${{ steps.v.outputs.version }} --draft ${{ inputs.prerelease && '--prerelease' }} --verify-tag --generate-notes
+          gh release create v${{ steps.v.outputs.version }} --draft ${{ startsWith(github.event.head_commit.message, 'Prerelease ') && '--prerelease' }} --target ${{ github.event.head_commit.id }} --generate-notes
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -66,19 +46,18 @@ jobs:
     needs: [do-release]
     uses: ./.github/workflows/desktop-build.yml
     with:
-      ref: v${{ needs.do-release.outputs.version }}
-      prerelease: ${{ inputs.prerelease }}
+      ref: v${{ github.event.head_commit.id }}
+      prerelease: ${{ startsWith(github.event.head_commit.message, 'Prerelease ') }}
       do_release: true
     secrets: inherit
 
   publish-release:
     needs: [desktop-build, do-release]
     runs-on: ubuntu-latest
-    environment: ${{ inputs.prerelease && 'prerelease' || 'release' }}
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: v${{ needs.do-release.outputs.version }}
+          ref: v${{ github.event.head_commit.id }}
       - name: Publish release
         run: |
           gh release edit v${{ needs.do-release.outputs.version }} --draft=false
