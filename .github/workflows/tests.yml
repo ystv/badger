@@ -111,7 +111,7 @@ jobs:
       - run: yarn typecheck
         working-directory: ./jobrunner
 
-  test-unit-desktop:
+  test-unit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -123,35 +123,13 @@ jobs:
           cache-dependency-path: "yarn.lock"
       - run: yarn install --immutable --inline-builds
 
-      - run: yarn test --coverage
-        working-directory: ./desktop
+      - run: yarn test
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./desktop/coverage/coverage-final.json
-
-  test-unit-server:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js 18.x
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18.x
-          cache: "yarn"
-          cache-dependency-path: "yarn.lock"
-      - run: yarn install --immutable --inline-builds
-
-      - run: yarn test --coverage
-        working-directory: ./server
-
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./server/coverage/coverage-final.json
+          files: ./desktop/coverage/coverage-final.json,./server/coverage/coverage-final.json,./jobrunner/coverage/coverage-final.json,./utility/testing/coverage/coverage-final.json
 
   test-integration-server-jobrunner:
     runs-on: ubuntu-latest
