@@ -12,7 +12,8 @@
     "glob": "^10.3.3",
     "prettier": "^3.0.0",
     "tsx": "^3.12.7",
-    "typescript": "^5.1.6"
+    "typescript": "^5.1.6",
+    "vitest": "^0.34.3"
   },
   "type": "commonjs",
   "scripts": {
@@ -20,7 +21,8 @@
     "prettify": "prettier --write .",
     "typecheck": "tsc --noEmit",
     "build": "node esbuild.config.mjs",
-    "lint": "eslint src/**/*.ts"
+    "lint": "eslint src/**/*.ts",
+    "test": "vitest run --coverage"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.374.0",
