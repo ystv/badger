@@ -5844,6 +5844,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"bowser-root-workspace@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "bowser-root-workspace@workspace:."
+  dependencies:
+    danger: ^11.2.8
+    husky: ^8.0.3
+    lint-staged: ^14.0.1
+    prettier: ^3.0.3
+  languageName: unknown
+  linkType: soft
+
 "bowser-server@workspace:*, bowser-server@workspace:server":
   version: 0.0.0-use.local
   resolution: "bowser-server@workspace:server"
@@ -13403,17 +13414,6 @@ __metadata:
   checksum: e6a765b2b7af709170344cc804392936613e06b6bdab46a04d264368d154bdadaaaf77de39e6e656bf728a060d7b4867d81e2464d791c0f37dd5b21aa9c7a6df
   languageName: node
   linkType: hard
-
-"root-workspace-0b6124@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "root-workspace-0b6124@workspace:."
-  dependencies:
-    danger: ^11.2.8
-    husky: ^8.0.3
-    lint-staged: ^14.0.1
-    prettier: ^3.0.3
-  languageName: unknown
-  linkType: soft
 
 "rrweb-cssom@npm:^0.6.0":
   version: 0.6.0
