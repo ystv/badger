@@ -29,7 +29,7 @@ import {
 import { Suspense, useMemo, useState } from "react";
 import OBSScreen from "./screens/OBS";
 import VMixScreen from "./screens/vMix";
-import { Settings } from "./Settings";
+import { Settings } from "./screens/Settings";
 import { SelectShowForm } from "./ConnectAndSelectShowGate";
 import {
   Table,
@@ -151,11 +151,9 @@ export default function MainScreen() {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader className="text-3xl">Settings</DialogHeader>
-              {isSettingsOpen && (
-                <Suspense fallback={<b>Please wait...</b>}>
-                  <Settings />
-                </Suspense>
-              )}
+              <Suspense fallback={<b>Please wait...</b>}>
+                <Settings />
+              </Suspense>
             </DialogContent>
           </Dialog>
         </div>

@@ -1,7 +1,11 @@
 // noinspection ExceptionCaughtLocallyJS
 
 import * as os from "node:os";
-import { getMediaSettings, updateLocalMediaState } from "./settings";
+import {
+  getLocalMediaSettings,
+  getMediaSettings,
+  updateLocalMediaState,
+} from "./settings";
 import * as fsp from "fs/promises";
 import * as path from "path";
 import { serverApiClient } from "./serverApiClient";
@@ -143,4 +147,19 @@ export function downloadMedia(mediaID: number, name?: string) {
 
 export function getDownloadStatus() {
   return Array.from(downloadStatus.values());
+}
+
+export async function deleteMedia(mediaID: number) {
+  // TODO [BOW-67]: This won't handle orphans - media that is not present in the settings,
+  //  but is still present on disk. We can find them by the file name (they'll have
+  //  the [#123] suffix). We should somewhere, perhaps on startup, check for orphans
+  //  and either re-link them in the settings (if they map to an existing media object
+  //  on Server) or mark them for deletion.
+  const local = await getLocalMediaSettings();
+  const item = local.find((x) => x.mediaID === mediaID);
+  if (!item) {
+    throw new Error(`Media ${mediaID} not found`);
+  }
+  await updateLocalMediaState(mediaID, null);
+  await fsp.unlink(item.path);
 }

@@ -1,6 +1,7 @@
 import { createAPIClient, serverApiClient } from "./serverApiClient";
 import { z } from "zod";
 import { initTRPC, TRPCError } from "@trpc/server";
+import * as fsp from "node:fs/promises";
 import invariant from "../common/invariant";
 import { selectedShow, setSelectedShow } from "./selectedShow";
 import {
@@ -11,9 +12,11 @@ import {
 import { Integration } from "../common/types";
 import { createOBSConnection, obsConnection } from "./obs";
 import {
+  deleteMedia,
   downloadMedia,
   DownloadStatusSchema,
   getDownloadStatus,
+  getMediaPath,
 } from "./mediaManagement";
 import {
   assetsSettingsSchema,
@@ -22,6 +25,7 @@ import {
   getDevToolsConfig,
   getLocalMediaSettings,
   getOntimeSettings,
+  LocalMediaData,
   LocalMediaSettingsSchema,
   ontimeSettingsSchema,
   saveDevToolsConfig,
@@ -42,6 +46,7 @@ import {
   isOntimeConnected,
 } from "./ontime";
 import { showToOntimeEvents } from "./ontimeHelpers";
+import { shell } from "electron";
 
 function serverAPI() {
   invariant(serverApiClient !== null, "serverApiClient is null");
@@ -108,7 +113,9 @@ export const appRouter = r({
           message: "Dev tools not enabled",
         });
       }
-      throw new Error("Test Main Process Exception");
+      process.nextTick(() => {
+        throw new Error("Test Main Process Exception");
+      });
     }),
     crash: proc.mutation(async () => {
       if (!(await getDevToolsConfig()).enabled) {
@@ -130,8 +137,98 @@ export const appRouter = r({
         downloadMedia(input.id, input.name);
       }),
     getLocalMedia: proc
-      .output(LocalMediaSettingsSchema)
-      .query(async () => await getLocalMediaSettings()),
+      .input(
+        z
+          .object({
+            includeSize: z.boolean().default(false),
+          })
+          .optional(),
+      )
+      .output(
+        z.array(
+          LocalMediaData.extend({
+            sizeBytes: z.number().optional(),
+          }),
+        ),
+      )
+      .query(async ({ input }) => {
+        const media = await getLocalMediaSettings();
+        if (input?.includeSize) {
+          await Promise.all(
+            media.map(async (item) => {
+              let stat;
+              try {
+                stat = await fsp.stat(item.path);
+              } catch (e) {
+                // This is an orphan. TODO [BOW-67]: we don't currently handle them
+                return;
+              }
+              // prettier-ignore
+              (item as z.infer<typeof LocalMediaData> & {sizeBytes: number}).sizeBytes = stat.size;
+            }),
+          );
+        }
+        return media;
+      }),
+    getPath: proc.output(z.string()).query(() => getMediaPath()),
+    openPath: proc.mutation(async () => {
+      await shell.openPath(await getMediaPath());
+    }),
+    delete: proc
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await deleteMedia(input.id);
+      }),
+    deleteOldMedia: proc
+      .input(z.object({ minAgeDays: z.number() }))
+      .mutation(async ({ input }) => {
+        const localMedia = await getLocalMediaSettings();
+        const currentShow = selectedShow.value;
+        let notInUse;
+        if (currentShow) {
+          const inUse = new Set<number>();
+          currentShow?.continuityItems.forEach((x) => {
+            if (x.media) {
+              inUse.add(x.media.id);
+            }
+          });
+          currentShow?.rundowns.forEach((x) =>
+            x.items.forEach((y) => {
+              if (y.media) {
+                inUse.add(y.media.id);
+              }
+            }),
+          );
+          notInUse = localMedia.filter((x) => !inUse.has(x.mediaID));
+        } else {
+          notInUse = localMedia;
+        }
+        const mediaObjects = await serverAPI().media.bulkGet.query(
+          notInUse.map((x) => x.mediaID),
+        );
+        for (const result of mediaObjects) {
+          if (result.state !== "Ready") {
+            continue;
+          }
+          let showDate;
+          if (result.continuityItem) {
+            showDate = result.continuityItem.show.start;
+          } else if (result.rundownItem) {
+            showDate = result.rundownItem.rundown.show.start;
+          } else if (result.asset) {
+            showDate = result.asset.rundown.show.start;
+          } else {
+            invariant(
+              false,
+              "Media item without rundown, continuity item, or asset",
+            );
+          }
+          const age = (Date.now() - showDate.getTime()) / (1000 * 60 * 60 * 24);
+          if (age > input.minAgeDays) {
+            await deleteMedia(result.id);
+          }
+        }
+      }),
     downloadAllMediaForSelectedShow: proc.mutation(async () => {
       const show = selectedShow.value;
       invariant(show, "No show selected");

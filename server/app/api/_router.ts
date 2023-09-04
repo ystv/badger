@@ -2,7 +2,7 @@ import { e2eProcedure, publicProcedure, router } from "./_base";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import {
-  CompleteMediaModel,
+  ExtendedMediaModel,
   CompleteRundownModel,
   CompleteShowModel,
   PartialShowModel,
@@ -12,13 +12,34 @@ import {
   ContinuityItemSchema,
   RundownItemSchema,
   ShowCreateInputSchema,
+  AssetSchema,
+  RundownSchema,
+  ShowSchema,
 } from "@bowser/prisma/types";
 
-const ExtendedMediaModelWithDownloadURL = CompleteMediaModel.extend({
+const ExtendedMediaModelWithDownloadURL = ExtendedMediaModel.extend({
   continuityItem: ContinuityItemSchema.nullable(),
   rundownItem: RundownItemSchema.nullable(),
+  asset: AssetSchema.nullable(),
   downloadURL: z.string().nullable(),
 });
+
+const CompleteMediaModel = ExtendedMediaModel.extend({
+  continuityItem: ContinuityItemSchema.extend({
+    show: ShowSchema,
+  }).nullable(),
+  rundownItem: RundownItemSchema.extend({
+    rundown: RundownSchema.extend({
+      show: ShowSchema,
+    }),
+  }).nullable(),
+  asset: AssetSchema.extend({
+    rundown: RundownSchema.extend({
+      show: ShowSchema,
+    }),
+  }).nullable(),
+});
+
 export const appRouter = router({
   ping: publicProcedure.query(() => {
     return "pong";
@@ -120,7 +141,12 @@ export const appRouter = router({
       .input(z.object({ id: z.number() }))
       .output(ExtendedMediaModelWithDownloadURL)
       .query(async ({ input }) => {
-        const obj = await db.media.findFirstOrThrow({
+        // Need this Omit to ensure that this findFirstOrThrow works while assuring type
+        // safety for all the other fields of ExtendedMediaModelWithDownloadURL
+        const obj: Omit<
+          z.infer<typeof ExtendedMediaModelWithDownloadURL>,
+          "downloadURL"
+        > = await db.media.findFirstOrThrow({
           where: {
             id: input.id,
           },
@@ -128,6 +154,7 @@ export const appRouter = router({
             tasks: true,
             continuityItem: true,
             rundownItem: true,
+            asset: true,
           },
         });
         if (obj.path !== null) {
@@ -136,6 +163,44 @@ export const appRouter = router({
           ).downloadURL = await getPresignedURL(obj.path);
         }
         return obj as z.infer<typeof ExtendedMediaModelWithDownloadURL>;
+      }),
+    bulkGet: publicProcedure
+      .input(z.array(z.number()))
+      .output(z.array(CompleteMediaModel))
+      .query(async ({ input }) => {
+        return await db.media.findMany({
+          where: {
+            id: {
+              in: input,
+            },
+          },
+          include: {
+            tasks: true,
+            continuityItem: {
+              include: {
+                show: true,
+              },
+            },
+            rundownItem: {
+              include: {
+                rundown: {
+                  include: {
+                    show: true,
+                  },
+                },
+              },
+            },
+            asset: {
+              include: {
+                rundown: {
+                  include: {
+                    show: true,
+                  },
+                },
+              },
+            },
+          },
+        });
       }),
   }),
   rundowns: router({
