@@ -318,6 +318,11 @@ export function SelectField<TObj>(props: {
   );
 }
 
+/**
+ * A field for entering a duration in seconds, with a nice HH:MM:SS format.
+ * Note that milliseconds are not supported.
+ * Also note that the only supported value for the `units` prop is "seconds" - this is to allow for future expansion.
+ */
 export function DurationField(props: {
   name: string;
   label?: string;
@@ -328,7 +333,7 @@ export function DurationField(props: {
     defaultValue: 0,
   });
   const valueFormatted = useMemo(() => {
-    const seconds = Math.floor(controller.field.value); // TODO handle milliseconds
+    const seconds = Math.floor(controller.field.value);
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
     let value = `${(minutes % 60).toString(10).padStart(2, "0")}:${(
