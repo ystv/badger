@@ -39,7 +39,15 @@ const test = base.extend<{ showPage: Page }>({
     await page.goto("/shows/create");
     await page.getByLabel("Name").fill("Test Show");
     await page.getByLabel("Start").click();
-    await page.getByText("27").click();
+    // This is mildly cursed: we need to enter a date into the date picker,
+    // so we use the 27th day, because that's guaranteed to exist in any month,
+    // even in February. However, it's possible that the date picker shows the
+    // last week of the previous month, so we assert that it doesn't have
+    // opacity-50.
+    await page
+      .getByRole("button")
+      .filter({ hasNot: page.locator(".opacity-50"), hasText: "27" })
+      .click();
     await page.locator("input[type=time]").fill("19:30");
     await page.keyboard.press("Escape");
     await page.getByRole("button", { name: "Create" }).click();
