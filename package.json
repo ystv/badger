@@ -15,10 +15,10 @@
     "prettier": "^3.0.3"
   },
   "scripts": {
-    "lint": "yarn workspaces foreach -pv --exclude bowser-root-workspace run lint",
+    "lint": "yarn workspaces foreach -p --exclude bowser-root-workspace run lint",
     "prettify": "yarn workspaces foreach -p --exclude bowser-root-workspace run prettify",
     "test": "yarn workspaces foreach --exclude bowser-root-workspace run test",
-    "typecheck": "yarn workspaces foreach -pv  --exclude bowser-root-workspace run tsc --noEmit",
+    "typecheck": "yarn workspaces foreach -p --exclude bowser-root-workspace run tsc --noEmit",
     "prepare": "husky install"
   },
   "lint-staged": {
