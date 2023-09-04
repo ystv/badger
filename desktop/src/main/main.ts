@@ -15,9 +15,9 @@ import Icon from "../icon/png/64x64.png";
 import { tryCreateOntimeConnection } from "./ontime";
 import * as Sentry from "@sentry/electron/main";
 
-if (import.meta.env.VITE_SENTRY_DSN) {
+if (import.meta.env.VITE_DESKTOP_SENTRY_DSN) {
   Sentry.init({
-    dsn: import.meta.env.VITE_SENTRY_DSN,
+    dsn: import.meta.env.VITE_DESKTOP_SENTRY_DSN,
     release: global.__SENTRY_RELEASE__,
   });
   console.log("[Main] Sentry enabled");

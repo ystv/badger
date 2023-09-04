@@ -31,10 +31,10 @@ import * as ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 
-if (import.meta.env.VITE_SENTRY_DSN) {
+if (import.meta.env.VITE_DESKTOP_SENTRY_DSN) {
   Sentry.init(
     {
-      dsn: import.meta.env.VITE_SENTRY_DSN,
+      dsn: import.meta.env.VITE_DESKTOP_SENTRY_DSN,
       release: global.__SENTRY_RELEASE__,
     },
     // @ts-expect-error something wrong with Sentry's typings
