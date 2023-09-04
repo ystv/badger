@@ -10,7 +10,14 @@ import {
 } from "react-hook-form";
 import { FieldPath } from "react-hook-form/dist/types/path";
 import classNames from "classnames";
-import { ForwardedRef, forwardRef, useEffect, useMemo, useState } from "react";
+import {
+  ForwardedRef,
+  ReactNode,
+  forwardRef,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import Button from "@bowser/components/button";
 import { identity } from "lodash";
 import {
@@ -34,6 +41,26 @@ interface FieldBaseProps<
   className?: string;
   as?: TEl;
   registerParams?: RegisterOptions<TFields, TFieldName>;
+}
+
+function FieldWrapper(props: {
+  label?: string;
+  error?: string;
+  children: ReactNode;
+}) {
+  return (
+    <label className="block">
+      {props.label && (
+        <span className="font-bold text-gray-700">{props.label}</span>
+      )}
+      {props.error && (
+        <span className="block font-semibold text-danger">
+          {props.error ?? ""}
+        </span>
+      )}
+      {props.children}
+    </label>
+  );
 }
 
 /**
@@ -72,19 +99,16 @@ export const Field = forwardRef(function Field<
       }}
     />
   );
-  if (!props.label) {
+  if (!label) {
     return field;
   }
   return (
-    <label className="block">
-      <span className="font-bold text-gray-700">{label}</span>
-      {ctx.formState.errors[props.name] && (
-        <span className="block font-semibold text-danger">
-          {(ctx.formState.errors[props.name]?.message as string) ?? ""}
-        </span>
-      )}
+    <FieldWrapper
+      label={label}
+      error={ctx.formState.errors[props.name]?.message as string | undefined}
+    >
       {field}
-    </label>
+    </FieldWrapper>
   );
 });
 
@@ -117,19 +141,16 @@ export function DatePickerField(props: {
     [controller.field.value],
   );
   return (
-    <label className="block">
-      <span className="font-bold text-gray-700">{props.label}</span>
-      {controller.fieldState.error && (
-        <span className="block font-semibold text-danger">
-          {(controller.fieldState.error?.message as string) ?? ""}
-        </span>
-      )}
+    <FieldWrapper
+      label={props.label}
+      error={controller.fieldState.error?.message}
+    >
       <Popover>
         <PopoverTrigger asChild>
           <Button
             color="ghost"
             className={cn(
-              "flex justify-start items-center text-left font-normal block",
+              "justify-start items-center text-left font-normal block",
               !v && "text-muted-foreground",
             )}
           >
@@ -163,7 +184,7 @@ export function DatePickerField(props: {
           )}
         </PopoverContent>
       </Popover>
-    </label>
+    </FieldWrapper>
   );
 }
 
@@ -294,5 +315,54 @@ export function SelectField<TObj>(props: {
         </option>
       ))}
     </Field>
+  );
+}
+
+export function DurationField(props: {
+  name: string;
+  label?: string;
+  units: "seconds";
+}) {
+  const controller = useController({
+    name: props.name,
+    defaultValue: 0,
+  });
+  const valueFormatted = useMemo(() => {
+    const seconds = Math.floor(controller.field.value); // TODO handle milliseconds
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    let value = `${(minutes % 60).toString(10).padStart(2, "0")}:${(
+      seconds % 60
+    )
+      .toString(10)
+      .padStart(2, "0")}`;
+    if (hours > 0) {
+      value = `${hours.toString(10)}:${value}`;
+    }
+    return value;
+  }, [controller.field.value]);
+  return (
+    <FieldWrapper
+      label={props.label}
+      error={controller.fieldState.error?.message}
+    >
+      <Input
+        type="text"
+        {...controller.field}
+        value={valueFormatted}
+        onChange={(e) => {
+          let value = 0;
+          const parts = e.target.value.split(":");
+          for (let i = 0; i < parts.length; i++) {
+            if (parts[i].length > 0) {
+              value +=
+                parseInt(parts[i], 10) * Math.pow(60, parts.length - i - 1);
+            }
+          }
+          controller.field.onChange(value);
+        }}
+        placeholder="xx:xx"
+      />
+    </FieldWrapper>
   );
 }

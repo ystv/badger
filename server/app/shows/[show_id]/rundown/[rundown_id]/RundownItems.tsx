@@ -24,7 +24,12 @@ import {
   reorder,
 } from "./itemsActions";
 import { AddItemSchema, EditItemSchema, ItemTypeSchema } from "./schema";
-import { Field, HiddenField, SelectField } from "@/components/FormFields";
+import {
+  DurationField,
+  Field,
+  HiddenField,
+  SelectField,
+} from "@/components/FormFields";
 import { identity } from "lodash";
 import {
   useCallback,
@@ -101,7 +106,11 @@ function AddSegment(props: { rundown: CompleteRundown }) {
             getOptionValue={identity}
             filter={false}
           />
-          <Field name="durationSeconds" label="Duration (seconds)" />
+          <DurationField
+            name="durationSeconds"
+            label="Duration"
+            units="seconds"
+          />
         </Form>
       </PopoverContent>
     </Popover>
