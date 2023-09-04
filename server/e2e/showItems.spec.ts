@@ -117,14 +117,14 @@ test("add rundown items + check runtime", async ({ showPage }) => {
 
   await showPage.getByRole("button", { name: "Add Segment" }).click();
   await showPage.getByLabel("Name").fill("Segment 1");
-  await showPage.getByLabel("Duration (seconds)").fill("60");
+  await showPage.getByLabel("Duration").fill("60");
   const r1 = showPage.waitForRequest((r) => r.method() === "POST");
   await showPage.getByRole("button", { name: "Create" }).click();
   await r1;
   await expect(showPage.getByLabel("Name")).toHaveValue("");
 
   await showPage.getByLabel("Name").fill("Segment 2");
-  await showPage.getByLabel("Duration (seconds)").fill("60");
+  await showPage.getByLabel("Duration").fill("60");
   const r2 = showPage.waitForRequest((r) => r.method() === "POST");
   await showPage.getByRole("button", { name: "Create" }).click();
   await r2;
@@ -197,8 +197,8 @@ test("media/assets for long rundowns", async ({ showPage }) => {
   await showPage.getByRole("button", { name: "Add Segment" }).click();
   for (let i = 0; i < 25; i++) {
     await showPage.getByLabel("Name").fill("Segment " + i);
-    await showPage.getByLabel("Duration (seconds)").fill("60");
-    await showPage.getByLabel("Duration (seconds)").press("Enter");
+    await showPage.getByLabel("Duration").fill("60");
+    await showPage.getByLabel("Duration").press("Enter");
     await expect(showPage.getByLabel("Name")).toHaveValue("");
   }
 

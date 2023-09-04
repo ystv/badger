@@ -143,7 +143,7 @@ function EditItem(props: {
         getOptionValue={identity}
         filter={false}
       />
-      <Field name="durationSeconds" label="Duration (seconds)" />
+      <DurationField name="durationSeconds" label="Duration" units="seconds" />
     </Form>
   );
 }
