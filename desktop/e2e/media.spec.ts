@@ -59,4 +59,5 @@ test("can select newly created show", async ({ app: [_app, page] }) => {
   expect(row).toBeVisible();
   const btn = row.getByRole("button", { name: "Select" });
   await btn.click();
+  await expect(page.getByRole("button", { name: "Test Show" })).toBeVisible();
 });
