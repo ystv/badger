@@ -24,5 +24,8 @@
   "lint-staged": {
     "{desktop,server,jobrunner,utility}/*.{js,jsx,ts,tsx}": "eslint --fix",
     "*": "prettier --ignore-unknown --write"
+  },
+  "resolutions": {
+    "zod": "<=3.21.1"
   }
 }

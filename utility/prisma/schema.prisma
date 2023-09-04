@@ -11,7 +11,7 @@ generator zod {
   output           = "./types"
   useMultipleFiles = true
   writeBarrelFiles = true
-  createInputTypes = false
+  createInputTypes = true
   addIncludeType   = false
   addSelectType    = false
 }
