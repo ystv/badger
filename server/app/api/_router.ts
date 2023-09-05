@@ -1,4 +1,4 @@
-import { publicProcedure, router } from "./_base";
+import { e2eProcedure, publicProcedure, router } from "./_base";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import {
@@ -8,7 +8,11 @@ import {
   PartialShowModel,
 } from "@bowser/prisma/utilityTypes";
 import { getPresignedURL } from "@/lib/s3";
-import { ContinuityItemSchema, RundownItemSchema } from "@bowser/prisma/types";
+import {
+  ContinuityItemSchema,
+  RundownItemSchema,
+  ShowCreateInputSchema,
+} from "@bowser/prisma/types";
 
 const ExtendedMediaModelWithDownloadURL = CompleteMediaModel.extend({
   continuityItem: ContinuityItemSchema.nullable(),
@@ -79,6 +83,36 @@ export const appRouter = router({
           },
         });
         return obj;
+      }),
+    create: e2eProcedure
+      .input(ShowCreateInputSchema)
+      .output(CompleteShowModel)
+      .mutation(async ({ input }) => {
+        const res = await db.show.create({
+          data: input,
+          include: {
+            continuityItems: {
+              include: {
+                media: true,
+              },
+            },
+            rundowns: {
+              include: {
+                items: {
+                  include: {
+                    media: true,
+                  },
+                },
+                assets: {
+                  include: {
+                    media: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+        return res;
       }),
   }),
   media: router({

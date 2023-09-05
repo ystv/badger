@@ -78,9 +78,9 @@ export function SelectShowForm(props: { onSelect?: () => void }) {
   }
   invariant(listShows.data, "listShows.data is null");
   return (
-    <div>
+    <div data-testid="SelectShowForm.showsList" role="list">
       {listShows.data.map((show) => (
-        <div key={show.id}>
+        <div key={show.id} role="listitem">
           <h3 className="text-xl">{show.name}</h3>
           <Button
             color="primary"

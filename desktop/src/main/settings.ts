@@ -1,9 +1,37 @@
-import settings from "electron-settings";
+import electronSettings from "electron-settings";
 import { safeStorage } from "./safeStorage";
 import { z } from "zod";
 import * as fsp from "fs/promises";
 import { AssetTypeSchema } from "@bowser/prisma/types";
 import { IPCEvents } from "./ipcEventBus";
+import { ipcMain } from "electron";
+
+/*
+ * In E2E tests we don't want settings to persist between tests, so we use
+ * an in-memory store that can be reset by the test harness.
+ */
+
+interface SettingsStore {
+  get(key: string): Promise<unknown | undefined>;
+  set(key: string, value: unknown): Promise<void>;
+}
+
+const inMemSettings = new Map<string, unknown>();
+const inMemSettingsStore: SettingsStore = {
+  async get(key: string) {
+    return inMemSettings.get(key);
+  },
+  async set(key: string, value: unknown) {
+    inMemSettings.set(key, value);
+  },
+};
+
+const settings: SettingsStore =
+  process.env.E2E_TEST === "true" ? inMemSettingsStore : electronSettings;
+
+ipcMain.on("resetTestSettings", () => {
+  inMemSettings.clear();
+});
 
 /**
  * Since settings are stored as JSON files on disk, we pass them through zod as a sanity check.
