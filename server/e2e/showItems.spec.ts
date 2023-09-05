@@ -39,7 +39,13 @@ const test = base.extend<{ showPage: Page }>({
     await page.goto("/shows/create");
     await page.getByLabel("Name").fill("Test Show");
     await page.getByLabel("Start").click();
-    await page.getByText("27").click();
+    // The E2E suite doesn't care what date this is, as long as it's in the future.
+    // We specifically use a day between 8 and 21, because sometimes the date picker
+    // can show the last/first week of the previous/next month, and two buttons with
+    // the same text will break Playwright (Strict Mode).
+    // So we go to the next month and then pick the 15th.
+    await page.getByLabel("Go to next month").click();
+    await page.getByText("15").click();
     await page.locator("input[type=time]").fill("19:30");
     await page.keyboard.press("Escape");
     await page.getByRole("button", { name: "Create" }).click();
