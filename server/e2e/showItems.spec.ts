@@ -45,7 +45,7 @@ const test = base.extend<{ showPage: Page }>({
     // the same text will break Playwright (Strict Mode).
     // So we go to the next month and then pick the 15th.
     await page.getByLabel("Go to next month").click();
-    await page.getByRole("button", { name: "15" }).click();
+    await page.getByText("15").click();
     await page.locator("input[type=time]").fill("19:30");
     await page.keyboard.press("Escape");
     await page.getByRole("button", { name: "Create" }).click();
