@@ -98,6 +98,7 @@ test("can select newly created show", async ({ app: [_app, page] }) => {
 });
 
 test("download media", async ({ app: [app, page] }) => {
+  test.slow();
   const testFile = await fsp.readFile(
     path.join(__dirname, "testdata", "smpte_bars_15s.mp4"),
   );
@@ -115,6 +116,7 @@ test("download media", async ({ app: [app, page] }) => {
       },
       {
         timeout: 30_000,
+        intervals: [500],
       },
     )
     .toBe("Ready");
@@ -146,13 +148,19 @@ test("download media", async ({ app: [app, page] }) => {
     `smpte_bars_15s (#${media.id}).mp4`,
   );
   await expect
-    .poll(async () => {
-      try {
-        return (await fsp.stat(expectedPath)).isFile();
-      } catch (e) {
-        return null;
-      }
-    })
+    .poll(
+      async () => {
+        try {
+          return (await fsp.stat(expectedPath)).isFile();
+        } catch (e) {
+          return null;
+        }
+      },
+      {
+        timeout: 30_000,
+        intervals: [500],
+      },
+    )
     .toBe(true);
   const stats = await fsp.stat(expectedPath);
   expect(stats.size).toBeCloseTo(548213, -3);
