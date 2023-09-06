@@ -34,6 +34,8 @@ const test = base.extend<{
     const app = await electron.launch({ args: [".vite/build/main.js"] });
     const win = await app.firstWindow();
 
+    await win.context().tracing.start({ screenshots: true, snapshots: true });
+
     await win.waitForLoadState("domcontentloaded");
 
     await win.getByLabel("Server address").fill("http://localhost:3000");
@@ -46,6 +48,8 @@ const test = base.extend<{
     ).toBeVisible();
 
     await use([app, win]);
+
+    await win.context().tracing.stop({ path: "trace.zip" });
 
     await expect(
       app.evaluate(({ ipcMain }) => ipcMain.emit("resetTestSettings")),
