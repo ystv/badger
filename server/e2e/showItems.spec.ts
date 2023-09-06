@@ -1,5 +1,6 @@
 import { test as base, expect, Page } from "@playwright/test";
 import { readFileSync } from "fs";
+import * as path from "node:path";
 
 /** Playwright doesn't natively support dropping files, so we need to dispatch
    the DataTransfer event ourselves. In order to do that, we need to get the file
@@ -189,7 +190,9 @@ test("add media", async ({ showPage }) => {
 });
 
 test("media/assets for long rundowns", async ({ showPage }) => {
-  const testFile = readFileSync(__dirname + "/testdata/smpte_bars_15s.mp4");
+  const testFile = readFileSync(
+    path.join(__dirname, "testdata", "smpte_bars_15s.mp4"),
+  );
   await showPage.getByRole("button", { name: "New Rundown" }).click();
   await expect(showPage.getByTestId("name-rundown")).toBeVisible();
   await showPage.getByTestId("name-rundown").fill("Test");

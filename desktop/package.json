@@ -13,7 +13,8 @@
     "prettify": "prettier --write .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:e2e": "E2E_TEST=true playwright test"
+    "test:e2e": "E2E_TEST=true playwright test",
+    "test:e2e:ui": "E2E_TEST=true playwright test --ui"
   },
   "keywords": [],
   "author": {
