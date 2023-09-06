@@ -202,6 +202,8 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable --inline-builds
 
+      - uses: FedericoCarboni/setup-ffmpeg@v2
+
       - name: Build server
         run: |
           yarn build
