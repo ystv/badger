@@ -31,7 +31,13 @@ const test = base.extend<{
   app: [ElectronApplication, Page];
 }>({
   app: async ({}, use) => {
-    const app = await electron.launch({ args: [".vite/build/main.js"] });
+    const app = await electron.launch({
+      args: [".vite/build/main.js"],
+      env: {
+        NODE_ENV: "test",
+        E2E_TEST: "true",
+      },
+    });
     const win = await app.firstWindow();
 
     await win.context().tracing.start({ screenshots: true, snapshots: true });
@@ -95,4 +101,29 @@ test("can select newly created show", async ({ app: [_app, page] }) => {
   const btn = row.getByRole("button", { name: "Select" });
   await btn.click();
   await expect(page.getByRole("button", { name: "Test Show" })).toBeVisible();
+});
+
+test("download media", async ({ app: [app, page] }) => {
+  test.slow();
+  const testFile = await fsp.readFile(
+    path.join(__dirname, "testdata", "smpte_bars_15s.mp4"),
+  );
+  const media = await createAndUploadTestMedia(
+    "continuityItem",
+    testShow.continuityItems[0].id,
+    "smpte_bars_15s.mp4",
+    testFile,
+  );
+  await expect
+    .poll(
+      async () => {
+        const med = await server.media.get.query({ id: media.id });
+        return med.state;
+      },
+      {
+        timeout: 30_000,
+        intervals: [500],
+      },
+    )
+    .toBe("Ready");
 });
