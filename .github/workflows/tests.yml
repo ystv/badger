@@ -227,13 +227,13 @@ jobs:
 
       - name: Start Jobrunner
         run: |
-          node --enable-source-maps dist/index.cjs --watch --pidFile ${{ runner.temp }}/jobrunner.pid &
+          node --enable-source-maps dist/index.cjs --watch --pidFile ${{ runner.temp }}/jobrunner.pid > ${{ runner.temp }}/logs/jobrunner.log 2>&1 &
           npx -y wait-on file:/${{ runner.temp }}/jobrunner.pid
         working-directory: ./jobrunner
 
       - name: Start server
         run: |
-          node server/server.js &
+          node server/server.js > ${{ runner.temp }}/logs/server.log 2>&1 &
           npx -y wait-on http://localhost:3000/api/healthz
         working-directory: ./server/.next/standalone
 
@@ -249,4 +249,11 @@ jobs:
         with:
           name: playwright-report-desktop
           path: ./desktop/playwright-report/
+          retention-days: 30
+
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: logs-e2e-desktop
+          path: ${{ runner.temp }}/logs
           retention-days: 30
