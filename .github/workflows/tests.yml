@@ -239,12 +239,12 @@ jobs:
         run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn test:e2e
         working-directory: ./desktop
         env:
-          PLAYWRIGHT_HTML_REPORT: ${{ github.workspace }}/server/playwright-report
+          PLAYWRIGHT_HTML_REPORT: ${{ github.workspace }}/desktop/playwright-report
           DEBUG: ${{ runner.debug && 'pw:browser:*' || '' }}
 
       - uses: actions/upload-artifact@v3
         if: always()
         with:
           name: playwright-report-desktop
-          path: ./server/playwright-report/
+          path: ./desktop/playwright-report/
           retention-days: 30
