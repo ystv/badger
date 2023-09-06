@@ -144,10 +144,12 @@ test("download media", async ({ app: [app, page] }) => {
   await expect
     .poll(async () => {
       try {
-        return await fsp.stat(expectedPath);
+        return (await fsp.stat(expectedPath)).isFile();
       } catch (e) {
         return null;
       }
     })
-    .toBeTruthy();
+    .toBe(true);
+  const stats = await fsp.stat(expectedPath);
+  expect(stats.size).toBeCloseTo(548213, -3);
 });

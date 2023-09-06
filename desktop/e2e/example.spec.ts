@@ -10,7 +10,6 @@ test("starts", async () => {
 test("can connect to server", async () => {
   const app = await electron.launch({ args: [".vite/build/main.js"] });
   const window = await app.firstWindow();
-  window.on("console", console.log);
   await window.waitForLoadState("domcontentloaded");
 
   await window.getByLabel("Server address").fill("http://localhost:3000");
