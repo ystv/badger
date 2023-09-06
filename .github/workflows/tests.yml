@@ -254,11 +254,6 @@ jobs:
           path: |
             ./desktop/playwright-report/
             ./desktop/traces/
-          retention-days: 30
-
-      - uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: logs-e2e-desktop
-          path: ${{ runner.temp }}/logs
+            ./desktop/test-results/
+            ${{ runner.temp }}/logs
           retention-days: 30

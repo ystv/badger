@@ -10,7 +10,6 @@ import * as fsp from "node:fs/promises";
 import * as path from "node:path";
 import { createAndUploadTestMedia, server } from "./serverAPI";
 import { CompleteShowType } from "../src/common/types";
-import type { Operation } from "@trpc/client";
 import * as os from "node:os";
 
 // Copied from mediaManagement.ts since importing it breaks the test
