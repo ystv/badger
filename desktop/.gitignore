@@ -89,6 +89,9 @@ typings/
 
 # Electron-Forge
 out/
+
+# Playwright
 /test-results/
 /playwright-report/
 /playwright/.cache/
+/traces/

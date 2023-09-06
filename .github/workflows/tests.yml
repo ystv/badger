@@ -251,7 +251,9 @@ jobs:
         if: always()
         with:
           name: playwright-report-desktop
-          path: ./desktop/playwright-report/
+          path: |
+            ./desktop/playwright-report/
+            ./desktop/traces/
           retention-days: 30
 
       - uses: actions/upload-artifact@v3

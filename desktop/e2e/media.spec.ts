@@ -30,9 +30,9 @@ function getMediaPath() {
 const test = base.extend<{
   app: [ElectronApplication, Page];
 }>({
-  app: async ({}, use) => {
+  app: async ({}, use, testInfo) => {
     const app = await electron.launch({
-      args: [".vite/build/main.js"],
+      args: [".vite/build/main.js", "--enable-logging"],
       env: {
         NODE_ENV: "test",
         E2E_TEST: "true",
@@ -55,7 +55,9 @@ const test = base.extend<{
 
     await use([app, win]);
 
-    await win.context().tracing.stop({ path: "trace.zip" });
+    await win
+      .context()
+      .tracing.stop({ path: `traces/${testInfo.title}-${testInfo.retry}.zip` });
 
     await expect(
       app.evaluate(({ ipcMain }) => ipcMain.emit("resetTestSettings")),
@@ -126,4 +128,28 @@ test("download media", async ({ app: [app, page] }) => {
       },
     )
     .toBe("Ready");
+
+  await page.getByRole("button", { name: "Select" }).click();
+
+  // TODO: OBS testing isn't implemented yet so the UI won't display the continuity
+  // items list. Instead we trigger the download manually through the IPC API,
+  // to test the downloading itself.
+  await app.evaluate(({ ipcMain }, id) => {
+    ipcMain.emit("doIPCMutation", {}, "media.downloadMedia", {
+      id: id,
+    });
+  }, media.id);
+  await expect(page.getByTestId("DownloadTrackerPopup.icon")).toBeVisible();
+
+  await expect(page.getByTestId("DownloadTrackerPopup.icon")).not.toBeVisible({
+    timeout: 15_000,
+  });
+
+  const expectedPath = path.join(
+    getMediaPath(),
+    `smpte_bars_15s (#${media.id}).mp4`,
+  );
+  const stats = await fsp.stat(expectedPath);
+  expect(stats.isFile()).toBe(true);
+  expect(stats.size).toBeCloseTo(548213, -3);
 });
