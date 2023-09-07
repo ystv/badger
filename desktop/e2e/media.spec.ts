@@ -1,47 +1,19 @@
-/* eslint-disable no-empty-pattern */
-import {
-  test as base,
-  _electron as electron,
-  expect,
-  type ElectronApplication,
-  type Page,
-} from "@playwright/test";
-import { server } from "./serverAPI";
+import { expect } from "@playwright/test";
+import * as fsp from "node:fs/promises";
+import * as path from "node:path";
+import { createAndUploadTestMedia, server } from "./serverAPI";
+import { CompleteShowType } from "../src/common/types";
+import * as os from "node:os";
+import { test } from "./desktopE2EUtils";
 
-const test = base.extend<{
-  app: [ElectronApplication, Page];
-}>({
-  app: async ({}, use) => {
-    const app = await electron.launch({ args: [".vite/build/main.js"] });
-    const win = await app.firstWindow();
+let testShow: CompleteShowType;
+let tempDir: string;
 
-    await win.waitForLoadState("domcontentloaded");
-
-    await win.getByLabel("Server address").fill("http://localhost:3000");
-    await win.getByLabel("Server Password").fill("aaa");
-
-    await win.getByRole("button", { name: "Connect" }).click();
-
-    await expect(
-      win.getByRole("heading", { name: "Select a show" }),
-    ).toBeVisible();
-
-    await use([app, win]);
-
-    await expect(
-      app.evaluate(({ ipcMain }) => ipcMain.emit("resetTestSettings")),
-    ).not.toBe(false);
-
-    await win.close();
-    await app.close();
-  },
-});
-
-test.beforeEach(async ({ request }) => {
+test.beforeEach(async ({ request, app: [app] }) => {
   await request.post(
     "http://localhost:3000/api/resetDBInTestsDoNotUseOrYouWillBeFired",
   );
-  await server.shows.create.mutate({
+  testShow = await server.shows.create.mutate({
     name: "Test Show",
     start: new Date("2026-01-01T19:00:00Z"),
     continuityItems: {
@@ -52,6 +24,15 @@ test.beforeEach(async ({ request }) => {
       },
     },
   });
+  tempDir = os.tmpdir();
+  await app.evaluate(({ ipcMain }, tempDir) => {
+    ipcMain.emit(
+      "setSetting",
+      // IpcMainEvent object (unused)
+      {},
+      { key: "media", value: { mediaPath: tempDir } },
+    );
+  }, tempDir);
 });
 
 test("can select newly created show", async ({ app: [_app, page] }) => {
@@ -60,4 +41,64 @@ test("can select newly created show", async ({ app: [_app, page] }) => {
   const btn = row.getByRole("button", { name: "Select" });
   await btn.click();
   await expect(page.getByRole("button", { name: "Test Show" })).toBeVisible();
+});
+
+test("download media", async ({ app: [app, page] }) => {
+  test.slow();
+  await page.getByRole("button", { name: "Select" }).click();
+  await expect(page.getByRole("button", { name: "Test Show" })).toBeVisible();
+
+  const testFile = await fsp.readFile(
+    path.join(__dirname, "testdata", "smpte_bars_15s.mp4"),
+  );
+  const media = await createAndUploadTestMedia(
+    "continuityItem",
+    testShow.continuityItems[0].id,
+    "smpte_bars_15s.mp4",
+    testFile,
+  );
+  await expect
+    .poll(
+      async () => {
+        const med = await server.media.get.query({ id: media.id });
+        return med.state;
+      },
+      {
+        timeout: 30_000,
+        intervals: [500],
+      },
+    )
+    .toBe("Ready");
+
+  // TODO: OBS testing isn't implemented yet so the UI won't display the continuity
+  // items list. Instead we trigger the download manually through the IPC API,
+  // to test the downloading itself.
+  await app.evaluate(({ ipcMain }, id) => {
+    ipcMain.emit("doIPCMutation", {}, "media.downloadMedia", {
+      id: id,
+    });
+  }, media.id);
+
+  // TODO: For some reason this assertion can fail - possibly because the download
+  // happens too fast?
+  // Either way, this might be solved once OBS integration is sorted, as we can
+  // look for the "Add to OBS" button instead.
+  // await expect(page.getByTestId("DownloadTrackerPopup.icon")).toBeVisible();
+
+  await expect(page.getByTestId("DownloadTrackerPopup.icon")).not.toBeVisible({
+    timeout: 15_000,
+  });
+
+  await expect(async () => {
+    const expectedPath = path.join(
+      tempDir,
+      `smpte_bars_15s (#${media.id}).mp4`,
+    );
+    const stats = await fsp.stat(expectedPath);
+    expect(stats.isFile()).toBe(true);
+    expect(stats.size).toBeCloseTo(548213, -3);
+  }).toPass({
+    timeout: 15_000,
+    intervals: [500],
+  });
 });

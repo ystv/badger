@@ -202,6 +202,8 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable --inline-builds
 
+      - uses: FedericoCarboni/setup-ffmpeg@v2
+
       - name: Build server
         run: |
           yarn build
@@ -223,28 +225,35 @@ jobs:
       - name: Migrate database
         run: yarn prisma:migrateProd
 
+      - name: Make logs folder
+        run: mkdir -p ${{ runner.temp }}/logs
+
       - name: Start Jobrunner
         run: |
-          node --enable-source-maps dist/index.cjs --watch --pidFile ${{ runner.temp }}/jobrunner.pid &
+          node --enable-source-maps dist/index.cjs --watch --pidFile ${{ runner.temp }}/jobrunner.pid > ${{ runner.temp }}/logs/jobrunner.log 2>&1 &
           npx -y wait-on file:/${{ runner.temp }}/jobrunner.pid
         working-directory: ./jobrunner
 
       - name: Start server
         run: |
-          node server/server.js &
+          node server/server.js > ${{ runner.temp }}/logs/server.log 2>&1 &
           npx -y wait-on http://localhost:3000/api/healthz
         working-directory: ./server/.next/standalone
 
       - name: Run Playwright tests
-        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn test:e2e
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn playwright test
         working-directory: ./desktop
         env:
-          PLAYWRIGHT_HTML_REPORT: ${{ github.workspace }}/server/playwright-report
-          DEBUG: ${{ runner.debug && 'pw:browser:*' || '' }}
+          PLAYWRIGHT_HTML_REPORT: ${{ github.workspace }}/desktop/playwright-report
+          DEBUG: ${{ runner.debug && 'pw:browser*' || '' }}
 
       - uses: actions/upload-artifact@v3
         if: always()
         with:
           name: playwright-report-desktop
-          path: ./server/playwright-report/
+          path: |
+            ./desktop/playwright-report/
+            ./desktop/traces/
+            ./desktop/test-results/
+            ${{ runner.temp }}/logs
           retention-days: 30

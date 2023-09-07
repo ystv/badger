@@ -9,7 +9,28 @@ import { useEffect } from "react";
 export const ipc = createTRPCReact<AppRouter>();
 
 export const ipcClient = ipc.createClient({
-  links: [loggerLink({}), ipcLink()],
+  links: [
+    loggerLink({
+      logger(opts) {
+        const parts = [];
+        if (opts.direction === "down") {
+          parts.push("-->");
+        } else {
+          parts.push("<--");
+        }
+
+        parts.push(opts.type);
+        parts.push(opts.path);
+        if (opts.direction === "down") {
+          parts.push(JSON.stringify(opts.result));
+        } else {
+          parts.push(JSON.stringify(opts.input));
+        }
+        console.log(parts.join(" "));
+      },
+    }),
+    ipcLink(),
+  ],
 });
 
 export function useInvalidateQueryOnIPCEvent(

@@ -33,6 +33,10 @@ ipcMain.on("resetTestSettings", () => {
   inMemSettings.clear();
 });
 
+ipcMain.on("setSetting", (_, { key, value }) => {
+  inMemSettings.set(key, value);
+});
+
 /**
  * Since settings are stored as JSON files on disk, we pass them through zod as a sanity check.
  */

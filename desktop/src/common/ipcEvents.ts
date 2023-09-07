@@ -11,5 +11,6 @@ export const Events = {
   selectedShowChange(newShow: CompleteShowType | null) {},
   assetsSettingsChange() {},
   devToolsSettingsChange() {},
+  downloadStatusChange() {},
 } as const;
 export type Events = typeof Events;
