@@ -2467,10 +2467,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/nextjs-monorepo-workaround-plugin@npm:^5.1.1":
-  version: 5.1.1
-  resolution: "@prisma/nextjs-monorepo-workaround-plugin@npm:5.1.1"
-  checksum: d22b81a2085f19f4f5292bf8ec7fa22a6c29e07c8034193d489dca6fc7646458a1c33cb7e3e57bc36526efc60a0d37d219587ceebab800d58bcafb366c6ed4f2
+"@prisma/nextjs-monorepo-workaround-plugin@npm:^5.2.0":
+  version: 5.2.0
+  resolution: "@prisma/nextjs-monorepo-workaround-plugin@npm:5.2.0"
+  checksum: b5cd65e41bc591464fbe69bc9eab29093b4ab1352e27eb3ff0175da35752898ab354eb0b25b51b967e429b4adea787ecc70965f164473523102b38240793d215
   languageName: node
   linkType: hard
 
@@ -5689,7 +5689,7 @@ __metadata:
     "@bowser/testing": "workspace:*"
     "@hookform/resolvers": ^3.1.1
     "@playwright/test": ^1.37.0
-    "@prisma/nextjs-monorepo-workaround-plugin": ^5.1.1
+    "@prisma/nextjs-monorepo-workaround-plugin": ^5.2.0
     "@sentry/nextjs": latest
     "@tailwindcss/forms": ^0.5.4
     "@trpc/server": ^10.34.0
