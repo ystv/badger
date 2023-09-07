@@ -2,8 +2,6 @@ import { db } from "@/lib/db";
 import type { Prisma } from "@bowser/prisma/client";
 import { Pagination } from "@/components/Pagination";
 import Link from "next/link";
-import { Fragment } from "react";
-import dayjs from "dayjs";
 import Button from "@bowser/components/button";
 import {
   Table,
@@ -11,6 +9,7 @@ import {
   TableCell,
   TableRow,
 } from "@bowser/components/table";
+import { DateTime } from "@/components/DateTIme";
 
 const PAGE_SIZE = 25;
 
@@ -58,7 +57,7 @@ export default async function ShowsPage(props: {
             <TableRow key={show.id}>
               <TableCell className="font-bold">{show.name}</TableCell>
               <TableCell>
-                {dayjs(show.start).format("YYYY-MM-DD HH:mm")}
+                <DateTime val={show.start.toUTCString()} />
               </TableCell>
               <TableCell>
                 <Link href={`/shows/${show.id}`}>
