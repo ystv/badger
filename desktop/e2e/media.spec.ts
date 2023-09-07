@@ -59,6 +59,9 @@ test("can select newly created show", async ({ app: [_app, page] }) => {
 
 test("download media", async ({ app: [app, page] }) => {
   test.slow();
+  await page.getByRole("button", { name: "Select" }).click();
+  await expect(page.getByRole("button", { name: "Test Show" })).toBeVisible();
+
   const testFile = await fsp.readFile(
     path.join(__dirname, "testdata", "smpte_bars_15s.mp4"),
   );
@@ -80,8 +83,6 @@ test("download media", async ({ app: [app, page] }) => {
       },
     )
     .toBe("Ready");
-
-  await page.getByRole("button", { name: "Select" }).click();
 
   // TODO: OBS testing isn't implemented yet so the UI won't display the continuity
   // items list. Instead we trigger the download manually through the IPC API,
