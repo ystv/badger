@@ -6,20 +6,6 @@ import { CompleteShowType } from "../src/common/types";
 import * as os from "node:os";
 import { test } from "./desktopE2EUtils";
 
-// Copied from mediaManagement.ts since importing it breaks the test
-function getMediaPath() {
-  switch (os.platform()) {
-    case "win32":
-      return "C:\\bowser_media";
-    case "darwin":
-      return `${os.userInfo().homedir}/Movies/Bowser Media`;
-    case "linux":
-      return `${os.userInfo().homedir}/Videos/Bowser Media`;
-    default:
-      throw new Error("Unsupported platform");
-  }
-}
-
 let testShow: CompleteShowType;
 let tempDir: string;
 
@@ -105,7 +91,7 @@ test("download media", async ({ app: [app, page] }) => {
 
   await expect(async () => {
     const expectedPath = path.join(
-      getMediaPath(),
+      tempDir,
       `smpte_bars_15s (#${media.id}).mp4`,
     );
     const stats = await fsp.stat(expectedPath);
