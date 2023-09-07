@@ -16,20 +16,5 @@ export default mergeConfig(
       },
       conditions: ["node"],
     },
-    build: {
-      minify: process.env.NODE_ENV === "development" ? false : "esbuild",
-      sourcemap: true,
-      rollupOptions: {
-        output: {
-          format: "commonjs",
-          entryFileNames: "[name].cjs",
-          chunkFileNames: "chunks/[name].[hash].cjs",
-          assetFileNames: "assets/[name].[hash].[ext]",
-        },
-      },
-    },
-    esbuild: {
-      minifyIdentifiers: process.env.NODE_ENV !== "development",
-    },
-  }),
+  })
 );

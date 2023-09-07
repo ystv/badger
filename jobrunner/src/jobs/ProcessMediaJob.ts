@@ -16,7 +16,7 @@ import {
 import got, { Response as GotResponse } from "got";
 import * as child_process from "node:child_process";
 import * as util from "node:util";
-import { pEvent } from "p-event";
+import pEvent from "p-event";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { FFProbeOutput, LoudnormOutput } from "./_types.js";
 

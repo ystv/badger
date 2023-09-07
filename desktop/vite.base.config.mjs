@@ -27,10 +27,12 @@ export default defineConfig({
     "global.__GIT_COMMIT__": JSON.stringify(gitCommit),
     "global.__SENTRY_RELEASE__": JSON.stringify(sentryRelease),
   },
+  // Disable minification in development to make debugging easier
   build: {
-    rollupOptions: {
-      // This shouldn't even be making it into the build if tree shaking is working properly
-      external: ["@aws-sdk/client-s3"],
-    },
+    minify: process.env.NODE_ENV === "development" ? false : "esbuild",
+    sourcemap: true,
+  },
+  esbuild: {
+    minifyIdentifiers: process.env.NODE_ENV !== "development",
   },
 });

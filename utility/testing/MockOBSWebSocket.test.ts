@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import MockOBSWebSocket from "./MockOBSWebSocket.js";
 import { WebSocket } from "ws";
-import { pEvent, pEventIterator } from "p-event";
+import pEvent from "p-event";
 import OBSWebSocket, { EventSubscription } from "obs-websocket-js";
 
 describe("MockOBSWebSocket", async () => {
@@ -195,7 +195,7 @@ describe("MockOBSWebSocket", async () => {
       }),
     );
     const messages = [];
-    for await (const evt of pEventIterator(ws, "message")) {
+    for await (const evt of pEvent.iterator(ws, "message")) {
       messages.push(JSON.parse(evt.toString("utf-8")));
       if (messages.length === 2) {
         break;

@@ -5,7 +5,7 @@ import {
   OBSResponseTypes,
 } from "obs-websocket-js";
 import { AddressInfo, WebSocket, WebSocketServer } from "ws";
-import { pEvent } from "p-event";
+import pEvent from "p-event";
 import * as msgpack from "@msgpack/msgpack";
 import type { ExpectStatic as VitestExpect } from "vitest";
 import type { Expect as PlaywrightExpect } from "@playwright/test";
@@ -292,6 +292,11 @@ export default class MockOBSWebSocket {
         "No MockOBSWebSocket context available. Either the server has not received a connection yet, or it was created with an actor function.",
       );
     }
+    if (this.openConnections > 1) {
+      throw new Error(
+        "Tried to access MockOBSWebSocket.ctx with more than one open connection. Use the actor function directly instead.",
+      );
+    }
     return this._ctx!;
   }
 
@@ -349,6 +354,7 @@ export default class MockOBSWebSocket {
       let actorPromise: Promise<unknown> | null = null;
       if (actor) {
         actorPromise = actor(ctx);
+        mows._ctx = ctx;
       } else {
         if (mows.openConnections > 0) {
           throw new Error(
