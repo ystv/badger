@@ -2,7 +2,7 @@ import { e2eProcedure, publicProcedure, router } from "./_base";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import {
-  CompleteMediaModel,
+  ExtendedMediaModel,
   CompleteRundownModel,
   CompleteShowModel,
   PartialShowModel,
@@ -14,15 +14,37 @@ import {
   MediaSchema,
   RundownItemSchema,
   ShowCreateInputSchema,
+  AssetSchema,
+  RundownSchema,
+  ShowSchema,
+  ShowUpdateInputSchema,
 } from "@bowser/prisma/types";
 import invariant from "@/lib/invariant";
 import { dispatchJobForJobrunner } from "@/lib/jobs";
 
-const ExtendedMediaModelWithDownloadURL = CompleteMediaModel.extend({
+const ExtendedMediaModelWithDownloadURL = ExtendedMediaModel.extend({
   continuityItem: ContinuityItemSchema.nullable(),
   rundownItem: RundownItemSchema.nullable(),
+  asset: AssetSchema.nullable(),
   downloadURL: z.string().optional().nullable(),
 });
+
+const CompleteMediaModel = ExtendedMediaModel.extend({
+  continuityItem: ContinuityItemSchema.extend({
+    show: ShowSchema,
+  }).nullable(),
+  rundownItem: RundownItemSchema.extend({
+    rundown: RundownSchema.extend({
+      show: ShowSchema,
+    }),
+  }).nullable(),
+  asset: AssetSchema.extend({
+    rundown: RundownSchema.extend({
+      show: ShowSchema,
+    }),
+  }).nullable(),
+});
+
 export const appRouter = router({
   ping: publicProcedure.query(() => {
     return "pong";
@@ -118,13 +140,56 @@ export const appRouter = router({
         });
         return res;
       }),
+    update: e2eProcedure
+      .input(
+        z.object({
+          id: z.number(),
+          data: ShowUpdateInputSchema,
+        }),
+      )
+      .output(CompleteShowModel)
+      .mutation(async ({ input }) => {
+        const res = await db.show.update({
+          where: {
+            id: input.id,
+          },
+          data: input.data,
+          include: {
+            continuityItems: {
+              include: {
+                media: true,
+              },
+            },
+            rundowns: {
+              include: {
+                items: {
+                  include: {
+                    media: true,
+                  },
+                },
+                assets: {
+                  include: {
+                    media: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+        return res;
+      }),
   }),
   media: router({
     get: publicProcedure
       .input(z.object({ id: z.number() }))
       .output(ExtendedMediaModelWithDownloadURL)
       .query(async ({ input }) => {
-        const obj = await db.media.findFirstOrThrow({
+        // Need this Omit to ensure that this findFirstOrThrow works while assuring type
+        // safety for all the other fields of ExtendedMediaModelWithDownloadURL
+        const obj: Omit<
+          z.infer<typeof ExtendedMediaModelWithDownloadURL>,
+          "downloadURL"
+        > = await db.media.findFirstOrThrow({
           where: {
             id: input.id,
           },
@@ -132,6 +197,7 @@ export const appRouter = router({
             tasks: true,
             continuityItem: true,
             rundownItem: true,
+            asset: true,
           },
         });
         if (obj.path !== null) {
@@ -169,6 +235,24 @@ export const appRouter = router({
                   },
                 },
               });
+              await $db.rundownItem.update({
+                where: {
+                  id: input.targetID,
+                },
+                data: {
+                  rundown: {
+                    update: {
+                      show: {
+                        update: {
+                          version: {
+                            increment: 1,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              });
               break;
             case "continuityItem":
               med = await $db.media.create({
@@ -179,6 +263,20 @@ export const appRouter = router({
                   continuityItem: {
                     connect: {
                       id: input.targetID,
+                    },
+                  },
+                },
+              });
+              await $db.continuityItem.update({
+                where: {
+                  id: input.targetID,
+                },
+                data: {
+                  show: {
+                    update: {
+                      version: {
+                        increment: 1,
+                      },
                     },
                   },
                 },
@@ -205,6 +303,44 @@ export const appRouter = router({
         });
         await dispatchJobForJobrunner(job.base_job_id);
         return media;
+      }),
+    bulkGet: publicProcedure
+      .input(z.array(z.number()))
+      .output(z.array(CompleteMediaModel))
+      .query(async ({ input }) => {
+        return await db.media.findMany({
+          where: {
+            id: {
+              in: input,
+            },
+          },
+          include: {
+            tasks: true,
+            continuityItem: {
+              include: {
+                show: true,
+              },
+            },
+            rundownItem: {
+              include: {
+                rundown: {
+                  include: {
+                    show: true,
+                  },
+                },
+              },
+            },
+            asset: {
+              include: {
+                rundown: {
+                  include: {
+                    show: true,
+                  },
+                },
+              },
+            },
+          },
+        });
       }),
   }),
   rundowns: router({

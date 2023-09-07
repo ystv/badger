@@ -1,8 +1,8 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { ipc } from "./ipc";
+import { ipc } from "../ipc";
 import { getQueryKey } from "@trpc/react-query";
-import { OBSSettings } from "./screens/OBS";
-import OBSDevToolsScreen from "./screens/OBSDevTools";
+import { OBSSettings } from "./OBS";
+import OBSDevToolsScreen from "./OBSDevTools";
 import { Switch } from "@bowser/components/switch";
 import { Label } from "@bowser/components/label";
 import {
@@ -11,9 +11,10 @@ import {
   TabsTrigger,
   TabsContent,
 } from "@bowser/components/tabs";
-import { VMixConnection } from "./screens/vMix";
-import { OntimeSettings } from "./screens/Ontime";
+import { VMixConnection } from "./vMix";
+import { OntimeSettings } from "./Ontime";
 import Button from "@bowser/components/button";
+import { MediaSettings } from "./MediaSettings";
 
 export function Settings() {
   const queryClient = useQueryClient();
@@ -62,6 +63,7 @@ export function Settings() {
         {integrations.includes("ontime") && (
           <TabsTrigger value="ontime">Ontime</TabsTrigger>
         )}
+        <TabsTrigger value="media">Media</TabsTrigger>
         <TabsTrigger value="advanced">Advanced</TabsTrigger>
         {devToolsState.enabled && (
           <TabsTrigger value="obs-devtools">OBS Developer Tools</TabsTrigger>
@@ -83,6 +85,9 @@ export function Settings() {
           <OntimeSettings />
         </TabsContent>
       )}
+      <TabsContent value="media">
+        <MediaSettings />
+      </TabsContent>
       <TabsContent value="advanced">
         <h2 className="text-xl">Developer Tools</h2>
         <p>

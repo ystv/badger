@@ -42,6 +42,6 @@ export const CompleteShowModel = ShowSchema.extend({
   rundowns: z.array(CompleteRundownModel),
 });
 
-export const CompleteMediaModel = PartialMediaModel.extend({
+export const ExtendedMediaModel = PartialMediaModel.extend({
   tasks: z.array(MediaProcessingTaskSchema),
 });

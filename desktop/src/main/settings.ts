@@ -115,7 +115,7 @@ export async function saveMediaSettings(
   await settings.set("media", val);
 }
 
-const LocalMediaData = z.object({
+export const LocalMediaData = z.object({
   mediaID: z.number(),
   path: z.string(),
 });
@@ -169,13 +169,15 @@ export async function getLocalMediaSettings(): Promise<
 
 export async function updateLocalMediaState(
   mediaID: number,
-  val: z.infer<typeof LocalMediaData>,
+  val: z.infer<typeof LocalMediaData> | null,
 ) {
   const localMediaState = await getLocalMediaSettings();
   const newLocalMediaState = localMediaState.filter(
     (v) => v.mediaID !== mediaID,
   );
-  newLocalMediaState.push(val);
+  if (val !== null) {
+    newLocalMediaState.push(val);
+  }
   await settings.set("localMedia", newLocalMediaState);
 }
 
