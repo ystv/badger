@@ -70,20 +70,15 @@ test("download media", async ({ app: [app, page] }) => {
     )
     .toBe("Ready");
 
-  // TODO: OBS testing isn't implemented yet so the UI won't display the continuity
+  // This test doesn't enable OBS so the UI won't display the continuity
   // items list. Instead we trigger the download manually through the IPC API,
   // to test the downloading itself.
+  // NB: this may be fragile.
   await app.evaluate(({ ipcMain }, id) => {
     ipcMain.emit("doIPCMutation", {}, "media.downloadMedia", {
       id: id,
     });
   }, media.id);
-
-  // TODO: For some reason this assertion can fail - possibly because the download
-  // happens too fast?
-  // Either way, this might be solved once OBS integration is sorted, as we can
-  // look for the "Add to OBS" button instead.
-  // await expect(page.getByTestId("DownloadTrackerPopup.icon")).toBeVisible();
 
   await expect(page.getByTestId("DownloadTrackerPopup.icon")).not.toBeVisible({
     timeout: 15_000,

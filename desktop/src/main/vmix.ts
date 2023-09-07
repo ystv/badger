@@ -45,14 +45,8 @@ interface ReqQueueItem {
  */
 export default class VMixConnection {
   private sock!: Socket;
-  // When replying to a TCP request, vMix includes the name of the command
-  // in its response, but nothing else that would allow us to identify the sender
-  // (unlike e.g. the OBS WebSocket API, where requests can have an ID).
-  // Therefore, we only allow one request per command type to be in flight at
-  // a time. If a caller makes another request while one is in flight, we push it
-  // to the request queue and dispatch it after the first one comes back.
-  // This map is used to hang onto the response handler for the currently
-  // in-flight request - if the command has an entry, one is in flight.
+
+  // See the comment on doNextRequest for an explanation of this.
   private replyAwaiting: Map<
     VMixCommand,
     {
@@ -61,6 +55,7 @@ export default class VMixConnection {
     }
   >;
   private requestQueue: Array<ReqQueueItem> = [];
+
   private buffer: string = "";
   private xmlParser = new XMLParser({
     ignoreAttributes: false,
@@ -263,6 +258,25 @@ export default class VMixConnection {
     return reply;
   }
 
+  // When replying to a TCP request, vMix includes the name of the command
+  // in its response, but nothing else that would allow us to identify the sender
+  // (unlike e.g. the OBS WebSocket API, where requests can have an ID).
+  // Therefore, we only allow one request per command type to be in flight at
+  // a time.
+  //
+  // The replyAwaiting map tracks whether we have sent a request for a given command,
+  // and therefore we can't send another until we've received a response to the first.
+  // If a request of type X is added to the queue when there is already one in flight,
+  // doNextRequest will skip processing it. Then, once a compelte response is received
+  // by onData(), it will call doNextRequest again to process the next request.
+  //
+  // This implementation is a bit simplistic - if the first request in the queue
+  // is blocked we won't process any others, even if they would not be blocked.
+  // However, this is unlikely to be a problem in practice.
+  //
+  // TODO: With that in mind, this could be simplified even further - instead of a
+  // replyAwaiting map, we could just have a single boolean flag indicating whether
+  // a request is in flight.
   private async doNextRequest() {
     const req = this.requestQueue[0];
     if (!req) {
@@ -288,13 +302,18 @@ export default class VMixConnection {
   private onData(data: Buffer) {
     this.buffer += data.toString();
     // Replies will be in one of the following forms:
+    //
     //MYCOMMAND OK This is the response to MYCOMMAND\r\n
+    //
     //MYCOMMAND ER This is an error message in response to MYCOMMAND\r\n
+    //
     //MYCOMMAND 28\r\n
     //This is optional binary data
+    //
     //MYCOMMAND 28 This is a message in addition to the binary data\r\n
     //This is optional binary data
     //
+    // The 28 in the last two examples is the length of the binary data.
     // NB: binary data doesn't necessarily end with \r\n!
 
     if (!this.buffer.includes("\r\n")) {
@@ -317,8 +336,10 @@ export default class VMixConnection {
       process.nextTick(this.doNextRequest.bind(this));
       return;
     }
+    // This is a binary response and "status" is actually its length
     invariant(status.match(/^\d+$/), "Invalid status: " + status);
     const payloadLength = parseInt(status, 10);
+    // +2 for the \r\n
     if (this.buffer.length < payloadLength + firstLine.length + 2) {
       // still need more data
       return;

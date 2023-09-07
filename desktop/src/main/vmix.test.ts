@@ -33,6 +33,7 @@ describe("VMixConnection", () => {
   });
   describe("send/receive", () => {
     test("request and response", async () => {
+      // vmix["send"] lets us access vmix.send even though it's private
       const res = vmix["send"]("FUNCTION", "test");
       expect(sock.write).toHaveBeenCalledWith(
         "FUNCTION test\r\n",

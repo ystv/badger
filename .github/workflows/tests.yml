@@ -7,6 +7,20 @@ on:
     branches: ["main"]
 
 jobs:
+  yarn-duplicates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
+      - run: yarn install --immutable --inline-builds
+
+      - run: yarn dedupe --check
+
   prettier:
     runs-on: ubuntu-latest
     steps:
@@ -245,7 +259,7 @@ jobs:
         working-directory: ./desktop
         env:
           PLAYWRIGHT_HTML_REPORT: ${{ github.workspace }}/desktop/playwright-report
-          DEBUG: ${{ runner.debug && 'pw:browser*' || '' }}
+          DEBUG: ${{ runner.debug && 'pw:browser*,mows*' || '' }}
 
       - uses: actions/upload-artifact@v3
         if: always()

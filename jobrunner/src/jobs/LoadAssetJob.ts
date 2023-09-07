@@ -9,7 +9,7 @@ import {
 import path from "node:path";
 import fs from "node:fs";
 import got from "got";
-import { pEvent } from "p-event";
+import pEvent from "p-event";
 import { pipeline as streamPipeline } from "node:stream/promises";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 
