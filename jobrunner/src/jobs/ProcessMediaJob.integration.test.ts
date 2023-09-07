@@ -5,7 +5,7 @@ import { integrate } from "@bowser/testing";
 import * as fs from "fs";
 import * as fsp from "fs/promises";
 import got from "got";
-import { pEvent } from "p-event";
+import pEvent from "p-event";
 
 async function uploadTestFileToTus() {
   if (!process.env.TUS_ENDPOINT) {
