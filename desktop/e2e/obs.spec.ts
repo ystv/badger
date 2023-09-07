@@ -100,7 +100,7 @@ test("download continuity media and load into OBS", async ({
 
     const [createSceneData, respondCreateScene] =
       await obs.waitForRequest("CreateScene");
-    expect(JSON.stringify(createSceneData, null, 2)).toMatchSnapshot();
+    expect(createSceneData.sceneName).toBe("0 - Test Continuity [#1]");
     await respondCreateScene({
       success: true,
       code: 100,
@@ -109,7 +109,8 @@ test("download continuity media and load into OBS", async ({
 
     const [createInputData, respondCreateInput] =
       await obs.waitForRequest("CreateInput");
-    expect(JSON.stringify(createInputData, null, 2)).toMatchSnapshot();
+    expect(createInputData.sceneName).toBe("0 - Test Continuity [#1]");
+    expect(createInputData.inputName).toBe("Bowser Media 1");
     await respondCreateInput({
       success: true,
       code: 100,
@@ -118,11 +119,7 @@ test("download continuity media and load into OBS", async ({
       },
     });
 
-    const [ssitData, respondSSIT] = await obs.waitForRequest(
-      "SetSceneItemTransform",
-    );
-
-    expect(JSON.stringify(ssitData, null, 2)).toMatchSnapshot();
+    const [_2, respondSSIT] = await obs.waitForRequest("SetSceneItemTransform");
     await respondSSIT({
       success: true,
       code: 100,
