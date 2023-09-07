@@ -11,6 +11,7 @@ import * as path from "path";
 import { serverApiClient } from "./serverApiClient";
 import { z } from "zod";
 import * as wget from "wget-improved";
+import { IPCEvents } from "./ipcEventBus";
 
 export async function getMediaPath(): Promise<string> {
   const settings = await getMediaSettings();
@@ -91,6 +92,7 @@ async function doDownloadMedia() {
       progressPercent: 0,
     };
     downloadStatus.set(info.id, status);
+    IPCEvents.downloadStatusChange();
 
     try {
       const download = wget.download(urlRaw, outputPath, {
@@ -100,6 +102,7 @@ async function doDownloadMedia() {
 
       download.on("progress", (progress: number) => {
         status.progressPercent = progress * 100;
+        IPCEvents.downloadStatusChange();
       });
       await new Promise<void>((resolve, reject) => {
         download.on("error", reject);
@@ -112,6 +115,7 @@ async function doDownloadMedia() {
       if (downloadQueue.length > 0) {
         process.nextTick(doDownloadMedia);
       }
+      IPCEvents.downloadStatusChange();
       return;
     }
 
@@ -119,6 +123,7 @@ async function doDownloadMedia() {
       `Downloaded media ${info.id} [${newFileName}] to ${outputPath}`,
     );
     status.status = "done";
+    IPCEvents.downloadStatusChange();
     await updateLocalMediaState(info.id, {
       mediaID: info.id,
       path: outputPath,

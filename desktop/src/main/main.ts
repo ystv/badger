@@ -74,7 +74,7 @@ const createWindow = async () => {
   }
 
   // Open the DevTools.
-  if (import.meta.env.DEV || process.env.BOWSER_OPEN_DEVTOOLS === "true") {
+  if (process.env.BOWSER_OPEN_DEVTOOLS === "true") {
     mainWindow.webContents.openDevTools();
   }
 

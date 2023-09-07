@@ -87,16 +87,20 @@ export function OBSSettings() {
             className="border-2 mx-4 my-2 p-1"
           />
         </div>
-        <Button type="submit" color="primary">
+        <Button type="submit" color="primary" disabled={connect.isLoading}>
           Connect
         </Button>
         {state.data?.connected && (
-          <Alert>
+          <Alert data-testid="OBSSettings.success">
             Successfully connected to OBS version {state.data.version} on{" "}
             {state.data.platform}
           </Alert>
         )}
-        {error && <Alert variant="danger">{error}</Alert>}
+        {error && (
+          <Alert variant="danger" data-testid="OBSSettings.error">
+            {error}
+          </Alert>
+        )}
       </form>
     </div>
   );
@@ -109,7 +113,7 @@ function AddToOBS({
 }) {
   const queryClient = useQueryClient();
   const addToOBS = ipc.obs.addMediaAsScene.useMutation();
-  const localMedia = ipc.media.getLocalMedia.useQuery(void 0);
+  const localMedia = ipc.media.getLocalMedia.useQuery();
   const existing = ipc.obs.listContinuityItemScenes.useQuery();
   const [alert, setAlert] = useState<null | {
     warnings: string[];

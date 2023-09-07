@@ -1,4 +1,4 @@
-import { ipc } from "./ipc";
+import { ipc, useInvalidateQueryOnIPCEvent } from "./ipc";
 import invariant from "../common/invariant";
 import {
   Dialog,
@@ -38,11 +38,16 @@ import {
   TableRow,
 } from "@bowser/components/table";
 import { OntimePush } from "./screens/Ontime";
+import { getQueryKey } from "@trpc/react-query";
 
 function DownloadTrackerPopup() {
   const downloadStatus = ipc.media.getDownloadStatus.useQuery(void 0, {
     refetchInterval: 1000,
   });
+  useInvalidateQueryOnIPCEvent(
+    getQueryKey(ipc.media.getDownloadStatus),
+    "downloadStatusChange",
+  );
 
   const downloads = useMemo(
     () => downloadStatus.data?.filter((x) => x.status !== "done"),
@@ -56,7 +61,11 @@ function DownloadTrackerPopup() {
   return (
     <Popover>
       <PopoverTrigger>
-        <IoDownloadSharp className="h-8 w-8" size={32} />
+        <IoDownloadSharp
+          className="h-8 w-8"
+          size={32}
+          data-testid="DownloadTrackerPopup.icon"
+        />
       </PopoverTrigger>
       <PopoverContent className="bg-light text-dark px-2 py-4 shadow-lg">
         <Table>
@@ -146,7 +155,7 @@ export default function MainScreen() {
             open={isSettingsOpen}
             onOpenChange={(v) => setIsSettingsOpen(v)}
           >
-            <DialogTrigger>
+            <DialogTrigger aria-label="Settings">
               <IoCog className="h-6 w-6" size={24} />
             </DialogTrigger>
             <DialogContent>

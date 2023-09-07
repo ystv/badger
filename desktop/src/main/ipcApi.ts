@@ -1,7 +1,7 @@
 import { createAPIClient, serverApiClient } from "./serverApiClient";
 import { z } from "zod";
-import { initTRPC, TRPCError } from "@trpc/server";
 import * as fsp from "node:fs/promises";
+import { callProcedure, initTRPC, TRPCError } from "@trpc/server";
 import invariant from "../common/invariant";
 import { selectedShow, setSelectedShow } from "./selectedShow";
 import {
@@ -46,7 +46,7 @@ import {
   isOntimeConnected,
 } from "./ontime";
 import { showToOntimeEvents } from "./ontimeHelpers";
-import { shell } from "electron";
+import { shell, ipcMain } from "electron";
 
 function serverAPI() {
   invariant(serverApiClient !== null, "serverApiClient is null");
@@ -577,3 +577,15 @@ export const appRouter = r({
   }),
 });
 export type AppRouter = typeof appRouter;
+
+if (process.env.E2E_TEST === "true") {
+  ipcMain.on("doIPCMutation", async (_, proc: string, input: unknown) => {
+    await callProcedure({
+      procedures: appRouter._def.procedures,
+      path: proc,
+      rawInput: input,
+      ctx: {},
+      type: "mutation",
+    });
+  });
+}

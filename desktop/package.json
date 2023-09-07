@@ -13,7 +13,8 @@
     "prettify": "prettier --write .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:e2e": "E2E_TEST=true playwright test"
+    "test:e2e": "E2E_TEST=true playwright test",
+    "test:e2e:ui": "E2E_TEST=true playwright test --ui"
   },
   "keywords": [],
   "author": {
@@ -22,6 +23,7 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@bowser/testing": "workspace:*",
     "@electron-forge/cli": "^6.4.1",
     "@electron-forge/maker-deb": "^6.4.1",
     "@electron-forge/maker-rpm": "^6.4.1",
@@ -45,6 +47,7 @@
     "eslint": "^8.45.0",
     "eslint-plugin-react": "latest",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "p-event": "^6.0.0",
     "postcss": "^8.4.27",
     "prettier": "^3.0.3",
     "prettier-plugin-tailwindcss": "^0.4.1",
@@ -54,15 +57,16 @@
     "vitest": "^0.33.0"
   },
   "dependencies": {
+    "@bowser/components": "workspace:*",
+    "@bowser/prisma": "workspace:*",
     "@bowser/testing": "workspace:*",
-    "@headlessui/react": "^1.7.15",
-    "@popperjs/core": "^2.11.8",
     "@radix-ui/react-alert-dialog": "^1.0.4",
+    "@radix-ui/react-dropdown-menu": "^2.0.5",
     "@sentry/electron": "^4.10.0",
     "@sentry/react": "^7.64.0",
     "@tailwindcss/forms": "^0.5.4",
     "@tanstack/react-query": "^4.32.6",
-    "@trpc/client": "^10.35.0",
+    "@trpc/client": "^10.38.1",
     "@trpc/react-query": "^10.35.0",
     "@trpc/server": "^10.35.0",
     "@types/progress-stream": "^2.0.2",
@@ -78,6 +82,7 @@
     "electron-squirrel-startup": "^1.0.0",
     "electron-trpc": "^0.5.2",
     "fast-xml-parser": "^4.2.7",
+    "got": "^13.0.0",
     "loglevel": "^1.8.1",
     "loglevel-plugin-prefix": "^0.8.4",
     "obs-websocket-js": "^5.0.3",

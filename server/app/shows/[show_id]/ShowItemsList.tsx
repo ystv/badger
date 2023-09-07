@@ -31,7 +31,7 @@ import { Show } from "@bowser/prisma/client";
 import Button from "@bowser/components/button";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { add, format } from "date-fns";
+import { add } from "date-fns";
 import Link from "next/link";
 import Form from "@/components/Form";
 import { editContinuityItemSchema } from "./schema";
@@ -48,12 +48,12 @@ import {
   TableBody,
   TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@bowser/components/table";
 import { formatDurationMS } from "@/lib/time";
+import { DateTime } from "@/components/DateTIme";
 
 // beautiful-dnd is not compatible with SSR
 const Droppable = dynamic(
@@ -186,7 +186,7 @@ const RundownRow = forwardRef<
       </TableCell>
       <TableCell />
       <TableCell data-testid="RundownRow.time">
-        {format(props.time, "HH:mm")}
+        <DateTime val={props.time.toUTCString()} format="time" />
       </TableCell>
       <TableCell data-testid="RundownRow.duration">
         {formatDurationMS(props.runningDuration * 1000)}
@@ -245,7 +245,7 @@ const ContinuityItemRow = forwardRef<
         />
       </TableCell>
       <TableCell data-testid="ContinuityItemRow.time">
-        {format(props.time, "HH:mm")}
+        <DateTime val={props.time.toUTCString()} format="time" />
       </TableCell>
       <TableCell data-testid="ContinuityItemRow.duration">
         {formatDurationMS(props.runningDuration * 1000)}
@@ -403,10 +403,12 @@ export function ShowItemsList(props: {
                 <strong>Total runtime: </strong>
                 {formatDurationMS(durationTotalSeconds * 1000)};{" "}
                 <strong>expected finish </strong>
-                {format(
-                  add(props.show.start, { seconds: durationTotalSeconds }),
-                  "HH:mm",
-                )}
+                <DateTime
+                  val={add(props.show.start, {
+                    seconds: durationTotalSeconds,
+                  }).toISOString()}
+                  format="time"
+                />
               </TableCaption>
             </Table>
           )}

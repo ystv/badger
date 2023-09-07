@@ -10,18 +10,22 @@ import {
 import { getPresignedURL } from "@/lib/s3";
 import {
   ContinuityItemSchema,
+  MediaFileSourceTypeSchema,
+  MediaSchema,
   RundownItemSchema,
   ShowCreateInputSchema,
   AssetSchema,
   RundownSchema,
   ShowSchema,
 } from "@bowser/prisma/types";
+import invariant from "@/lib/invariant";
+import { dispatchJobForJobrunner } from "@/lib/jobs";
 
 const ExtendedMediaModelWithDownloadURL = ExtendedMediaModel.extend({
   continuityItem: ContinuityItemSchema.nullable(),
   rundownItem: RundownItemSchema.nullable(),
   asset: AssetSchema.nullable(),
-  downloadURL: z.string().nullable(),
+  downloadURL: z.string().optional().nullable(),
 });
 
 const CompleteMediaModel = ExtendedMediaModel.extend({
@@ -163,6 +167,71 @@ export const appRouter = router({
           ).downloadURL = await getPresignedURL(obj.path);
         }
         return obj as z.infer<typeof ExtendedMediaModelWithDownloadURL>;
+      }),
+    create: e2eProcedure
+      .input(
+        z.object({
+          sourceType: MediaFileSourceTypeSchema,
+          source: z.string(),
+          fileName: z.string(),
+          targetType: z.enum(["rundownItem", "continuityItem"]), // TODO: support assets
+          targetID: z.number(),
+        }),
+      )
+      .output(MediaSchema)
+      .mutation(async ({ input }) => {
+        const [media, job] = await db.$transaction(async ($db) => {
+          let med;
+          switch (input.targetType) {
+            case "rundownItem":
+              med = await $db.media.create({
+                data: {
+                  name: input.fileName,
+                  rawPath: "",
+                  durationSeconds: 0,
+                  rundownItem: {
+                    connect: {
+                      id: input.targetID,
+                    },
+                  },
+                },
+              });
+              break;
+            case "continuityItem":
+              med = await $db.media.create({
+                data: {
+                  name: input.fileName,
+                  rawPath: "",
+                  durationSeconds: 0,
+                  continuityItem: {
+                    connect: {
+                      id: input.targetID,
+                    },
+                  },
+                },
+              });
+              break;
+            default:
+              invariant(false, "Invalid target type " + input.targetType);
+          }
+          const job = await $db.processMediaJob.create({
+            data: {
+              sourceType: input.sourceType,
+              source: input.source,
+              media: {
+                connect: {
+                  id: med.id,
+                },
+              },
+              base_job: {
+                create: {},
+              },
+            },
+          });
+          return [med, job] as const;
+        });
+        await dispatchJobForJobrunner(job.base_job_id);
+        return media;
       }),
     bulkGet: publicProcedure
       .input(z.array(z.number()))
