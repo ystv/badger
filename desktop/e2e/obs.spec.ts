@@ -62,20 +62,8 @@ test("download continuity media and load into OBS", async ({
     )
     .toBe("Ready");
 
-  const mows = await MockOBSWebSocket.create(expect);
-  try {
-    await page.getByRole("button", { name: "Select" }).click();
-    await expect(page.getByRole("button", { name: "Test Show" })).toBeVisible();
-
-    await page.getByLabel("Settings").click();
-    await page.getByRole("tab", { name: "OBS" }).click();
-    await page.getByLabel("OBS Host").fill("localhost");
-    await page.getByLabel("OBS WebSocket Port").fill(mows.port.toString());
-    await page.getByLabel("OBS WebSocket Password").fill("aaa");
-
-    await page.getByRole("button", { name: "Connect" }).click();
-    await mows.waitForConnection;
-    mows.ctx.alwaysRespond("GetVersion", () => ({
+  const mows = await MockOBSWebSocket.create(expect, async (obs) => {
+    obs.alwaysRespond("GetVersion", () => ({
       success: true,
       code: 100,
       data: {
@@ -88,7 +76,7 @@ test("download continuity media and load into OBS", async ({
         supportedImageFormats: [],
       },
     }));
-    mows.ctx.alwaysRespond("GetSceneList", () => ({
+    obs.alwaysRespond("GetSceneList", () => ({
       success: true,
       code: 100,
       data: {
@@ -97,7 +85,7 @@ test("download continuity media and load into OBS", async ({
         currentProgramSceneName: "",
       },
     }));
-    mows.ctx.alwaysRespond("GetVideoSettings", () => ({
+    obs.alwaysRespond("GetVideoSettings", () => ({
       success: true,
       code: 100,
       data: {
@@ -109,47 +97,40 @@ test("download continuity media and load into OBS", async ({
         outputWidth: 1920,
       },
     }));
-    await expect(page.getByTestId("OBSSettings.error")).not.toBeVisible();
-    await expect(page.getByTestId("OBSSettings.success")).toBeVisible();
-    await page.keyboard.press("Escape");
 
-    await page.getByRole("button", { name: "Download" }).click();
-
-    await expect(page.getByRole("button", { name: "Add to OBS" })).toBeVisible({
-      timeout: 15_000,
-    });
-
-    const csResPromise = mows.ctx.waitForRequest("CreateScene");
-    await page.getByRole("button", { name: "Add to OBS" }).click();
-    const [data, res] = await csResPromise;
-    expect(JSON.stringify(data, null, 2)).toMatchSnapshot();
-    const ciPromise = mows.ctx.waitForRequest("CreateInput");
-    await res({
+    const [createSceneData, respondCreateScene] =
+      await obs.waitForRequest("CreateScene");
+    expect(JSON.stringify(createSceneData, null, 2)).toMatchSnapshot();
+    await respondCreateScene({
       success: true,
       code: 100,
       data: undefined,
     });
-    const [data2, res2] = await ciPromise;
-    expect(JSON.stringify(data2, null, 2)).toMatchSnapshot();
-    const ssitPromise = mows.ctx.waitForRequest("SetSceneItemTransform");
-    await res2({
+
+    const [createInputData, respondCreateInput] =
+      await obs.waitForRequest("CreateInput");
+    expect(JSON.stringify(createInputData, null, 2)).toMatchSnapshot();
+    await respondCreateInput({
       success: true,
       code: 100,
       data: {
         sceneItemId: 1,
       },
     });
-    const [data3, res3] = await ssitPromise;
-    expect(JSON.stringify(data3, null, 2)).toMatchSnapshot();
-    const gslPromise = mows.ctx.waitForRequest("GetSceneList");
-    await res3({
+
+    const [ssitData, respondSSIT] = await obs.waitForRequest(
+      "SetSceneItemTransform",
+    );
+
+    expect(JSON.stringify(ssitData, null, 2)).toMatchSnapshot();
+    await respondSSIT({
       success: true,
       code: 100,
       data: undefined,
     });
-    const [_, res4] = await gslPromise;
-    const gsilPromise = mows.ctx.waitForRequest("GetSceneItemList");
-    await res4({
+
+    const [_, respondGetSceneList] = await obs.waitForRequest("GetSceneList");
+    await respondGetSceneList({
       success: true,
       code: 100,
       data: {
@@ -162,9 +143,11 @@ test("download continuity media and load into OBS", async ({
         currentPreviewSceneName: "0 - Test Continuity [#1]",
       },
     });
-    const [data5, res5] = await gsilPromise;
-    expect(data5.sceneName).toBe("0 - Test Continuity [#1]");
-    await res5({
+
+    const [dataGetSceneItemList, respondGetSceneItemList] =
+      await obs.waitForRequest("GetSceneItemList");
+    expect(dataGetSceneItemList.sceneName).toBe("0 - Test Continuity [#1]");
+    await respondGetSceneItemList({
       success: true,
       code: 100,
       data: {
@@ -175,6 +158,32 @@ test("download continuity media and load into OBS", async ({
         ],
       },
     });
+  });
+  try {
+    await page.getByRole("button", { name: "Select" }).click();
+    await expect(page.getByRole("button", { name: "Test Show" })).toBeVisible();
+
+    await page.getByLabel("Settings").click();
+    await page.getByRole("tab", { name: "OBS" }).click();
+    await page.getByLabel("OBS Host").fill("localhost");
+    await page.getByLabel("OBS WebSocket Port").fill(mows.port.toString());
+    await page.getByLabel("OBS WebSocket Password").fill("aaa");
+
+    await page.getByRole("button", { name: "Connect" }).click();
+    await mows.waitForConnection;
+
+    await expect(page.getByTestId("OBSSettings.error")).not.toBeVisible();
+    await expect(page.getByTestId("OBSSettings.success")).toBeVisible();
+    await page.keyboard.press("Escape");
+
+    await page.getByRole("button", { name: "Download" }).click();
+
+    await expect(page.getByRole("button", { name: "Add to OBS" })).toBeVisible({
+      timeout: 15_000,
+    });
+
+    await page.getByRole("button", { name: "Add to OBS" }).click();
+
     await expect(page.getByText("Good to go!")).toBeVisible({
       timeout: 15_000,
     });
