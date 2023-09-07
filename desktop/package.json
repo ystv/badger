@@ -24,6 +24,7 @@
   "license": "MIT",
   "type": "module",
   "devDependencies": {
+    "@bowser/testing": "workspace:*",
     "@electron-forge/cli": "^6.4.1",
     "@electron-forge/maker-deb": "^6.4.1",
     "@electron-forge/maker-rpm": "^6.4.1",
@@ -60,8 +61,6 @@
     "@bowser/components": "workspace:*",
     "@bowser/prisma": "workspace:*",
     "@bowser/testing": "workspace:*",
-    "@headlessui/react": "^1.7.15",
-    "@popperjs/core": "^2.11.8",
     "@radix-ui/react-alert-dialog": "^1.0.4",
     "@radix-ui/react-dropdown-menu": "^2.0.5",
     "@sentry/electron": "^4.10.0",
