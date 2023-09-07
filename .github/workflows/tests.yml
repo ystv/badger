@@ -259,7 +259,7 @@ jobs:
         working-directory: ./desktop
         env:
           PLAYWRIGHT_HTML_REPORT: ${{ github.workspace }}/desktop/playwright-report
-          DEBUG: ${{ runner.debug && 'pw:browser*' || '' }}
+          DEBUG: ${{ runner.debug && 'pw:browser*,mows*' || '' }}
 
       - uses: actions/upload-artifact@v3
         if: always()

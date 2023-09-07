@@ -1,0 +1,11 @@
+{
+  "sceneName": "0 - Test Continuity [#1]",
+  "inputName": "Bowser Media 1",
+  "inputKind": "ffmpeg_source",
+  "inputSettings": {
+    "local_file": "/var/folders/1f/317xv5p12_q0wnwxgqv7gnbr0000gn/T/download continuity media and load into OBS-0/smpte_bars_15s (#1).mp4",
+    "is_local_file": true,
+    "looping": false,
+    "restart_on_activate": true
+  }
+}

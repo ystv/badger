@@ -9,6 +9,10 @@ import pEvent from "p-event";
 import * as msgpack from "@msgpack/msgpack";
 import type { ExpectStatic as VitestExpect } from "vitest";
 import type { Expect as PlaywrightExpect } from "@playwright/test";
+import makeDebug from "debug";
+
+const debug = makeDebug("mows");
+const debugReq = makeDebug("mows:request");
 
 type Expect = VitestExpect | PlaywrightExpect;
 
@@ -122,18 +126,23 @@ export class MockOBSContext {
     requestId: string,
     requestData: OBSRequestTypes[keyof OBSRequestTypes],
   ) {
+    debugReq("request %s %s", requestType, requestId);
     const queue = this.pendingRequests.get(requestType);
     if (queue) {
       const responder = queue.shift();
       if (responder) {
         responder([requestData, this._makeResponder(requestType, requestId)]);
+        return;
       }
     }
 
     const fallback = this.fallbackResponders.get(requestType);
     if (fallback) {
       this._makeResponder(requestType, requestId)(fallback(requestData));
+      return;
     }
+
+    throw new Error(`MockOBSWebSocket: Unhandled ${requestType} request`);
   }
 
   private _makeResponder(type: string, rid: string) {
@@ -166,6 +175,7 @@ export class MockOBSContext {
           },
         };
       }
+      debugReq("response %s %d", type, resp.code);
       this.socket.send(res);
     };
   }
@@ -381,9 +391,12 @@ export default class MockOBSWebSocket {
             break;
           case 8: // request batch
             throw new Error("MockOBSWebSocket: request batch not implemented");
+          default:
+            throw new Error("Unhandled OBS-WebSocket opcode " + payload.op);
         }
       });
       socket.send({ op: 2, d: { negotiatedRpcVersion: 1 } });
+      debug("accepted connection");
       ctx.ready = true;
       for (const evt of ctx.eventQueue) {
         await ctx.sendEvent(evt.eventType, evt.eventIntent, evt.eventData);
@@ -393,10 +406,12 @@ export default class MockOBSWebSocket {
       if (actorPromise) {
         await actorPromise;
         mows.openConnections--;
+        debug("connection closed");
         socket.ws.close();
       } else {
         socket.ws.on("close", () => {
           mows.openConnections--;
+          debug("connection closed");
         });
       }
     });
