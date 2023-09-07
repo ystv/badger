@@ -16,6 +16,7 @@ export const test = base.extend<{
       env: {
         NODE_ENV: "test",
         E2E_TEST: "true",
+        DISPLAY: process.env.DISPLAY as string,
       },
     });
     const win = await app.firstWindow();
