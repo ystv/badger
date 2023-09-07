@@ -124,7 +124,7 @@ export function MediaSettings() {
                 <TableCell>{humaniseSize(media.sizeBytes!)}</TableCell>
                 <TableCell>
                   {isMediaInShow(media) ? (
-                    <Badge variant="light">In use</Badge>
+                    <Badge variant="default">In use</Badge>
                   ) : (
                     <Badge variant="dark">Safe to delete</Badge>
                   )}
