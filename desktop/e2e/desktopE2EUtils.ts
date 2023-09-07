@@ -14,9 +14,9 @@ export const test = base.extend<{
     const app = await electron.launch({
       args: ["--enable-logging", ".vite/build/main.js"],
       env: {
+        ...process.env,
         NODE_ENV: "test",
         E2E_TEST: "true",
-        DISPLAY: process.env.DISPLAY as string,
       },
     });
     const win = await app.firstWindow();
