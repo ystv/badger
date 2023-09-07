@@ -22,7 +22,6 @@
     "email": "marks@markspolakovs.me"
   },
   "license": "MIT",
-  "type": "module",
   "devDependencies": {
     "@bowser/testing": "workspace:*",
     "@electron-forge/cli": "^6.4.1",

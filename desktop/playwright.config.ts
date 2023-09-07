@@ -34,11 +34,7 @@ export default defineConfig({
   projects: [
     {
       name: "electron",
-      use: {
-        launchOptions: {
-          slowMo: 250,
-        },
-      },
+      use: {},
     },
   ],
 
