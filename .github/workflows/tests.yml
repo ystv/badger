@@ -241,7 +241,7 @@ jobs:
         working-directory: ./server/.next/standalone
 
       - name: Run Playwright tests
-        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn test:e2e
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn playwright test
         working-directory: ./desktop
         env:
           PLAYWRIGHT_HTML_REPORT: ${{ github.workspace }}/desktop/playwright-report
