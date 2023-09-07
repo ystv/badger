@@ -41,7 +41,7 @@ export async function createAndUploadTestMedia(
   const uploadedURL = res.headers.get("Location")!;
 
   // Then create the media
-  return await server.media.create.mutate({
+  const media = await server.media.create.mutate({
     sourceType: "Tus",
     // Normally the action would do this for us, but we're passing the ID directly into db.media.create
     source: uploadedURL.replace("http://localhost:1080/files/", ""),
@@ -49,4 +49,19 @@ export async function createAndUploadTestMedia(
     targetID,
     targetType,
   });
+
+  // And wait for Jobrunner to process it
+  await expect
+    .poll(
+      async () => {
+        const med = await server.media.get.query({ id: media.id });
+        return med.state;
+      },
+      {
+        timeout: 30_000,
+        intervals: [500],
+      },
+    )
+    .toBe("Ready");
+  return media;
 }

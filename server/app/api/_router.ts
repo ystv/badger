@@ -17,6 +17,7 @@ import {
   AssetSchema,
   RundownSchema,
   ShowSchema,
+  ShowUpdateInputSchema,
 } from "@bowser/prisma/types";
 import invariant from "@/lib/invariant";
 import { dispatchJobForJobrunner } from "@/lib/jobs";
@@ -139,6 +140,44 @@ export const appRouter = router({
         });
         return res;
       }),
+    update: e2eProcedure
+      .input(
+        z.object({
+          id: z.number(),
+          data: ShowUpdateInputSchema,
+        }),
+      )
+      .output(CompleteShowModel)
+      .mutation(async ({ input }) => {
+        const res = await db.show.update({
+          where: {
+            id: input.id,
+          },
+          data: input.data,
+          include: {
+            continuityItems: {
+              include: {
+                media: true,
+              },
+            },
+            rundowns: {
+              include: {
+                items: {
+                  include: {
+                    media: true,
+                  },
+                },
+                assets: {
+                  include: {
+                    media: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+        return res;
+      }),
   }),
   media: router({
     get: publicProcedure
@@ -196,6 +235,24 @@ export const appRouter = router({
                   },
                 },
               });
+              await $db.rundownItem.update({
+                where: {
+                  id: input.targetID,
+                },
+                data: {
+                  rundown: {
+                    update: {
+                      show: {
+                        update: {
+                          version: {
+                            increment: 1,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              });
               break;
             case "continuityItem":
               med = await $db.media.create({
@@ -206,6 +263,20 @@ export const appRouter = router({
                   continuityItem: {
                     connect: {
                       id: input.targetID,
+                    },
+                  },
+                },
+              });
+              await $db.continuityItem.update({
+                where: {
+                  id: input.targetID,
+                },
+                data: {
+                  show: {
+                    update: {
+                      version: {
+                        increment: 1,
+                      },
                     },
                   },
                 },

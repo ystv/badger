@@ -1,4 +1,4 @@
-import { expect } from "@playwright/test";
+import { ElectronApplication, Page, expect } from "@playwright/test";
 import * as fsp from "node:fs/promises";
 import * as path from "node:path";
 import { createAndUploadTestMedia, server } from "./serverAPI";
@@ -9,7 +9,7 @@ import { test } from "./desktopE2EUtils";
 let testShow: CompleteShowType;
 let tempDir: string;
 
-test.beforeEach(async ({ request, app: [app] }) => {
+test.beforeEach(async ({ request, app: [app, page] }) => {
   await request.post(
     "http://localhost:3000/api/resetDBInTestsDoNotUseOrYouWillBeFired",
   );
@@ -33,6 +33,8 @@ test.beforeEach(async ({ request, app: [app] }) => {
       { key: "media", value: { mediaPath: tempDir } },
     );
   }, tempDir);
+  await page.reload();
+  await page.waitForLoadState("domcontentloaded");
 });
 
 test("can select newly created show", async ({ app: [_app, page] }) => {
@@ -43,33 +45,11 @@ test("can select newly created show", async ({ app: [_app, page] }) => {
   await expect(page.getByRole("button", { name: "Test Show" })).toBeVisible();
 });
 
-test("download media", async ({ app: [app, page] }) => {
-  test.slow();
-  await page.getByRole("button", { name: "Select" }).click();
-  await expect(page.getByRole("button", { name: "Test Show" })).toBeVisible();
-
-  const testFile = await fsp.readFile(
-    path.join(__dirname, "testdata", "smpte_bars_15s.mp4"),
-  );
-  const media = await createAndUploadTestMedia(
-    "continuityItem",
-    testShow.continuityItems[0].id,
-    "smpte_bars_15s.mp4",
-    testFile,
-  );
-  await expect
-    .poll(
-      async () => {
-        const med = await server.media.get.query({ id: media.id });
-        return med.state;
-      },
-      {
-        timeout: 30_000,
-        intervals: [500],
-      },
-    )
-    .toBe("Ready");
-
+async function downloadMedia(
+  app: ElectronApplication,
+  page: Page,
+  media: { id: number },
+) {
   // This test doesn't enable OBS so the UI won't display the continuity
   // items list. Instead we trigger the download manually through the IPC API,
   // to test the downloading itself.
@@ -96,4 +76,81 @@ test("download media", async ({ app: [app, page] }) => {
     timeout: 15_000,
     intervals: [500],
   });
+}
+
+test("download media", async ({ app: [app, page] }) => {
+  test.slow();
+  await page.getByRole("button", { name: "Select" }).click();
+  await expect(page.getByRole("button", { name: "Test Show" })).toBeVisible();
+
+  const testFile = await fsp.readFile(
+    path.join(__dirname, "testdata", "smpte_bars_15s.mp4"),
+  );
+  const media = await createAndUploadTestMedia(
+    "continuityItem",
+    testShow.continuityItems[0].id,
+    "smpte_bars_15s.mp4",
+    testFile,
+  );
+
+  await downloadMedia(app, page, media);
+});
+
+test("delete old media", async ({ app: [app, page] }) => {
+  // Before we start, update the show to be a month ago.
+  await server.shows.update.mutate({
+    id: testShow.id,
+    data: {
+      start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+    },
+  });
+
+  // And create another show in the future so that we have something to select
+  await server.shows.create.mutate({
+    name: "Test Show 2",
+    start: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+  });
+
+  await page.reload();
+  await page.getByRole("button", { name: "Select" }).click();
+  await expect(page.getByRole("button", { name: "Test Show 2" })).toBeVisible();
+
+  const testFile = await fsp.readFile(
+    path.join(__dirname, "testdata", "smpte_bars_15s.mp4"),
+  );
+  const media = await createAndUploadTestMedia(
+    "continuityItem",
+    testShow.continuityItems[0].id,
+    "smpte_bars_15s.mp4",
+    testFile,
+  );
+
+  await downloadMedia(app, page, media);
+
+  // Now if we look in the media tab in settings it should let us delete it,
+  // because it's in use in the current show.
+  await page.getByLabel("Settings").click();
+  await page.getByRole("tab", { name: "Media" }).click();
+  const row = page.getByTestId(`MediaSettings.Row.${media.id}`);
+  await expect(row).toBeVisible();
+  await expect(row.getByText("Safe to delete")).toBeVisible();
+
+  await page
+    .getByRole("button")
+    .filter({ hasText: "Delete media older than" })
+    .click();
+  await page.getByRole("menuitem", { name: "2 weeks" }).click();
+  // Wait for it to finish
+  await expect(
+    page.getByRole("button").filter({ hasText: "Delete media older than" }),
+  ).toBeEnabled();
+  await expect(row).not.toBeVisible();
+
+  const expectedPath = path.join(tempDir, `smpte_bars_15s (#${media.id}).mp4`);
+  try {
+    const stat = await fsp.stat(expectedPath);
+    expect(stat.isFile).toBe(false);
+  } catch (e) {
+    expect((e as Error).message).toContain("ENOENT");
+  }
 });

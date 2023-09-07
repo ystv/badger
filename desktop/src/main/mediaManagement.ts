@@ -167,4 +167,5 @@ export async function deleteMedia(mediaID: number) {
   }
   await updateLocalMediaState(mediaID, null);
   await fsp.unlink(item.path);
+  console.log("Deleted", item.path);
 }

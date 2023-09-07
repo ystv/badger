@@ -207,6 +207,7 @@ export const appRouter = r({
           notInUse.map((x) => x.mediaID),
         );
         for (const result of mediaObjects) {
+          console.log("Deletion candidate", result);
           if (result.state !== "Ready") {
             continue;
           }
@@ -224,7 +225,16 @@ export const appRouter = r({
             );
           }
           const age = (Date.now() - showDate.getTime()) / (1000 * 60 * 60 * 24);
+          console.log(
+            result.id,
+            result.name,
+            "age",
+            age,
+            "threshold",
+            input.minAgeDays,
+          );
           if (age > input.minAgeDays) {
+            console.log("Deleting", result.id);
             await deleteMedia(result.id);
           }
         }

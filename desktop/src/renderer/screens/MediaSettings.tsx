@@ -16,6 +16,9 @@ import {
   DropdownMenuTrigger,
 } from "@bowser/components/dropdown-menu";
 import { IoChevronDownSharp } from "react-icons/io5";
+import { Badge } from "@bowser/components/badge";
+import { useQueryClient } from "@tanstack/react-query";
+import { getQueryKey } from "@trpc/react-query";
 
 function humaniseSize(bytes: number) {
   if (bytes < 1024) {
@@ -31,13 +34,18 @@ function humaniseSize(bytes: number) {
 }
 
 export function MediaSettings() {
+  const queryClient = useQueryClient();
   const [data] = ipc.media.getLocalMedia.useSuspenseQuery({
     includeSize: true,
   });
   const [mediaPath] = ipc.media.getPath.useSuspenseQuery();
   const [currentShow] = ipc.getSelectedShow.useSuspenseQuery();
   const open = ipc.media.openPath.useMutation();
-  const deleteOldMedia = ipc.media.deleteOldMedia.useMutation();
+  const deleteOldMedia = ipc.media.deleteOldMedia.useMutation({
+    async onSuccess() {
+      await queryClient.invalidateQueries(getQueryKey(ipc.media.getLocalMedia));
+    },
+  });
   const totalSpace = data.map((x) => x.sizeBytes!).reduce((a, b) => a + b, 0);
 
   const mediaInShow = useMemo(() => {
@@ -72,7 +80,7 @@ export function MediaSettings() {
       <p>Total disk usage: {humaniseSize(totalSpace)}</p>
       <div>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild disabled={deleteOldMedia.isLoading}>
             <Button color="light">
               <IoChevronDownSharp className="mr-2 h-4 w-2" /> Delete media older
               than&hellip;
@@ -108,16 +116,18 @@ export function MediaSettings() {
           </TableHeader>
           <TableBody>
             {data.map((media) => (
-              <TableRow key={media.mediaID}>
+              <TableRow
+                key={media.mediaID}
+                data-testid={`MediaSettings.Row.${media.mediaID}`}
+              >
                 <TableCell>{media.path.replace(mediaPath, "")}</TableCell>
                 <TableCell>{humaniseSize(media.sizeBytes!)}</TableCell>
                 <TableCell>
-                  <Button
-                    color={isMediaInShow(media) ? "ghost" : "dark"}
-                    disabled={isMediaInShow(media)}
-                  >
-                    Delet
-                  </Button>
+                  {isMediaInShow(media) ? (
+                    <Badge variant="light">In use</Badge>
+                  ) : (
+                    <Badge variant="dark">Safe to delete</Badge>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
