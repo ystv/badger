@@ -1,16 +1,10 @@
-/* eslint-disable no-empty-pattern */
-import {
-  test as base,
-  _electron as electron,
-  expect,
-  type ElectronApplication,
-  type Page,
-} from "@playwright/test";
+import { expect } from "@playwright/test";
 import * as fsp from "node:fs/promises";
 import * as path from "node:path";
 import { createAndUploadTestMedia, server } from "./serverAPI";
 import { CompleteShowType } from "../src/common/types";
 import * as os from "node:os";
+import { test } from "./desktopE2EUtils";
 
 // Copied from mediaManagement.ts since importing it breaks the test
 function getMediaPath() {
@@ -25,47 +19,6 @@ function getMediaPath() {
       throw new Error("Unsupported platform");
   }
 }
-
-const test = base.extend<{
-  app: [ElectronApplication, Page];
-}>({
-  app: async ({}, use, testInfo) => {
-    const app = await electron.launch({
-      args: [".vite/build/main.js", "--enable-logging"],
-      env: {
-        NODE_ENV: "test",
-        E2E_TEST: "true",
-      },
-    });
-    const win = await app.firstWindow();
-
-    await win.context().tracing.start({ screenshots: true, snapshots: true });
-
-    await win.waitForLoadState("domcontentloaded");
-
-    await win.getByLabel("Server address").fill("http://localhost:3000");
-    await win.getByLabel("Server Password").fill("aaa");
-
-    await win.getByRole("button", { name: "Connect" }).click();
-
-    await expect(
-      win.getByRole("heading", { name: "Select a show" }),
-    ).toBeVisible();
-
-    await use([app, win]);
-
-    await win
-      .context()
-      .tracing.stop({ path: `traces/${testInfo.title}-${testInfo.retry}.zip` });
-
-    await expect(
-      app.evaluate(({ ipcMain }) => ipcMain.emit("resetTestSettings")),
-    ).not.toBe(false);
-
-    await win.close();
-    await app.close();
-  },
-});
 
 let testShow: CompleteShowType;
 let tempDir: string;
