@@ -23,6 +23,8 @@ if (process.env.JOBRUNNER_SENTRY_DSN) {
   Sentry.init({
     dsn: process.env.JOBRUNNER_SENTRY_DSN,
 
+    environment: process.env.ENVIRONMENT,
+
     // We recommend adjusting this value in production, or using tracesSampler
     // for finer control
     tracesSampleRate: 1.0,

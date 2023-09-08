@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import { DEBUG_MODE_COOKIE } from "@/app/enableDebugMode/constants";
 import { checkSession } from "@/lib/auth";
 import { UserProvider } from "@/components/CurrentUser";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -35,6 +36,10 @@ export default async function RootLayout({
           </UserProvider>
         </DebugModeProvider>
       </body>
+      {/* eslint-disable-next-line @next/next/no-before-interactive-script-outside-document */}
+      <Script strategy="beforeInteractive" id="sentry-env">
+        window.ENVIRONMENT = {JSON.stringify(process.env.ENVIRONMENT)};
+      </Script>
     </html>
   );
 }
