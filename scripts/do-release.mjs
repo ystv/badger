@@ -196,14 +196,16 @@ await octo.rest.actions.createWorkflowDispatch({
 });
 
 let runId;
-for (let attempt = 0; attempt < 60; attempt++) {
+for (let attempt = 0; attempt < 120; attempt++) {
   const runs = await octo.rest.actions.listWorkflowRuns({
     owner: "ystv",
     repo: "bowser",
     workflow_id: "desktop-build.yml",
   });
   runId = runs.data.workflow_runs.find(
-    (run) => run.status === "in_progress" || run.status === "queued",
+    (run) =>
+      (run.status === "in_progress" || run.status === "queued") &&
+      run.head_branch === `v${newV}`,
   )?.id;
   if (runId) {
     break;
@@ -222,7 +224,9 @@ await run(`gh run watch ${runId}`);
 
 console.log(chalk.green("Desktop build workflow complete."));
 console.log(
-  `The draft release can be found at ${chalk.underline(releaseURL)}.`,
+  `The draft release can be found at ${chalk.underline(
+    release.data.html_url,
+  )}.`,
 );
 console.log(
   `Please check over it, edit the release notes if necessary, and make sure everything looks good.`,
