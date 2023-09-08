@@ -1,6 +1,6 @@
 @Library('ystv-jenkins')
 
-def imageNamePrefix = ''
+def imageTag = ''
 pipeline {
     agent {
         label 'docker'
@@ -15,9 +15,11 @@ pipeline {
             steps {
                 ciSkip action: 'check'
                 script {
+                    def imageNamePrefix = ''
                     if (env.BRANCH_NAME != 'main') {
                         imageNamePrefix = "${env.BRANCH_NAME}-"
                     }
+                    imageTag = "${imageNamePrefix}${env.BUILD_NUMBER}"
                 }
             }
         }
@@ -39,7 +41,7 @@ pipeline {
                                 --build-arg SERVER_SENTRY_DSN=\$SERVER_SENTRY_DSN \\
                                 --build-arg SENTRY_AUTH_TOKEN=\$SENTRY_AUTH_TOKEN \\
                                 --build-arg IS_PRODUCTION_BUILD=${env.BRANCH_NAME == 'main' ? 'true' : ''} \\
-                                -t registry.comp.ystv.co.uk/ystv/bowser/server:${imageNamePrefix}${env.BUILD_NUMBER} \\
+                                -t registry.comp.ystv.co.uk/ystv/bowser/server:${imageTag} \\
                                 -f Dockerfile.server ."""
                     }
                 }
@@ -49,7 +51,7 @@ pipeline {
                                 --build-arg GIT_REV=${env.GIT_COMMIT} \\
                                 --build-arg SENTRY_AUTH_TOKEN=\$SENTRY_AUTH_TOKEN \\
                                 --build-arg IS_PRODUCTION_BUILD=${env.BRANCH_NAME == 'main' ? 'true' : ''} \\
-                                -t registry.comp.ystv.co.uk/ystv/bowser/jobrunner:${imageNamePrefix}${env.BUILD_NUMBER} \\
+                                -t registry.comp.ystv.co.uk/ystv/bowser/jobrunner:${imageTag} \\
                                 -f Dockerfile.jobrunner ."""
                     }
                 }
@@ -62,12 +64,12 @@ pipeline {
             }
             steps {
                 withDockerRegistry(credentialsId: 'docker-registry', url: 'https://registry.comp.ystv.co.uk') {
-                    sh "docker push registry.comp.ystv.co.uk/ystv/bowser/jobrunner:${imageNamePrefix}${env.BUILD_NUMBER}"
-                    sh "docker push registry.comp.ystv.co.uk/ystv/bowser/server:${imageNamePrefix}${env.BUILD_NUMBER}"
+                    sh "docker push registry.comp.ystv.co.uk/ystv/bowser/jobrunner:${imageTag}"
+                    sh "docker push registry.comp.ystv.co.uk/ystv/bowser/server:${imageTag}"
                     script {
                         if (env.BRANCH_NAME == 'main') {
-                            sh "docker tag registry.comp.ystv.co.uk/ystv/bowser/jobrunner:${imageNamePrefix}${env.BUILD_NUMBER} registry.comp.ystv.co.uk/ystv/bowser/jobrunner:latest"
-                            sh "docker tag registry.comp.ystv.co.uk/ystv/bowser/server:${imageNamePrefix}${env.BUILD_NUMBER} registry.comp.ystv.co.uk/ystv/bowser/server:latest"
+                            sh "docker tag registry.comp.ystv.co.uk/ystv/bowser/jobrunner:${imageTag} registry.comp.ystv.co.uk/ystv/bowser/jobrunner:latest"
+                            sh "docker tag registry.comp.ystv.co.uk/ystv/bowser/server:${imageTag} registry.comp.ystv.co.uk/ystv/bowser/server:latest"
                             sh 'docker push registry.comp.ystv.co.uk/ystv/bowser/jobrunner:latest'
                             sh 'docker push registry.comp.ystv.co.uk/ystv/bowser/server:latest'
                         }
@@ -83,11 +85,11 @@ pipeline {
             steps {
                 build job: 'Deploy Nomad Job', parameters: [
                     string(name: 'JOB_FILE', value: 'bowser-dev.nomad'),
-                    text(name: 'TAG_REPLACEMENTS', value: "registry.comp.ystv.co.uk/ystv/bowser/server:${env.BUILD_NUMBER}")
+                    text(name: 'TAG_REPLACEMENTS', value: "registry.comp.ystv.co.uk/ystv/bowser/server:${imageTag}")
                 ]
                 build job: 'Deploy Nomad Job', parameters: [
                     string(name: 'JOB_FILE', value: 'bowser-jobrunner-dev.nomad'),
-                    text(name: 'TAG_REPLACEMENTS', value: "registry.comp.ystv.co.uk/ystv/bowser/jobrunner:${env.BUILD_NUMBER}")
+                    text(name: 'TAG_REPLACEMENTS', value: "registry.comp.ystv.co.uk/ystv/bowser/jobrunner:${imageTag}")
                 ]
             }
         }
@@ -99,11 +101,11 @@ pipeline {
             steps {
                 build job: 'Deploy Nomad Job', parameters: [
                     string(name: 'JOB_FILE', value: 'bowser-prod.nomad'),
-                    text(name: 'TAG_REPLACEMENTS', value: "registry.comp.ystv.co.uk/ystv/bowser/server:${env.BUILD_NUMBER}")
+                    text(name: 'TAG_REPLACEMENTS', value: "registry.comp.ystv.co.uk/ystv/bowser/server:${imageTag}")
                 ]
                 build job: 'Deploy Nomad Job', parameters: [
                     string(name: 'JOB_FILE', value: 'bowser-jobrunner-prod.nomad'),
-                    text(name: 'TAG_REPLACEMENTS', value: "registry.comp.ystv.co.uk/ystv/bowser/jobrunner:${env.BUILD_NUMBER}")
+                    text(name: 'TAG_REPLACEMENTS', value: "registry.comp.ystv.co.uk/ystv/bowser/jobrunner:${imageTag}")
                 ]
             }
         }
