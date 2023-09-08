@@ -23,6 +23,18 @@ export default async function RootLayout({
   const user = await checkSession();
   return (
     <html lang="en">
+      <head>
+        {/* eslint-disable-next-line @next/next/no-before-interactive-script-outside-document */}
+        <Script
+          strategy="beforeInteractive"
+          id="sentry-env"
+          dangerouslySetInnerHTML={{
+            __html: `window.ENVIRONMENT = ${JSON.stringify(
+              process.env.ENVIRONMENT,
+            )};`,
+          }}
+        />
+      </head>
       <body>
         <DebugModeProvider
           value={cookies().get(DEBUG_MODE_COOKIE)?.value === "true"}
@@ -36,10 +48,6 @@ export default async function RootLayout({
           </UserProvider>
         </DebugModeProvider>
       </body>
-      {/* eslint-disable-next-line @next/next/no-before-interactive-script-outside-document */}
-      <Script strategy="beforeInteractive" id="sentry-env">
-        window.ENVIRONMENT = {JSON.stringify(process.env.ENVIRONMENT)};
-      </Script>
     </html>
   );
 }
