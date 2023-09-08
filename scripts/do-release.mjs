@@ -195,7 +195,7 @@ await octo.rest.actions.createWorkflowDispatch({
   },
 });
 
-let runID;
+let runId;
 for (let attempt = 0; attempt < 60; attempt++) {
   const runs = await octo.rest.actions.listWorkflowRuns({
     owner: "ystv",
