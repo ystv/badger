@@ -99,6 +99,7 @@ await run("git add .");
 await run(`git checkout -b release-${newV}`);
 await run(`git commit -m "Bump version to v${newV}"`);
 await run(`git push -u origin release-${newV}`);
+await run(`git checkout main`);
 
 const pr = await octo.rest.pulls.create({
   owner: "ystv",
@@ -129,6 +130,7 @@ mutation EnableAutoMerge($prID: ID!) {
     pullRequestId: $prID,
     mergeMethod: SQUASH,
   })
+}
 `,
   {
     prID: pr.data.node_id,
@@ -159,7 +161,6 @@ while (true) {
 
 console.log(chalk.green("PR merged!"));
 console.log(chalk.blue("Creating tag and release..."));
-await run(`git checkout main`);
 await run(`git pull`);
 await run(`git tag -a v${newV} -m "v${newV}"`);
 await run(`git push origin v${newV}`);
