@@ -188,6 +188,7 @@ await octo.rest.actions.createWorkflowDispatch({
   owner: "ystv",
   repo: "bowser",
   workflow_id: "desktop-build.yml",
+  ref: `v${newV}`,
   inputs: {
     ref: `v${newV}`,
     do_release: true,
