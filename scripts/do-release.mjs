@@ -93,7 +93,7 @@ await run(`git checkout -b release-${newV}`);
 await run(`git commit -m "Bump version to ${data.type}"`);
 await run(`git push -u origin release-${newV}`);
 const output = await exec(
-  `gh pr create --title "Bump version to ${newV}" --body "Bump version to ${newV}" --base main --head release-${newV}`,
+  `gh pr create --title "Bump version to ${newV}" --body "Bump version to ${newV}" --base main --head release-${newV} --label release`,
 );
 const prNumber = output.stdout.match(
   /https:\/\/github.com\/ystv\/bowser\/pull\/(\d+)/,
@@ -115,7 +115,7 @@ while (true) {
     break;
   }
   console.log(chalk.yellow(`Waiting for PR to be merged... (state: ${state})`));
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  await new Promise((resolve) => setTimeout(resolve, 5000));
 }
 
 console.log(chalk.green("PR merged!"));
