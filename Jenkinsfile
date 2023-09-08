@@ -94,10 +94,7 @@ pipeline {
 
         stage('Deploy to production') {
             when {
-                allOf {
-                    branch 'main'
-                    tag 'v*'
-                }
+                tag 'v*'
             }
             steps {
                 build job: 'Deploy Nomad Job', parameters: [
