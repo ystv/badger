@@ -143,7 +143,7 @@ mutation EnableAutoMerge($prID: ID!) {
   },
 );
 
-process.stdout.write(chalk.yellow(`Waiting for PR to be merged...`));
+process.stdout.write(chalk.yellow(`Waiting for PR to be merged... `));
 while (true) {
   const state = (
     await octo.rest.pulls.get({
@@ -237,13 +237,20 @@ console.log(
 console.log(
   chalk.green.bold("Press enter once you are ready to publish the release."),
 );
-await inq.prompt([
+const { ready } = await inq.prompt([
   {
     type: "confirm",
     name: "ready",
     message: "Are you ready to publish the release?",
   },
 ]);
+if (!ready) {
+  console.log("😭");
+  console.log(
+    "The draft release will remain up if you want to come back later.",
+  );
+  process.exit(1);
+}
 console.log(chalk.blue("Finalising release..."));
 await octo.rest.repos.updateRelease({
   owner: "ystv",
