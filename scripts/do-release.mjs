@@ -4,6 +4,7 @@ import { promisify } from "node:util";
 import chalk from "chalk";
 import * as semver from "semver";
 import * as fsp from "node:fs/promises";
+import { Octokit } from "octokit";
 
 const exec = promisify(execRaw);
 const run = (cmd) =>
@@ -68,6 +69,10 @@ const data = await inq.prompt([
   },
 ]);
 
+const octo = new Octokit({
+  auth: (await exec("gh auth token")).stdout.trim(),
+});
+
 console.log(chalk.blue("Updating package versions..."));
 let versions = [];
 for (const workspace of ["desktop", "jobrunner", "server"]) {
@@ -92,12 +97,21 @@ await run("git add .");
 await run(`git checkout -b release-${newV}`);
 await run(`git commit -m "Bump version to ${data.type}"`);
 await run(`git push -u origin release-${newV}`);
-const output = await exec(
-  `gh pr create --title "Bump version to ${newV}" --body "Bump version to ${newV}" --base main --head release-${newV} --label release`,
-);
-const prNumber = output.stdout.match(
-  /https:\/\/github.com\/ystv\/bowser\/pull\/(\d+)/,
-)?.[1];
+
+const pr = await octo.rest.pulls.create({
+  owner: "ystv",
+  repo: "bowser",
+  title: `Bump version to ${newV}`,
+  head: `release-${newV}`,
+});
+const prNumber = pr.data.number;
+await octo.rest.issues.addLabels({
+  owner: "ystv",
+  repo: "bowser",
+  issue_number: prNumber,
+  labels: ["release"],
+});
+
 console.log(
   chalk.green(
     `Opened PR ${chalk.underline(
@@ -105,49 +119,78 @@ console.log(
     )}. Enabling auto-merge...`,
   ),
 );
-await run(`gh pr merge --squash --auto`);
+await octo.graphql(
+  `
+mutation EnableAutoMerge($prID: ID!) {
+  enablePullRequestAutoMerge(input: {
+    pullRequestId: $prID,
+    mergeMethod: SQUASH,
+  })
+`,
+  {
+    prID: pr.data.node_id,
+  },
+);
 
 while (true) {
-  const state = JSON.parse(
-    (await exec(`gh pr view ${prNumber} --json state`)).stdout,
-  ).state;
-  if (state === "MERGED") {
-    break;
+  const state = (
+    await octo.rest.pulls.get({
+      owner: "ystv",
+      repo: "bowser",
+      pull_number: prNumber,
+    })
+  ).data;
+  if (state.state === "closed") {
+    if (state.merged) {
+      break;
+    } else {
+      console.error(
+        chalk.red("PR was closed without being merged. Please try again."),
+      );
+      process.exit(1);
+    }
   }
-  console.log(chalk.yellow(`Waiting for PR to be merged... (state: ${state})`));
+  console.log(chalk.yellow(`Waiting for PR to be merged...`));
   await new Promise((resolve) => setTimeout(resolve, 5000));
 }
 
 console.log(chalk.green("PR merged!"));
 console.log(chalk.blue("Creating tag and release..."));
+await run(`git checkout main`);
 await run(`git pull`);
 await run(`git tag -a v${newV} -m "v${newV}"`);
 await run(`git push origin v${newV}`);
 
-const releaseURL = (
-  await exec(
-    `gh release create v${newV} --title "v${newV}" --draft ${
-      data.prerelease && "--prerelease"
-    } --generate-notes --verify-tag`,
-  )
-).stdout.trim();
+const release = await octo.rest.repos.createRelease({
+  owner: "ystv",
+  repo: "bowser",
+  tag_name: `v${newV}`,
+  name: `v${newV}`,
+  prerelease: data.prerelease,
+  draft: true,
+  generate_release_notes: true,
+});
 
 console.log(chalk.green("Release created."));
-console.log(chalk.underline(releaseURL));
+console.log(chalk.underline(release.data.html_url));
 console.log(chalk.blue("Running desktop build workflow..."));
-await run(
-  `gh workflow run desktop-build.yml -f ref=v${newV} -f do_release=true`,
-);
-const runs = JSON.parse(
-  (
-    await exec(
-      `gh run list --workflow=desktop-build.yml --json status,databaseId`,
-    )
-  ).stdout,
-);
-const runId = runs.find(
-  (run) => run.status === "queued" || run.status === "in_progress",
-)?.databaseId;
+await octo.rest.actions.createWorkflowDispatch({
+  owner: "ystv",
+  repo: "bowser",
+  workflow_id: "desktop-build.yml",
+  inputs: {
+    ref: `v${newV}`,
+    do_release: true,
+  },
+});
+const runs = await octo.rest.actions.listWorkflowRuns({
+  owner: "ystv",
+  repo: "bowser",
+  workflow_id: "desktop-build.yml",
+});
+const runId = runs.data.workflow_runs.find(
+  (run) => run.status === "in_progress" || run.status === "queued",
+)?.id;
 if (!runId) {
   console.error(
     chalk.red(
