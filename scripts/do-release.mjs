@@ -68,6 +68,13 @@ const data = await inq.prompt([
     name: "prerelease",
     message: "Should this be a pre-release?",
   },
+  {
+    type: "confirm",
+    name: "dontMakePR",
+    message:
+      "Abuse your power to bypass branch protection and push directly to the main branch?",
+    default: false,
+  },
 ]);
 
 const octo = new Octokit({
@@ -94,78 +101,92 @@ for (const workspace of ["desktop", "jobrunner", "server"]) {
 }
 await run("yarn");
 
-console.log("Creating bump PR...");
 await run("git add .");
-await run(`git checkout -b release-${newV}`);
-await run(`git commit -m "Bump version to v${newV}"`);
-await run(`git push -u origin release-${newV}`);
-await run(`git checkout main`);
+if (data.dontMakePR) {
+  console.log(
+    chalk.bgRedBright(chalk.bold("Pushing bump commit to main branch")),
+  );
+  console.log(
+    chalk.bold(chalk.red("You have 5 seconds to reconsider your decision")),
+  );
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+  console.log(chalk.bgYellowBright("yolo I guess"));
+  await run(`git commit -m "Bump version to v${newV}"`);
+  await run(`git push`);
+} else {
+  console.log("Creating bump PR...");
+  await run(`git checkout -b release-${newV}`);
+  await run(`git commit -m "Bump version to v${newV}"`);
+  await run(`git push -u origin release-${newV}`);
+  await run(`git checkout main`);
 
-const pr = await octo.rest.pulls.create({
-  owner: "ystv",
-  repo: "bowser",
-  title: `Bump version to ${newV}`,
-  base: "main",
-  head: `release-${newV}`,
-});
-const prNumber = pr.data.number;
-await octo.rest.issues.addLabels({
-  owner: "ystv",
-  repo: "bowser",
-  issue_number: prNumber,
-  labels: ["release"],
-});
+  const pr = await octo.rest.pulls.create({
+    owner: "ystv",
+    repo: "bowser",
+    title: `Bump version to ${newV}`,
+    base: "main",
+    head: `release-${newV}`,
+  });
+  const prNumber = pr.data.number;
+  await octo.rest.issues.addLabels({
+    owner: "ystv",
+    repo: "bowser",
+    issue_number: prNumber,
+    labels: ["release"],
+  });
 
-console.log(
-  chalk.green(
-    `Opened PR ${chalk.underline(
-      `https://github.com/ystv/bowser/pull/${prNumber}`,
-    )}. Enabling auto-merge...`,
-  ),
-);
-await octo.graphql(
-  `
-mutation EnableAutoMerge($prID: ID!) {
-  enablePullRequestAutoMerge(input: {
-    pullRequestId: $prID,
-    mergeMethod: SQUASH,
-  }) {
-    pullRequest {
-      autoMergeRequest {
-        enabledAt
+  console.log(
+    chalk.green(
+      `Opened PR ${chalk.underline(
+        `https://github.com/ystv/bowser/pull/${prNumber}`,
+      )}. Enabling auto-merge...`,
+    ),
+  );
+  await octo.graphql(
+    `
+  mutation EnableAutoMerge($prID: ID!) {
+    enablePullRequestAutoMerge(input: {
+      pullRequestId: $prID,
+      mergeMethod: SQUASH,
+    }) {
+      pullRequest {
+        autoMergeRequest {
+          enabledAt
+        }
       }
     }
   }
-}
-`,
-  {
-    prID: pr.data.node_id,
-  },
-);
+  `,
+    {
+      prID: pr.data.node_id,
+    },
+  );
 
-process.stdout.write(chalk.yellow(`Waiting for PR to be merged... `));
-while (true) {
-  const state = (
-    await octo.rest.pulls.get({
-      owner: "ystv",
-      repo: "bowser",
-      pull_number: prNumber,
-    })
-  ).data;
-  if (state.state === "closed") {
-    if (state.merged) {
-      break;
-    } else {
-      console.error(
-        chalk.red("PR was closed without being merged. Please try again."),
-      );
-      process.exit(1);
+  process.stdout.write(chalk.yellow(`Waiting for PR to be merged... `));
+  while (true) {
+    const state = (
+      await octo.rest.pulls.get({
+        owner: "ystv",
+        repo: "bowser",
+        pull_number: prNumber,
+      })
+    ).data;
+    if (state.state === "closed") {
+      if (state.merged) {
+        break;
+      } else {
+        console.error(
+          chalk.red("PR was closed without being merged. Please try again."),
+        );
+        process.exit(1);
+      }
     }
+    await new Promise((resolve) => setTimeout(resolve, 5000));
   }
-  await new Promise((resolve) => setTimeout(resolve, 5000));
+
+  console.log(chalk.green("PR merged!"));
 }
 
-console.log(chalk.green("PR merged!"));
 console.log(chalk.blue("Creating tag and release..."));
 await run(`git pull`);
 await run(`git tag -a v${newV} -m "v${newV}"`);
