@@ -97,13 +97,14 @@ await run("yarn");
 console.log("Creating bump PR...");
 await run("git add .");
 await run(`git checkout -b release-${newV}`);
-await run(`git commit -m "Bump version to ${data.type}"`);
+await run(`git commit -m "Bump version to v${newV}"`);
 await run(`git push -u origin release-${newV}`);
 
 const pr = await octo.rest.pulls.create({
   owner: "ystv",
   repo: "bowser",
   title: `Bump version to ${newV}`,
+  base: "main",
   head: `release-${newV}`,
 });
 const prNumber = pr.data.number;
