@@ -5,6 +5,7 @@ import chalk from "chalk";
 import * as semver from "semver";
 import * as fsp from "node:fs/promises";
 import { Octokit } from "octokit";
+import { fetch } from "undici";
 
 const exec = promisify(execRaw);
 const run = (cmd) =>
@@ -71,6 +72,7 @@ const data = await inq.prompt([
 
 const octo = new Octokit({
   auth: (await exec("gh auth token")).stdout.trim(),
+  request: { fetch },
 });
 
 console.log(chalk.blue("Updating package versions..."));
