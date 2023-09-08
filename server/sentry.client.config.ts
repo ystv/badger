@@ -7,6 +7,10 @@ import * as Sentry from "@sentry/nextjs";
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SERVER_SENTRY_DSN,
 
+  // This is set at runtime (see app/layout.tsx).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  environment: (window as any).ENVIRONMENT,
+
   // Adjust this value in production, or use tracesSampler for greater control
   tracesSampleRate: 1,
 

@@ -63,6 +63,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DESKTOP_SENTRY_DSN: ${{ secrets.DESKTOP_SENTRY_DSN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          ENVIRONMENT: ${{ inputs.prerelease && 'dev' || 'prod' }}
 
       - run: ls desktop/out/make
 

@@ -91,6 +91,25 @@ pipeline {
                 ]
             }
         }
+
+        stage('Deploy to production') {
+            when {
+                allOf {
+                    branch 'main'
+                    tag 'v*'
+                }
+            }
+            steps {
+                build job: 'Deploy Nomad Job', parameters: [
+                    string(name: 'JOB_FILE', value: 'bowser-prod.nomad'),
+                    text(name: 'TAG_REPLACEMENTS', value: "registry.comp.ystv.co.uk/ystv/bowser/server:${env.BUILD_NUMBER}")
+                ]
+                build job: 'Deploy Nomad Job', parameters: [
+                    string(name: 'JOB_FILE', value: 'bowser-jobrunner-prod.nomad'),
+                    text(name: 'TAG_REPLACEMENTS', value: "registry.comp.ystv.co.uk/ystv/bowser/jobrunner:${env.BUILD_NUMBER}")
+                ]
+            }
+        }
     }
 
     post { always {
