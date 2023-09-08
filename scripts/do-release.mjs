@@ -203,9 +203,7 @@ for (let attempt = 0; attempt < 120; attempt++) {
     workflow_id: "desktop-build.yml",
   });
   runId = runs.data.workflow_runs.find(
-    (run) =>
-      (run.status === "in_progress" || run.status === "queued") &&
-      run.head_branch === `v${newV}`,
+    (run) => run.head_branch === `v${newV}`,
   )?.id;
   if (runId) {
     break;
@@ -220,6 +218,11 @@ if (!runId) {
   );
   process.exit(1);
 }
+console.log(
+  `Follow along at ${chalk.underline(
+    `https://github.com/ystv/bowser/actions/runs/${runId}`,
+  )}`,
+);
 await run(`gh run watch ${runId}`);
 
 console.log(chalk.green("Desktop build workflow complete."));
@@ -242,7 +245,12 @@ await inq.prompt([
   },
 ]);
 console.log(chalk.blue("Finalising release..."));
-await run(`gh release edit v${newV} --draft false`);
+await octo.rest.repos.updateRelease({
+  owner: "ystv",
+  repo: "bowser",
+  release_id: release.data.id,
+  draft: false,
+});
 console.log(chalk.green("Release published!"));
 console.log(
   chalk.bgGreenBright(
