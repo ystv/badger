@@ -202,8 +202,10 @@ const release = await octo.rest.repos.createRelease({
   generate_release_notes: true,
 });
 
-console.log(chalk.green("Release created."));
-console.log(chalk.underline(release.data.html_url));
+console.log(
+  chalk.green("Release created."),
+  chalk.underline(release.data.html_url),
+);
 console.log(chalk.blue("Running desktop build workflow..."));
 await octo.rest.actions.createWorkflowDispatch({
   owner: "ystv",
