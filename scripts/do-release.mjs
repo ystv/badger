@@ -129,7 +129,13 @@ mutation EnableAutoMerge($prID: ID!) {
   enablePullRequestAutoMerge(input: {
     pullRequestId: $prID,
     mergeMethod: SQUASH,
-  })
+  }) {
+    pullRequest {
+      autoMergeRequest {
+        enabledAt
+      }
+    }
+  }
 }
 `,
   {
