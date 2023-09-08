@@ -9,10 +9,13 @@
   ],
   "packageManager": "yarn@3.6.1",
   "devDependencies": {
+    "chalk": "^5.3.0",
     "danger": "^11.2.8",
     "husky": "^8.0.3",
+    "inquirer": "^9.2.10",
     "lint-staged": "^14.0.1",
-    "prettier": "^3.0.3"
+    "prettier": "^3.0.3",
+    "semver": "^7.5.4"
   },
   "scripts": {
     "lint": "yarn workspaces foreach -p --exclude bowser-root-workspace run lint",
