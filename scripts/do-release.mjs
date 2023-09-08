@@ -143,6 +143,7 @@ mutation EnableAutoMerge($prID: ID!) {
   },
 );
 
+process.stdout.write(chalk.yellow(`Waiting for PR to be merged...`));
 while (true) {
   const state = (
     await octo.rest.pulls.get({
@@ -161,7 +162,6 @@ while (true) {
       process.exit(1);
     }
   }
-  console.log(chalk.yellow(`Waiting for PR to be merged...`));
   await new Promise((resolve) => setTimeout(resolve, 5000));
 }
 
