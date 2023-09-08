@@ -194,14 +194,22 @@ await octo.rest.actions.createWorkflowDispatch({
     do_release: true,
   },
 });
-const runs = await octo.rest.actions.listWorkflowRuns({
-  owner: "ystv",
-  repo: "bowser",
-  workflow_id: "desktop-build.yml",
-});
-const runId = runs.data.workflow_runs.find(
-  (run) => run.status === "in_progress" || run.status === "queued",
-)?.id;
+
+let runID;
+for (let attempt = 0; attempt < 60; attempt++) {
+  const runs = await octo.rest.actions.listWorkflowRuns({
+    owner: "ystv",
+    repo: "bowser",
+    workflow_id: "desktop-build.yml",
+  });
+  runId = runs.data.workflow_runs.find(
+    (run) => run.status === "in_progress" || run.status === "queued",
+  )?.id;
+  if (runId) {
+    break;
+  }
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+}
 if (!runId) {
   console.error(
     chalk.red(
