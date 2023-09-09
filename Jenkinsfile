@@ -60,7 +60,10 @@ pipeline {
 
         stage('Push') {
             when {
-                branch 'main'
+                anyOf {
+                    branch 'main'
+                    tag 'v*'
+                }
             }
             steps {
                 withDockerRegistry(credentialsId: 'docker-registry', url: 'https://registry.comp.ystv.co.uk') {
