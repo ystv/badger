@@ -189,14 +189,16 @@ export default function MainScreen() {
               <DropdownMenuItem disabled>OBS not available</DropdownMenuItem>
             )}
             {integrations.includes("vmix") ? (
-              show.rundowns.map((rd) => (
-                <DropdownMenuItem
-                  key={rd.id}
-                  onClick={() => setSelectedRundown(rd.id)}
-                >
-                  {rd.name}
-                </DropdownMenuItem>
-              ))
+              show.rundowns
+                .sort((a, b) => a.order - b.order)
+                .map((rd) => (
+                  <DropdownMenuItem
+                    key={rd.id}
+                    onClick={() => setSelectedRundown(rd.id)}
+                  >
+                    {rd.name}
+                  </DropdownMenuItem>
+                ))
             ) : (
               <DropdownMenuItem disabled>vMix not available</DropdownMenuItem>
             )}
