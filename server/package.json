@@ -23,6 +23,7 @@
     "@bowser/testing": "workspace:*",
     "@hookform/resolvers": "^3.1.1",
     "@sentry/nextjs": "latest",
+    "@sentry/utils": "^7.69.0",
     "@tailwindcss/forms": "^0.5.4",
     "@trpc/server": "^10.34.0",
     "@types/lodash": "^4.14.196",

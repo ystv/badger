@@ -1,5 +1,5 @@
 import inq from "inquirer";
-import { spawn as spawnRaw, exec as execRaw } from "node:child_process";
+import { exec as execRaw } from "node:child_process";
 import { promisify } from "node:util";
 import chalk from "chalk";
 import * as semver from "semver";

@@ -5,24 +5,26 @@ files.
 
 **Features:**
 
-* Create and manage show rundowns online
-* Upload media files
-* Check file quality (coming soon) and normalise loudness
-* Automatically import media into OBS and vMix
+- Create and manage show rundowns online
+- Upload media files
+- Check file quality (coming soon) and normalise loudness
+- Automatically import media into OBS and vMix
 
 ## Architecture
 
 Bowser is made up of three components:
-* `server`, a [Next.js](https://nextjs.org/) app (using the [App Directory](https://nextjs.org/docs/getting-started/react-essentials)) which handles the web interface and API
-* `jobrunner`, a standalone [Node.js](https://nodejs.org/en/) service which handles the media processing
-* `desktop`, a [Electron](https://www.electronjs.org/) app which handles the OBS integration
+
+- `server`, a [Next.js](https://nextjs.org/) app (using the [App Directory](https://nextjs.org/docs/getting-started/react-essentials)) which handles the web interface and API
+- `jobrunner`, a standalone [Node.js](https://nodejs.org/en/) service which handles the media processing
+- `desktop`, a [Electron](https://www.electronjs.org/) app which handles the OBS integration
 
 All of these components are written in [TypeScript](https://www.typescriptlang.org/).
 
 It also interfaces with a few other services:
-* PostgreSQL database
-* [Minio](https://min.io/) object storage
-* [Tusd](https://tus.io/) file upload server
+
+- PostgreSQL database
+- [Minio](https://min.io/) object storage
+- [Tusd](https://tus.io/) file upload server
 
 ### Project Structure
 
@@ -31,24 +33,26 @@ They are combined into a single project using [Yarn Workspaces](https://yarnpkg.
 There are also some extra packages, currently our [shadcn/ui](https://ui.shadcn.com) components and our [Prisma](https://www.prisma.io/) database client, in the `utility` folder.
 
 In terms of imports,
-* `desktop` imports some types from `server`, namely tRPC definitions
-  * Note that only type imports are allowed, to avoid bundling server code into the desktop build. ESLint will warn you if you try to import anything else. (Importing from `@bowser/prisma` is fine.)
-* `jobrunner` is entirely separate from `server`
-* Desktop and Server use `@bowser/prisma` (our UI components library, found in `utility/components`)
-* All three import `@bowser/prisma` (the Prisma client, found in `utility/prisma`)
+
+- `desktop` imports some types from `server`, namely tRPC definitions
+  - Note that only type imports are allowed, to avoid bundling server code into the desktop build. ESLint will warn you if you try to import anything else. (Importing from `@bowser/prisma` is fine.)
+- `jobrunner` is entirely separate from `server`
+- Desktop and Server use `@bowser/prisma` (our UI components library, found in `utility/components`)
+- All three import `@bowser/prisma` (the Prisma client, found in `utility/prisma`)
 
 In terms of communication,
-* Server exposes a [tRPC](https://trpc.io/) API (in [app/api/_router.ts](./server/app/api/_router.ts), which is consumed by Desktop
-* As Desktop is an Electron app, it has two separate processes: the main process and the renderer process.
+
+- Server exposes a [tRPC](https://trpc.io/) API (in [app/api/\_router.ts](./server/app/api/_router.ts), which is consumed by Desktop
+- As Desktop is an Electron app, it has two separate processes: the main process and the renderer process.
   The renderer process is the Chrome window, while the main process is the Node.js backend.
   They are kept separate to avoid security issues.
   They communicate over Electron IPC in two ways:
-  * Request/response is done using tRPC using [`electron-trpc`](https://github.com/jsonnull/electron-trpc)
-    * This is done to improve type safety which is traditionally difficult in Electron
-    * This is still done over IPC, not HTTP
-  * Events are done through a custom system (defined in [common/ipcEvents.ts](./desktop/src/common/ipcEvents.ts))
-* Jobrunner and Server are entirely independent, and only communicate by reading and writing to the PostgreSQL database.
-  * Server triggers Jobrunner jobs through the Nomad job scheduler, so Jobrunner is not always running.
+  - Request/response is done using tRPC using [`electron-trpc`](https://github.com/jsonnull/electron-trpc)
+    - This is done to improve type safety which is traditionally difficult in Electron
+    - This is still done over IPC, not HTTP
+  - Events are done through a custom system (defined in [common/ipcEvents.ts](./desktop/src/common/ipcEvents.ts))
+- Jobrunner and Server are entirely independent, and only communicate by reading and writing to the PostgreSQL database.
+  - Server triggers Jobrunner jobs through the Nomad job scheduler, so Jobrunner is not always running.
 
 ## Running
 
@@ -111,7 +115,7 @@ When you do this, you'll probably also need to change the `@/lib/utils` import t
 
 When it comes to testing, the policy is "please".
 Write tests for non-trivial code and if you think it'd be valuable, but don't write tests for the sake of writing tests or just to get coverage up.
-We have unit tests (for code that can be tested on its own), integration tests (for code that *needs* a database or object store to be meaningfully tested), and end-to-end tests (that start a browser or Electron window and click around like a real user would).
+We have unit tests (for code that can be tested on its own), integration tests (for code that _needs_ a database or object store to be meaningfully tested), and end-to-end tests (that start a browser or Electron window and click around like a real user would).
 
 Write the smallest test you can to validate your behaviour - if it can be unit tested, unit test it.
 Integration and E2E tests are slower and more prone to flake (tests failing for seemingly no reason).
@@ -127,8 +131,7 @@ We rely on a broad test suite to ensure that Bowser remains functional.
 In some cases the E2E tests can "flake", or fail for seemingly no reason - in this case it's acceptable to re-run the test to see if it'll pass on the second run, but please file a [Linear](https://linear.app/ystv/team/BOW) ticket, with the Playwright test trace (downloadable from the Artifacts section on the GitHub Actions summary), to remind us to track down the cause of the flake and fix it.
 Playwright's [trace](https://playwright.dev/docs/trace-viewer-intro) feature is very useful for tracking down the cause of a failure.
 
-
-As an absolute last resort, if the test keeps failing and you're _sure_ that the failure is unrelated to your code, @markspolakovs and @dan-wade42 can override the merge requirements - though please still file a ticket. 
+As an absolute last resort, if the test keeps failing and you're _sure_ that the failure is unrelated to your code, @markspolakovs and @dan-wade42 can override the merge requirements - though please still file a ticket.
 
 ### Code Style
 
@@ -147,7 +150,25 @@ At YSTV, Bowser Server and Jobrunner are deployed to the [Nomad cluster](https:/
 This is done automatically by Jenkins.
 
 Note that, if you need to deploy database migrations, this will need to be done manually:
+
 1. Deploy a build containing the new migrations
-2. Find the `bowser-server-dev` (or eventually `bowser-server-prod`) job in the [Nomad UI](https://nomad.comp.ystv.co.uk/)
+2. Find the `bowser-dev` or `bowser-prod` job in the [Nomad UI](https://nomad.comp.ystv.co.uk/)
 3. Click "Exec" and open a shell in the `server` task
 4. Run `npx prisma migrate deploy --schema=./utility/prisma/schema.prisma`
+
+### Releasing
+
+We have two "environments" of Bowser in production, `dev` (https://bowser.dev.ystv.co.uk) and `prod` (https://bowser.ystv.co.uk).
+They have separate databases and file stores from each other, so you can use `dev` for testing while people carry on using `prod` for shows.
+
+All code merged into the `main` branch is automatically deployed to `dev` by Jenkins.
+Code can be deployed to `prod` by pushing a Git tag in the format `vx.y.z`.
+
+Don't do this by hand though!
+You'll need to update the `version` in all the package.json files so that it shows up correctly.
+You'll probably also want to build a new .msi of Desktop to install on the studio PCs.
+(Eventually there'll be auto-update support, but there isn't yet.)
+
+There is a script, [`scripts/do-release.mjs`](./scripts/do-release.mjs), that will automate the whole process, including bumping the versions, pushing a tag, and building Desktop.
+Run `node scripts/do-release.mjs` and it'll handle the rest.
+(You'll also need the [`gh` CLI](https://cli.github.com/) installed as it uses it internally.)

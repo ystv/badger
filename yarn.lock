@@ -1033,7 +1033,7 @@ __metadata:
   dependencies:
     "@prisma/client": latest
     dotenv-cli: ^7.2.1
-    prisma: latest
+    prisma: 5.2.0
     zod-prisma-types: ^2.7.9
   languageName: unknown
   linkType: soft
@@ -3851,6 +3851,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sentry/types@npm:7.69.0":
+  version: 7.69.0
+  resolution: "@sentry/types@npm:7.69.0"
+  checksum: aaa40a43cab358e10c2566d62966eff61925fb2605c146967bf9eb8acb4a883d4ca7c8a5eee1915271da08f27ddf1ed7dc520a8617f229ce70c7d00557173cc4
+  languageName: node
+  linkType: hard
+
 "@sentry/utils@npm:7.63.0":
   version: 7.63.0
   resolution: "@sentry/utils@npm:7.63.0"
@@ -3868,6 +3875,16 @@ __metadata:
     "@sentry/types": 7.64.0
     tslib: ^2.4.1 || ^1.9.3
   checksum: 049cc2324283080f3f4745720e43c567b04061a85ca7a3fa4abcae4ea4fb9a09f6ebbbb9a47539e8397973512803c777f1d6a017accf3e54322a5e0259854616
+  languageName: node
+  linkType: hard
+
+"@sentry/utils@npm:^7.69.0":
+  version: 7.69.0
+  resolution: "@sentry/utils@npm:7.69.0"
+  dependencies:
+    "@sentry/types": 7.69.0
+    tslib: ^2.4.1 || ^1.9.3
+  checksum: 8c18b6a1c5a869d608ff9cdb4534b29c5c85a06660647d8d8dfd67460be985d44a88f1ec4335174d40f147fecaa2e952b78747e83b6ed2f654e93248744fa291
   languageName: node
   linkType: hard
 
@@ -6011,6 +6028,7 @@ __metadata:
     "@playwright/test": ^1.37.0
     "@prisma/nextjs-monorepo-workaround-plugin": ^5.2.0
     "@sentry/nextjs": latest
+    "@sentry/utils": ^7.69.0
     "@tailwindcss/forms": ^0.5.4
     "@trpc/server": ^10.34.0
     "@types/lodash": ^4.14.196
@@ -12686,7 +12704,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prisma@npm:latest":
+"prisma@npm:5.2.0":
   version: 5.2.0
   resolution: "prisma@npm:5.2.0"
   dependencies:
