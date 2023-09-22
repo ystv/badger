@@ -57,6 +57,14 @@ const t = initTRPC.create();
 const r = t.router;
 const proc = t.procedure;
 
+let supportedIntegrations: Integration[];
+// TODO; this is fairly rudimentary
+if (process.platform === "win32") {
+  supportedIntegrations = ["vmix", "obs", "ontime"];
+} else {
+  supportedIntegrations = ["obs", "ontime"];
+}
+
 export const appRouter = r({
   serverConnectionStatus: proc.query(async () => {
     return (
@@ -90,11 +98,7 @@ export const appRouter = r({
       return data;
     }),
   supportedIntegrations: proc.output(z.array(Integration)).query(() => {
-    // TODO: this is a fairly rudimentary check
-    if (process.platform === "win32") {
-      return ["vmix", "obs", "ontime"];
-    }
-    return ["obs", "ontime"];
+    return supportedIntegrations;
   }),
   devtools: r({
     getSettings: proc
@@ -126,6 +130,17 @@ export const appRouter = r({
       }
       process.crash();
     }),
+    setEnabledIntegrations: proc
+      .input(z.array(z.string()))
+      .mutation(async ({ input }) => {
+        if (!(await getDevToolsConfig()).enabled) {
+          throw new TRPCError({
+            code: "PRECONDITION_FAILED",
+            message: "Dev tools not enabled",
+          });
+        }
+        supportedIntegrations = input as Integration[];
+      }),
   }),
   media: r({
     getDownloadStatus: proc
@@ -252,13 +267,13 @@ export const appRouter = r({
             ) {
               downloadMedia(item.media.id, item.media.name);
             }
-            for (const item of rundown.assets) {
-              if (
-                item.media?.state === "Ready" &&
-                !state.some((x) => x.mediaID === item.media?.id)
-              ) {
-                downloadMedia(item.media.id, item.media.name);
-              }
+          }
+          for (const item of rundown.assets) {
+            if (
+              item.media?.state === "Ready" &&
+              !state.some((x) => x.mediaID === item.media?.id)
+            ) {
+              downloadMedia(item.media.id, item.media.name);
             }
           }
         }

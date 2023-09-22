@@ -10,8 +10,8 @@ import * as fsp from "fs/promises";
 import * as path from "path";
 import { serverApiClient } from "./serverApiClient";
 import { z } from "zod";
-import * as wget from "wget-improved";
 import { IPCEvents } from "./ipcEventBus";
+import { downloadFile } from "./downloadFile";
 
 export async function getMediaPath(): Promise<string> {
   const settings = await getMediaSettings();
@@ -95,18 +95,9 @@ async function doDownloadMedia() {
     IPCEvents.downloadStatusChange();
 
     try {
-      const download = wget.download(urlRaw, outputPath, {
-        // @ts-expect-error typings wrong, `download` does accept this
-        gunzip: true,
-      });
-
-      download.on("progress", (progress: number) => {
-        status.progressPercent = progress * 100;
+      await downloadFile(urlRaw, outputPath, (progress: number) => {
+        status.progressPercent = progress;
         IPCEvents.downloadStatusChange();
-      });
-      await new Promise<void>((resolve, reject) => {
-        download.on("error", reject);
-        download.on("end", resolve);
       });
     } catch (e) {
       console.error(`Error downloading media ${info.id} [${newFileName}]`, e);

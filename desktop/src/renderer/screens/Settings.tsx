@@ -15,6 +15,7 @@ import { VMixConnection } from "./vMix";
 import { OntimeSettings } from "./Ontime";
 import Button from "@bowser/components/button";
 import { MediaSettings } from "./MediaSettings";
+import { Integration } from "../../common/types";
 
 export function Settings() {
   const queryClient = useQueryClient();
@@ -23,6 +24,11 @@ export function Settings() {
 
   const doMainError = ipc.devtools.throwException.useMutation();
   const doMainCrash = ipc.devtools.crash.useMutation();
+  const doSetIntegrations = ipc.devtools.setEnabledIntegrations.useMutation({
+    onSettled() {
+      queryClient.invalidateQueries(getQueryKey(ipc.supportedIntegrations));
+    },
+  });
 
   const setDevToolsState = ipc.devtools.setSettings.useMutation({
     // https://tanstack.com/query/latest/docs/react/guides/optimistic-updates
@@ -106,6 +112,25 @@ export function Settings() {
         </div>
         {devToolsState.enabled && (
           <div className="flex flex-col items-start space-y-2">
+            <h3>Enabled integrations</h3>
+            {(["obs", "vmix", "ontime"] as const).map((int) => (
+              <div>
+                <Switch
+                  id={"enable-" + int}
+                  checked={integrations.includes(int)}
+                  onCheckedChange={(v) => {
+                    const newIntegrations = [...integrations];
+                    if (v) {
+                      newIntegrations.push(int);
+                    } else {
+                      newIntegrations.splice(newIntegrations.indexOf(int), 1);
+                    }
+                    doSetIntegrations.mutate(newIntegrations);
+                  }}
+                />
+                <Label htmlFor={"enable-" + int}>{int}</Label>
+              </div>
+            ))}
             <Button
               color="warning"
               onClick={() => {
