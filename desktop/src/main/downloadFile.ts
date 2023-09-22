@@ -40,7 +40,7 @@ const CurlDownloader: Downloader = async function CurlDownloader(
 ) {
   invariant(curlPath, "no curl path");
   console.log("Using curl downloader");
-  const proc = spawn(curlPath, ["-f", "-o", outputPath, url]);
+  const proc = spawn(curlPath, ["-f", "--compressed", "-o", outputPath, url]);
   if (progressCB) {
     let buf = "";
     proc.stderr.on("data", (data) => {
