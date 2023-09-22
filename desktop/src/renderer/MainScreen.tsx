@@ -67,7 +67,7 @@ function DownloadTrackerPopup() {
           data-testid="DownloadTrackerPopup.icon"
         />
       </PopoverTrigger>
-      <PopoverContent className="bg-light text-dark px-2 py-4 shadow-lg">
+      <PopoverContent className="bg-light text-dark px-2 py-4 shadow-lg min-w-[400px]">
         <Table>
           <TableBody>
             {downloads.map((download) => (
@@ -205,7 +205,7 @@ export default function MainScreen() {
           </DropdownMenuContent>
         </DropdownMenu>
       </nav>
-      <div className="relative mb-12 px-2">
+      <div className="relative mb-12 px-2 overflow-y-scroll">
         {selectedRundown === "continuity" ? (
           <OBSScreen />
         ) : (
