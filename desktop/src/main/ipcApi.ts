@@ -58,7 +58,7 @@ const r = t.router;
 const proc = t.procedure;
 
 let supportedIntegrations: Integration[];
-// TODO; this is fairly rudimentary
+// This is fairly rudimentary
 if (process.platform === "win32") {
   supportedIntegrations = ["vmix", "obs", "ontime"];
 } else {
