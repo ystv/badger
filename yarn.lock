@@ -5938,7 +5938,7 @@ __metadata:
     bufferutil: ^4.0.7
     classnames: ^2.3.2
     client-only: ^0.0.1
-    electron: 26.1.0
+    electron: 26.2.2
     electron-settings: ^4.0.2
     electron-squirrel-startup: ^1.0.0
     electron-trpc: ^0.5.2
@@ -7620,16 +7620,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron@npm:26.1.0":
-  version: 26.1.0
-  resolution: "electron@npm:26.1.0"
+"electron@npm:26.2.2":
+  version: 26.2.2
+  resolution: "electron@npm:26.2.2"
   dependencies:
     "@electron/get": ^2.0.0
     "@types/node": ^18.11.18
     extract-zip: ^2.0.1
   bin:
     electron: cli.js
-  checksum: caad2f041433b488f7edf3eeae7754c19ed04b153ca5a8ea335756786a870ebc67fd9c77afb0a17bb73ece890b331e8092221fc87831684146ec2f9b622e5cf0
+  checksum: 4e2f642475454836256925be81995a9d28bb21bcdaabdb714c5dc36dbf3b5ad8d8214b64d9290c4b8b07b8f6b6914074c61915e1c104fc7e1e1600b2c6d75ff5
   languageName: node
   linkType: hard
 
