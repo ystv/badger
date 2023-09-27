@@ -23,12 +23,14 @@ import {
   devToolsConfigSchema,
   getAssetsSettings,
   getDevToolsConfig,
+  getDownloadsSettings,
   getLocalMediaSettings,
   getOntimeSettings,
   LocalMediaData,
   LocalMediaSettingsSchema,
   ontimeSettingsSchema,
   saveDevToolsConfig,
+  saveDownloadsSettings,
   saveOntimeSettings,
 } from "./settings";
 import {
@@ -47,6 +49,7 @@ import {
 } from "./ontime";
 import { showToOntimeEvents } from "./ontimeHelpers";
 import { shell, ipcMain } from "electron";
+import { getAvailableDownloaders } from "./downloadFile";
 
 function serverAPI() {
   invariant(serverApiClient !== null, "serverApiClient is null");
@@ -289,6 +292,22 @@ export const appRouter = r({
         }
       }
     }),
+    getAvailableDownloaders: proc
+      .output(z.array(z.enum(["Auto", "Node", "Curl"])))
+      .query(async () => {
+        return ["Auto", ...(await getAvailableDownloaders())];
+      }),
+    getSelectedDownloader: proc
+      .output(z.enum(["Auto", "Node", "Curl"]))
+      .query(async () => {
+        const settings = await getDownloadsSettings();
+        return settings.downloader;
+      }),
+    setSelectedDownloader: proc
+      .input(z.enum(["Auto", "Node", "Curl"]))
+      .mutation(async ({ input }) => {
+        await saveDownloadsSettings({ downloader: input });
+      }),
   }),
   obs: r({
     getConnectionState: proc
