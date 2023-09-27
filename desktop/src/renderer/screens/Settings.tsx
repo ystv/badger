@@ -115,9 +115,9 @@ export function Settings() {
       <TabsContent value="advanced">
         <h2 className="text-xl">Downloads</h2>
         <Label htmlFor="downloader">Downloader</Label>
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         <Select
           value={selectedDownloader}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onValueChange={(e) => doSetDownloader.mutate(e as any)}
         >
           <SelectTrigger>
