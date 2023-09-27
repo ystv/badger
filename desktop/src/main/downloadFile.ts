@@ -2,6 +2,9 @@ import * as wget from "wget-improved";
 import { spawn } from "child_process";
 import which from "which";
 import invariant from "../common/invariant";
+import logging from "loglevel";
+
+const logger = logging.getLogger("downloadFile");
 
 type Downloader = (
   url: string,
@@ -14,7 +17,7 @@ const NodeDownloader: Downloader = async function NodeDownloader(
   outputPath,
   progressCB,
 ) {
-  console.log("Using node downloader");
+  logger.info("Using node downloader");
   const download = wget.download(url, outputPath, {
     // @ts-expect-error typings wrong, `download` does accept this
     gunzip: true,
@@ -39,7 +42,7 @@ const CurlDownloader: Downloader = async function CurlDownloader(
   progressCB,
 ) {
   invariant(curlPath, "no curl path");
-  console.log("Using curl downloader");
+  logger.info("Using curl downloader");
   const proc = spawn(curlPath, ["-f", "--compressed", "-o", outputPath, url]);
   if (progressCB) {
     let buf = "";
