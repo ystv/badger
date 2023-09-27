@@ -6,6 +6,8 @@ import { getOBSSettings, saveOBSSettings } from "./settings";
 import { getLogger } from "loglevel";
 import { inspect } from "node:util";
 
+const logger = getLogger("obs");
+
 /*
  * This file contains OBSConnection, a wrapper around obs-websocket-js that provides a higher level, more typesafe API.
  * In general, anything that requires more than one call to OBS should go in obsHelpers.ts instead.
@@ -306,9 +308,9 @@ export async function tryCreateOBSConnection() {
         settings.password,
         settings.port,
       );
-      console.log("Successfully connected to OBS using saved credentials");
+      logger.info("Successfully connected to OBS using saved credentials");
     } catch (e) {
-      console.warn("Failed to connect to OBS (will ignore)", e);
+      logger.warn("Failed to connect to OBS (will ignore)", e);
     }
   }
 }

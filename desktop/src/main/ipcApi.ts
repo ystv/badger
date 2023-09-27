@@ -27,7 +27,6 @@ import {
   getLocalMediaSettings,
   getOntimeSettings,
   LocalMediaData,
-  LocalMediaSettingsSchema,
   ontimeSettingsSchema,
   saveDevToolsConfig,
   saveDownloadsSettings,
@@ -49,7 +48,11 @@ import {
 } from "./ontime";
 import { showToOntimeEvents } from "./ontimeHelpers";
 import { shell, ipcMain } from "electron";
+import logging from "loglevel";
 import { getAvailableDownloaders } from "./downloadFile";
+
+const logger = logging.getLogger("ipcApi");
+const rendererLogger = logging.getLogger("renderer");
 
 function serverAPI() {
   invariant(serverApiClient !== null, "serverApiClient is null");
@@ -75,6 +78,17 @@ export const appRouter = r({
       (await serverApiClient.ping.query()) === "pong"
     );
   }),
+  log: proc
+    .input(
+      z.object({
+        level: z.enum(["trace", "debug", "info", "warn", "error"]),
+        logger: z.string().optional(),
+        message: z.string(),
+      }),
+    )
+    .mutation(({ input }) => {
+      rendererLogger[input.level](input.message);
+    }),
   connectToServer: proc
     .input(
       z.object({
@@ -225,7 +239,7 @@ export const appRouter = r({
           notInUse.map((x) => x.mediaID),
         );
         for (const result of mediaObjects) {
-          console.log("Deletion candidate", result);
+          logger.debug("Deletion candidate", result);
           if (result.state !== "Ready") {
             continue;
           }
@@ -243,7 +257,7 @@ export const appRouter = r({
             );
           }
           const age = (Date.now() - showDate.getTime()) / (1000 * 60 * 60 * 24);
-          console.log(
+          logger.debug(
             result.id,
             result.name,
             "age",
@@ -252,7 +266,7 @@ export const appRouter = r({
             input.minAgeDays,
           );
           if (age > input.minAgeDays) {
-            console.log("Deleting", result.id);
+            logger.debug("Deleting", result.id);
             await deleteMedia(result.id);
           }
         }
@@ -333,7 +347,7 @@ export const appRouter = r({
             availableRequests: version.availableRequests,
           };
         } catch (e) {
-          console.warn("OBS connection error", e);
+          logger.warn("OBS connection error", e);
           return { connected: false, error: String(e) };
         }
       }),
@@ -593,8 +607,8 @@ export const appRouter = r({
         const show = selectedShow.value;
         invariant(show, "No show selected");
         const events = showToOntimeEvents(show, input.rundownId);
-        console.log("Ready for Ontime push");
-        console.dir(events);
+        logger.debug("Ready for Ontime push");
+        logger.debug(events);
 
         const current = await getOntimeInstance().getEvents();
         if (input.replacementMode === "force" || current.length === 0) {

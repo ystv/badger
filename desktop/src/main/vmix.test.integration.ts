@@ -6,6 +6,7 @@ integrate("VMixConnection integration", () => {
   let vmix: VMixConnection;
   beforeAll(async () => {
     vmix = await VMixConnection.connect();
+    // eslint-disable-next-line no-console
     console.log("Setup done");
   });
   test("getFullState", async () => {

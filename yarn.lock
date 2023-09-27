@@ -5939,6 +5939,7 @@ __metadata:
     classnames: ^2.3.2
     client-only: ^0.0.1
     electron: 26.2.2
+    electron-log: ^4.4.8
     electron-settings: ^4.0.2
     electron-squirrel-startup: ^1.0.0
     electron-trpc: ^0.5.2
@@ -7510,6 +7511,13 @@ __metadata:
   bin:
     electron-installer-redhat: src/cli.js
   conditions: (os=darwin | os=linux)
+  languageName: node
+  linkType: hard
+
+"electron-log@npm:^4.4.8":
+  version: 4.4.8
+  resolution: "electron-log@npm:4.4.8"
+  checksum: 5a7958f8fd9a5c95987e885ffe1c5b88be15bb41d348b65c92e2d8664519faddf17ce0208cd4e7027b0908f92fecedfbef246a45061f53e4a53b5d2201aafbd9
   languageName: node
   linkType: hard
 

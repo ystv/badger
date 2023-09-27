@@ -1,4 +1,5 @@
 import { app, BrowserWindow } from "electron";
+import log from "electron-log";
 import * as path from "path";
 import { createIPCHandler } from "electron-trpc/main";
 import { emitObservable, setSender } from "./ipcEventBus";
@@ -15,23 +16,37 @@ import Icon from "../icon/png/64x64.png";
 import { tryCreateOntimeConnection } from "./ontime";
 import * as Sentry from "@sentry/electron/main";
 
-if (import.meta.env.VITE_DESKTOP_SENTRY_DSN) {
-  Sentry.init({
-    dsn: import.meta.env.VITE_DESKTOP_SENTRY_DSN,
-    release: global.__SENTRY_RELEASE__,
-  });
-  console.log("[Main] Sentry enabled");
-}
-
+logging.methodFactory = function (level) {
+  return function (message) {
+    log[level === "trace" ? "silly" : level](message);
+  };
+};
 logging.setLevel(
   (process.env.LOG_LEVEL as LogLevelNames) ?? logging.levels.DEBUG,
 );
 prefix.reg(logging);
 prefix.apply(logging, {
-  template: "[%t] %l (%n):",
+  template: "%n:",
 });
 
-logging.info("Environment:", import.meta.env.MODE);
+/* eslint-disable no-console */
+console.log = logging.debug;
+console.info = logging.info;
+console.warn = logging.warn;
+console.error = logging.error;
+/* eslint-enable no-console */
+
+logging.info(
+  `Bowser Desktop v${global.__APP_VERSION__} (${global.__GIT_COMMIT__}) starting up.`,
+);
+
+if (import.meta.env.VITE_DESKTOP_SENTRY_DSN) {
+  Sentry.init({
+    dsn: import.meta.env.VITE_DESKTOP_SENTRY_DSN,
+    release: global.__SENTRY_RELEASE__,
+  });
+  logging.info("[Main] Sentry enabled");
+}
 
 // https://www.electronforge.io/config/plugins/vite
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;

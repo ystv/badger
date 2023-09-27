@@ -15,7 +15,6 @@ import { VMixConnection } from "./vMix";
 import { OntimeSettings } from "./Ontime";
 import Button from "@bowser/components/button";
 import { MediaSettings } from "./MediaSettings";
-import { Integration } from "../../common/types";
 import {
   Select,
   SelectContent,
