@@ -3,6 +3,7 @@ import type { Prisma } from "../../client";
 import { ShowArgsSchema } from "../outputTypeSchemas/ShowArgsSchema";
 import { RundownItemFindManyArgsSchema } from "../outputTypeSchemas/RundownItemFindManyArgsSchema";
 import { AssetFindManyArgsSchema } from "../outputTypeSchemas/AssetFindManyArgsSchema";
+import { MetadataFindManyArgsSchema } from "../outputTypeSchemas/MetadataFindManyArgsSchema";
 import { RundownCountOutputTypeArgsSchema } from "../outputTypeSchemas/RundownCountOutputTypeArgsSchema";
 
 export const RundownSelectSchema: z.ZodType<Prisma.RundownSelect> = z
@@ -17,6 +18,9 @@ export const RundownSelectSchema: z.ZodType<Prisma.RundownSelect> = z
       .optional(),
     assets: z
       .union([z.boolean(), z.lazy(() => AssetFindManyArgsSchema)])
+      .optional(),
+    metadata: z
+      .union([z.boolean(), z.lazy(() => MetadataFindManyArgsSchema)])
       .optional(),
     _count: z
       .union([z.boolean(), z.lazy(() => RundownCountOutputTypeArgsSchema)])

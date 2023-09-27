@@ -33,6 +33,7 @@ model Show {
 
   rundowns        Rundown[]
   continuityItems ContinuityItem[]
+  metadata        Metadata[]
 
   @@map("shows")
 }
@@ -57,9 +58,10 @@ model Rundown {
   showId Int
   order  Int
 
-  show   Show          @relation(fields: [showId], references: [id])
-  items  RundownItem[]
-  assets Asset[]
+  show     Show          @relation(fields: [showId], references: [id])
+  items    RundownItem[]
+  assets   Asset[]
+  metadata Metadata[]
 
   @@map("rundowns")
 }
@@ -103,6 +105,47 @@ model ContinuityItem {
   // Do not be tempted to include a @@unique on the order!
   // See https://github.com/prisma/prisma/issues/13115 and https://github.com/prisma/prisma/issues/8807
   @@map("continuity_items")
+}
+
+enum MetadataTargetType {
+  Show
+  Rundown
+}
+
+enum MetadataValueType {
+  Text
+  LongText
+  URL
+}
+
+model MetadataField {
+  id       Int                @id @default(autoincrement())
+  name     String
+  type     MetadataValueType
+  target   MetadataTargetType
+  archived Boolean            @default(false)
+
+  values Metadata[]
+
+  @@map("metadata_fields")
+}
+
+model Metadata {
+  id      Int    @id @default(autoincrement())
+  value   Json
+  fieldId Int
+
+  showId    Int?
+  rundownId Int?
+
+  field   MetadataField @relation(fields: [fieldId], references: [id])
+  show    Show?         @relation(fields: [showId], references: [id], onDelete: Cascade)
+  rundown Rundown?      @relation(fields: [rundownId], references: [id], onDelete: Cascade)
+
+  @@unique([fieldId, showId, rundownId])
+  @@index([showId])
+  @@index([rundownId])
+  @@map("metadata")
 }
 
 enum MediaState {

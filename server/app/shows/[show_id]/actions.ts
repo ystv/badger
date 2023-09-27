@@ -7,7 +7,11 @@ import { z } from "zod";
 import { editContinuityItemSchema } from "./schema";
 import { FormResponse } from "@/components/Form";
 import { zodErrorResponse } from "@/components/FormServerHelpers";
-import { MediaFileSourceType } from "@bowser/prisma/client";
+import {
+  MediaFileSourceType,
+  MetadataTargetType,
+  Prisma,
+} from "@bowser/prisma/client";
 import { escapeRegExp } from "lodash";
 
 import { dispatchJobForJobrunner } from "@/lib/jobs";
@@ -291,6 +295,43 @@ export async function reorderShowItems(
     });
 
     await ensureContiguousDEV(showID, $db);
+  });
+  revalidatePath(`/shows/${showID}`);
+  return { ok: true };
+}
+
+export async function setMetaValue(
+  showID: number,
+  metaID: number,
+  newValue: Prisma.InputJsonValue,
+): Promise<FormResponse> {
+  await db.metadata.update({
+    where: {
+      field: {
+        target: MetadataTargetType.Show,
+      },
+      showId: showID,
+      id: metaID,
+    },
+    data: {
+      value: newValue,
+    },
+  });
+  revalidatePath(`/shows/${showID}`);
+  return { ok: true };
+}
+
+export async function addMeta(
+  showID: number,
+  fieldID: number,
+  newValue: Prisma.InputJsonValue,
+): Promise<FormResponse> {
+  await db.metadata.create({
+    data: {
+      fieldId: fieldID,
+      showId: showID,
+      value: newValue,
+    },
   });
   revalidatePath(`/shows/${showID}`);
   return { ok: true };

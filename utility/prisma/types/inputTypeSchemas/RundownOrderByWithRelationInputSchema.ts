@@ -4,6 +4,7 @@ import { SortOrderSchema } from "./SortOrderSchema";
 import { ShowOrderByWithRelationInputSchema } from "./ShowOrderByWithRelationInputSchema";
 import { RundownItemOrderByRelationAggregateInputSchema } from "./RundownItemOrderByRelationAggregateInputSchema";
 import { AssetOrderByRelationAggregateInputSchema } from "./AssetOrderByRelationAggregateInputSchema";
+import { MetadataOrderByRelationAggregateInputSchema } from "./MetadataOrderByRelationAggregateInputSchema";
 
 export const RundownOrderByWithRelationInputSchema: z.ZodType<Prisma.RundownOrderByWithRelationInput> =
   z
@@ -17,6 +18,9 @@ export const RundownOrderByWithRelationInputSchema: z.ZodType<Prisma.RundownOrde
         .lazy(() => RundownItemOrderByRelationAggregateInputSchema)
         .optional(),
       assets: z.lazy(() => AssetOrderByRelationAggregateInputSchema).optional(),
+      metadata: z
+        .lazy(() => MetadataOrderByRelationAggregateInputSchema)
+        .optional(),
     })
     .strict();
 

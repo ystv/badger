@@ -2,6 +2,8 @@ export * from "./ShowSchema";
 export * from "./RundownSchema";
 export * from "./RundownItemSchema";
 export * from "./ContinuityItemSchema";
+export * from "./MetadataFieldSchema";
+export * from "./MetadataSchema";
 export * from "./AssetSchema";
 export * from "./MediaSchema";
 export * from "./MediaProcessingTaskSchema";

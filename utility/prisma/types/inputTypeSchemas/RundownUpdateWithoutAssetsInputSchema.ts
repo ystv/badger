@@ -4,6 +4,7 @@ import { StringFieldUpdateOperationsInputSchema } from "./StringFieldUpdateOpera
 import { IntFieldUpdateOperationsInputSchema } from "./IntFieldUpdateOperationsInputSchema";
 import { ShowUpdateOneRequiredWithoutRundownsNestedInputSchema } from "./ShowUpdateOneRequiredWithoutRundownsNestedInputSchema";
 import { RundownItemUpdateManyWithoutRundownNestedInputSchema } from "./RundownItemUpdateManyWithoutRundownNestedInputSchema";
+import { MetadataUpdateManyWithoutRundownNestedInputSchema } from "./MetadataUpdateManyWithoutRundownNestedInputSchema";
 
 export const RundownUpdateWithoutAssetsInputSchema: z.ZodType<Prisma.RundownUpdateWithoutAssetsInput> =
   z
@@ -25,6 +26,9 @@ export const RundownUpdateWithoutAssetsInputSchema: z.ZodType<Prisma.RundownUpda
         .optional(),
       items: z
         .lazy(() => RundownItemUpdateManyWithoutRundownNestedInputSchema)
+        .optional(),
+      metadata: z
+        .lazy(() => MetadataUpdateManyWithoutRundownNestedInputSchema)
         .optional(),
     })
     .strict();

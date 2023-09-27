@@ -5,6 +5,7 @@ import { StringFieldUpdateOperationsInputSchema } from "./StringFieldUpdateOpera
 import { DateTimeFieldUpdateOperationsInputSchema } from "./DateTimeFieldUpdateOperationsInputSchema";
 import { RundownUncheckedUpdateManyWithoutShowNestedInputSchema } from "./RundownUncheckedUpdateManyWithoutShowNestedInputSchema";
 import { ContinuityItemUncheckedUpdateManyWithoutShowNestedInputSchema } from "./ContinuityItemUncheckedUpdateManyWithoutShowNestedInputSchema";
+import { MetadataUncheckedUpdateManyWithoutShowNestedInputSchema } from "./MetadataUncheckedUpdateManyWithoutShowNestedInputSchema";
 
 export const ShowUncheckedUpdateInputSchema: z.ZodType<Prisma.ShowUncheckedUpdateInput> =
   z
@@ -40,6 +41,9 @@ export const ShowUncheckedUpdateInputSchema: z.ZodType<Prisma.ShowUncheckedUpdat
         .lazy(
           () => ContinuityItemUncheckedUpdateManyWithoutShowNestedInputSchema,
         )
+        .optional(),
+      metadata: z
+        .lazy(() => MetadataUncheckedUpdateManyWithoutShowNestedInputSchema)
         .optional(),
     })
     .strict();
