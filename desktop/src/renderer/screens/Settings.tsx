@@ -16,17 +16,35 @@ import { OntimeSettings } from "./Ontime";
 import Button from "@bowser/components/button";
 import { MediaSettings } from "./MediaSettings";
 import { Integration } from "../../common/types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@bowser/components/select";
 
 export function Settings() {
   const queryClient = useQueryClient();
   const [devToolsState] = ipc.devtools.getSettings.useSuspenseQuery();
   const [integrations] = ipc.supportedIntegrations.useSuspenseQuery();
+  const [availableDownloaders] =
+    ipc.media.getAvailableDownloaders.useSuspenseQuery();
+  const [selectedDownloader] =
+    ipc.media.getSelectedDownloader.useSuspenseQuery();
 
   const doMainError = ipc.devtools.throwException.useMutation();
   const doMainCrash = ipc.devtools.crash.useMutation();
   const doSetIntegrations = ipc.devtools.setEnabledIntegrations.useMutation({
     onSettled() {
       queryClient.invalidateQueries(getQueryKey(ipc.supportedIntegrations));
+    },
+  });
+  const doSetDownloader = ipc.media.setSelectedDownloader.useMutation({
+    onSettled() {
+      queryClient.invalidateQueries(
+        getQueryKey(ipc.media.getSelectedDownloader),
+      );
     },
   });
 
@@ -95,6 +113,25 @@ export function Settings() {
         <MediaSettings />
       </TabsContent>
       <TabsContent value="advanced">
+        <h2 className="text-xl">Downloads</h2>
+        <Label htmlFor="downloader">Downloader</Label>
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        <Select
+          value={selectedDownloader}
+          onValueChange={(e) => doSetDownloader.mutate(e as any)}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {availableDownloaders.map((d) => (
+              <SelectItem key={d} value={d}>
+                {d}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         <h2 className="text-xl">Developer Tools</h2>
         <p>
           Do not enable unless you know what you are doing, these open you up to
