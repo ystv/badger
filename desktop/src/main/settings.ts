@@ -250,3 +250,23 @@ export async function getOntimeSettings(): Promise<OntimeSettings | null> {
 export async function saveOntimeSettings(val: OntimeSettings): Promise<void> {
   await settings.set("ontime", val);
 }
+
+export const downloadsSettingsSchema = z.object({
+  downloader: z.enum(["Auto", "Node", "Curl"]),
+});
+
+export type DownloadsSettings = z.infer<typeof downloadsSettingsSchema>;
+
+export async function getDownloadsSettings(): Promise<DownloadsSettings> {
+  const settingsData = await settings.get("downloads");
+  if (settingsData === undefined) {
+    return { downloader: "Auto" };
+  }
+  return downloadsSettingsSchema.parse(settingsData);
+}
+
+export async function saveDownloadsSettings(
+  val: DownloadsSettings,
+): Promise<void> {
+  await settings.set("downloads", val);
+}

@@ -3,6 +3,7 @@ import { spawn } from "child_process";
 import which from "which";
 import invariant from "../common/invariant";
 import logging from "loglevel";
+import { getDownloadsSettings } from "./settings";
 
 const logger = logging.getLogger("downloadFile");
 
@@ -35,6 +36,24 @@ const NodeDownloader: Downloader = async function NodeDownloader(
 };
 
 let curlPath: string | null;
+let isCurlAvailable: boolean | null = null;
+
+export async function isCurlInstalled() {
+  if (isCurlAvailable === null) {
+    curlPath = await which(process.platform === "win32" ? "curl.exe" : "curl", {
+      nothrow: true,
+    });
+    isCurlAvailable = !!curlPath;
+  }
+  return isCurlAvailable;
+}
+
+export async function getAvailableDownloaders(): Promise<
+  Array<"Node" | "Curl">
+> {
+  const curlInstalled = await isCurlInstalled();
+  return curlInstalled ? ["Node", "Curl"] : ["Node"];
+}
 
 const CurlDownloader: Downloader = async function CurlDownloader(
   url,
@@ -85,9 +104,23 @@ export async function downloadFile(
   outputPath: string,
   progress?: (percent: number) => unknown,
 ) {
-  curlPath = await which(process.platform === "win32" ? "curl.exe" : "curl", {
-    nothrow: true,
-  });
-  const downloader = curlPath ? CurlDownloader : NodeDownloader;
+  const settings = await getDownloadsSettings();
+  let downloader;
+  switch (settings.downloader) {
+    case "Node":
+      downloader = NodeDownloader;
+      break;
+    case "Curl":
+      if (!(await isCurlInstalled())) {
+        throw new Error("Curl not installed");
+      }
+      downloader = CurlDownloader;
+      break;
+    case "Auto":
+      downloader = (await isCurlInstalled()) ? CurlDownloader : NodeDownloader;
+      break;
+    default:
+      throw new Error(`Unknown downloader ${settings.downloader}`);
+  }
   await downloader(url, outputPath, progress);
 }

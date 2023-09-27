@@ -23,11 +23,13 @@ import {
   devToolsConfigSchema,
   getAssetsSettings,
   getDevToolsConfig,
+  getDownloadsSettings,
   getLocalMediaSettings,
   getOntimeSettings,
   LocalMediaData,
   ontimeSettingsSchema,
   saveDevToolsConfig,
+  saveDownloadsSettings,
   saveOntimeSettings,
 } from "./settings";
 import {
@@ -47,6 +49,7 @@ import {
 import { showToOntimeEvents } from "./ontimeHelpers";
 import { shell, ipcMain } from "electron";
 import logging from "loglevel";
+import { getAvailableDownloaders } from "./downloadFile";
 
 const logger = logging.getLogger("ipcApi");
 const rendererLogger = logging.getLogger("renderer");
@@ -303,6 +306,22 @@ export const appRouter = r({
         }
       }
     }),
+    getAvailableDownloaders: proc
+      .output(z.array(z.enum(["Auto", "Node", "Curl"])))
+      .query(async () => {
+        return ["Auto", ...(await getAvailableDownloaders())];
+      }),
+    getSelectedDownloader: proc
+      .output(z.enum(["Auto", "Node", "Curl"]))
+      .query(async () => {
+        const settings = await getDownloadsSettings();
+        return settings.downloader;
+      }),
+    setSelectedDownloader: proc
+      .input(z.enum(["Auto", "Node", "Curl"]))
+      .mutation(async ({ input }) => {
+        await saveDownloadsSettings({ downloader: input });
+      }),
   }),
   obs: r({
     getConnectionState: proc
