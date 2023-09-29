@@ -128,6 +128,7 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
   > = useMemo(() => {
     return props.rundown.items
       .filter((item) => item.type !== "Segment")
+      .sort((a, b) => a.order - b.order)
       .map((item) => {
         if (!item.media) {
           return {
