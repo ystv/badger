@@ -60,7 +60,11 @@ export const appRouter = router({
             },
           },
           include: {
-            continuityItems: true,
+            continuityItems: {
+              orderBy: {
+                order: "asc",
+              },
+            },
             rundowns: true,
           },
         });
@@ -78,12 +82,18 @@ export const appRouter = router({
               include: {
                 media: true,
               },
+              orderBy: {
+                order: "asc",
+              },
             },
             rundowns: {
               include: {
                 items: {
                   include: {
                     media: true,
+                  },
+                  orderBy: {
+                    order: "asc",
                   },
                 },
                 assets: {
