@@ -525,6 +525,7 @@ export const appRouter = r({
         });
         invariant(rundown, "Rundown not found");
         const media = rundown.items
+          .sort((a, b) => a.order - b.order)
           .map<z.infer<typeof PartialMediaModel> | null>((i) => i.media)
           .filter((x) => x && x.state === "Ready");
         const localMedia = await getLocalMediaSettings();
