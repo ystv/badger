@@ -4,6 +4,7 @@ import which from "which";
 import invariant from "../common/invariant";
 import logging from "loglevel";
 import { getDownloadsSettings } from "./settings";
+import { throttle } from "lodash";
 
 const logger = logging.getLogger("downloadFile");
 
@@ -16,8 +17,9 @@ type Downloader = (
 const NodeDownloader: Downloader = async function NodeDownloader(
   url,
   outputPath,
-  progressCB,
+  progressCBRaw,
 ) {
+  const progressCB = progressCBRaw ? throttle(progressCBRaw, 500) : null;
   logger.info("Using node downloader");
   const download = wget.download(url, outputPath, {
     // @ts-expect-error typings wrong, `download` does accept this
@@ -26,7 +28,7 @@ const NodeDownloader: Downloader = async function NodeDownloader(
 
   if (progressCB) {
     download.on("progress", (progress: number) => {
-      progressCB(progress * 100);
+      progressCB?.(progress * 100);
     });
   }
   await new Promise<void>((resolve, reject) => {
@@ -62,7 +64,9 @@ const CurlDownloader: Downloader = async function CurlDownloader(
 ) {
   invariant(curlPath, "no curl path");
   logger.info("Using curl downloader");
-  const proc = spawn(curlPath, ["-f", "--compressed", "-o", outputPath, url]);
+  const args = ["-f", "--compressed", "-o", outputPath, url];
+  logger.info(`Curl command: ${curlPath} ${args.join(" ")}`);
+  const proc = spawn(curlPath, args);
   if (progressCB) {
     let buf = "";
     proc.stderr.on("data", (data) => {
