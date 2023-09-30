@@ -19,19 +19,20 @@ export default async function ShowsPage(props: {
   const page = props.searchParams.page
     ? parseInt(props.searchParams.page) - 1
     : 0;
-  const conditions: Prisma.ShowWhereInput = {};
+  const conditions: Prisma.ShowWithDurationWhereInput = {};
   if (props.searchParams.includePast !== "true") {
-    conditions["start"] = {
+    conditions["end"] = {
       gt: new Date(),
     };
   }
+
   const [shows, total] = await db.$transaction([
-    db.show.findMany({
+    db.showWithDuration.findMany({
       where: conditions,
       take: PAGE_SIZE,
       skip: PAGE_SIZE * page,
     }),
-    db.show.count({
+    db.showWithDuration.count({
       where: conditions,
     }),
   ]);

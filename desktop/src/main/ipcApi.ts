@@ -50,6 +50,7 @@ import { showToOntimeEvents } from "./ontimeHelpers";
 import { shell, ipcMain } from "electron";
 import logging from "loglevel";
 import { getAvailableDownloaders } from "./downloadFile";
+import { ShowSchema } from "@bowser/prisma/types";
 
 const logger = logging.getLogger("ipcApi");
 const rendererLogger = logging.getLogger("renderer");
@@ -100,7 +101,7 @@ export const appRouter = r({
       await createAPIClient(input.endpoint + "/api/trpc", input.password);
       return true;
     }),
-  listUpcomingShows: proc.output(z.array(PartialShowModel)).query(async () => {
+  listUpcomingShows: proc.output(z.array(ShowSchema)).query(async () => {
     return await serverAPI().shows.listUpcoming.query();
   }),
   getSelectedShow: proc.output(CompleteShowModel.nullable()).query(() => {
