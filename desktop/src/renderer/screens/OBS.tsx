@@ -400,9 +400,11 @@ export default function OBSScreen() {
           <col style={{ width: "12rem" }} />
         </colgroup>
         <TableBody>
-          {show.continuityItems.sort((a, b) => a.order - b.order).map((item) => (
-            <ContinuityItem item={item} key={item.id} />
-          ))}
+          {show.continuityItems
+            .sort((a, b) => a.order - b.order)
+            .map((item) => (
+              <ContinuityItem item={item} key={item.id} />
+            ))}
           <TableRow>
             <TableCell />
             <TableCell>
