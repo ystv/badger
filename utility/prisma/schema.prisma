@@ -2,8 +2,9 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "./client"
+  provider        = "prisma-client-js"
+  output          = "./client"
+  previewFeatures = ["views"]
 }
 
 generator zod {
@@ -34,6 +35,20 @@ model Show {
   continuityItems ContinuityItem[]
 
   @@map("shows")
+}
+
+view ShowWithDuration {
+  id              Int      @unique
+  name            String
+  start           DateTime
+  durationSeconds Int
+  end             DateTime
+
+  /// The version of the show. This is incremented every time the show, or any of its dependent data, is changed.
+  /// This is used by Desktop to watch for changes.
+  version Int @default(0)
+
+  @@map("shows_with_duration")
 }
 
 model Rundown {

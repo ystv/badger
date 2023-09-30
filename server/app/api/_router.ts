@@ -51,21 +51,13 @@ export const appRouter = router({
   }),
   shows: router({
     listUpcoming: publicProcedure
-      .output(z.array(PartialShowModel))
+      .output(z.array(ShowSchema))
       .query(async () => {
-        return db.show.findMany({
+        return db.showWithDuration.findMany({
           where: {
-            start: {
+            end: {
               gte: new Date(),
             },
-          },
-          include: {
-            continuityItems: {
-              orderBy: {
-                order: "asc",
-              },
-            },
-            rundowns: true,
           },
         });
       }),
