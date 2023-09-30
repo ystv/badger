@@ -5,7 +5,6 @@ import {
   ExtendedMediaModel,
   CompleteRundownModel,
   CompleteShowModel,
-  PartialShowModel,
 } from "@bowser/prisma/utilityTypes";
 import { getPresignedURL } from "@/lib/s3";
 import {
