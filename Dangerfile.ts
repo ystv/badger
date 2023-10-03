@@ -10,6 +10,9 @@ async function findAddedAndRemovedTodoIssues() {
   for (const file of danger.git.modified_files.concat(
     ...danger.git.created_files,
   )) {
+    if (file === "Dangerfile.ts") {
+      continue;
+    }
     const delta = await danger.git.structuredDiffForFile(file);
     if (!delta) {
       continue;
