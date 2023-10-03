@@ -32,7 +32,7 @@ async function findAddedAndRemovedTodoIssues() {
               linesWithoutKey.add(line.content);
             }
           }
-        } else if (line.content.includes("FIXME")) {
+        } else if (line.content.includes("FIXME") && line.type !== "del") {
           fixmes.add(line.content);
         }
       }
