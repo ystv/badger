@@ -9,9 +9,9 @@ import type {
 
 function dateToTimeMs(date: Date) {
   return (
-    date.getUTCHours() * 60 * 60 * 1000 +
-    date.getUTCMinutes() * 60 * 1000 +
-    date.getUTCSeconds() * 1000
+    date.getHours() * 60 * 60 * 1000 +
+    date.getMinutes() * 60 * 1000 +
+    date.getSeconds() * 1000
   );
 }
 
