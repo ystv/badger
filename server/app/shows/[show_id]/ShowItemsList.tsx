@@ -72,17 +72,14 @@ function AddItemPopover(props: {
   type: "rundown" | "continuity_item";
   close?: () => void;
 }) {
-  const nameRef = useRef<HTMLInputElement>(null);
   return (
     <Form
       schema={addItemFormSchema}
-      action={async (data) => {
+      action={async (data, helpers) => {
         await addItem(props.showID, props.type, data.name, data.duration);
         props.close?.();
-        if (nameRef.current) {
-          nameRef.current.value = "";
-          nameRef.current.focus();
-        }
+        helpers.reset();
+        helpers.setFocus("name");
         return { ok: true };
       }}
       submitButtonProps={{ "data-testid": `create-${props.type}` }}

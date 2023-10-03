@@ -33,7 +33,10 @@ export type FormResponse<
 export type FormAction<
   OK extends Record<string, unknown> = Record<string, unknown>,
   Fields extends FieldValues = any,
-> = (data: Fields) => Promise<FormResponse<OK, Fields>>;
+> = (
+  data: Fields,
+  helpers: UseFormReturn<Fields>,
+) => Promise<FormResponse<OK, Fields>>;
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 const useForceUpdate = () => {
@@ -79,7 +82,7 @@ export default function Form<
           //  It's also not brilliant for progressive enhancement.
           //  Instead, we should probably use the FormData object React gives us (though we'll have to figure out how
           //  to make it play nice with hook-form).
-          res = await action(form.getValues());
+          res = await action(form.getValues(), form);
         } catch (e) {
           if (e instanceof Error && isRedirectError(e)) {
             throw e;
