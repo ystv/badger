@@ -35,7 +35,7 @@ import { add } from "date-fns";
 import Link from "next/link";
 import Form from "@/components/Form";
 import { editContinuityItemSchema } from "./schema";
-import { Field, HiddenField } from "@/components/FormFields";
+import { DurationField, Field, HiddenField } from "@/components/FormFields";
 import { ItemMediaStateAndUploadDialog } from "@/components/MediaState";
 import { Input } from "@bowser/components/input";
 import {
@@ -54,6 +54,7 @@ import {
 } from "@bowser/components/table";
 import { formatDurationMS } from "@/lib/time";
 import { DateTime } from "@/components/DateTIme";
+import { z } from "zod";
 
 // beautiful-dnd is not compatible with SSR
 const Droppable = dynamic(
@@ -61,43 +62,41 @@ const Droppable = dynamic(
   { ssr: false, loading: () => <Image src={Spinner} alt="" /> },
 );
 
+const addItemFormSchema = z.object({
+  name: z.string(),
+  duration: z.number().optional(),
+});
+
 function AddItemPopover(props: {
   showID: number;
   type: "rundown" | "continuity_item";
   close?: () => void;
 }) {
-  const [isPending, startTransition] = useTransition();
   const nameRef = useRef<HTMLInputElement>(null);
   return (
-    <form
-      action={(data) =>
-        startTransition(async () => {
-          await addItem(props.showID, props.type, data.get("name") as string);
-          props.close?.();
-          if (nameRef.current) {
-            nameRef.current.value = "";
-            nameRef.current.focus();
-          }
-        })
-      }
+    <Form
+      schema={addItemFormSchema}
+      action={async (data) => {
+        await addItem(props.showID, props.type, data.name, data.duration);
+        props.close?.();
+        if (nameRef.current) {
+          nameRef.current.value = "";
+          nameRef.current.focus();
+        }
+        return { ok: true };
+      }}
+      submitButtonProps={{ "data-testid": `create-${props.type}` }}
     >
-      <label className="my-1">
-        Name
-        <Input
-          required
-          name="name"
-          data-testid={"name-" + props.type}
-          ref={nameRef}
+      <Field name="name" label="Name" data-testid={"name-" + props.type} />
+      {props.type === "continuity_item" && (
+        <DurationField
+          name="duration"
+          label="Duration Estimate"
+          units="seconds"
+          data-testid="duration"
         />
-      </label>
-      <Button
-        color="primary"
-        data-testid={"create-" + props.type}
-        disabled={isPending}
-      >
-        Create
-      </Button>
-    </form>
+      )}
+    </Form>
   );
 }
 

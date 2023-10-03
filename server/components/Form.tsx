@@ -7,7 +7,12 @@ import {
   useForm,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback, useState, useTransition } from "react";
+import React, {
+  ComponentProps,
+  useCallback,
+  useState,
+  useTransition,
+} from "react";
 import classNames from "classnames";
 import { FieldPath } from "react-hook-form/dist/types/path";
 import { DebugOnly } from "@/components/DebugMode";
@@ -48,6 +53,9 @@ export default function Form<
   children: React.ReactNode;
   className?: string;
   submitLabel?: string;
+  submitButtonProps?: Partial<
+    ComponentProps<"button"> & { "data-testid": string }
+  >;
   onSuccess?: (
     res: SuccessfulResponse,
     form: UseFormReturn<z.infer<Schema>>,
@@ -112,6 +120,7 @@ export default function Form<
         )}
         {props.children}
         <button
+          {...props.submitButtonProps}
           type="submit"
           // disabled={isSubmitting || !form.formState.isValid}
           className={classNames(
