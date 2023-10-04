@@ -181,7 +181,7 @@ jobs:
         run: yarn prisma:migrateProd
 
       - name: Run Playwright tests
-        run: yarn playwright test
+        run: yarn ${{ runner.debug && 'test:e2e:debug' || 'test:e2e' }}
         working-directory: ./server
         env:
           PLAYWRIGHT_HTML_REPORT: ${{ github.workspace }}/server/playwright-report

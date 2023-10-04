@@ -153,6 +153,7 @@ export function DatePickerField(props: {
               "justify-start items-center text-left font-normal block",
               !v && "text-muted-foreground",
             )}
+            data-testid="DatePickerField.trigger"
           >
             <IoCalendarSharp className="inline mr-2 h-4 w-4" />
             {v ? format(v, "PPP") : <span className="h-4">Pick a date</span>}
