@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import React, {
   ComponentProps,
   useCallback,
+  useEffect,
   useState,
   useTransition,
 } from "react";
@@ -33,10 +34,7 @@ export type FormResponse<
 export type FormAction<
   OK extends Record<string, unknown> = Record<string, unknown>,
   Fields extends FieldValues = any,
-> = (
-  data: Fields,
-  helpers: UseFormReturn<Fields>,
-) => Promise<FormResponse<OK, Fields>>;
+> = (data: Fields) => Promise<FormResponse<OK, Fields>>;
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 const useForceUpdate = () => {
@@ -46,10 +44,10 @@ const useForceUpdate = () => {
   }, []);
 };
 
-export default function Form<
+interface FormProps<
   Schema extends ZodTypeAny | ZodEffects<ZodTypeAny>,
   SuccessfulResponse extends Record<string, unknown> = Record<string, unknown>,
->(props: {
+> {
   action: FormAction<SuccessfulResponse, z.infer<Schema>>;
   schema: Schema;
   initialValues?: DeepPartial<z.infer<Schema>>;
@@ -63,11 +61,27 @@ export default function Form<
     res: SuccessfulResponse,
     form: UseFormReturn<z.infer<Schema>>,
   ) => void;
-}) {
+  formRef?: React.MutableRefObject<UseFormReturn<z.infer<Schema>> | null>;
+}
+
+export default function Form<
+  Schema extends ZodTypeAny | ZodEffects<ZodTypeAny>,
+  SuccessfulResponse extends Record<string, unknown> = Record<string, unknown>,
+>(props: FormProps<Schema, SuccessfulResponse>) {
   const form = useForm<z.infer<Schema>>({
     resolver: zodResolver(props.schema),
     defaultValues: props.initialValues,
   });
+  useEffect(() => {
+    if (props.formRef) {
+      props.formRef.current = form;
+    }
+    return () => {
+      if (props.formRef) {
+        props.formRef.current = null;
+      }
+    };
+  }, [form, props.formRef]);
   const [isSubmitting, startTransition] = useTransition();
   const { action, onSuccess } = props;
   const forceUpdate = useForceUpdate();
@@ -82,7 +96,7 @@ export default function Form<
           //  It's also not brilliant for progressive enhancement.
           //  Instead, we should probably use the FormData object React gives us (though we'll have to figure out how
           //  to make it play nice with hook-form).
-          res = await action(form.getValues(), form);
+          res = await action(form.getValues());
         } catch (e) {
           if (e instanceof Error && isRedirectError(e)) {
             throw e;

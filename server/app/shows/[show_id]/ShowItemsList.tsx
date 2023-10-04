@@ -55,6 +55,7 @@ import {
 import { formatDurationMS } from "@/lib/time";
 import { DateTime } from "@/components/DateTIme";
 import { z } from "zod";
+import { UseFormReturn } from "react-hook-form";
 
 // beautiful-dnd is not compatible with SSR
 const Droppable = dynamic(
@@ -72,17 +73,19 @@ function AddItemPopover(props: {
   type: "rundown" | "continuity_item";
   close?: () => void;
 }) {
+  const formRef = useRef<UseFormReturn<{ name: string }> | null>(null);
   return (
     <Form
       schema={addItemFormSchema}
-      action={async (data, helpers) => {
+      action={async (data) => {
         await addItem(props.showID, props.type, data.name, data.duration);
         props.close?.();
-        helpers.reset();
-        helpers.setFocus("name");
+        formRef.current?.reset();
+        formRef.current?.setFocus("name");
         return { ok: true };
       }}
       submitButtonProps={{ "data-testid": `create-${props.type}` }}
+      formRef={formRef}
     >
       <Field name="name" label="Name" data-testid={"name-" + props.type} />
       {props.type === "continuity_item" && (
