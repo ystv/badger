@@ -357,11 +357,13 @@ export function DurationField(props: {
         value={valueFormatted}
         onChange={(e) => {
           let value = 0;
-          const parts = e.target.value.split(":");
-          for (let i = 0; i < parts.length; i++) {
-            if (parts[i].length > 0) {
-              value +=
-                parseInt(parts[i], 10) * Math.pow(60, parts.length - i - 1);
+          // Strip out the colon, take out the last two characters and use them for the number of seconds,
+          // then the rest for the number of minutes.
+          const rawVal = e.target.value.replace(":", "");
+          if (rawVal.length > 0) {
+            value += parseInt(rawVal.slice(-2), 10);
+            if (rawVal.length > 2) {
+              value += parseInt(rawVal.slice(0, -2), 10) * 60;
             }
           }
           controller.field.onChange(value);
