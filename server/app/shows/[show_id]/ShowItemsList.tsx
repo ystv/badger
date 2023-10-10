@@ -8,8 +8,9 @@ import {
 import {
   DragDropContext,
   Draggable,
+  Droppable,
   OnDragEndResponder,
-} from "react-beautiful-dnd";
+} from "@hello-pangea/dnd";
 import Spinner from "@/app/_assets/spinner.svg";
 import React, {
   experimental_useOptimistic as useOptimistic,
@@ -29,7 +30,6 @@ import {
 } from "./actions";
 import { Show } from "@bowser/prisma/client";
 import Button from "@bowser/components/button";
-import dynamic from "next/dynamic";
 import Image from "next/image";
 import { add } from "date-fns";
 import Link from "next/link";
@@ -56,12 +56,6 @@ import { formatDurationMS } from "@/lib/time";
 import { DateTime } from "@/components/DateTIme";
 import { z } from "zod";
 import { UseFormReturn } from "react-hook-form";
-
-// beautiful-dnd is not compatible with SSR
-const Droppable = dynamic(
-  () => import("react-beautiful-dnd").then((res) => res.Droppable),
-  { ssr: false, loading: () => <Image src={Spinner} alt="" /> },
-);
 
 const addItemFormSchema = z.object({
   name: z.string(),
