@@ -10,11 +10,9 @@ import {
 import {
   DragDropContext,
   Draggable,
+  Droppable,
   OnDragEndResponder,
-} from "react-beautiful-dnd";
-import dynamic from "next/dynamic";
-import Image from "next/image";
-import Spinner from "@/app/_assets/spinner.svg";
+} from "@hello-pangea/dnd";
 import Form from "@/components/Form";
 import {
   addItem,
@@ -57,12 +55,6 @@ import {
   TableRow,
 } from "@bowser/components/table";
 import { formatDurationMS } from "@/lib/time";
-
-// beautiful-dnd is not compatible with SSR
-const Droppable = dynamic(
-  () => import("react-beautiful-dnd").then((res) => res.Droppable),
-  { ssr: false, loading: () => <Image src={Spinner} alt="" /> },
-);
 
 export interface MediaWithTasks extends Media {
   tasks: MediaProcessingTask[];
