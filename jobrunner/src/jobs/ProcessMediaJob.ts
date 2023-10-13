@@ -389,7 +389,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     const upload = new Upload({
       client: this.s3Client,
       params: {
-        Bucket: process.env.AWS_S3_BUCKET,
+        Bucket: process.env.STORAGE_BUCKET,
         Key: s3Path,
         Body: stream,
       },
