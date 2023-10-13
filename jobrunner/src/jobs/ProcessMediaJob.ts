@@ -17,8 +17,9 @@ import got, { Response as GotResponse } from "got";
 import * as child_process from "node:child_process";
 import * as util from "node:util";
 import pEvent from "p-event";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { FFProbeOutput, LoudnormOutput } from "./_types.js";
+import { Progress, Upload } from "@aws-sdk/lib-storage";
+import { throttle } from "lodash";
 
 const TARGET_LOUDNESS_LUFS = -14;
 const TARGET_LOUDNESS_RANGE_LUFS = 4;
@@ -87,7 +88,13 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
           const rawPath = await this._wrapTask(
             media,
             "Uploading source file to storage",
-            () => this._uploadFileToS3(rawTempPath, "raw", media),
+            () =>
+              this._uploadFileToS3(
+                rawTempPath,
+                "raw",
+                media,
+                "Uploading source file to storage",
+              ),
             true,
           );
           await this.db.media.update({
@@ -162,7 +169,13 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
           const finalS3Path = await this._wrapTask(
             media,
             "Uploading processed file",
-            () => this._uploadFileToS3(normalisedPath, "final", media),
+            () =>
+              this._uploadFileToS3(
+                normalisedPath,
+                "final",
+                media,
+                "Uploading processed file",
+              ),
             true,
           );
           await this.db.media.update({
@@ -360,6 +373,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     path: string,
     fileType: "raw" | "final",
     item: CompleteMedia,
+    taskDescr?: string,
   ) {
     const stream = fs.createReadStream(path);
     const s3Path = item.continuityItem
@@ -372,12 +386,34 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
         "Impossible: media item without either continuity or rundown item parent",
       );
     }
-    const command = new PutObjectCommand({
-      Bucket: process.env.STORAGE_BUCKET,
-      Key: s3Path,
-      Body: stream,
+    const upload = new Upload({
+      client: this.s3Client,
+      params: {
+        Bucket: process.env.AWS_S3_BUCKET,
+        Key: s3Path,
+        Body: stream,
+      },
+      leavePartsOnError: false,
     });
-    await this.s3Client.send(command);
+    if (taskDescr) {
+      upload.on(
+        "httpUploadProgress",
+        throttle(async (progress: Progress) => {
+          this.logger.info(
+            `[${item.id}] Uploading ${fileType}: ${progress.loaded} / ${progress.total}`,
+          );
+          if (progress.loaded && progress.total) {
+            await this._updateTaskStatus(
+              item,
+              taskDescr,
+              MediaProcessingTaskState.Running,
+              `${((progress.loaded / progress.total) * 100).toFixed(1)}%`,
+            );
+          }
+        }, 10_000),
+      );
+    }
+    await upload.done();
     return s3Path;
   }
 
