@@ -80,6 +80,7 @@ export async function editContinuityItem(
     },
     data: {
       name: data.data.name,
+      durationSeconds: data.data.duration,
       show: {
         update: {
           version: {
