@@ -1,6 +1,9 @@
 import got, { type Got } from "got";
 import invariant from "../common/invariant";
 import { getOntimeSettings } from "./settings";
+import { getLogger } from "loglevel";
+
+const logger = getLogger("ontime");
 
 interface OntimeInfo {
   networkInterfaces: unknown[];
@@ -128,8 +131,9 @@ export async function tryCreateOntimeConnection() {
   }
   try {
     await createOntimeConnection(settings.host);
+    logger.info("Successfully connected to Ontime");
   } catch (e) {
-    console.warn(
+    logger.warn(
       "Could not connect to Ontime: " +
         (e instanceof Error ? e.message : String(e)),
       e,

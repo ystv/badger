@@ -5,7 +5,6 @@ import {
   ExtendedMediaModel,
   CompleteRundownModel,
   CompleteShowModel,
-  PartialShowModel,
 } from "@bowser/prisma/utilityTypes";
 import { getPresignedURL } from "@/lib/s3";
 import {
@@ -51,17 +50,13 @@ export const appRouter = router({
   }),
   shows: router({
     listUpcoming: publicProcedure
-      .output(z.array(PartialShowModel))
+      .output(z.array(ShowSchema))
       .query(async () => {
-        return db.show.findMany({
+        return db.showWithDuration.findMany({
           where: {
-            start: {
+            end: {
               gte: new Date(),
             },
-          },
-          include: {
-            continuityItems: true,
-            rundowns: true,
           },
         });
       }),
@@ -78,12 +73,18 @@ export const appRouter = router({
               include: {
                 media: true,
               },
+              orderBy: {
+                order: "asc",
+              },
             },
             rundowns: {
               include: {
                 items: {
                   include: {
                     media: true,
+                  },
+                  orderBy: {
+                    order: "asc",
                   },
                 },
                 assets: {

@@ -5,6 +5,9 @@ import * as fsp from "fs/promises";
 import { AssetTypeSchema } from "@bowser/prisma/types";
 import { IPCEvents } from "./ipcEventBus";
 import { ipcMain } from "electron";
+import logging from "loglevel";
+
+const logger = logging.getLogger("settings");
 
 /*
  * In E2E tests we don't want settings to persist between tests, so we use
@@ -128,7 +131,7 @@ export const LocalMediaSettingsSchema = z.array(LocalMediaData);
 export async function validateLocalMediaState() {
   const v = await settings.get("localMedia");
   if (v === undefined) {
-    console.log(
+    logger.info(
       "Skipping local media state validation, no local media settings.",
     );
     return;
@@ -138,13 +141,13 @@ export async function validateLocalMediaState() {
     try {
       const stat = await fsp.stat(info.path);
       if (!stat.isFile()) {
-        console.warn(
+        logger.warn(
           `Local media file ${info.path} is not a file. Removing from settings.`,
         );
         localMediaState = localMediaState.filter((v) => v !== info);
       }
     } catch (e) {
-      console.warn(
+      logger.warn(
         `Failed to stat local media file ${info.path}: ${e}. Removing from settings.`,
       );
       localMediaState = localMediaState.filter((v) => v !== info);
@@ -154,7 +157,7 @@ export async function validateLocalMediaState() {
   //  Two cases - either they match our naming convention, in which case we can probably assume they're
   //  supposed to be there, or they don't - but we shouldn't delete them, to avoid data loss.
   await settings.set("localMedia", localMediaState);
-  console.log("Finished validating local media state.");
+  logger.info("Finished validating local media state.");
 }
 
 export async function getLocalMediaSettings(): Promise<
@@ -246,4 +249,24 @@ export async function getOntimeSettings(): Promise<OntimeSettings | null> {
 
 export async function saveOntimeSettings(val: OntimeSettings): Promise<void> {
   await settings.set("ontime", val);
+}
+
+export const downloadsSettingsSchema = z.object({
+  downloader: z.enum(["Auto", "Node", "Curl"]),
+});
+
+export type DownloadsSettings = z.infer<typeof downloadsSettingsSchema>;
+
+export async function getDownloadsSettings(): Promise<DownloadsSettings> {
+  const settingsData = await settings.get("downloads");
+  if (settingsData === undefined) {
+    return { downloader: "Auto" };
+  }
+  return downloadsSettingsSchema.parse(settingsData);
+}
+
+export async function saveDownloadsSettings(
+  val: DownloadsSettings,
+): Promise<void> {
+  await settings.set("downloads", val);
 }

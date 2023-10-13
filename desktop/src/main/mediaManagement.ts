@@ -10,8 +10,11 @@ import * as fsp from "fs/promises";
 import * as path from "path";
 import { serverApiClient } from "./serverApiClient";
 import { z } from "zod";
-import * as wget from "wget-improved";
 import { IPCEvents } from "./ipcEventBus";
+import { downloadFile } from "./downloadFile";
+import logging from "loglevel";
+
+const logger = logging.getLogger("mediaManagement");
 
 export async function getMediaPath(): Promise<string> {
   const settings = await getMediaSettings();
@@ -70,7 +73,7 @@ async function doDownloadMedia() {
     const info = await serverApiClient.media.get.query({ id: task.mediaID });
     const urlRaw = info.downloadURL;
     if (!urlRaw) {
-      console.warn(
+      logger.warn(
         `Requested to download media ${info.id} [${info.name}], but it did not have a download URL.`,
       );
       process.nextTick(doDownloadMedia);
@@ -82,7 +85,7 @@ async function doDownloadMedia() {
     const newFileName =
       info.name.slice(0, -extension.length) + ` (#${info.id})` + extension;
     const outputPath = path.join(await ensureMediaPath(), newFileName);
-    console.log(
+    logger.info(
       `Starting to download media ${info.id} [${newFileName}] to ${outputPath}`,
     );
     const status: DownloadStatus = {
@@ -95,21 +98,12 @@ async function doDownloadMedia() {
     IPCEvents.downloadStatusChange();
 
     try {
-      const download = wget.download(urlRaw, outputPath, {
-        // @ts-expect-error typings wrong, `download` does accept this
-        gunzip: true,
-      });
-
-      download.on("progress", (progress: number) => {
-        status.progressPercent = progress * 100;
+      await downloadFile(urlRaw, outputPath, (progress: number) => {
+        status.progressPercent = progress;
         IPCEvents.downloadStatusChange();
       });
-      await new Promise<void>((resolve, reject) => {
-        download.on("error", reject);
-        download.on("end", resolve);
-      });
     } catch (e) {
-      console.error(`Error downloading media ${info.id} [${newFileName}]`, e);
+      logger.error(`Error downloading media ${info.id} [${newFileName}]`, e);
       status.status = "error";
       status.error = String(e);
       if (downloadQueue.length > 0) {
@@ -119,7 +113,7 @@ async function doDownloadMedia() {
       return;
     }
 
-    console.log(
+    logger.info(
       `Downloaded media ${info.id} [${newFileName}] to ${outputPath}`,
     );
     status.status = "done";
@@ -167,5 +161,5 @@ export async function deleteMedia(mediaID: number) {
   }
   await updateLocalMediaState(mediaID, null);
   await fsp.unlink(item.path);
-  console.log("Deleted", item.path);
+  logger.info("Deleted", item.path);
 }

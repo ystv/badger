@@ -23,12 +23,13 @@ import {
   devToolsConfigSchema,
   getAssetsSettings,
   getDevToolsConfig,
+  getDownloadsSettings,
   getLocalMediaSettings,
   getOntimeSettings,
   LocalMediaData,
-  LocalMediaSettingsSchema,
   ontimeSettingsSchema,
   saveDevToolsConfig,
+  saveDownloadsSettings,
   saveOntimeSettings,
 } from "./settings";
 import {
@@ -47,6 +48,12 @@ import {
 } from "./ontime";
 import { showToOntimeEvents } from "./ontimeHelpers";
 import { shell, ipcMain } from "electron";
+import logging from "loglevel";
+import { getAvailableDownloaders } from "./downloadFile";
+import { ShowSchema } from "@bowser/prisma/types";
+
+const logger = logging.getLogger("ipcApi");
+const rendererLogger = logging.getLogger("renderer");
 
 function serverAPI() {
   invariant(serverApiClient !== null, "serverApiClient is null");
@@ -57,6 +64,14 @@ const t = initTRPC.create();
 const r = t.router;
 const proc = t.procedure;
 
+let supportedIntegrations: Integration[];
+// This is fairly rudimentary
+if (process.platform === "win32") {
+  supportedIntegrations = ["vmix", "obs", "ontime"];
+} else {
+  supportedIntegrations = ["obs", "ontime"];
+}
+
 export const appRouter = r({
   serverConnectionStatus: proc.query(async () => {
     return (
@@ -64,6 +79,17 @@ export const appRouter = r({
       (await serverApiClient.ping.query()) === "pong"
     );
   }),
+  log: proc
+    .input(
+      z.object({
+        level: z.enum(["trace", "debug", "info", "warn", "error"]),
+        logger: z.string().optional(),
+        message: z.string(),
+      }),
+    )
+    .mutation(({ input }) => {
+      rendererLogger[input.level](input.message);
+    }),
   connectToServer: proc
     .input(
       z.object({
@@ -75,7 +101,7 @@ export const appRouter = r({
       await createAPIClient(input.endpoint + "/api/trpc", input.password);
       return true;
     }),
-  listUpcomingShows: proc.output(z.array(PartialShowModel)).query(async () => {
+  listUpcomingShows: proc.output(z.array(ShowSchema)).query(async () => {
     return await serverAPI().shows.listUpcoming.query();
   }),
   getSelectedShow: proc.output(CompleteShowModel.nullable()).query(() => {
@@ -90,11 +116,7 @@ export const appRouter = r({
       return data;
     }),
   supportedIntegrations: proc.output(z.array(Integration)).query(() => {
-    // TODO: this is a fairly rudimentary check
-    if (process.platform === "win32") {
-      return ["vmix", "obs", "ontime"];
-    }
-    return ["obs", "ontime"];
+    return supportedIntegrations;
   }),
   devtools: r({
     getSettings: proc
@@ -126,6 +148,17 @@ export const appRouter = r({
       }
       process.crash();
     }),
+    setEnabledIntegrations: proc
+      .input(z.array(z.string()))
+      .mutation(async ({ input }) => {
+        if (!(await getDevToolsConfig()).enabled) {
+          throw new TRPCError({
+            code: "PRECONDITION_FAILED",
+            message: "Dev tools not enabled",
+          });
+        }
+        supportedIntegrations = input as Integration[];
+      }),
   }),
   media: r({
     getDownloadStatus: proc
@@ -207,7 +240,7 @@ export const appRouter = r({
           notInUse.map((x) => x.mediaID),
         );
         for (const result of mediaObjects) {
-          console.log("Deletion candidate", result);
+          logger.debug("Deletion candidate", result);
           if (result.state !== "Ready") {
             continue;
           }
@@ -225,7 +258,7 @@ export const appRouter = r({
             );
           }
           const age = (Date.now() - showDate.getTime()) / (1000 * 60 * 60 * 24);
-          console.log(
+          logger.debug(
             result.id,
             result.name,
             "age",
@@ -234,7 +267,7 @@ export const appRouter = r({
             input.minAgeDays,
           );
           if (age > input.minAgeDays) {
-            console.log("Deleting", result.id);
+            logger.debug("Deleting", result.id);
             await deleteMedia(result.id);
           }
         }
@@ -252,13 +285,13 @@ export const appRouter = r({
             ) {
               downloadMedia(item.media.id, item.media.name);
             }
-            for (const item of rundown.assets) {
-              if (
-                item.media?.state === "Ready" &&
-                !state.some((x) => x.mediaID === item.media?.id)
-              ) {
-                downloadMedia(item.media.id, item.media.name);
-              }
+          }
+          for (const item of rundown.assets) {
+            if (
+              item.media?.state === "Ready" &&
+              !state.some((x) => x.mediaID === item.media?.id)
+            ) {
+              downloadMedia(item.media.id, item.media.name);
             }
           }
         }
@@ -274,6 +307,22 @@ export const appRouter = r({
         }
       }
     }),
+    getAvailableDownloaders: proc
+      .output(z.array(z.enum(["Auto", "Node", "Curl"])))
+      .query(async () => {
+        return ["Auto", ...(await getAvailableDownloaders())];
+      }),
+    getSelectedDownloader: proc
+      .output(z.enum(["Auto", "Node", "Curl"]))
+      .query(async () => {
+        const settings = await getDownloadsSettings();
+        return settings.downloader;
+      }),
+    setSelectedDownloader: proc
+      .input(z.enum(["Auto", "Node", "Curl"]))
+      .mutation(async ({ input }) => {
+        await saveDownloadsSettings({ downloader: input });
+      }),
   }),
   obs: r({
     getConnectionState: proc
@@ -299,7 +348,7 @@ export const appRouter = r({
             availableRequests: version.availableRequests,
           };
         } catch (e) {
-          console.warn("OBS connection error", e);
+          logger.warn("OBS connection error", e);
           return { connected: false, error: String(e) };
         }
       }),
@@ -477,6 +526,7 @@ export const appRouter = r({
         });
         invariant(rundown, "Rundown not found");
         const media = rundown.items
+          .sort((a, b) => a.order - b.order)
           .map<z.infer<typeof PartialMediaModel> | null>((i) => i.media)
           .filter((x) => x && x.state === "Ready");
         const localMedia = await getLocalMediaSettings();
@@ -559,8 +609,8 @@ export const appRouter = r({
         const show = selectedShow.value;
         invariant(show, "No show selected");
         const events = showToOntimeEvents(show, input.rundownId);
-        console.log("Ready for Ontime push");
-        console.dir(events);
+        logger.debug("Ready for Ontime push");
+        logger.debug(events);
 
         const current = await getOntimeInstance().getEvents();
         if (input.replacementMode === "force" || current.length === 0) {

@@ -19,6 +19,9 @@ import {
 import { z } from "zod";
 import * as qs from "qs";
 import { v4 as uuidV4 } from "uuid";
+import { getLogger } from "loglevel";
+
+const logger = getLogger("vmix");
 
 type VMixCommand =
   | "TALLY"
@@ -145,16 +148,16 @@ export default class VMixConnection {
       raw = rawParseRes.data;
     } else if (import.meta.env.MODE === "test") {
       // In tests we want this to fail immediately so that we notice the changes
-      console.error(rawParseRes.error);
+      logger.error(rawParseRes.error);
       throw rawParseRes.error;
     } else {
       // But in production we want to keep trying if we can, as it's possible the
       // changes are minor enough to allow this to continue working.
       // TODO: track divergences centrally
-      console.warn(
+      logger.warn(
         "Parsing raw vMix schema failed. Possibly the vMix is a version we don't know. Will try to proceed, but things may break!",
       );
-      console.debug("Raw data:", JSON.stringify(data));
+      logger.trace("Raw data:", JSON.stringify(data));
       // DIRTY HACK - assume that the data matches the schema to extract what we can
       raw = data as z.infer<typeof VMixRawXMLSchema>;
     }
@@ -228,9 +231,9 @@ export default class VMixConnection {
           break;
         }
         default:
-          console.warn(`Unrecognised input type '${input["@_type"]}'`);
+          logger.warn(`Unrecognised input type '${input["@_type"]}'`);
           if (import.meta.env.MODE === "test") {
-            console.debug(input);
+            logger.debug(input);
             throw new Error(`Unrecognised input type ${input["@_type"]}`);
           }
           continue;
@@ -363,7 +366,7 @@ export default class VMixConnection {
   }
 
   private onError(err: Error) {
-    console.error("VMix connection error", err);
+    logger.error("VMix connection error", err);
   }
 }
 
@@ -377,7 +380,7 @@ export async function tryCreateVMixConnection(
     try {
       conn = await VMixConnection.connect(host, port);
     } catch (e) {
-      console.warn("Failed to connect to VMix", e);
+      logger.warn("Failed to connect to VMix", e);
       conn = null;
     }
   }

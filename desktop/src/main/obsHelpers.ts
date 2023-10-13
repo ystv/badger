@@ -7,6 +7,9 @@ import {
 import { getLocalMediaSettings, LocalMediaType } from "./settings";
 import invariant from "../common/invariant";
 import type { Media, ContinuityItem } from "@bowser/prisma/client";
+import { getLogger } from "loglevel";
+
+const logger = getLogger("obsHelpers");
 
 /*
  * This file contains helper functions that wrap obsConnection in obs.ts.
@@ -42,7 +45,7 @@ export async function addOrReplaceMediaAsScene(
 }> {
   const warnings: string[] = [];
   const warn = (v: string) => {
-    console.warn("addMediaAsScene:", v);
+    logger.warn("addMediaAsScene:", v);
     warnings.push(v);
   };
 
@@ -78,18 +81,18 @@ export async function addOrReplaceMediaAsScene(
   const ours = scenes.find((x) => x.sceneName === sceneTitle);
   if (!ours) {
     // The scene doesn't exist, create it from scratch.
-    console.log("addMediaAsScene: creating scene", sceneTitle);
+    logger.debug("addMediaAsScene: creating scene", sceneTitle);
     await obsConnection.createScene(sceneTitle);
     await _doAddMediaToScene(sceneTitle, mediaSourceName, item, videoSettings);
     return { warnings, done: true };
   }
 
   // The scene exists. Check if it has the source we want, and if not, add it.
-  console.log("addMediaAsScene: found scene", ours);
+  logger.debug("addMediaAsScene: found scene", ours);
   const items = await obsConnection.getSceneItems(sceneTitle);
   // If the scene is empty, we can go ahead and add our source
   if (items.length === 0) {
-    console.log(
+    logger.debug(
       "addMediaAsScene: existing scene doesn't have our source. Adding.",
     );
     await _doAddMediaToScene(sceneTitle, mediaSourceName, item, videoSettings);
@@ -99,7 +102,7 @@ export async function addOrReplaceMediaAsScene(
   // If the scene is non-empty, but only has our source, we're probably fine - do some sanity checks.
   if (items.length === 1 && items[0].sourceName === mediaSourceName) {
     // The scene exists, and it has a source that matches our naming convention. Check if it's the same file.
-    console.log("addMediaAsScene: found existing source");
+    logger.debug("addMediaAsScene: found existing source");
     const settings = await obsConnection.getSourceSettings(mediaSourceName);
     if (!castMediaSourceSettings(settings)) {
       // Should never happen unless the user manually creates a different source, or there's a Bowser version incompatibility.
@@ -119,7 +122,7 @@ export async function addOrReplaceMediaAsScene(
       }
     }
     if (settings.inputSettings.local_file === item.path) {
-      console.log(
+      logger.debug(
         "addMediaAsScene: existing source is the same file. Nothing to do.",
       );
       return { warnings, done: false };
@@ -156,7 +159,7 @@ export async function addOrReplaceMediaAsScene(
     items[0].sourceName.startsWith(MEDIA_SOURCE_PREFIX)
   ) {
     if (replaceMode === "replace" || replaceMode === "force") {
-      console.log(
+      logger.debug(
         "addMediaAsScene: existing scene has one Bowser source with mismatching ID. Replacing.",
       );
       await obsConnection.removeSceneItem(sceneTitle, items[0].sceneItemId);
@@ -178,7 +181,7 @@ export async function addOrReplaceMediaAsScene(
   if (replaceMode === "force") {
     // If the user has chosen to force replacement, we can just remove all the other sources and override the path for ours.
     // Note that we don't remove ours due to a potential race condition when removing and adding the same source.
-    console.log(
+    logger.debug(
       "addMediaAsScene: existing scene has non-Bowser sources. Replacing as the replaceMode is 'force'.",
     );
     let oursPresent = false;

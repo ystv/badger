@@ -8,8 +8,9 @@ import {
 import {
   DragDropContext,
   Draggable,
+  Droppable,
   OnDragEndResponder,
-} from "react-beautiful-dnd";
+} from "@hello-pangea/dnd";
 import Spinner from "@/app/_assets/spinner.svg";
 import React, {
   experimental_useOptimistic as useOptimistic,
@@ -29,13 +30,12 @@ import {
 } from "./actions";
 import { Show } from "@bowser/prisma/client";
 import Button from "@bowser/components/button";
-import dynamic from "next/dynamic";
 import Image from "next/image";
 import { add } from "date-fns";
 import Link from "next/link";
 import Form from "@/components/Form";
 import { editContinuityItemSchema } from "./schema";
-import { Field, HiddenField } from "@/components/FormFields";
+import { DurationField, Field, HiddenField } from "@/components/FormFields";
 import { ItemMediaStateAndUploadDialog } from "@/components/MediaState";
 import { Input } from "@bowser/components/input";
 import {
@@ -54,50 +54,43 @@ import {
 } from "@bowser/components/table";
 import { formatDurationMS } from "@/lib/time";
 import { DateTime } from "@/components/DateTIme";
+import { z } from "zod";
+import { UseFormReturn } from "react-hook-form";
 
-// beautiful-dnd is not compatible with SSR
-const Droppable = dynamic(
-  () => import("react-beautiful-dnd").then((res) => res.Droppable),
-  { ssr: false, loading: () => <Image src={Spinner} alt="" /> },
-);
+const addItemFormSchema = z.object({
+  name: z.string(),
+  duration: z.number().optional(),
+});
 
 function AddItemPopover(props: {
   showID: number;
   type: "rundown" | "continuity_item";
   close?: () => void;
 }) {
-  const [isPending, startTransition] = useTransition();
-  const nameRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<UseFormReturn<{ name: string }> | null>(null);
   return (
-    <form
-      action={(data) =>
-        startTransition(async () => {
-          await addItem(props.showID, props.type, data.get("name") as string);
-          props.close?.();
-          if (nameRef.current) {
-            nameRef.current.value = "";
-            nameRef.current.focus();
-          }
-        })
-      }
+    <Form
+      schema={addItemFormSchema}
+      action={async (data) => {
+        await addItem(props.showID, props.type, data.name, data.duration);
+        props.close?.();
+        formRef.current?.reset();
+        formRef.current?.setFocus("name");
+        return { ok: true };
+      }}
+      submitButtonProps={{ "data-testid": `create-${props.type}` }}
+      formRef={formRef}
     >
-      <label className="my-1">
-        Name
-        <Input
-          required
-          name="name"
-          data-testid={"name-" + props.type}
-          ref={nameRef}
+      <Field name="name" label="Name" data-testid={"name-" + props.type} />
+      {props.type === "continuity_item" && (
+        <DurationField
+          name="duration"
+          label="Duration Estimate"
+          units="seconds"
+          data-testid="duration"
         />
-      </label>
-      <Button
-        color="primary"
-        data-testid={"create-" + props.type}
-        disabled={isPending}
-      >
-        Create
-      </Button>
-    </form>
+      )}
+    </Form>
   );
 }
 
@@ -265,6 +258,12 @@ const ContinuityItemRow = forwardRef<
             >
               <HiddenField name="itemID" value={item.id.toString(10)} />
               <Field name="name" label="Name" />
+              <DurationField
+                name="duration"
+                label="Duration Estimate"
+                units="seconds"
+                data-testid="duration"
+              />
             </Form>
           </PopoverContent>
         </Popover>

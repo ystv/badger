@@ -154,6 +154,22 @@ test("add rundown items + check runtime", async ({ showPage }) => {
     .toHaveText("19:32");
 });
 
+test("continuity estimated duration", async ({ showPage }) => {
+  await expect
+    .soft(showPage.getByTestId("ShowItemsList.runtime"))
+    .toHaveText("Total runtime: 00:00; expected finish 19:30");
+
+  await showPage.getByRole("button", { name: "New Continuity Item" }).click();
+  await showPage.getByTestId("name-continuity_item").fill("Test 1");
+  await showPage.getByRole("textbox", { name: "duration" }).fill("10:00");
+  await showPage.getByTestId("create-continuity_item").click();
+  await showPage.getByTestId("name-continuity_item").click();
+
+  await expect
+    .soft(showPage.getByTestId("ShowItemsList.runtime"))
+    .toHaveText("Total runtime: 10:00; expected finish 19:40");
+});
+
 test("add media", async ({ showPage }) => {
   test.slow();
   const testFile = readFileSync(__dirname + "/testdata/smpte_bars_15s.mp4");

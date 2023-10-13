@@ -15,14 +15,37 @@ import { VMixConnection } from "./vMix";
 import { OntimeSettings } from "./Ontime";
 import Button from "@bowser/components/button";
 import { MediaSettings } from "./MediaSettings";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@bowser/components/select";
 
 export function Settings() {
   const queryClient = useQueryClient();
   const [devToolsState] = ipc.devtools.getSettings.useSuspenseQuery();
   const [integrations] = ipc.supportedIntegrations.useSuspenseQuery();
+  const [availableDownloaders] =
+    ipc.media.getAvailableDownloaders.useSuspenseQuery();
+  const [selectedDownloader] =
+    ipc.media.getSelectedDownloader.useSuspenseQuery();
 
   const doMainError = ipc.devtools.throwException.useMutation();
   const doMainCrash = ipc.devtools.crash.useMutation();
+  const doSetIntegrations = ipc.devtools.setEnabledIntegrations.useMutation({
+    onSettled() {
+      queryClient.invalidateQueries(getQueryKey(ipc.supportedIntegrations));
+    },
+  });
+  const doSetDownloader = ipc.media.setSelectedDownloader.useMutation({
+    onSettled() {
+      queryClient.invalidateQueries(
+        getQueryKey(ipc.media.getSelectedDownloader),
+      );
+    },
+  });
 
   const setDevToolsState = ipc.devtools.setSettings.useMutation({
     // https://tanstack.com/query/latest/docs/react/guides/optimistic-updates
@@ -89,6 +112,25 @@ export function Settings() {
         <MediaSettings />
       </TabsContent>
       <TabsContent value="advanced">
+        <h2 className="text-xl">Downloads</h2>
+        <Label htmlFor="downloader">Downloader</Label>
+        <Select
+          value={selectedDownloader}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          onValueChange={(e) => doSetDownloader.mutate(e as any)}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {availableDownloaders.map((d) => (
+              <SelectItem key={d} value={d}>
+                {d}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         <h2 className="text-xl">Developer Tools</h2>
         <p>
           Do not enable unless you know what you are doing, these open you up to
@@ -106,6 +148,25 @@ export function Settings() {
         </div>
         {devToolsState.enabled && (
           <div className="flex flex-col items-start space-y-2">
+            <h3>Enabled integrations</h3>
+            {(["obs", "vmix", "ontime"] as const).map((int) => (
+              <div>
+                <Switch
+                  id={"enable-" + int}
+                  checked={integrations.includes(int)}
+                  onCheckedChange={(v) => {
+                    const newIntegrations = [...integrations];
+                    if (v) {
+                      newIntegrations.push(int);
+                    } else {
+                      newIntegrations.splice(newIntegrations.indexOf(int), 1);
+                    }
+                    doSetIntegrations.mutate(newIntegrations);
+                  }}
+                />
+                <Label htmlFor={"enable-" + int}>{int}</Label>
+              </div>
+            ))}
             <Button
               color="warning"
               onClick={() => {

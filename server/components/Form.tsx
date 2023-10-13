@@ -7,7 +7,13 @@ import {
   useForm,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback, useState, useTransition } from "react";
+import React, {
+  ComponentProps,
+  useCallback,
+  useEffect,
+  useState,
+  useTransition,
+} from "react";
 import classNames from "classnames";
 import { FieldPath } from "react-hook-form/dist/types/path";
 import { DebugOnly } from "@/components/DebugMode";
@@ -38,25 +44,44 @@ const useForceUpdate = () => {
   }, []);
 };
 
-export default function Form<
+interface FormProps<
   Schema extends ZodTypeAny | ZodEffects<ZodTypeAny>,
   SuccessfulResponse extends Record<string, unknown> = Record<string, unknown>,
->(props: {
+> {
   action: FormAction<SuccessfulResponse, z.infer<Schema>>;
   schema: Schema;
   initialValues?: DeepPartial<z.infer<Schema>>;
   children: React.ReactNode;
   className?: string;
   submitLabel?: string;
+  submitButtonProps?: Partial<
+    ComponentProps<"button"> & { "data-testid": string }
+  >;
   onSuccess?: (
     res: SuccessfulResponse,
     form: UseFormReturn<z.infer<Schema>>,
   ) => void;
-}) {
+  formRef?: React.MutableRefObject<UseFormReturn<z.infer<Schema>> | null>;
+}
+
+export default function Form<
+  Schema extends ZodTypeAny | ZodEffects<ZodTypeAny>,
+  SuccessfulResponse extends Record<string, unknown> = Record<string, unknown>,
+>(props: FormProps<Schema, SuccessfulResponse>) {
   const form = useForm<z.infer<Schema>>({
     resolver: zodResolver(props.schema),
     defaultValues: props.initialValues,
   });
+  useEffect(() => {
+    if (props.formRef) {
+      props.formRef.current = form;
+    }
+    return () => {
+      if (props.formRef) {
+        props.formRef.current = null;
+      }
+    };
+  }, [form, props.formRef]);
   const [isSubmitting, startTransition] = useTransition();
   const { action, onSuccess } = props;
   const forceUpdate = useForceUpdate();
@@ -112,6 +137,7 @@ export default function Form<
         )}
         {props.children}
         <button
+          {...props.submitButtonProps}
           type="submit"
           // disabled={isSubmitting || !form.formState.isValid}
           className={classNames(

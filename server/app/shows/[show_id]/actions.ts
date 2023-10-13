@@ -16,6 +16,7 @@ export async function addItem(
   showID: number,
   type: "rundown" | "continuity_item",
   name: string,
+  duration?: number,
 ) {
   await db.$transaction(async ($db) => {
     const highestOrder = await $db.$queryRaw<[{ order: number }]>`
@@ -43,7 +44,7 @@ export async function addItem(
         data: {
           name,
           order,
-          durationSeconds: 0, // FIXME
+          durationSeconds: duration ?? 0,
           show: {
             connect: { id: showID },
           },
@@ -79,6 +80,7 @@ export async function editContinuityItem(
     },
     data: {
       name: data.data.name,
+      durationSeconds: data.data.duration,
       show: {
         update: {
           version: {

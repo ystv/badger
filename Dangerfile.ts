@@ -10,6 +10,9 @@ async function findAddedAndRemovedTodoIssues() {
   for (const file of danger.git.modified_files.concat(
     ...danger.git.created_files,
   )) {
+    if (file === "Dangerfile.ts") {
+      continue;
+    }
     const delta = await danger.git.structuredDiffForFile(file);
     if (!delta) {
       continue;
@@ -32,7 +35,7 @@ async function findAddedAndRemovedTodoIssues() {
               linesWithoutKey.add(line.content);
             }
           }
-        } else if (line.content.includes("FIXME")) {
+        } else if (line.content.includes("FIXME") && line.type !== "del") {
           fixmes.add(line.content);
         }
       }
