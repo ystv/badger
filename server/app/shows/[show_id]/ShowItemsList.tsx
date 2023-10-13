@@ -258,6 +258,12 @@ const ContinuityItemRow = forwardRef<
             >
               <HiddenField name="itemID" value={item.id.toString(10)} />
               <Field name="name" label="Name" />
+              <DurationField
+                name="duration"
+                label="Duration Estimate"
+                units="seconds"
+                data-testid="duration"
+              />
             </Form>
           </PopoverContent>
         </Popover>
