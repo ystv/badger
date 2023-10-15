@@ -399,7 +399,6 @@ export function DurationField(props: {
           }
         }}
       />
-      <small>{controller.field.value} seconds</small>
     </FieldWrapper>
   );
 }
