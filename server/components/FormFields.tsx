@@ -328,11 +328,18 @@ export function DurationField(props: {
   name: string;
   label?: string;
   units: "seconds";
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  inputProps?: Partial<
+    React.ComponentPropsWithoutRef<"input"> & Record<string, string>
+  >;
 }) {
   const controller = useController({
     name: props.name,
     defaultValue: 0,
   });
+  // Rather than try to map their input inside of an onChange event,
+  // we let them type in the duration, then parse it into seconds.
+  const [typedValue, setTypedValue] = useState<string | null>(null);
   const valueFormatted = useMemo(() => {
     const seconds = Math.floor(controller.field.value);
     const minutes = Math.floor(seconds / 60);
@@ -353,22 +360,46 @@ export function DurationField(props: {
       error={controller.fieldState.error?.message}
     >
       <Input
+        {...props.inputProps}
         type="text"
         {...controller.field}
-        value={valueFormatted}
+        value={typedValue ?? valueFormatted}
         onChange={(e) => {
-          let value = 0;
-          const parts = e.target.value.split(":");
-          for (let i = 0; i < parts.length; i++) {
-            if (parts[i].length > 0) {
-              value +=
-                parseInt(parts[i], 10) * Math.pow(60, parts.length - i - 1);
+          setTypedValue(e.target.value);
+        }}
+        onFocus={(e) => {
+          e.target.setSelectionRange(0, e.target.value.length);
+        }}
+        onBlur={() => {
+          if (!typedValue) {
+            return;
+          }
+          let temp = typedValue;
+          // If the user has entered no colons at all, they're likely just typing
+          // in the value (eg 500 when they mean 5:00). Fill them in.
+          if (temp.indexOf(":") === -1 && temp.length > 2) {
+            for (let i = temp.length - 2; i >= 0; i -= 2) {
+              if (temp.slice(0, i).length > 0) {
+                temp = `${temp.slice(0, i)}:${temp.slice(i)}`;
+              }
             }
           }
-          controller.field.onChange(value);
+          const parts = temp.split(":");
+          let seconds = 0;
+          parts.reverse().forEach((part, i) => {
+            seconds += parseInt(part, 10) * Math.pow(60, i);
+          });
+          controller.field.onChange(seconds, true);
+          setTypedValue(null);
         }}
         placeholder="xx:xx"
+        onKeyDown={(e) => {
+          if (props.onKeyDown) {
+            props.onKeyDown(e);
+          }
+        }}
       />
+      <small>{controller.field.value} seconds</small>
     </FieldWrapper>
   );
 }
