@@ -30,6 +30,7 @@ import { IoCalendarSharp } from "react-icons/io5";
 import { format, parse } from "date-fns";
 import { Calendar } from "@bowser/components/calendar";
 import { Input } from "@bowser/components/input";
+import { DebugOnly } from "./DebugMode";
 
 interface FieldBaseProps<
   TFields extends FieldValues,
@@ -399,6 +400,9 @@ export function DurationField(props: {
           }
         }}
       />
+      <DebugOnly>
+        <small>{controller.field.value} seconds</small>
+      </DebugOnly>
     </FieldWrapper>
   );
 }
