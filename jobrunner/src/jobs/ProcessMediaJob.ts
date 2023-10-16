@@ -459,7 +459,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     media: CompleteMedia,
     descr: string,
     state: MediaProcessingTaskState,
-    extra?: string,
+    extra: string = "",
   ) {
     this.logger.info(`[${media.id}] ${descr}: ${state} ${extra}`);
     await this.db.mediaProcessingTask.upsert({
