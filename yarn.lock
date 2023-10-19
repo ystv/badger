@@ -6223,7 +6223,7 @@ __metadata:
     loglevel-plugin-prefix: ^0.8.4
     obs-websocket-js: ^5.0.3
     p-event: ^6.0.0
-    postcss: ^8.4.27
+    postcss: ^8.4.31
     prettier: ^3.0.3
     prettier-plugin-tailwindcss: ^0.4.1
     qs: ^6.11.2
@@ -6338,7 +6338,7 @@ __metadata:
     jsdom: ^22.1.0
     lodash: ^4.17.21
     next: ^13.4.19
-    postcss: ^8.4.27
+    postcss: ^8.4.31
     prettier: ^3.0.3
     prettier-plugin-tailwindcss: ^0.4.1
     react: 18.3.0-canary-1a001dac6-20230812
@@ -12912,7 +12912,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.4.23, postcss@npm:^8.4.26, postcss@npm:^8.4.27":
+"postcss@npm:^8.4.23, postcss@npm:^8.4.26":
   version: 8.4.27
   resolution: "postcss@npm:8.4.27"
   dependencies:
@@ -12920,6 +12920,17 @@ __metadata:
     picocolors: ^1.0.0
     source-map-js: ^1.0.2
   checksum: 1cdd0c298849df6cd65f7e646a3ba36870a37b65f55fd59d1a165539c263e9b4872a402bf4ed1ca1bc31f58b68b2835545e33ea1a23b161a1f8aa6d5ded81e78
+  languageName: node
+  linkType: hard
+
+"postcss@npm:^8.4.31":
+  version: 8.4.31
+  resolution: "postcss@npm:8.4.31"
+  dependencies:
+    nanoid: ^3.3.6
+    picocolors: ^1.0.0
+    source-map-js: ^1.0.2
+  checksum: 1d8611341b073143ad90486fcdfeab49edd243377b1f51834dc4f6d028e82ce5190e4f11bb2633276864503654fb7cab28e67abdc0fbf9d1f88cad4a0ff0beea
   languageName: node
   linkType: hard
 
