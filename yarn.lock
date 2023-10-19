@@ -1873,6 +1873,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fastify/busboy@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@fastify/busboy@npm:2.0.0"
+  checksum: 41879937ce1dee6421ef9cd4da53239830617e1f0bb7a0e843940772cd72827205d05e518af6adabe6e1ea19301285fff432b9d11bad01a531e698bea95c781b
+  languageName: node
+  linkType: hard
+
 "@floating-ui/core@npm:^1.3.1":
   version: 1.3.1
   resolution: "@floating-ui/core@npm:1.3.1"
@@ -6236,7 +6243,7 @@ __metadata:
     superjson: ^1.13.1
     tailwindcss: ^3.3.3
     typescript: ^5.1.6
-    undici: ^5.23.0
+    undici: ^5.26.2
     utf-8-validate: ^6.0.3
     uuid: ^9.0.0
     vite: ^4.4.6
@@ -6293,7 +6300,7 @@ __metadata:
     octokit: ^3.1.0
     prettier: ^3.0.3
     semver: ^7.5.4
-    undici: ^5.24.0
+    undici: ^5.26.2
   languageName: unknown
   linkType: soft
 
@@ -6357,7 +6364,7 @@ __metadata:
     tsx: ^3.12.7
     tus-js-client: ^3.1.0
     typescript: 5.1.6
-    undici: ^5.23.0
+    undici: ^5.26.2
     vitest: ^0.33.0
     zod: ^3.21.4
     zod-error: ^1.5.0
@@ -6528,7 +6535,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"busboy@npm:1.6.0, busboy@npm:^1.6.0":
+"busboy@npm:1.6.0":
   version: 1.6.0
   resolution: "busboy@npm:1.6.0"
   dependencies:
@@ -15236,12 +15243,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici@npm:^5.23.0, undici@npm:^5.24.0":
-  version: 5.24.0
-  resolution: "undici@npm:5.24.0"
+"undici@npm:^5.26.2":
+  version: 5.26.4
+  resolution: "undici@npm:5.26.4"
   dependencies:
-    busboy: ^1.6.0
-  checksum: 0795b69e0f7e1b2b162bce0d1670e6b44c968960e519f5b450df5196fd9c5102e0838ed854e68e61588f3c2436a3dc3d4390f9bf4a24b04eeb03926fe0eaa599
+    "@fastify/busboy": ^2.0.0
+  checksum: 4d37f14ce56837d332ab1623be751f2a5b439069705671cc60b441133300b05bcb8803668132e7b3f98800db19cd6cb76b48831facbdbc2d73271b12383ab3cd
   languageName: node
   linkType: hard
 
