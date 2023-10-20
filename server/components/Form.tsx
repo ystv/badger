@@ -105,9 +105,14 @@ export default function Form<
           form.setError("root", { type: "custom", message: String(e) });
           return;
         }
+        if (typeof res !== "object") {
+          throw new Error(
+            "Internal error: <Form> action result was not an object",
+          );
+        }
         if (!("ok" in res)) {
           throw new Error(
-            "<Form> action did not conform to FormResponse interface.",
+            "Internal error: <Form> action did not conform to FormResponse interface.",
           );
         }
         if (res.ok) {
