@@ -97,7 +97,9 @@ export default function Form<
           //  Instead, we should probably use the FormData object React gives us (though we'll have to figure out how
           //  to make it play nice with hook-form).
           res = await action(form.getValues());
+          console.log("Form response", res);
         } catch (e) {
+          console.warn("Form error", e);
           if (e instanceof Error && isRedirectError(e)) {
             throw e;
           }
