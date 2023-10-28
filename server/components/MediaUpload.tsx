@@ -59,6 +59,14 @@ export const MediaUploadDialog = forwardRef<
     onDrop(files) {
       uploadRef.current = new tus.Upload(files[0], {
         endpoint,
+        // The Tus JS Client documentation doesn't recommend manually setting a chunk size.
+        // However we've observed that the default of Infinity can lead to failures
+        // of particularly big files (as video tends to be), so we set one. The chunk size of 50MB
+        // is a good balance between upload speed, per-chunk overhead, and reliability - assuming an average
+        // UK broadband connection of 86Mbps, it should take about 5 seconds to upload
+        // a chunk, and a 1Gb file would be split into 20 chunks, with maybe 0.5s of processing
+        // time for each chunk.
+        chunkSize: 50 * 1024 * 1024,
         retryDelays: [0, 1000, 3000, 5000],
         onError: function (error) {
           setIsUploading(false);

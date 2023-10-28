@@ -113,7 +113,7 @@ function EditItem(props: {
   showID: number;
   rundownID: number;
   item: RundownItem;
-  done: () => void;
+  done?: () => void;
 }) {
   return (
     <Form
@@ -258,7 +258,6 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
                       showID={props.rundown.showId}
                       rundownID={props.rundown.id}
                       item={item}
-                      done={close}
                     />
                   </PopoverContent>{" "}
                 </Popover>

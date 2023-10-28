@@ -395,25 +395,26 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
       },
       leavePartsOnError: false,
     });
-    if (taskDescr) {
-      upload.on(
-        "httpUploadProgress",
-        throttle(async (progress: Progress) => {
-          this.logger.info(
-            `[${item.id}] Uploading ${fileType}: ${progress.loaded} / ${progress.total}`,
-          );
-          if (progress.loaded && progress.total) {
-            await this._updateTaskStatus(
-              item,
-              taskDescr,
-              MediaProcessingTaskState.Running,
-              `${((progress.loaded / progress.total) * 100).toFixed(1)}%`,
-            );
-          }
-        }, 10_000),
+    const throttledProgress = throttle(async (progress: Progress) => {
+      this.logger.info(
+        `[${item.id}] Uploading ${fileType}: ${progress.loaded} / ${progress.total}`,
       );
+      if (progress.loaded && progress.total) {
+        if (taskDescr) {
+          await this._updateTaskStatus(
+            item,
+            taskDescr,
+            MediaProcessingTaskState.Running,
+            `${((progress.loaded / progress.total) * 100).toFixed(1)}%`,
+          );
+        }
+      }
+    }, 10_000);
+    if (taskDescr) {
+      upload.on("httpUploadProgress", throttledProgress);
     }
     await upload.done();
+    throttledProgress.cancel();
     return s3Path;
   }
 
@@ -458,7 +459,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     media: CompleteMedia,
     descr: string,
     state: MediaProcessingTaskState,
-    extra?: string,
+    extra: string = "",
   ) {
     this.logger.info(`[${media.id}] ${descr}: ${state} ${extra}`);
     await this.db.mediaProcessingTask.upsert({

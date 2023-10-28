@@ -12,6 +12,7 @@ import got from "got";
 import pEvent from "p-event";
 import { pipeline as streamPipeline } from "node:stream/promises";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
 
 interface AssetWithRundown extends Asset {
   rundown: Rundown;
@@ -157,12 +158,16 @@ export class LoadAssetJob extends AbstractJob<LoadAssetJobType> {
   private async _uploadFileToS3(path: string, asset: AssetWithRundown) {
     const stream = fs.createReadStream(path);
     const s3Path = `shows/${asset.rundown.showId}/rundown/${asset.rundown.id}/assets/${asset.id} - ${asset.name}`;
-    const command = new PutObjectCommand({
-      Bucket: process.env.STORAGE_BUCKET,
-      Key: s3Path,
-      Body: stream,
+    const upload = new Upload({
+      client: this.s3Client,
+      params: {
+        Bucket: process.env.STORAGE_BUCKET,
+        Key: s3Path,
+        Body: stream,
+      },
+      leavePartsOnError: false,
     });
-    await this.s3Client.send(command);
+    await upload.done();
     return s3Path;
   }
 }
