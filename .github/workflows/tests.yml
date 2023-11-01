@@ -248,12 +248,9 @@ jobs:
           npx -y wait-on file:/${{ runner.temp }}/jobrunner.pid
         working-directory: ./jobrunner
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-
       - name: Start server
         run: |
-          HOSTNAME=0.0.0.0 node server/server.js > ${{ runner.temp }}/logs/server.log 2>&1 &
+          HOSTNAME= node server/server.js > ${{ runner.temp }}/logs/server.log 2>&1 &
           npx -y wait-on http://localhost:3000/api/healthz
         working-directory: ./server/.next/standalone
 
