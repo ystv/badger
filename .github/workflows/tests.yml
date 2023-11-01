@@ -250,11 +250,9 @@ jobs:
 
       - name: Start server
         run: |
-          node server/server.js > ${{ runner.temp }}/logs/server.log 2>&1 &
+          HOSTNAME=0.0.0.0 node server/server.js > ${{ runner.temp }}/logs/server.log 2>&1 &
           npx -y wait-on http://localhost:3000/api/healthz
         working-directory: ./server/.next/standalone
-        env:
-          HOSTNAME: "0.0.0.0"
 
       - name: Run Playwright tests
         run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn ${{ runner.debug && 'test:e2e:debug' || 'test:e2e' }}
