@@ -250,8 +250,8 @@ jobs:
 
       - name: Start server
         run: |
-          HOSTNAME= node server/server.js > ${{ runner.temp }}/logs/server.log 2>&1 &
-          npx -y wait-on http://localhost:3000/api/healthz
+          HOSTNAME=localhost node server/server.js > ${{ runner.temp }}/logs/server.log 2>&1 &
+          npx -y wait-on -v -t 120000 http://localhost:3000/api/healthz
         working-directory: ./server/.next/standalone
 
       - name: Run Playwright tests
