@@ -25,7 +25,8 @@ export default async function RootLayout({
       <head>
         {/* eslint-disable-next-line @next/next/no-before-interactive-script-outside-document */}
         <Script
-          strategy="beforeInteractive"
+          // https://github.com/vercel/next.js/issues/56484
+          // strategy="beforeInteractive"
           id="sentry-env"
           dangerouslySetInnerHTML={{
             __html: `window.ENVIRONMENT = ${JSON.stringify(
