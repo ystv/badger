@@ -6263,6 +6263,7 @@ __metadata:
     utf-8-validate: ^6.0.3
     uuid: ^9.0.0
     vite: ^4.4.6
+    vite-plugin-commonjs: ^0.10.0
     vitest: ^0.33.0
     wget-improved: ^3.4.0
     which: ^4.0.0
@@ -8104,6 +8105,13 @@ __metadata:
     iterator.prototype: ^1.1.2
     safe-array-concat: ^1.0.1
   checksum: 50081ae5c549efe62e5c1d244df0194b40b075f7897fc2116b7e1aa437eb3c41f946d2afda18c33f9b31266ec544765932542765af839f76fa6d7b7855d1e0e1
+  languageName: node
+  linkType: hard
+
+"es-module-lexer@npm:^1.2.1":
+  version: 1.3.1
+  resolution: "es-module-lexer@npm:1.3.1"
+  checksum: 3beafa7e171eb1e8cc45695edf8d51638488dddf65294d7911f8d6a96249da6a9838c87529262cc6ea53988d8272cec0f4bff93f476ed031a54ba3afb51a0ed3
   languageName: node
   linkType: hard
 
@@ -15759,6 +15767,30 @@ __metadata:
   bin:
     vite-node: vite-node.mjs
   checksum: 366c4f3fb7c038e2180abc6b18cfbac3b8684cd878eaf7ebf1ffb07d95d2ea325713fc575a7949a13bb00cfe264acbc28c02e2836b8647e1f443fe631c17805a
+  languageName: node
+  linkType: hard
+
+"vite-plugin-commonjs@npm:^0.10.0":
+  version: 0.10.0
+  resolution: "vite-plugin-commonjs@npm:0.10.0"
+  dependencies:
+    acorn: ^8.8.2
+    fast-glob: ^3.2.12
+    magic-string: ^0.30.1
+    vite-plugin-dynamic-import: ^1.5.0
+  checksum: 3cb9a78d477a3bf7b15bd39c73058c7a5277a9be68528276fa885b4abe9ace801073dc587648248bb749cf070eb817f0ec34d8d32c0c4aac4000b23048776c2b
+  languageName: node
+  linkType: hard
+
+"vite-plugin-dynamic-import@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "vite-plugin-dynamic-import@npm:1.5.0"
+  dependencies:
+    acorn: ^8.8.2
+    es-module-lexer: ^1.2.1
+    fast-glob: ^3.2.12
+    magic-string: ^0.30.1
+  checksum: 68efd897daa0c72a9f9d3481095dd3f7ec9a822be5a15eef60413734a4c894c5bbd1c1762f02daeef5df59cef212c9f1e7e056315e2a7780816ccafe5c74da6e
   languageName: node
   linkType: hard
 
