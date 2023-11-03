@@ -5,7 +5,6 @@ import { StringWithAggregatesFilterSchema } from "./StringWithAggregatesFilterSc
 import { StringNullableWithAggregatesFilterSchema } from "./StringNullableWithAggregatesFilterSchema";
 import { EnumMediaStateWithAggregatesFilterSchema } from "./EnumMediaStateWithAggregatesFilterSchema";
 import { MediaStateSchema } from "./MediaStateSchema";
-import { IntNullableWithAggregatesFilterSchema } from "./IntNullableWithAggregatesFilterSchema";
 
 export const MediaScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.MediaScalarWhereWithAggregatesInput> =
   z
@@ -51,20 +50,6 @@ export const MediaScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.MediaSc
           z.lazy(() => MediaStateSchema),
         ])
         .optional(),
-      rundownItemID: z
-        .union([
-          z.lazy(() => IntNullableWithAggregatesFilterSchema),
-          z.number(),
-        ])
-        .optional()
-        .nullable(),
-      continuityItemID: z
-        .union([
-          z.lazy(() => IntNullableWithAggregatesFilterSchema),
-          z.number(),
-        ])
-        .optional()
-        .nullable(),
     })
     .strict();
 

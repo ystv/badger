@@ -8,6 +8,7 @@ import { getLocalMediaSettings, LocalMediaType } from "./settings";
 import invariant from "../common/invariant";
 import type { Media, ContinuityItem } from "@bowser/prisma/client";
 import { getLogger } from "loglevel";
+import { selectedShow } from "./selectedShow";
 
 const logger = getLogger("obsHelpers");
 
@@ -16,7 +17,7 @@ const logger = getLogger("obsHelpers");
  */
 
 export type MediaType = Media & {
-  continuityItem: ContinuityItem;
+  continuityItems: ContinuityItem[];
 };
 
 const MEDIA_SOURCE_PREFIX = "Bowser Media ";
@@ -50,7 +51,7 @@ export async function addOrReplaceMediaAsScene(
   };
 
   invariant(
-    info.continuityItem,
+    info.continuityItems.length > 0,
     "No continuity item for media in addMediaAsScene",
   );
   invariant(obsConnection, "no OBS connection");
@@ -64,7 +65,14 @@ export async function addOrReplaceMediaAsScene(
   const videoSettings = await obsConnection.getVideoSettings();
 
   const mediaSourceName = MEDIA_SOURCE_PREFIX + info.id.toString(10);
-  const sceneTitle = `${info.continuityItem.order} - ${info.continuityItem.name} [#${info.continuityItemID}]`;
+  const currentContinuityItem = info.continuityItems.find(
+    (x) => x.showId === selectedShow.value!.id,
+  );
+  invariant(
+    currentContinuityItem,
+    `No continuity item for media ${info.id} matches current show`,
+  );
+  const sceneTitle = `${currentContinuityItem.order} - ${currentContinuityItem.name} [#${currentContinuityItem.id}]`;
   // Sanity checks
   if (import.meta.env.DEV) {
     invariant(

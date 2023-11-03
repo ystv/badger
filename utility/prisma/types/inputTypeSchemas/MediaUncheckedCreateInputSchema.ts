@@ -1,9 +1,11 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
 import { MediaStateSchema } from "./MediaStateSchema";
+import { RundownItemUncheckedCreateNestedManyWithoutMediaInputSchema } from "./RundownItemUncheckedCreateNestedManyWithoutMediaInputSchema";
+import { ContinuityItemUncheckedCreateNestedManyWithoutMediaInputSchema } from "./ContinuityItemUncheckedCreateNestedManyWithoutMediaInputSchema";
 import { MediaProcessingTaskUncheckedCreateNestedManyWithoutMediaInputSchema } from "./MediaProcessingTaskUncheckedCreateNestedManyWithoutMediaInputSchema";
 import { ProcessMediaJobUncheckedCreateNestedManyWithoutMediaInputSchema } from "./ProcessMediaJobUncheckedCreateNestedManyWithoutMediaInputSchema";
-import { AssetUncheckedCreateNestedOneWithoutMediaInputSchema } from "./AssetUncheckedCreateNestedOneWithoutMediaInputSchema";
+import { AssetUncheckedCreateNestedManyWithoutMediaInputSchema } from "./AssetUncheckedCreateNestedManyWithoutMediaInputSchema";
 
 export const MediaUncheckedCreateInputSchema: z.ZodType<Prisma.MediaUncheckedCreateInput> =
   z
@@ -14,8 +16,14 @@ export const MediaUncheckedCreateInputSchema: z.ZodType<Prisma.MediaUncheckedCre
       path: z.string().optional().nullable(),
       durationSeconds: z.number().int(),
       state: z.lazy(() => MediaStateSchema).optional(),
-      rundownItemID: z.number().int().optional().nullable(),
-      continuityItemID: z.number().int().optional().nullable(),
+      rundownItems: z
+        .lazy(() => RundownItemUncheckedCreateNestedManyWithoutMediaInputSchema)
+        .optional(),
+      continuityItems: z
+        .lazy(
+          () => ContinuityItemUncheckedCreateNestedManyWithoutMediaInputSchema,
+        )
+        .optional(),
       tasks: z
         .lazy(
           () =>
@@ -27,8 +35,8 @@ export const MediaUncheckedCreateInputSchema: z.ZodType<Prisma.MediaUncheckedCre
           () => ProcessMediaJobUncheckedCreateNestedManyWithoutMediaInputSchema,
         )
         .optional(),
-      asset: z
-        .lazy(() => AssetUncheckedCreateNestedOneWithoutMediaInputSchema)
+      assets: z
+        .lazy(() => AssetUncheckedCreateNestedManyWithoutMediaInputSchema)
         .optional(),
     })
     .strict();

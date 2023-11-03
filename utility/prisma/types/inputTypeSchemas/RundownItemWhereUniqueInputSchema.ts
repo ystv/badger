@@ -5,6 +5,7 @@ import { StringFilterSchema } from "./StringFilterSchema";
 import { IntFilterSchema } from "./IntFilterSchema";
 import { EnumRundownItemTypeFilterSchema } from "./EnumRundownItemTypeFilterSchema";
 import { RundownItemTypeSchema } from "./RundownItemTypeSchema";
+import { IntNullableFilterSchema } from "./IntNullableFilterSchema";
 import { MediaNullableRelationFilterSchema } from "./MediaNullableRelationFilterSchema";
 import { MediaWhereInputSchema } from "./MediaWhereInputSchema";
 import { RundownRelationFilterSchema } from "./RundownRelationFilterSchema";
@@ -56,6 +57,10 @@ export const RundownItemWhereUniqueInputSchema: z.ZodType<Prisma.RundownItemWher
           notes: z
             .union([z.lazy(() => StringFilterSchema), z.string()])
             .optional(),
+          mediaId: z
+            .union([z.lazy(() => IntNullableFilterSchema), z.number()])
+            .optional()
+            .nullable(),
           media: z
             .union([
               z.lazy(() => MediaNullableRelationFilterSchema),

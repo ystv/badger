@@ -2,6 +2,7 @@ import type { Prisma } from "../../client";
 import { z } from "zod";
 import { IntWithAggregatesFilterSchema } from "./IntWithAggregatesFilterSchema";
 import { StringWithAggregatesFilterSchema } from "./StringWithAggregatesFilterSchema";
+import { IntNullableWithAggregatesFilterSchema } from "./IntNullableWithAggregatesFilterSchema";
 
 export const ContinuityItemScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.ContinuityItemScalarWhereWithAggregatesInput> =
   z
@@ -41,6 +42,13 @@ export const ContinuityItemScalarWhereWithAggregatesInputSchema: z.ZodType<Prism
       durationSeconds: z
         .union([z.lazy(() => IntWithAggregatesFilterSchema), z.number()])
         .optional(),
+      mediaId: z
+        .union([
+          z.lazy(() => IntNullableWithAggregatesFilterSchema),
+          z.number(),
+        ])
+        .optional()
+        .nullable(),
     })
     .strict();
 

@@ -404,8 +404,16 @@ export async function processUploadForContinuityItem(
   const baseJobID = await db.$transaction(async ($db) => {
     await $db.media.deleteMany({
       where: {
-        continuityItem: {
-          id: itemID,
+        continuityItems: {
+          every: {
+            id: itemID,
+          },
+        },
+        rundownItems: {
+          none: {},
+        },
+        assets: {
+          none: {},
         },
       },
     });
@@ -414,7 +422,7 @@ export async function processUploadForContinuityItem(
         name: fileName,
         durationSeconds: 0,
         rawPath: "",
-        continuityItem: {
+        continuityItems: {
           connect: {
             id: itemID,
           },

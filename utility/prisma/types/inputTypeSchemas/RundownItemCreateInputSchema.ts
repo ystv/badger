@@ -1,7 +1,7 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
 import { RundownItemTypeSchema } from "./RundownItemTypeSchema";
-import { MediaCreateNestedOneWithoutRundownItemInputSchema } from "./MediaCreateNestedOneWithoutRundownItemInputSchema";
+import { MediaCreateNestedOneWithoutRundownItemsInputSchema } from "./MediaCreateNestedOneWithoutRundownItemsInputSchema";
 import { RundownCreateNestedOneWithoutItemsInputSchema } from "./RundownCreateNestedOneWithoutItemsInputSchema";
 
 export const RundownItemCreateInputSchema: z.ZodType<Prisma.RundownItemCreateInput> =
@@ -13,7 +13,7 @@ export const RundownItemCreateInputSchema: z.ZodType<Prisma.RundownItemCreateInp
       type: z.lazy(() => RundownItemTypeSchema),
       notes: z.string().optional(),
       media: z
-        .lazy(() => MediaCreateNestedOneWithoutRundownItemInputSchema)
+        .lazy(() => MediaCreateNestedOneWithoutRundownItemsInputSchema)
         .optional(),
       rundown: z.lazy(() => RundownCreateNestedOneWithoutItemsInputSchema),
     })

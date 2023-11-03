@@ -5,15 +5,11 @@ import { StringFilterSchema } from "./StringFilterSchema";
 import { StringNullableFilterSchema } from "./StringNullableFilterSchema";
 import { EnumMediaStateFilterSchema } from "./EnumMediaStateFilterSchema";
 import { MediaStateSchema } from "./MediaStateSchema";
-import { IntNullableFilterSchema } from "./IntNullableFilterSchema";
-import { RundownItemNullableRelationFilterSchema } from "./RundownItemNullableRelationFilterSchema";
-import { RundownItemWhereInputSchema } from "./RundownItemWhereInputSchema";
-import { ContinuityItemNullableRelationFilterSchema } from "./ContinuityItemNullableRelationFilterSchema";
-import { ContinuityItemWhereInputSchema } from "./ContinuityItemWhereInputSchema";
+import { RundownItemListRelationFilterSchema } from "./RundownItemListRelationFilterSchema";
+import { ContinuityItemListRelationFilterSchema } from "./ContinuityItemListRelationFilterSchema";
 import { MediaProcessingTaskListRelationFilterSchema } from "./MediaProcessingTaskListRelationFilterSchema";
 import { ProcessMediaJobListRelationFilterSchema } from "./ProcessMediaJobListRelationFilterSchema";
-import { AssetNullableRelationFilterSchema } from "./AssetNullableRelationFilterSchema";
-import { AssetWhereInputSchema } from "./AssetWhereInputSchema";
+import { AssetListRelationFilterSchema } from "./AssetListRelationFilterSchema";
 
 export const MediaWhereInputSchema: z.ZodType<Prisma.MediaWhereInput> = z
   .object({
@@ -49,39 +45,15 @@ export const MediaWhereInputSchema: z.ZodType<Prisma.MediaWhereInput> = z
         z.lazy(() => MediaStateSchema),
       ])
       .optional(),
-    rundownItemID: z
-      .union([z.lazy(() => IntNullableFilterSchema), z.number()])
-      .optional()
-      .nullable(),
-    continuityItemID: z
-      .union([z.lazy(() => IntNullableFilterSchema), z.number()])
-      .optional()
-      .nullable(),
-    rundownItem: z
-      .union([
-        z.lazy(() => RundownItemNullableRelationFilterSchema),
-        z.lazy(() => RundownItemWhereInputSchema),
-      ])
-      .optional()
-      .nullable(),
-    continuityItem: z
-      .union([
-        z.lazy(() => ContinuityItemNullableRelationFilterSchema),
-        z.lazy(() => ContinuityItemWhereInputSchema),
-      ])
-      .optional()
-      .nullable(),
+    rundownItems: z.lazy(() => RundownItemListRelationFilterSchema).optional(),
+    continuityItems: z
+      .lazy(() => ContinuityItemListRelationFilterSchema)
+      .optional(),
     tasks: z.lazy(() => MediaProcessingTaskListRelationFilterSchema).optional(),
     process_jobs: z
       .lazy(() => ProcessMediaJobListRelationFilterSchema)
       .optional(),
-    asset: z
-      .union([
-        z.lazy(() => AssetNullableRelationFilterSchema),
-        z.lazy(() => AssetWhereInputSchema),
-      ])
-      .optional()
-      .nullable(),
+    assets: z.lazy(() => AssetListRelationFilterSchema).optional(),
   })
   .strict();
 

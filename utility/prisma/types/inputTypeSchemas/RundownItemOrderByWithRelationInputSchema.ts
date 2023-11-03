@@ -1,6 +1,7 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
 import { SortOrderSchema } from "./SortOrderSchema";
+import { SortOrderInputSchema } from "./SortOrderInputSchema";
 import { MediaOrderByWithRelationInputSchema } from "./MediaOrderByWithRelationInputSchema";
 import { RundownOrderByWithRelationInputSchema } from "./RundownOrderByWithRelationInputSchema";
 
@@ -14,6 +15,12 @@ export const RundownItemOrderByWithRelationInputSchema: z.ZodType<Prisma.Rundown
       durationSeconds: z.lazy(() => SortOrderSchema).optional(),
       type: z.lazy(() => SortOrderSchema).optional(),
       notes: z.lazy(() => SortOrderSchema).optional(),
+      mediaId: z
+        .union([
+          z.lazy(() => SortOrderSchema),
+          z.lazy(() => SortOrderInputSchema),
+        ])
+        .optional(),
       media: z.lazy(() => MediaOrderByWithRelationInputSchema).optional(),
       rundown: z.lazy(() => RundownOrderByWithRelationInputSchema).optional(),
     })

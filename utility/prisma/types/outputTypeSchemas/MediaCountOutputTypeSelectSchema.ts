@@ -4,8 +4,11 @@ import type { Prisma } from "../../client";
 export const MediaCountOutputTypeSelectSchema: z.ZodType<Prisma.MediaCountOutputTypeSelect> =
   z
     .object({
+      rundownItems: z.boolean().optional(),
+      continuityItems: z.boolean().optional(),
       tasks: z.boolean().optional(),
       process_jobs: z.boolean().optional(),
+      assets: z.boolean().optional(),
     })
     .strict();
 

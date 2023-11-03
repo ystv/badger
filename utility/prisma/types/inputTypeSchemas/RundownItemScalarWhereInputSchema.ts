@@ -4,6 +4,7 @@ import { IntFilterSchema } from "./IntFilterSchema";
 import { StringFilterSchema } from "./StringFilterSchema";
 import { EnumRundownItemTypeFilterSchema } from "./EnumRundownItemTypeFilterSchema";
 import { RundownItemTypeSchema } from "./RundownItemTypeSchema";
+import { IntNullableFilterSchema } from "./IntNullableFilterSchema";
 
 export const RundownItemScalarWhereInputSchema: z.ZodType<Prisma.RundownItemScalarWhereInput> =
   z
@@ -40,6 +41,10 @@ export const RundownItemScalarWhereInputSchema: z.ZodType<Prisma.RundownItemScal
         ])
         .optional(),
       notes: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
+      mediaId: z
+        .union([z.lazy(() => IntNullableFilterSchema), z.number()])
+        .optional()
+        .nullable(),
     })
     .strict();
 

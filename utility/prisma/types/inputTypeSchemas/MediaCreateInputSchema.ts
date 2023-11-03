@@ -1,11 +1,11 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
 import { MediaStateSchema } from "./MediaStateSchema";
-import { RundownItemCreateNestedOneWithoutMediaInputSchema } from "./RundownItemCreateNestedOneWithoutMediaInputSchema";
-import { ContinuityItemCreateNestedOneWithoutMediaInputSchema } from "./ContinuityItemCreateNestedOneWithoutMediaInputSchema";
+import { RundownItemCreateNestedManyWithoutMediaInputSchema } from "./RundownItemCreateNestedManyWithoutMediaInputSchema";
+import { ContinuityItemCreateNestedManyWithoutMediaInputSchema } from "./ContinuityItemCreateNestedManyWithoutMediaInputSchema";
 import { MediaProcessingTaskCreateNestedManyWithoutMediaInputSchema } from "./MediaProcessingTaskCreateNestedManyWithoutMediaInputSchema";
 import { ProcessMediaJobCreateNestedManyWithoutMediaInputSchema } from "./ProcessMediaJobCreateNestedManyWithoutMediaInputSchema";
-import { AssetCreateNestedOneWithoutMediaInputSchema } from "./AssetCreateNestedOneWithoutMediaInputSchema";
+import { AssetCreateNestedManyWithoutMediaInputSchema } from "./AssetCreateNestedManyWithoutMediaInputSchema";
 
 export const MediaCreateInputSchema: z.ZodType<Prisma.MediaCreateInput> = z
   .object({
@@ -14,11 +14,11 @@ export const MediaCreateInputSchema: z.ZodType<Prisma.MediaCreateInput> = z
     path: z.string().optional().nullable(),
     durationSeconds: z.number().int(),
     state: z.lazy(() => MediaStateSchema).optional(),
-    rundownItem: z
-      .lazy(() => RundownItemCreateNestedOneWithoutMediaInputSchema)
+    rundownItems: z
+      .lazy(() => RundownItemCreateNestedManyWithoutMediaInputSchema)
       .optional(),
-    continuityItem: z
-      .lazy(() => ContinuityItemCreateNestedOneWithoutMediaInputSchema)
+    continuityItems: z
+      .lazy(() => ContinuityItemCreateNestedManyWithoutMediaInputSchema)
       .optional(),
     tasks: z
       .lazy(() => MediaProcessingTaskCreateNestedManyWithoutMediaInputSchema)
@@ -26,7 +26,9 @@ export const MediaCreateInputSchema: z.ZodType<Prisma.MediaCreateInput> = z
     process_jobs: z
       .lazy(() => ProcessMediaJobCreateNestedManyWithoutMediaInputSchema)
       .optional(),
-    asset: z.lazy(() => AssetCreateNestedOneWithoutMediaInputSchema).optional(),
+    assets: z
+      .lazy(() => AssetCreateNestedManyWithoutMediaInputSchema)
+      .optional(),
   })
   .strict();
 

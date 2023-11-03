@@ -11,8 +11,6 @@ export const MediaMinOrderByAggregateInputSchema: z.ZodType<Prisma.MediaMinOrder
       path: z.lazy(() => SortOrderSchema).optional(),
       durationSeconds: z.lazy(() => SortOrderSchema).optional(),
       state: z.lazy(() => SortOrderSchema).optional(),
-      rundownItemID: z.lazy(() => SortOrderSchema).optional(),
-      continuityItemID: z.lazy(() => SortOrderSchema).optional(),
     })
     .strict();
 

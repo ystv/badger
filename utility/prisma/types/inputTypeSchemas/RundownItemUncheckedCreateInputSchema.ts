@@ -1,7 +1,6 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
 import { RundownItemTypeSchema } from "./RundownItemTypeSchema";
-import { MediaUncheckedCreateNestedOneWithoutRundownItemInputSchema } from "./MediaUncheckedCreateNestedOneWithoutRundownItemInputSchema";
 
 export const RundownItemUncheckedCreateInputSchema: z.ZodType<Prisma.RundownItemUncheckedCreateInput> =
   z
@@ -13,9 +12,7 @@ export const RundownItemUncheckedCreateInputSchema: z.ZodType<Prisma.RundownItem
       durationSeconds: z.number().int(),
       type: z.lazy(() => RundownItemTypeSchema),
       notes: z.string().optional(),
-      media: z
-        .lazy(() => MediaUncheckedCreateNestedOneWithoutRundownItemInputSchema)
-        .optional(),
+      mediaId: z.number().int().optional().nullable(),
     })
     .strict();
 

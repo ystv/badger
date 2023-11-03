@@ -1,6 +1,7 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
 import { SortOrderSchema } from "./SortOrderSchema";
+import { SortOrderInputSchema } from "./SortOrderInputSchema";
 import { ContinuityItemCountOrderByAggregateInputSchema } from "./ContinuityItemCountOrderByAggregateInputSchema";
 import { ContinuityItemAvgOrderByAggregateInputSchema } from "./ContinuityItemAvgOrderByAggregateInputSchema";
 import { ContinuityItemMaxOrderByAggregateInputSchema } from "./ContinuityItemMaxOrderByAggregateInputSchema";
@@ -15,6 +16,12 @@ export const ContinuityItemOrderByWithAggregationInputSchema: z.ZodType<Prisma.C
       order: z.lazy(() => SortOrderSchema).optional(),
       showId: z.lazy(() => SortOrderSchema).optional(),
       durationSeconds: z.lazy(() => SortOrderSchema).optional(),
+      mediaId: z
+        .union([
+          z.lazy(() => SortOrderSchema),
+          z.lazy(() => SortOrderInputSchema),
+        ])
+        .optional(),
       _count: z
         .lazy(() => ContinuityItemCountOrderByAggregateInputSchema)
         .optional(),

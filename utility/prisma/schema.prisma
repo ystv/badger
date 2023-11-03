@@ -82,7 +82,8 @@ model RundownItem {
   type            RundownItemType
   notes           String          @default("")
 
-  media Media?
+  media   Media? @relation(fields: [mediaId], references: [id], onDelete: SetNull)
+  mediaId Int?
 
   rundown Rundown @relation(fields: [rundownId], references: [id])
 
@@ -98,7 +99,8 @@ model ContinuityItem {
   showId          Int
   durationSeconds Int
 
-  media Media?
+  media   Media? @relation(fields: [mediaId], references: [id], onDelete: SetNull)
+  mediaId Int?
 
   show Show @relation(fields: [showId], references: [id])
 
@@ -131,7 +133,7 @@ model MetadataField {
 }
 
 model Metadata {
-  id      Int    @id @default(autoincrement())
+  id      Int  @id @default(autoincrement())
   value   Json
   fieldId Int
 
@@ -176,7 +178,7 @@ model Asset {
   rundown   Rundown        @relation(fields: [rundownId], references: [id], onDelete: Cascade)
   rundownId Int
   loadJobs  LoadAssetJob[]
-  mediaId   Int            @unique
+  mediaId   Int
 
   @@map("assets")
 }
@@ -189,14 +191,11 @@ model Media {
   durationSeconds Int
   state           MediaState @default(Pending)
 
-  rundownItemID    Int? @unique
-  continuityItemID Int? @unique
-
-  rundownItem    RundownItem?          @relation(fields: [rundownItemID], references: [id], onDelete: Cascade)
-  continuityItem ContinuityItem?       @relation(fields: [continuityItemID], references: [id], onDelete: Cascade)
-  tasks          MediaProcessingTask[]
-  process_jobs   ProcessMediaJob[]
-  asset          Asset?
+  rundownItems    RundownItem[]
+  continuityItems ContinuityItem[]
+  tasks           MediaProcessingTask[]
+  process_jobs    ProcessMediaJob[]
+  assets          Asset[]
 
   @@map("media")
 }

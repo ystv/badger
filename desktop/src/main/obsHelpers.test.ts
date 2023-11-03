@@ -14,17 +14,18 @@ describe("addOrReplaceMediaAsScene", () => {
     name: "Test.mp4",
     state: "Ready",
     path: "",
-    continuityItem: {
-      id: 1,
-      name: "Test Continuity",
-      order: 1,
-      durationSeconds: 15,
-      showId: 0,
-    },
+    continuityItems: [
+      {
+        id: 1,
+        mediaId: 1,
+        name: "Test Continuity",
+        order: 1,
+        durationSeconds: 15,
+        showId: 0,
+      },
+    ],
     durationSeconds: 15,
-    continuityItemID: 1,
     rawPath: "",
-    rundownItemID: null,
   };
   let mobs: MockOBSConnection;
   beforeEach(async () => {

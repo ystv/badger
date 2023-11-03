@@ -11,8 +11,6 @@ export const MediaCreateManyInputSchema: z.ZodType<Prisma.MediaCreateManyInput> 
       path: z.string().optional().nullable(),
       durationSeconds: z.number().int(),
       state: z.lazy(() => MediaStateSchema).optional(),
-      rundownItemID: z.number().int().optional().nullable(),
-      continuityItemID: z.number().int().optional().nullable(),
     })
     .strict();
 

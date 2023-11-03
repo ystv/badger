@@ -25,6 +25,7 @@ describe("ontimeHelpers", () => {
                 notes: "",
                 order: 1,
                 rundownId: 1,
+                mediaId: null,
                 type: "Segment",
               },
             ],

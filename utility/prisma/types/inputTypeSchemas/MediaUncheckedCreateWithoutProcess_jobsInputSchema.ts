@@ -1,8 +1,10 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
 import { MediaStateSchema } from "./MediaStateSchema";
+import { RundownItemUncheckedCreateNestedManyWithoutMediaInputSchema } from "./RundownItemUncheckedCreateNestedManyWithoutMediaInputSchema";
+import { ContinuityItemUncheckedCreateNestedManyWithoutMediaInputSchema } from "./ContinuityItemUncheckedCreateNestedManyWithoutMediaInputSchema";
 import { MediaProcessingTaskUncheckedCreateNestedManyWithoutMediaInputSchema } from "./MediaProcessingTaskUncheckedCreateNestedManyWithoutMediaInputSchema";
-import { AssetUncheckedCreateNestedOneWithoutMediaInputSchema } from "./AssetUncheckedCreateNestedOneWithoutMediaInputSchema";
+import { AssetUncheckedCreateNestedManyWithoutMediaInputSchema } from "./AssetUncheckedCreateNestedManyWithoutMediaInputSchema";
 
 export const MediaUncheckedCreateWithoutProcess_jobsInputSchema: z.ZodType<Prisma.MediaUncheckedCreateWithoutProcess_jobsInput> =
   z
@@ -13,16 +15,22 @@ export const MediaUncheckedCreateWithoutProcess_jobsInputSchema: z.ZodType<Prism
       path: z.string().optional().nullable(),
       durationSeconds: z.number().int(),
       state: z.lazy(() => MediaStateSchema).optional(),
-      rundownItemID: z.number().int().optional().nullable(),
-      continuityItemID: z.number().int().optional().nullable(),
+      rundownItems: z
+        .lazy(() => RundownItemUncheckedCreateNestedManyWithoutMediaInputSchema)
+        .optional(),
+      continuityItems: z
+        .lazy(
+          () => ContinuityItemUncheckedCreateNestedManyWithoutMediaInputSchema,
+        )
+        .optional(),
       tasks: z
         .lazy(
           () =>
             MediaProcessingTaskUncheckedCreateNestedManyWithoutMediaInputSchema,
         )
         .optional(),
-      asset: z
-        .lazy(() => AssetUncheckedCreateNestedOneWithoutMediaInputSchema)
+      assets: z
+        .lazy(() => AssetUncheckedCreateNestedManyWithoutMediaInputSchema)
         .optional(),
     })
     .strict();

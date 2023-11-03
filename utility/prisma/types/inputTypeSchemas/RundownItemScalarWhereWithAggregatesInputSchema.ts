@@ -4,6 +4,7 @@ import { IntWithAggregatesFilterSchema } from "./IntWithAggregatesFilterSchema";
 import { StringWithAggregatesFilterSchema } from "./StringWithAggregatesFilterSchema";
 import { EnumRundownItemTypeWithAggregatesFilterSchema } from "./EnumRundownItemTypeWithAggregatesFilterSchema";
 import { RundownItemTypeSchema } from "./RundownItemTypeSchema";
+import { IntNullableWithAggregatesFilterSchema } from "./IntNullableWithAggregatesFilterSchema";
 
 export const RundownItemScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.RundownItemScalarWhereWithAggregatesInput> =
   z
@@ -48,6 +49,13 @@ export const RundownItemScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.R
       notes: z
         .union([z.lazy(() => StringWithAggregatesFilterSchema), z.string()])
         .optional(),
+      mediaId: z
+        .union([
+          z.lazy(() => IntNullableWithAggregatesFilterSchema),
+          z.number(),
+        ])
+        .optional()
+        .nullable(),
     })
     .strict();
 

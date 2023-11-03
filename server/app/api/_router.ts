@@ -22,26 +22,32 @@ import invariant from "@/lib/invariant";
 import { dispatchJobForJobrunner } from "@/lib/jobs";
 
 const ExtendedMediaModelWithDownloadURL = ExtendedMediaModel.extend({
-  continuityItem: ContinuityItemSchema.nullable(),
-  rundownItem: RundownItemSchema.nullable(),
-  asset: AssetSchema.nullable(),
+  continuityItems: z.array(ContinuityItemSchema),
+  rundownItems: z.array(RundownItemSchema),
+  assets: z.array(AssetSchema),
   downloadURL: z.string().optional().nullable(),
 });
 
 const CompleteMediaModel = ExtendedMediaModel.extend({
-  continuityItem: ContinuityItemSchema.extend({
-    show: ShowSchema,
-  }).nullable(),
-  rundownItem: RundownItemSchema.extend({
-    rundown: RundownSchema.extend({
+  continuityItems: z.array(
+    ContinuityItemSchema.extend({
       show: ShowSchema,
     }),
-  }).nullable(),
-  asset: AssetSchema.extend({
-    rundown: RundownSchema.extend({
-      show: ShowSchema,
+  ),
+  rundownItems: z.array(
+    RundownItemSchema.extend({
+      rundown: RundownSchema.extend({
+        show: ShowSchema,
+      }),
     }),
-  }).nullable(),
+  ),
+  assets: z.array(
+    AssetSchema.extend({
+      rundown: RundownSchema.extend({
+        show: ShowSchema,
+      }),
+    }),
+  ),
 });
 
 export const appRouter = router({
@@ -196,9 +202,9 @@ export const appRouter = router({
           },
           include: {
             tasks: true,
-            continuityItem: true,
-            rundownItem: true,
-            asset: true,
+            continuityItems: true,
+            rundownItems: true,
+            assets: true,
           },
         });
         if (obj.path !== null) {
@@ -229,7 +235,7 @@ export const appRouter = router({
                   name: input.fileName,
                   rawPath: "",
                   durationSeconds: 0,
-                  rundownItem: {
+                  rundownItems: {
                     connect: {
                       id: input.targetID,
                     },
@@ -261,7 +267,7 @@ export const appRouter = router({
                   name: input.fileName,
                   rawPath: "",
                   durationSeconds: 0,
-                  continuityItem: {
+                  continuityItems: {
                     connect: {
                       id: input.targetID,
                     },
@@ -317,12 +323,12 @@ export const appRouter = router({
           },
           include: {
             tasks: true,
-            continuityItem: {
+            continuityItems: {
               include: {
                 show: true,
               },
             },
-            rundownItem: {
+            rundownItems: {
               include: {
                 rundown: {
                   include: {
@@ -331,7 +337,7 @@ export const appRouter = router({
                 },
               },
             },
-            asset: {
+            assets: {
               include: {
                 rundown: {
                   include: {

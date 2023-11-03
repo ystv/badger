@@ -22,18 +22,6 @@ export const MediaOrderByWithAggregationInputSchema: z.ZodType<Prisma.MediaOrder
         .optional(),
       durationSeconds: z.lazy(() => SortOrderSchema).optional(),
       state: z.lazy(() => SortOrderSchema).optional(),
-      rundownItemID: z
-        .union([
-          z.lazy(() => SortOrderSchema),
-          z.lazy(() => SortOrderInputSchema),
-        ])
-        .optional(),
-      continuityItemID: z
-        .union([
-          z.lazy(() => SortOrderSchema),
-          z.lazy(() => SortOrderInputSchema),
-        ])
-        .optional(),
       _count: z.lazy(() => MediaCountOrderByAggregateInputSchema).optional(),
       _avg: z.lazy(() => MediaAvgOrderByAggregateInputSchema).optional(),
       _max: z.lazy(() => MediaMaxOrderByAggregateInputSchema).optional(),
