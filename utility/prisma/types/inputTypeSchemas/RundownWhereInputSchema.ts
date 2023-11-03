@@ -6,6 +6,7 @@ import { ShowRelationFilterSchema } from "./ShowRelationFilterSchema";
 import { ShowWhereInputSchema } from "./ShowWhereInputSchema";
 import { RundownItemListRelationFilterSchema } from "./RundownItemListRelationFilterSchema";
 import { AssetListRelationFilterSchema } from "./AssetListRelationFilterSchema";
+import { MetadataListRelationFilterSchema } from "./MetadataListRelationFilterSchema";
 
 export const RundownWhereInputSchema: z.ZodType<Prisma.RundownWhereInput> = z
   .object({
@@ -37,6 +38,7 @@ export const RundownWhereInputSchema: z.ZodType<Prisma.RundownWhereInput> = z
       .optional(),
     items: z.lazy(() => RundownItemListRelationFilterSchema).optional(),
     assets: z.lazy(() => AssetListRelationFilterSchema).optional(),
+    metadata: z.lazy(() => MetadataListRelationFilterSchema).optional(),
   })
   .strict();
 

@@ -5,6 +5,9 @@ import { ShowItemsList } from "./ShowItemsList";
 import { TusEndpointProvider } from "@/components/MediaUpload";
 import { getTusEndpoint } from "@/lib/tus";
 import { DateTime } from "@/components/DateTIme";
+import { MetadataFields } from "@/components/Metadata";
+import { MetadataTargetType } from "@bowser/prisma/client";
+import { addMeta, setMetaValue } from "./actions";
 
 export default async function ShowPage(props: { params: { show_id: string } }) {
   const show = await db.show.findFirst({
@@ -26,11 +29,28 @@ export default async function ShowPage(props: { params: { show_id: string } }) {
           },
         },
       },
+      metadata: {
+        include: {
+          field: true,
+        },
+        orderBy: {
+          fieldId: "asc",
+        },
+      },
     },
   });
   if (!show) {
     notFound();
   }
+  const metaFields = await db.metadataField.findMany({
+    where: {
+      target: MetadataTargetType.Show,
+      archived: false,
+    },
+    orderBy: {
+      id: "asc",
+    },
+  });
   const items: RundownOrContinuity[] = (
     show.rundowns.map((r) => ({
       ...r,
@@ -46,6 +66,18 @@ export default async function ShowPage(props: { params: { show_id: string } }) {
       <p>
         Start: <DateTime val={show.start.toUTCString()} />
       </p>
+      <MetadataFields
+        metadata={show.metadata}
+        fields={metaFields}
+        createMeta={async (fieldID, val) => {
+          "use server";
+          return addMeta(show.id, fieldID, val);
+        }}
+        setValue={async (metaID, val) => {
+          "use server";
+          return setMetaValue(show.id, metaID, val);
+        }}
+      />
       <TusEndpointProvider value={getTusEndpoint()}>
         <ShowItemsList show={show} items={items} />
       </TusEndpointProvider>

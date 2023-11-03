@@ -3,6 +3,7 @@ import { z } from "zod";
 import { ShowCreateNestedOneWithoutRundownsInputSchema } from "./ShowCreateNestedOneWithoutRundownsInputSchema";
 import { RundownItemCreateNestedManyWithoutRundownInputSchema } from "./RundownItemCreateNestedManyWithoutRundownInputSchema";
 import { AssetCreateNestedManyWithoutRundownInputSchema } from "./AssetCreateNestedManyWithoutRundownInputSchema";
+import { MetadataCreateNestedManyWithoutRundownInputSchema } from "./MetadataCreateNestedManyWithoutRundownInputSchema";
 
 export const RundownCreateInputSchema: z.ZodType<Prisma.RundownCreateInput> = z
   .object({
@@ -14,6 +15,9 @@ export const RundownCreateInputSchema: z.ZodType<Prisma.RundownCreateInput> = z
       .optional(),
     assets: z
       .lazy(() => AssetCreateNestedManyWithoutRundownInputSchema)
+      .optional(),
+    metadata: z
+      .lazy(() => MetadataCreateNestedManyWithoutRundownInputSchema)
       .optional(),
   })
   .strict();

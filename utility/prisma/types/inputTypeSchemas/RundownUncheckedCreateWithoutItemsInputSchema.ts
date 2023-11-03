@@ -1,6 +1,7 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
 import { AssetUncheckedCreateNestedManyWithoutRundownInputSchema } from "./AssetUncheckedCreateNestedManyWithoutRundownInputSchema";
+import { MetadataUncheckedCreateNestedManyWithoutRundownInputSchema } from "./MetadataUncheckedCreateNestedManyWithoutRundownInputSchema";
 
 export const RundownUncheckedCreateWithoutItemsInputSchema: z.ZodType<Prisma.RundownUncheckedCreateWithoutItemsInput> =
   z
@@ -11,6 +12,9 @@ export const RundownUncheckedCreateWithoutItemsInputSchema: z.ZodType<Prisma.Run
       order: z.number().int(),
       assets: z
         .lazy(() => AssetUncheckedCreateNestedManyWithoutRundownInputSchema)
+        .optional(),
+      metadata: z
+        .lazy(() => MetadataUncheckedCreateNestedManyWithoutRundownInputSchema)
         .optional(),
     })
     .strict();

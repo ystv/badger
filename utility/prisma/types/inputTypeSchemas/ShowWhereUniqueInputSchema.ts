@@ -6,6 +6,7 @@ import { DateTimeFilterSchema } from "./DateTimeFilterSchema";
 import { IntFilterSchema } from "./IntFilterSchema";
 import { RundownListRelationFilterSchema } from "./RundownListRelationFilterSchema";
 import { ContinuityItemListRelationFilterSchema } from "./ContinuityItemListRelationFilterSchema";
+import { MetadataListRelationFilterSchema } from "./MetadataListRelationFilterSchema";
 
 export const ShowWhereUniqueInputSchema: z.ZodType<Prisma.ShowWhereUniqueInput> =
   z
@@ -45,6 +46,7 @@ export const ShowWhereUniqueInputSchema: z.ZodType<Prisma.ShowWhereUniqueInput> 
           continuityItems: z
             .lazy(() => ContinuityItemListRelationFilterSchema)
             .optional(),
+          metadata: z.lazy(() => MetadataListRelationFilterSchema).optional(),
         })
         .strict(),
     );

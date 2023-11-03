@@ -6,6 +6,7 @@ export const ShowCountOutputTypeSelectSchema: z.ZodType<Prisma.ShowCountOutputTy
     .object({
       rundowns: z.boolean().optional(),
       continuityItems: z.boolean().optional(),
+      metadata: z.boolean().optional(),
     })
     .strict();
 

@@ -4,6 +4,7 @@ import { IntFieldUpdateOperationsInputSchema } from "./IntFieldUpdateOperationsI
 import { StringFieldUpdateOperationsInputSchema } from "./StringFieldUpdateOperationsInputSchema";
 import { RundownItemUncheckedUpdateManyWithoutRundownNestedInputSchema } from "./RundownItemUncheckedUpdateManyWithoutRundownNestedInputSchema";
 import { AssetUncheckedUpdateManyWithoutRundownNestedInputSchema } from "./AssetUncheckedUpdateManyWithoutRundownNestedInputSchema";
+import { MetadataUncheckedUpdateManyWithoutRundownNestedInputSchema } from "./MetadataUncheckedUpdateManyWithoutRundownNestedInputSchema";
 
 export const RundownUncheckedUpdateWithoutShowInputSchema: z.ZodType<Prisma.RundownUncheckedUpdateWithoutShowInput> =
   z
@@ -33,6 +34,9 @@ export const RundownUncheckedUpdateWithoutShowInputSchema: z.ZodType<Prisma.Rund
         .optional(),
       assets: z
         .lazy(() => AssetUncheckedUpdateManyWithoutRundownNestedInputSchema)
+        .optional(),
+      metadata: z
+        .lazy(() => MetadataUncheckedUpdateManyWithoutRundownNestedInputSchema)
         .optional(),
     })
     .strict();

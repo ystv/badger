@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { mergeConfig, defineConfig } from "vite";
 import base from "./vite.base.config.mjs";
+import cjsPlugin from "vite-plugin-commonjs";
 
 // https://vitejs.dev/config
 export default mergeConfig(
@@ -16,5 +17,11 @@ export default mergeConfig(
       },
       conditions: ["node"],
     },
+    plugins: [
+      ...base.plugins,
+      new cjsPlugin({
+        dynamic: true,
+      }),
+    ],
   }),
 );

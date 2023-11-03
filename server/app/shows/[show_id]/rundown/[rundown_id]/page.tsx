@@ -7,6 +7,9 @@ import { TusEndpointProvider } from "@/components/MediaUpload";
 import { getTusEndpoint } from "@/lib/tus";
 import { Suspense } from "react";
 import { Button } from "@bowser/components/button";
+import { MetadataTargetType } from "@bowser/prisma/client";
+import { MetadataFields } from "@/components/Metadata";
+import { addMeta, setMetaValue } from "./metaActions";
 
 async function RundownAssetsFetcher(props: { rundownID: number }) {
   const rundown = await db.rundown.findFirstOrThrow({
@@ -47,6 +50,45 @@ async function RundownItemsFetcher(props: { rundownID: number }) {
   return <RundownItems rundown={rundown} />;
 }
 
+async function RundownMetadata(props: { showID: number; rundownID: number }) {
+  const [fields, meta] = await Promise.all([
+    db.metadataField.findMany({
+      where: {
+        target: MetadataTargetType.Rundown,
+        archived: false,
+      },
+      orderBy: {
+        id: "asc",
+      },
+    }),
+    db.metadata.findMany({
+      where: {
+        rundownId: props.rundownID,
+      },
+      include: {
+        field: true,
+      },
+      orderBy: {
+        fieldId: "asc",
+      },
+    }),
+  ] as const);
+  return (
+    <MetadataFields
+      metadata={meta}
+      fields={fields}
+      createMeta={async (fieldID, val) => {
+        "use server";
+        return addMeta(props.showID, props.rundownID, fieldID, val);
+      }}
+      setValue={async (metaID, val) => {
+        "use server";
+        return setMetaValue(props.rundownID, props.rundownID, metaID, val);
+      }}
+    />
+  );
+}
+
 export default async function RundownPage(props: {
   params: { show_id: string; rundown_id: string };
 }) {
@@ -66,9 +108,12 @@ export default async function RundownPage(props: {
             <Link href={`/shows/${rundown.showId}`}>Back</Link>
           </Button>
 
-          <h2 className="text-xl">{rundown.name}</h2>
+          <h2 className="text-xl font-bold">{rundown.name}</h2>
         </div>
         <TusEndpointProvider value={getTusEndpoint()}>
+          <Suspense fallback={<div>Loading...</div>}>
+            <RundownMetadata showID={rundown.showId} rundownID={rundown.id} />
+          </Suspense>
           <Suspense fallback={<div>Loading...</div>}>
             <RundownAssetsFetcher rundownID={rundown.id} />
           </Suspense>

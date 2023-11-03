@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { Prisma } from "../../client";
 import { RundownFindManyArgsSchema } from "../outputTypeSchemas/RundownFindManyArgsSchema";
 import { ContinuityItemFindManyArgsSchema } from "../outputTypeSchemas/ContinuityItemFindManyArgsSchema";
+import { MetadataFindManyArgsSchema } from "../outputTypeSchemas/MetadataFindManyArgsSchema";
 import { ShowCountOutputTypeArgsSchema } from "../outputTypeSchemas/ShowCountOutputTypeArgsSchema";
 
 export const ShowIncludeSchema: z.ZodType<Prisma.ShowInclude> = z
@@ -11,6 +12,9 @@ export const ShowIncludeSchema: z.ZodType<Prisma.ShowInclude> = z
       .optional(),
     continuityItems: z
       .union([z.boolean(), z.lazy(() => ContinuityItemFindManyArgsSchema)])
+      .optional(),
+    metadata: z
+      .union([z.boolean(), z.lazy(() => MetadataFindManyArgsSchema)])
       .optional(),
     _count: z
       .union([z.boolean(), z.lazy(() => ShowCountOutputTypeArgsSchema)])

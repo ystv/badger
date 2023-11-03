@@ -1,6 +1,7 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
 import { ContinuityItemUncheckedCreateNestedManyWithoutShowInputSchema } from "./ContinuityItemUncheckedCreateNestedManyWithoutShowInputSchema";
+import { MetadataUncheckedCreateNestedManyWithoutShowInputSchema } from "./MetadataUncheckedCreateNestedManyWithoutShowInputSchema";
 
 export const ShowUncheckedCreateWithoutRundownsInputSchema: z.ZodType<Prisma.ShowUncheckedCreateWithoutRundownsInput> =
   z
@@ -13,6 +14,9 @@ export const ShowUncheckedCreateWithoutRundownsInputSchema: z.ZodType<Prisma.Sho
         .lazy(
           () => ContinuityItemUncheckedCreateNestedManyWithoutShowInputSchema,
         )
+        .optional(),
+      metadata: z
+        .lazy(() => MetadataUncheckedCreateNestedManyWithoutShowInputSchema)
         .optional(),
     })
     .strict();

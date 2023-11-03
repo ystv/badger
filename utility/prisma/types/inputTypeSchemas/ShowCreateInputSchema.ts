@@ -2,6 +2,7 @@ import type { Prisma } from "../../client";
 import { z } from "zod";
 import { RundownCreateNestedManyWithoutShowInputSchema } from "./RundownCreateNestedManyWithoutShowInputSchema";
 import { ContinuityItemCreateNestedManyWithoutShowInputSchema } from "./ContinuityItemCreateNestedManyWithoutShowInputSchema";
+import { MetadataCreateNestedManyWithoutShowInputSchema } from "./MetadataCreateNestedManyWithoutShowInputSchema";
 
 export const ShowCreateInputSchema: z.ZodType<Prisma.ShowCreateInput> = z
   .object({
@@ -13,6 +14,9 @@ export const ShowCreateInputSchema: z.ZodType<Prisma.ShowCreateInput> = z
       .optional(),
     continuityItems: z
       .lazy(() => ContinuityItemCreateNestedManyWithoutShowInputSchema)
+      .optional(),
+    metadata: z
+      .lazy(() => MetadataCreateNestedManyWithoutShowInputSchema)
       .optional(),
   })
   .strict();

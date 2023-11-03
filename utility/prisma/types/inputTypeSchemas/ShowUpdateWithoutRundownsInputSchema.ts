@@ -4,6 +4,7 @@ import { StringFieldUpdateOperationsInputSchema } from "./StringFieldUpdateOpera
 import { DateTimeFieldUpdateOperationsInputSchema } from "./DateTimeFieldUpdateOperationsInputSchema";
 import { IntFieldUpdateOperationsInputSchema } from "./IntFieldUpdateOperationsInputSchema";
 import { ContinuityItemUpdateManyWithoutShowNestedInputSchema } from "./ContinuityItemUpdateManyWithoutShowNestedInputSchema";
+import { MetadataUpdateManyWithoutShowNestedInputSchema } from "./MetadataUpdateManyWithoutShowNestedInputSchema";
 
 export const ShowUpdateWithoutRundownsInputSchema: z.ZodType<Prisma.ShowUpdateWithoutRundownsInput> =
   z
@@ -28,6 +29,9 @@ export const ShowUpdateWithoutRundownsInputSchema: z.ZodType<Prisma.ShowUpdateWi
         .optional(),
       continuityItems: z
         .lazy(() => ContinuityItemUpdateManyWithoutShowNestedInputSchema)
+        .optional(),
+      metadata: z
+        .lazy(() => MetadataUpdateManyWithoutShowNestedInputSchema)
         .optional(),
     })
     .strict();

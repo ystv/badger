@@ -3,6 +3,7 @@ import { z } from "zod";
 import { SortOrderSchema } from "./SortOrderSchema";
 import { RundownOrderByRelationAggregateInputSchema } from "./RundownOrderByRelationAggregateInputSchema";
 import { ContinuityItemOrderByRelationAggregateInputSchema } from "./ContinuityItemOrderByRelationAggregateInputSchema";
+import { MetadataOrderByRelationAggregateInputSchema } from "./MetadataOrderByRelationAggregateInputSchema";
 
 export const ShowOrderByWithRelationInputSchema: z.ZodType<Prisma.ShowOrderByWithRelationInput> =
   z
@@ -16,6 +17,9 @@ export const ShowOrderByWithRelationInputSchema: z.ZodType<Prisma.ShowOrderByWit
         .optional(),
       continuityItems: z
         .lazy(() => ContinuityItemOrderByRelationAggregateInputSchema)
+        .optional(),
+      metadata: z
+        .lazy(() => MetadataOrderByRelationAggregateInputSchema)
         .optional(),
     })
     .strict();
