@@ -1,10 +1,3 @@
-/*
-  Warnings:
-
-  - You are about to drop the column `continuityItemID` on the `media` table. All the data in the column will be lost.
-  - You are about to drop the column `rundownItemID` on the `media` table. All the data in the column will be lost.
-
-*/
 -- DropForeignKey
 ALTER TABLE "media" DROP CONSTRAINT "media_continuityItemID_fkey";
 
