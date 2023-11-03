@@ -122,7 +122,14 @@ export class LoadAssetJob extends AbstractJob<LoadAssetJobType> {
     let stream: NodeJS.ReadableStream;
     switch (params.sourceType) {
       case MediaFileSourceType.Tus:
-        stream = got.stream.get(process.env.TUS_ENDPOINT + "/" + params.source);
+        stream = got.stream.get(
+          process.env.TUS_ENDPOINT + "/" + params.source,
+          {
+            retry: {
+              limit: 5,
+            },
+          },
+        );
         await pEvent(stream, "response"); // this ensures that any errors are thrown
         break;
 
