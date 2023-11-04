@@ -31,7 +31,11 @@ async function fileToDataTransfer(
   );
 }
 
-async function createShow(page: Page, name: string) {
+async function createShow(
+  page: Page,
+  name: string,
+  time: "past" | "future" = "future",
+) {
   await page.goto("/shows/create");
   await page.getByLabel("Name").fill(name);
   await page.getByLabel("Start").click();
@@ -40,7 +44,13 @@ async function createShow(page: Page, name: string) {
   // can show the last/first week of the previous/next month, and two buttons with
   // the same text will break Playwright (Strict Mode).
   // So we go to the next month and then pick the 15th.
-  await page.getByLabel("Go to next month").click();
+  if (time === "future") {
+    await page.getByLabel("Go to next month").click();
+  } else if (time === "past") {
+    await page.getByLabel("Go to previous month").click();
+  } else {
+    throw new Error();
+  }
   await page.getByText("15", { exact: true }).click();
   await page.locator("input[type=time]").fill("19:30");
   await page.keyboard.press("Escape");
@@ -214,6 +224,9 @@ test("reuse media", async ({ showPage }) => {
   test.slow();
   const testFile = readFileSync(__dirname + "/testdata/smpte_bars_15s.mp4");
 
+  // Upload the media to a show in the past
+  await createShow(showPage, "Test 2", "past");
+
   await showPage.getByRole("button", { name: "New Continuity Item" }).click();
   await showPage.getByTestId("name-continuity_item").fill("Test");
   await showPage.getByTestId("create-continuity_item").click();
@@ -238,7 +251,9 @@ test("reuse media", async ({ showPage }) => {
     timeout: 30_000,
   });
 
-  await createShow(showPage, "Test 2");
+  // Now go back to the initial test show
+  await showPage.goto("/");
+  await showPage.getByText("View/Edit").click();
 
   await showPage.getByRole("button", { name: "New Continuity Item" }).click();
   await showPage.getByTestId("name-continuity_item").fill("Test 2");
@@ -315,7 +330,7 @@ test("media/assets for long rundowns", async ({ showPage }) => {
   await showPage.getByText("Upload file").click();
   const req = showPage.waitForRequest("http://localhost:1080/*");
   await showPage
-    .getByText("Drop file here, or click to select")
+    .getByText("Drop files here, or click to select")
     .dispatchEvent("drop", {
       dataTransfer: await fileToDataTransfer(
         showPage,
