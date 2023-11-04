@@ -53,8 +53,6 @@ import { getAvailableDownloaders } from "./downloadFile";
 import { ShowSchema } from "@bowser/prisma/types";
 import { isAfter } from "date-fns";
 
-const MAX_JS_DATE = 8640000000000000;
-
 const logger = logging.getLogger("ipcApi");
 const rendererLogger = logging.getLogger("renderer");
 
@@ -253,9 +251,9 @@ export const appRouter = r({
             result.assets.map((x) => x.rundown.show.start),
           ]
             .flat()
-            .reduce((a, b) => (isAfter(a, b) ? a : b), new Date(MAX_JS_DATE));
+            .reduce((a, b) => (isAfter(a, b) ? a : b), new Date(0));
           invariant(
-            latestShowDate.getTime() !== MAX_JS_DATE,
+            latestShowDate.getTime() !== 0,
             "no rundown, continuity item, or asset for media " + result.id,
           );
           const age =
