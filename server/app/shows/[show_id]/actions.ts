@@ -481,7 +481,6 @@ export async function attachExistingMediaToContinuityItem(
       },
       data: {
         media: {
-          disconnect: true,
           connect: {
             id: mediaID,
           },

@@ -370,7 +370,6 @@ export async function attachExistingMediaToRundownItem(
       data: {
         durationSeconds: media.durationSeconds,
         media: {
-          disconnect: true,
           connect: {
             id: mediaID,
           },
