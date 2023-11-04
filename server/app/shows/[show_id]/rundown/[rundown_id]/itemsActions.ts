@@ -360,31 +360,39 @@ export async function attachExistingMediaToRundownItem(
   itemID: number,
   mediaID: number,
 ) {
-  const res = await db.rundownItem.update({
-    data: {
-      media: {
-        connect: {
-          id: mediaID,
-        },
+  const res = await db.$transaction(async ($db) => {
+    const media = await $db.media.findUniqueOrThrow({
+      where: {
+        id: mediaID,
       },
-      rundown: {
-        update: {
-          show: {
-            update: {
-              version: {
-                increment: 1,
+    });
+    return await $db.rundownItem.update({
+      data: {
+        durationSeconds: media.durationSeconds,
+        media: {
+          connect: {
+            id: mediaID,
+          },
+        },
+        rundown: {
+          update: {
+            show: {
+              update: {
+                version: {
+                  increment: 1,
+                },
               },
             },
           },
         },
       },
-    },
-    where: {
-      id: itemID,
-    },
-    include: {
-      rundown: true,
-    },
+      where: {
+        id: itemID,
+      },
+      include: {
+        rundown: true,
+      },
+    });
   });
   revalidatePath(`/shows/${res.rundown.showId}`);
   return { ok: true };
