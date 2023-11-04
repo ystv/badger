@@ -31,28 +31,32 @@ async function fileToDataTransfer(
   );
 }
 
+async function createShow(page: Page, name: string) {
+  await page.goto("/shows/create");
+  await page.getByLabel("Name").fill(name);
+  await page.getByLabel("Start").click();
+  // The E2E suite doesn't care what date this is, as long as it's in the future.
+  // We specifically use a day between 8 and 21, because sometimes the date picker
+  // can show the last/first week of the previous/next month, and two buttons with
+  // the same text will break Playwright (Strict Mode).
+  // So we go to the next month and then pick the 15th.
+  await page.getByLabel("Go to next month").click();
+  await page.getByText("15", { exact: true }).click();
+  await page.locator("input[type=time]").fill("19:30");
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Create" }).click();
+  await expect(page.getByRole("heading", { name: name })).toBeVisible({
+    timeout: 10_000,
+  });
+}
+
 const test = base.extend<{ showPage: Page }>({
   showPage: async ({ page, request }, use) => {
     await request.post("/api/resetDBInTestsDoNotUseOrYouWillBeFired");
 
     await page.goto("/enableDebugMode?value=false");
 
-    await page.goto("/shows/create");
-    await page.getByLabel("Name").fill("Test Show");
-    await page.getByLabel("Start").click();
-    // The E2E suite doesn't care what date this is, as long as it's in the future.
-    // We specifically use a day between 8 and 21, because sometimes the date picker
-    // can show the last/first week of the previous/next month, and two buttons with
-    // the same text will break Playwright (Strict Mode).
-    // So we go to the next month and then pick the 15th.
-    await page.getByLabel("Go to next month").click();
-    await page.getByText("15", { exact: true }).click();
-    await page.locator("input[type=time]").fill("19:30");
-    await page.keyboard.press("Escape");
-    await page.getByRole("button", { name: "Create" }).click();
-    await expect(page.getByRole("heading", { name: "Test Show" })).toBeVisible({
-      timeout: 10_000,
-    });
+    await createShow(page, "Test Show");
 
     await use(page);
     await request.post("/api/resetDBInTestsDoNotUseOrYouWillBeFired");
@@ -180,6 +184,7 @@ test("add media", async ({ showPage }) => {
   await showPage.locator("body").press("Escape");
 
   await showPage.getByRole("button", { name: "Media Missing" }).click();
+  await showPage.getByText("Upload file").click();
   await showPage
     .getByText("Drop video files here, or click to select")
     .dispatchEvent("drop", {
@@ -203,6 +208,53 @@ test("add media", async ({ showPage }) => {
   await expect
     .soft(showPage.getByTestId("ContinuityItemRow.duration"))
     .toHaveText("00:15");
+});
+
+test("reuse media", async ({ showPage }) => {
+  test.slow();
+  const testFile = readFileSync(__dirname + "/testdata/smpte_bars_15s.mp4");
+
+  await showPage.getByRole("button", { name: "New Continuity Item" }).click();
+  await showPage.getByTestId("name-continuity_item").fill("Test");
+  await showPage.getByTestId("create-continuity_item").click();
+  await showPage.locator("body").press("Escape");
+
+  await showPage.getByRole("button", { name: "Media Missing" }).click();
+  await showPage.getByText("Upload file").click();
+  await showPage
+    .getByText("Drop video files here, or click to select")
+    .dispatchEvent("drop", {
+      dataTransfer: await fileToDataTransfer(
+        showPage,
+        testFile,
+        "smpte_bars_15s.mp4",
+        "video/mp4",
+      ),
+    });
+
+  await expect(
+    showPage.getByRole("button", { name: "Good to go!" }),
+  ).toBeVisible({
+    timeout: 30_000,
+  });
+
+  await createShow(showPage, "Test 2");
+
+  await showPage.getByRole("button", { name: "New Continuity Item" }).click();
+  await showPage.getByTestId("name-continuity_item").fill("Test 2");
+  await showPage.getByTestId("create-continuity_item").click();
+  await showPage.locator("body").press("Escape");
+
+  await showPage.getByRole("button", { name: "Media Missing" }).click();
+  await showPage.getByText("Use media from previous show").click();
+
+  await showPage
+    .getByTestId("PastShowMediaSelection.selectShow")
+    .selectOption({ index: 0 });
+  await showPage.getByRole("button", { name: "Use" }).click();
+  await expect(
+    showPage.getByRole("button", { name: "Good to go!" }),
+  ).toBeVisible();
 });
 
 test("media/assets for long rundowns", async ({ showPage }) => {
@@ -260,6 +312,7 @@ test("media/assets for long rundowns", async ({ showPage }) => {
   // assert it isn't off-screen (BOW-89)
   await expect(showPage.getByRole("combobox")).toBeInViewport();
   await showPage.getByRole("combobox").selectOption("Graphic");
+  await showPage.getByText("Upload file").click();
   const req = showPage.waitForRequest("http://localhost:1080/*");
   await showPage
     .getByText("Drop file here, or click to select")

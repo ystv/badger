@@ -14,10 +14,6 @@ import {
 } from "react-icons/io5";
 import { IconType } from "react-icons/lib/cjs/iconBase";
 import {
-  MediaUploadDialog,
-  MediaUploadDialogHandle,
-} from "@/components/MediaUpload";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -32,10 +28,15 @@ import Spinner from "@/app/_assets/spinner.svg";
 import Image from "next/image";
 import { Media, MediaState } from "@bowser/prisma/client";
 import {
+  createAssetFromExistingMedia,
   processAssetUpload,
   removeAsset,
 } from "@/app/shows/[show_id]/rundown/[rundown_id]/assetsActions";
 import { useRouter } from "next/navigation";
+import {
+  MediaSelectOrUploadDialog,
+  PastShowsMedia,
+} from "@/components/MediaSelection";
 
 export interface RundownWithAssets extends Rundown {
   assets: (Asset & { media: Media })[];
@@ -55,7 +56,10 @@ const AssetIcons: { [K in AssetTypeType]: IconType } = {
   Music: IoMusicalNoteSharp,
 };
 
-export default function RundownAssets(props: { rundown: RundownWithAssets }) {
+export default function RundownAssets(props: {
+  rundown: RundownWithAssets;
+  pastShowsPromise: Promise<PastShowsMedia>;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [filter, setFilter] = useState<AssetTypeType | "all">("all");
@@ -65,11 +69,11 @@ export default function RundownAssets(props: { rundown: RundownWithAssets }) {
     }
     return asset.type === filter;
   });
-  const [isUploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [isTypeDialogOpen, setTypeDialogOpen] = useState(false);
   const [newUploadType, setNewUploadType] = useState<AssetTypeType | "$none">(
     "$none",
   );
-  const uploadRef = useRef<MediaUploadDialogHandle>(null);
+  const [isUploadDialogOpen, setUploadDialogOpen] = useState(false);
 
   // Periodically refresh if any assets are pending
   const refreshIntervalRef = useRef<number | null>(null);
@@ -176,7 +180,7 @@ export default function RundownAssets(props: { rundown: RundownWithAssets }) {
           <Button
             color="ghost"
             className="self-start"
-            onClick={() => setUploadDialogOpen(true)}
+            onClick={() => setTypeDialogOpen(true)}
           >
             <IoAddCircleSharp className="inline" />
             <div>Upload new asset</div>
@@ -184,22 +188,8 @@ export default function RundownAssets(props: { rundown: RundownWithAssets }) {
         </div>
       </div>
       <Dialog
-        open={isUploadDialogOpen}
-        onOpenChange={(v) => {
-          if (uploadRef.current && !v) {
-            const progress = uploadRef.current.getProgress();
-            if (progress > 0 && progress < 1) {
-              if (confirm("Are you sure you want to cancel the upload?")) {
-                uploadRef.current.cancel();
-                setUploadDialogOpen(v);
-              }
-            } else {
-              setUploadDialogOpen(v);
-            }
-          } else {
-            setUploadDialogOpen(v);
-          }
-        }}
+        open={isTypeDialogOpen}
+        onOpenChange={(v) => setTypeDialogOpen(v)}
       >
         <DialogContent className="mx-auto max-w-sm rounded bg-light p-8">
           <DialogHeader>
@@ -208,7 +198,13 @@ export default function RundownAssets(props: { rundown: RundownWithAssets }) {
             </DialogTitle>
           </DialogHeader>
           <select
-            onChange={(e) => setNewUploadType(e.target.value as AssetTypeType)}
+            onChange={(e) => {
+              setNewUploadType(e.target.value as AssetTypeType);
+              if (e.target.value !== "$none") {
+                setTypeDialogOpen(false);
+                setUploadDialogOpen(true);
+              }
+            }}
             value={String(newUploadType)}
             className="border border-mid-dark rounded-md p-1 w-64"
           >
@@ -221,28 +217,31 @@ export default function RundownAssets(props: { rundown: RundownWithAssets }) {
               </option>
             ))}
           </select>
-          {newUploadType !== "$none" && (
-            <MediaUploadDialog
-              ref={uploadRef}
-              title={"Upload new " + newUploadType}
-              prompt="Drop file here, or click to select"
-              accept={{}}
-              disabled={isPending}
-              onComplete={(url, name) => {
-                startTransition(async () => {
-                  await processAssetUpload(
-                    props.rundown.id,
-                    newUploadType,
-                    name,
-                    url,
-                  );
-                  setUploadDialogOpen(false);
-                });
-              }}
-            />
-          )}
         </DialogContent>
       </Dialog>
+      <MediaSelectOrUploadDialog
+        isOpen={isUploadDialogOpen}
+        setOpen={setUploadDialogOpen}
+        title={"Upload new " + newUploadType}
+        onUploadComplete={(url, fileName) =>
+          processAssetUpload(
+            props.rundown.id,
+            newUploadType as AssetTypeType,
+            fileName,
+            url,
+          )
+        }
+        onExistingSelected={(id) =>
+          createAssetFromExistingMedia(
+            props.rundown.id,
+            newUploadType as AssetTypeType,
+            id,
+          )
+        }
+        pastShowsPromise={props.pastShowsPromise}
+        containerType="asset"
+        acceptMedia={{}}
+      />
     </div>
   );
 }

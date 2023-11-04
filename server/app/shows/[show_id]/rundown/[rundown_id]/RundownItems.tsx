@@ -16,6 +16,7 @@ import {
 import Form from "@/components/Form";
 import {
   addItem,
+  attachExistingMediaToRundownItem,
   deleteItem,
   editItem,
   processUploadForRundownItem,
@@ -55,6 +56,7 @@ import {
   TableRow,
 } from "@bowser/components/table";
 import { formatDurationMS } from "@/lib/time";
+import { PastShowsMedia } from "@/components/MediaSelection";
 
 export interface MediaWithTasks extends Media {
   tasks: MediaProcessingTask[];
@@ -140,7 +142,10 @@ function EditItem(props: {
   );
 }
 
-function ItemsTable(props: { rundown: CompleteRundown }) {
+function ItemsTable(props: {
+  rundown: CompleteRundown;
+  pastShowsPromise: Promise<PastShowsMedia>;
+}) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -238,9 +243,13 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
                 {item.type === "VT" && (
                   <ItemMediaStateAndUploadDialog
                     item={item}
-                    onUploadComplete={async (url, fileName) =>
+                    onUploadComplete={(url, fileName) =>
                       processUploadForRundownItem(item.id, fileName, url)
                     }
+                    onExistingSelected={(id) =>
+                      attachExistingMediaToRundownItem(item.id, id)
+                    }
+                    pastShowsPromise={props.pastShowsPromise}
                   />
                 )}
               </TableCell>
@@ -321,11 +330,17 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
   );
 }
 
-export function RundownItems(props: { rundown: CompleteRundown }) {
+export function RundownItems(props: {
+  rundown: CompleteRundown;
+  pastShowsPromise: Promise<PastShowsMedia>;
+}) {
   return (
     <div>
       <h2 className="text-xl">Rundown</h2>
-      <ItemsTable rundown={props.rundown} />
+      <ItemsTable
+        rundown={props.rundown}
+        pastShowsPromise={props.pastShowsPromise}
+      />
       <AddSegment rundown={props.rundown} />
     </div>
   );

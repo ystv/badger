@@ -27,7 +27,7 @@ export function TusEndpointProvider(props: {
 }
 export const useTusEndpoint = () => useContext(TusEndpointContext);
 
-export interface MediaUploadDialogHandle {
+export interface MediaUploaderHandle {
   cancel(): Promise<void> | undefined;
 
   /**
@@ -37,7 +37,7 @@ export interface MediaUploadDialogHandle {
   getProgress(): number;
 }
 
-interface MediaUploadDialogProps {
+interface MediaUploaderProps {
   prompt: ReactNode;
   title: string;
   accept: Record<string, string[]>;
@@ -45,10 +45,10 @@ interface MediaUploadDialogProps {
   disabled?: boolean;
 }
 
-export const MediaUploadDialog = forwardRef<
-  MediaUploadDialogHandle,
-  MediaUploadDialogProps
->(function MediaUploadDialog(props, ref) {
+export const MediaUploader = forwardRef<
+  MediaUploaderHandle,
+  MediaUploaderProps
+>(function MediaUploader(props, ref) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);

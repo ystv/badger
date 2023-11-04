@@ -461,3 +461,30 @@ export async function processUploadForContinuityItem(
   revalidatePath(`/shows/${item.showId}`);
   return { ok: true };
 }
+
+export async function attachExistingMediaToContinuityItem(
+  itemID: number,
+  mediaID: number,
+) {
+  const item = await db.continuityItem.update({
+    where: {
+      id: itemID,
+    },
+    data: {
+      media: {
+        connect: {
+          id: mediaID,
+        },
+      },
+      show: {
+        update: {
+          version: {
+            increment: 1,
+          },
+        },
+      },
+    },
+  });
+  revalidatePath(`/shows/${item.showId}`);
+  return { ok: true };
+}
