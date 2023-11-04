@@ -248,9 +248,7 @@ test("reuse media", async ({ showPage }) => {
   await showPage.getByRole("button", { name: "Media Missing" }).click();
   await showPage.getByText("Use media from previous show").click();
 
-  await showPage
-    .getByTestId("PastShowMediaSelection.selectShow")
-    .selectOption({ index: 0 });
+  await showPage.getByText("Select show").selectOption({ index: 0 });
   await showPage.getByRole("button", { name: "Use" }).click();
   await expect(
     showPage.getByRole("button", { name: "Good to go!" }),
@@ -291,6 +289,7 @@ test("media/assets for long rundowns", async ({ showPage }) => {
     .getByRole("button", { name: "Media Missing" })
     .scrollIntoViewIfNeeded();
   await showPage.getByRole("button", { name: "Media Missing" }).click();
+  await showPage.getByText("Upload file").click();
   await expect(
     showPage.getByText("Drop files here, or click to select"),
   ).toBeInViewport();
