@@ -68,6 +68,7 @@ integrate("reorderShowItems", () => {
         {
           "durationSeconds": 0,
           "id": 1,
+          "mediaId": null,
           "name": "Test 2",
           "order": 0,
           "showId": 1,
@@ -87,6 +88,7 @@ integrate("reorderShowItems", () => {
         {
           "durationSeconds": 0,
           "id": 2,
+          "mediaId": null,
           "name": "Test 4",
           "order": 3,
           "showId": 1,
@@ -121,6 +123,7 @@ integrate("reorderShowItems", () => {
         {
           "durationSeconds": 0,
           "id": 1,
+          "mediaId": null,
           "name": "Test 2",
           "order": 2,
           "showId": 1,
@@ -128,6 +131,7 @@ integrate("reorderShowItems", () => {
         {
           "durationSeconds": 0,
           "id": 2,
+          "mediaId": null,
           "name": "Test 4",
           "order": 3,
           "showId": 1,
@@ -150,6 +154,7 @@ integrate("reorderShowItems", () => {
         {
           "durationSeconds": 0,
           "id": 1,
+          "mediaId": null,
           "name": "Test 2",
           "order": 0,
           "showId": 1,
@@ -163,6 +168,7 @@ integrate("reorderShowItems", () => {
         {
           "durationSeconds": 0,
           "id": 2,
+          "mediaId": null,
           "name": "Test 4",
           "order": 2,
           "showId": 1,
