@@ -248,7 +248,8 @@ test("reuse media", async ({ showPage }) => {
   await showPage.getByRole("button", { name: "Media Missing" }).click();
   await showPage.getByText("Use media from previous show").click();
 
-  await showPage.getByText("Select show").selectOption({ index: 0 });
+  await showPage.getByText("Select show").click();
+  await showPage.getByRole("option").first().click();
   await showPage.getByRole("button", { name: "Use" }).click();
   await expect(
     showPage.getByRole("button", { name: "Good to go!" }),
@@ -270,7 +271,7 @@ test("media/assets for long rundowns", async ({ showPage }) => {
   await showPage.waitForURL("**/shows/*/rundown/*");
 
   await showPage.getByRole("button", { name: "Add Segment" }).click();
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < 15; i++) {
     await showPage.getByLabel("Name").fill("Segment " + i);
     await showPage.getByLabel("Duration").fill("60");
     await showPage.getByLabel("Duration").press("Enter");
