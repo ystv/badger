@@ -208,6 +208,14 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
             .map((x) => (x as PromiseRejectedResult).reason),
         );
       }
+      await this.db.media.update({
+        where: {
+          id: media.id,
+        },
+        data: {
+          state: MediaState.Ready,
+        },
+      });
       await this.db.show.updateMany({
         where: {
           OR: [
