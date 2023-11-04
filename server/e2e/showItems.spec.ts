@@ -186,7 +186,7 @@ test("add media", async ({ showPage }) => {
   await showPage.getByRole("button", { name: "Media Missing" }).click();
   await showPage.getByText("Upload file").click();
   await showPage
-    .getByText("Drop video files here, or click to select")
+    .getByText("Drop files here, or click to select")
     .dispatchEvent("drop", {
       dataTransfer: await fileToDataTransfer(
         showPage,
@@ -222,7 +222,7 @@ test("reuse media", async ({ showPage }) => {
   await showPage.getByRole("button", { name: "Media Missing" }).click();
   await showPage.getByText("Upload file").click();
   await showPage
-    .getByText("Drop video files here, or click to select")
+    .getByText("Drop files here, or click to select")
     .dispatchEvent("drop", {
       dataTransfer: await fileToDataTransfer(
         showPage,
@@ -292,10 +292,10 @@ test("media/assets for long rundowns", async ({ showPage }) => {
     .scrollIntoViewIfNeeded();
   await showPage.getByRole("button", { name: "Media Missing" }).click();
   await expect(
-    showPage.getByText("Drop video files here, or click to select"),
+    showPage.getByText("Drop files here, or click to select"),
   ).toBeInViewport();
   await showPage
-    .getByText("Drop video files here, or click to select")
+    .getByText("Drop files here, or click to select")
     .dispatchEvent("drop", {
       dataTransfer: await fileToDataTransfer(
         showPage,
