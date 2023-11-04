@@ -112,6 +112,7 @@ model ContinuityItem {
 enum MetadataTargetType {
   Show
   Rundown
+  ShowOrRundown
 }
 
 enum MetadataValueType {

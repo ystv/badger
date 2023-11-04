@@ -79,7 +79,9 @@ export default async function ShowPage(props: { params: { show_id: string } }) {
   }
   const metaFields = await db.metadataField.findMany({
     where: {
-      target: MetadataTargetType.Show,
+      target: {
+        in: [MetadataTargetType.Show, MetadataTargetType.ShowOrRundown],
+      },
       archived: false,
     },
     orderBy: {
