@@ -466,24 +466,36 @@ export async function attachExistingMediaToContinuityItem(
   itemID: number,
   mediaID: number,
 ) {
-  const item = await db.continuityItem.update({
-    where: {
-      id: itemID,
-    },
-    data: {
-      media: {
-        connect: {
-          id: mediaID,
-        },
+  const item = await db.$transaction(async ($db) => {
+    const media = await $db.media.findUniqueOrThrow({
+      where: {
+        id: mediaID,
       },
-      show: {
-        update: {
-          version: {
-            increment: 1,
+      include: {
+        continuityItems: true,
+      },
+    });
+    return await $db.continuityItem.update({
+      where: {
+        id: itemID,
+      },
+      data: {
+        media: {
+          disconnect: true,
+          connect: {
+            id: mediaID,
+          },
+        },
+        durationSeconds: media.durationSeconds,
+        show: {
+          update: {
+            version: {
+              increment: 1,
+            },
           },
         },
       },
-    },
+    });
   });
   revalidatePath(`/shows/${item.showId}`);
   return { ok: true };
