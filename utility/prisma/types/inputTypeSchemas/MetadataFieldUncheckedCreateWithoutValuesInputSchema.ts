@@ -11,6 +11,7 @@ export const MetadataFieldUncheckedCreateWithoutValuesInputSchema: z.ZodType<Pri
       type: z.lazy(() => MetadataValueTypeSchema),
       target: z.lazy(() => MetadataTargetTypeSchema),
       archived: z.boolean().optional(),
+      default: z.boolean().optional(),
     })
     .strict();
 

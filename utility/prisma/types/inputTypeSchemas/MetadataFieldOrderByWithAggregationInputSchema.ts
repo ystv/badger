@@ -15,6 +15,7 @@ export const MetadataFieldOrderByWithAggregationInputSchema: z.ZodType<Prisma.Me
       type: z.lazy(() => SortOrderSchema).optional(),
       target: z.lazy(() => SortOrderSchema).optional(),
       archived: z.lazy(() => SortOrderSchema).optional(),
+      default: z.lazy(() => SortOrderSchema).optional(),
       _count: z
         .lazy(() => MetadataFieldCountOrderByAggregateInputSchema)
         .optional(),

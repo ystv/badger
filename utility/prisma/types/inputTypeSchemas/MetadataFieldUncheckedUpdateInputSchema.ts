@@ -42,6 +42,12 @@ export const MetadataFieldUncheckedUpdateInputSchema: z.ZodType<Prisma.MetadataF
           z.lazy(() => BoolFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      default: z
+        .union([
+          z.boolean(),
+          z.lazy(() => BoolFieldUpdateOperationsInputSchema),
+        ])
+        .optional(),
       values: z
         .lazy(() => MetadataUncheckedUpdateManyWithoutFieldNestedInputSchema)
         .optional(),

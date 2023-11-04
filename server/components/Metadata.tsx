@@ -8,7 +8,19 @@ import { Prisma } from "@bowser/prisma/client";
 import { Metadata, MetadataField } from "@bowser/prisma/client";
 import { useId, useMemo, useState, useTransition } from "react";
 import { FormResponse } from "./Form";
-import { IoCheckmarkSharp, IoCloseSharp } from "react-icons/io5";
+import { IoCheckmarkSharp, IoCloseSharp, IoAddCircle } from "react-icons/io5";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@bowser/components/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@bowser/components/select";
+import { twMerge } from "tailwind-merge";
 
 export interface MetadataWithField extends Metadata {
   field: MetadataField;
@@ -18,6 +30,8 @@ function MetaValue(props: {
   field: MetadataField;
   value: Metadata | null;
   saveChanges: (val: Prisma.InputJsonValue) => Promise<FormResponse>;
+  slim?: boolean;
+  hideCancel?: boolean;
 }) {
   switch (props.field.type) {
     case "Text":
@@ -66,7 +80,7 @@ function MetaValue(props: {
       <label htmlFor={id} className="font-bold">
         {props.field.name}
       </label>
-      <div className="flex">
+      <div className={twMerge("flex", props.slim ? "flex-row" : "flex-col")}>
         <Component
           id={id}
           type={inputType}
@@ -79,19 +93,21 @@ function MetaValue(props: {
         />
         {touched && (
           <>
-            <Button
-              color="danger"
-              size="icon"
-              onClick={() => {
-                setValue((props.value?.value as string) ?? "");
-                setTouched(false);
-              }}
-            >
-              <IoCloseSharp />
-            </Button>
+            {!props.hideCancel && (
+              <Button
+                color="danger"
+                size={props.slim ? "icon" : "default"}
+                onClick={() => {
+                  setValue((props.value?.value as string) ?? "");
+                  setTouched(false);
+                }}
+              >
+                <IoCloseSharp />
+              </Button>
+            )}
             <Button
               color="primary"
-              size="icon"
+              size={props.slim ? "icon" : "default"}
               onClick={() => {
                 setError(null);
                 startTransition(async () => {
@@ -134,24 +150,94 @@ export function MetadataFields(props: {
       ),
     [props.fields, props.metadata],
   );
+  const emptyDefaultFields = emptyFields.filter((f) => f.default);
+  const emptyNonDefaultFields = emptyFields.filter((f) => !f.default);
+  const [selectedFieldTypeID, setSelectedFieldTypeID] = useState<number | null>(
+    null,
+  );
   return (
     <div className="space-y-2 my-8">
-      {props.metadata.map((meta) => (
-        <MetaValue
-          key={meta.id}
-          field={meta.field}
-          value={meta}
-          saveChanges={(val) => props.setValue(meta.id, val)}
-        />
-      ))}
-      {emptyFields.map((field) => (
+      {props.metadata
+        .filter((x) => x.field.default)
+        .map((meta) => (
+          <MetaValue
+            key={meta.id}
+            field={meta.field}
+            value={meta}
+            saveChanges={(val) => props.setValue(meta.id, val)}
+          />
+        ))}
+      {emptyDefaultFields.map((field) => (
         <MetaValue
           key={field.id}
           field={field}
           value={null}
           saveChanges={(val) => props.createMeta(field.id, val)}
+          slim
         />
       ))}
+      {props.metadata
+        .filter((x) => !x.field.default)
+        .map((meta) => (
+          <MetaValue
+            key={meta.id}
+            field={meta.field}
+            value={meta}
+            saveChanges={(val) => props.setValue(meta.id, val)}
+            slim
+          />
+        ))}
+      {emptyNonDefaultFields.length > 0 && (
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button color="ghost">
+              <IoAddCircle className="mr-1" />
+              Add Extra Show Details
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent>
+            <div className="bg-light text-dark p-4 rounded">
+              <Select
+                value={selectedFieldTypeID?.toString(10)}
+                onValueChange={(v) => setSelectedFieldTypeID(parseInt(v, 10))}
+              >
+                <SelectTrigger>
+                  {selectedFieldTypeID
+                    ? emptyNonDefaultFields.find(
+                        (x) => x.id === selectedFieldTypeID,
+                      )!.name
+                    : "Select type"}
+                </SelectTrigger>
+                <SelectContent>
+                  {emptyNonDefaultFields.map((field) => (
+                    <SelectItem key={field.id} value={field.id.toString(10)}>
+                      {field.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedFieldTypeID !== null && (
+                <MetaValue
+                  field={
+                    emptyNonDefaultFields.find(
+                      (x) => x.id === selectedFieldTypeID,
+                    )!
+                  }
+                  value={null}
+                  saveChanges={async (val) => {
+                    const r = await props.createMeta(selectedFieldTypeID!, val);
+                    if (r.ok) {
+                      setSelectedFieldTypeID(null);
+                    }
+                    return r;
+                  }}
+                  hideCancel
+                />
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
+      )}
     </div>
   );
 }

@@ -34,6 +34,12 @@ export const MetadataFieldUpdateManyMutationInputSchema: z.ZodType<Prisma.Metada
           z.lazy(() => BoolFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      default: z
+        .union([
+          z.boolean(),
+          z.lazy(() => BoolFieldUpdateOperationsInputSchema),
+        ])
+        .optional(),
     })
     .strict();
 

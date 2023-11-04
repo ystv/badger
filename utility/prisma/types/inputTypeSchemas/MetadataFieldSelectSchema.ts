@@ -11,6 +11,7 @@ export const MetadataFieldSelectSchema: z.ZodType<Prisma.MetadataFieldSelect> =
       type: z.boolean().optional(),
       target: z.boolean().optional(),
       archived: z.boolean().optional(),
+      default: z.boolean().optional(),
       values: z
         .union([z.boolean(), z.lazy(() => MetadataFindManyArgsSchema)])
         .optional(),

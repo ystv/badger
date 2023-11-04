@@ -6,6 +6,7 @@ export const MetadataFieldScalarFieldEnumSchema = z.enum([
   "type",
   "target",
   "archived",
+  "default",
 ]);
 
 export default MetadataFieldScalarFieldEnumSchema;

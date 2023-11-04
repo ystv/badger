@@ -126,6 +126,7 @@ model MetadataField {
   type     MetadataValueType
   target   MetadataTargetType
   archived Boolean            @default(false)
+  default  Boolean            @default(false)
 
   values Metadata[]
 
