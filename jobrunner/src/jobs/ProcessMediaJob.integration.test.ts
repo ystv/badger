@@ -69,7 +69,7 @@ integrate("ProcessMediaJob", () => {
             name: "smpte_bars_15s.mp4",
             durationSeconds: 0,
             rawPath: "",
-            continuityItem: {
+            continuityItems: {
               create: {
                 name: "Test",
                 durationSeconds: 0,
