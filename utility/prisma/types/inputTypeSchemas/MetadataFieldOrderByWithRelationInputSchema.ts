@@ -11,6 +11,7 @@ export const MetadataFieldOrderByWithRelationInputSchema: z.ZodType<Prisma.Metad
       type: z.lazy(() => SortOrderSchema).optional(),
       target: z.lazy(() => SortOrderSchema).optional(),
       archived: z.lazy(() => SortOrderSchema).optional(),
+      default: z.lazy(() => SortOrderSchema).optional(),
       values: z
         .lazy(() => MetadataOrderByRelationAggregateInputSchema)
         .optional(),

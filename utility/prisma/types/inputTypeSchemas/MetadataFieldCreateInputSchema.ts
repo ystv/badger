@@ -11,6 +11,7 @@ export const MetadataFieldCreateInputSchema: z.ZodType<Prisma.MetadataFieldCreat
       type: z.lazy(() => MetadataValueTypeSchema),
       target: z.lazy(() => MetadataTargetTypeSchema),
       archived: z.boolean().optional(),
+      default: z.boolean().optional(),
       values: z
         .lazy(() => MetadataCreateNestedManyWithoutFieldInputSchema)
         .optional(),

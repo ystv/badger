@@ -91,7 +91,9 @@ async function RundownMetadata(props: { showID: number; rundownID: number }) {
   const [fields, meta] = await Promise.all([
     db.metadataField.findMany({
       where: {
-        target: MetadataTargetType.Rundown,
+        target: {
+          in: [MetadataTargetType.Rundown, MetadataTargetType.ShowOrRundown],
+        },
         archived: false,
       },
       orderBy: {

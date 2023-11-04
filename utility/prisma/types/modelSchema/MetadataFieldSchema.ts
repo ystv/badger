@@ -12,6 +12,7 @@ export const MetadataFieldSchema = z.object({
   id: z.number().int(),
   name: z.string(),
   archived: z.boolean(),
+  default: z.boolean(),
 });
 
 export type MetadataField = z.infer<typeof MetadataFieldSchema>;

@@ -6,18 +6,36 @@ import { Input } from "@bowser/components/input";
 import { Textarea } from "@bowser/components/textarea";
 import { Prisma } from "@bowser/prisma/client";
 import { Metadata, MetadataField } from "@bowser/prisma/client";
-import { useId, useMemo, useState, useTransition } from "react";
+import { useId, useMemo, useReducer, useState, useTransition } from "react";
 import { FormResponse } from "./Form";
-import { IoCheckmarkSharp, IoCloseSharp } from "react-icons/io5";
+import {
+  IoCheckmarkSharp,
+  IoCloseSharp,
+  IoAddCircle,
+  IoChevronDownSharp,
+} from "react-icons/io5";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@bowser/components/dropdown-menu";
+import { twMerge } from "tailwind-merge";
+import { expectNever } from "ts-expect";
 
 export interface MetadataWithField extends Metadata {
   field: MetadataField;
+  _temporary?: boolean;
 }
 
 function MetaValue(props: {
   field: MetadataField;
   value: Metadata | null;
   saveChanges: (val: Prisma.InputJsonValue) => Promise<FormResponse>;
+  onCancel?: () => void;
+  slim?: boolean;
+  hideCancel?: boolean;
+  initialTouched?: boolean;
 }) {
   switch (props.field.type) {
     case "Text":
@@ -41,7 +59,7 @@ function MetaValue(props: {
   // This isn't a Rules-of-Hooks violation because the invariants should never be false
   const [isPending, startTransition] = useTransition();
   const [value, setValue] = useState((props.value?.value as string) ?? ""); // will need to change if we add non-text meta types
-  const [touched, setTouched] = useState(false);
+  const [touched, setTouched] = useState(props.initialTouched);
   const [error, setError] = useState<string | null>(null);
   const id = useId();
 
@@ -66,7 +84,7 @@ function MetaValue(props: {
       <label htmlFor={id} className="font-bold">
         {props.field.name}
       </label>
-      <div className="flex">
+      <div className={twMerge("flex", props.slim ? "flex-row" : "flex-col")}>
         <Component
           id={id}
           type={inputType}
@@ -79,19 +97,22 @@ function MetaValue(props: {
         />
         {touched && (
           <>
-            <Button
-              color="danger"
-              size="icon"
-              onClick={() => {
-                setValue((props.value?.value as string) ?? "");
-                setTouched(false);
-              }}
-            >
-              <IoCloseSharp />
-            </Button>
+            {!props.hideCancel && (
+              <Button
+                color="danger"
+                size={props.slim ? "icon" : "default"}
+                onClick={() => {
+                  props.onCancel?.();
+                  setValue((props.value?.value as string) ?? "");
+                  setTouched(false);
+                }}
+              >
+                <IoCloseSharp />
+              </Button>
+            )}
             <Button
               color="primary"
-              size="icon"
+              size={props.slim ? "icon" : "default"}
               onClick={() => {
                 setError(null);
                 startTransition(async () => {
@@ -115,6 +136,34 @@ function MetaValue(props: {
   );
 }
 
+function tempFieldsReducer(
+  state: MetadataWithField[],
+  action:
+    | { type: "add"; fieldType: MetadataField }
+    | { type: "remove"; id: number },
+): MetadataWithField[] {
+  switch (action.type) {
+    case "add":
+      return [
+        ...state,
+        {
+          field: action.fieldType,
+          fieldId: action.fieldType.id,
+          showId: -1,
+          rundownId: -1,
+          id: Math.random(),
+          _temporary: true,
+          value: "",
+        },
+      ];
+    case "remove":
+      return state.filter((x) => x.id !== action.id);
+    default:
+      // @ts-expect-error exhaustive
+      invariant(false, `Unknown tempFieldsReducer action type ${action.type}`);
+  }
+}
+
 export function MetadataFields(props: {
   metadata: MetadataWithField[];
   fields: MetadataField[];
@@ -134,24 +183,80 @@ export function MetadataFields(props: {
       ),
     [props.fields, props.metadata],
   );
+  const emptyDefaultFields = emptyFields.filter((f) => f.default);
+  const emptyNonDefaultFields = emptyFields.filter((f) => !f.default);
+
+  const [tempFields, setTempFields] = useReducer(tempFieldsReducer, []);
+
   return (
     <div className="space-y-2 my-8">
-      {props.metadata.map((meta) => (
-        <MetaValue
-          key={meta.id}
-          field={meta.field}
-          value={meta}
-          saveChanges={(val) => props.setValue(meta.id, val)}
-        />
-      ))}
-      {emptyFields.map((field) => (
+      {props.metadata
+        .filter((x) => x.field.default)
+        .map((meta) => (
+          <MetaValue
+            key={meta.id}
+            field={meta.field}
+            value={meta}
+            saveChanges={(val) => props.setValue(meta.id, val)}
+          />
+        ))}
+      {emptyDefaultFields.map((field) => (
         <MetaValue
           key={field.id}
           field={field}
           value={null}
           saveChanges={(val) => props.createMeta(field.id, val)}
+          slim
         />
       ))}
+      {props.metadata
+        .filter((x) => !x.field.default)
+        .map((meta) => (
+          <MetaValue
+            key={meta.id}
+            field={meta.field}
+            value={meta}
+            saveChanges={(val) => props.setValue(meta.id, val)}
+            slim
+          />
+        ))}
+      {tempFields.map((field) => (
+        <MetaValue
+          key={field.id}
+          field={field.field}
+          value={field}
+          saveChanges={async (val) => {
+            const r = await props.createMeta(field.field.id, val);
+            if (r.ok) {
+              setTempFields({ type: "remove", id: field.id });
+            }
+            return r;
+          }}
+          onCancel={() => setTempFields({ type: "remove", id: field.id })}
+          initialTouched
+          slim
+        />
+      ))}
+      {emptyNonDefaultFields.length > 0 && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button color="ghost">
+              <IoChevronDownSharp className="mr-1" />
+              Add extra show details
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            {emptyNonDefaultFields.map((field) => (
+              <DropdownMenuItem
+                key={field.id}
+                onClick={() => setTempFields({ type: "add", fieldType: field })}
+              >
+                {field.name}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </div>
   );
 }

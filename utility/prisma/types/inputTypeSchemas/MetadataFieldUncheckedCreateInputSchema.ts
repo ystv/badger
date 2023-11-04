@@ -12,6 +12,7 @@ export const MetadataFieldUncheckedCreateInputSchema: z.ZodType<Prisma.MetadataF
       type: z.lazy(() => MetadataValueTypeSchema),
       target: z.lazy(() => MetadataTargetTypeSchema),
       archived: z.boolean().optional(),
+      default: z.boolean().optional(),
       values: z
         .lazy(() => MetadataUncheckedCreateNestedManyWithoutFieldInputSchema)
         .optional(),

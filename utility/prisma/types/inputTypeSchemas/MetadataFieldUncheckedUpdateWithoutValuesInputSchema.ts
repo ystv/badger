@@ -41,6 +41,12 @@ export const MetadataFieldUncheckedUpdateWithoutValuesInputSchema: z.ZodType<Pri
           z.lazy(() => BoolFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      default: z
+        .union([
+          z.boolean(),
+          z.lazy(() => BoolFieldUpdateOperationsInputSchema),
+        ])
+        .optional(),
     })
     .strict();
 

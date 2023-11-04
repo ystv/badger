@@ -52,6 +52,9 @@ export const MetadataFieldWhereUniqueInputSchema: z.ZodType<Prisma.MetadataField
           archived: z
             .union([z.lazy(() => BoolFilterSchema), z.boolean()])
             .optional(),
+          default: z
+            .union([z.lazy(() => BoolFilterSchema), z.boolean()])
+            .optional(),
           values: z.lazy(() => MetadataListRelationFilterSchema).optional(),
         })
         .strict(),

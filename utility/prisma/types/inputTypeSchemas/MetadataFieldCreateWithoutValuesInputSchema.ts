@@ -10,6 +10,7 @@ export const MetadataFieldCreateWithoutValuesInputSchema: z.ZodType<Prisma.Metad
       type: z.lazy(() => MetadataValueTypeSchema),
       target: z.lazy(() => MetadataTargetTypeSchema),
       archived: z.boolean().optional(),
+      default: z.boolean().optional(),
     })
     .strict();
 

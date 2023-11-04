@@ -52,6 +52,9 @@ export const MetadataFieldScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma
       archived: z
         .union([z.lazy(() => BoolWithAggregatesFilterSchema), z.boolean()])
         .optional(),
+      default: z
+        .union([z.lazy(() => BoolWithAggregatesFilterSchema), z.boolean()])
+        .optional(),
     })
     .strict();
 
