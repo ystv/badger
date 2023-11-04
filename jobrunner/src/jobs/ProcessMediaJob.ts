@@ -28,8 +28,8 @@ const TARGET_TRUE_PEAK_DBTP = -1;
 const exec = util.promisify(child_process.exec);
 
 interface CompleteMedia extends Media {
-  continuityItem: null | (ContinuityItem & { show: Show });
-  rundownItem: null | (RundownItem & { rundown: Rundown & { show: Show } });
+  continuityItems: (ContinuityItem & { show: Show })[];
+  rundownItems: (RundownItem & { rundown: Rundown & { show: Show } })[];
 }
 
 export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
@@ -49,12 +49,12 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
         id: params.mediaId,
       },
       include: {
-        continuityItem: {
+        continuityItems: {
           include: {
             show: true,
           },
         },
-        rundownItem: {
+        rundownItems: {
           include: {
             rundown: {
               include: {
@@ -125,28 +125,24 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
             },
             data: {
               durationSeconds: duration,
+              rundownItems: {
+                updateMany: {
+                  where: {},
+                  data: {
+                    durationSeconds: duration,
+                  },
+                },
+              },
+              continuityItems: {
+                updateMany: {
+                  where: {},
+                  data: {
+                    durationSeconds: duration,
+                  },
+                },
+              },
             },
           });
-          if (media.continuityItem) {
-            await this.db.continuityItem.update({
-              where: {
-                id: media.continuityItem.id,
-              },
-              data: {
-                durationSeconds: duration,
-              },
-            });
-          }
-          if (media.rundownItem) {
-            await this.db.rundownItem.update({
-              where: {
-                id: media.rundownItem.id,
-              },
-              data: {
-                durationSeconds: duration,
-              },
-            });
-          }
           const durationMMSS = `${Math.floor(duration / 60)}:${(
             "0" + Math.floor(duration % 60)
           ).slice(-2)}`;
@@ -220,41 +216,46 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
           state: MediaState.Ready,
         },
       });
-      if (media.rundownItem) {
-        await this.db.rundownItem.update({
-          where: {
-            id: media.rundownItem.id,
-          },
-          data: {
-            rundown: {
-              update: {
-                show: {
-                  update: {
-                    version: {
-                      increment: 1,
+      await this.db.show.updateMany({
+        where: {
+          OR: [
+            {
+              rundowns: {
+                some: {
+                  OR: [
+                    {
+                      items: {
+                        some: {
+                          mediaId: media.id,
+                        },
+                      },
                     },
-                  },
+                    {
+                      assets: {
+                        some: {
+                          mediaId: media.id,
+                        },
+                      },
+                    },
+                  ],
                 },
               },
             },
-          },
-        });
-      } else if (media.continuityItem) {
-        await this.db.continuityItem.update({
-          where: {
-            id: media.continuityItem.id,
-          },
-          data: {
-            show: {
-              update: {
-                version: {
-                  increment: 1,
+            {
+              continuityItems: {
+                some: {
+                  mediaId: media.id,
                 },
               },
             },
+          ],
+        },
+        data: {
+          version: {
+            increment: 1,
           },
-        });
-      }
+        },
+      });
     } finally {
       this._deleteTemporaryDir();
     }
@@ -376,16 +377,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     taskDescr?: string,
   ) {
     const stream = fs.createReadStream(path);
-    const s3Path = item.continuityItem
-      ? `shows/${item.continuityItem.show.id}/continuity/${item.continuityItem.id}/${fileType}/${item.name}`
-      : item.rundownItem
-      ? `shows/${item.rundownItem.rundown.show.id}/rundown/${item.rundownItem.rundown.id}/${item.rundownItem.id}/${fileType}/${item.name}`
-      : null;
-    if (!s3Path) {
-      throw new Error(
-        "Impossible: media item without either continuity or rundown item parent",
-      );
-    }
+    const s3Path = `media/${item.id}/${fileType}/${item.name}`;
     const upload = new Upload({
       client: this.s3Client,
       params: {

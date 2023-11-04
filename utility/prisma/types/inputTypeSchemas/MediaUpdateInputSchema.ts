@@ -5,11 +5,11 @@ import { NullableStringFieldUpdateOperationsInputSchema } from "./NullableString
 import { IntFieldUpdateOperationsInputSchema } from "./IntFieldUpdateOperationsInputSchema";
 import { MediaStateSchema } from "./MediaStateSchema";
 import { EnumMediaStateFieldUpdateOperationsInputSchema } from "./EnumMediaStateFieldUpdateOperationsInputSchema";
-import { RundownItemUpdateOneWithoutMediaNestedInputSchema } from "./RundownItemUpdateOneWithoutMediaNestedInputSchema";
-import { ContinuityItemUpdateOneWithoutMediaNestedInputSchema } from "./ContinuityItemUpdateOneWithoutMediaNestedInputSchema";
+import { RundownItemUpdateManyWithoutMediaNestedInputSchema } from "./RundownItemUpdateManyWithoutMediaNestedInputSchema";
+import { ContinuityItemUpdateManyWithoutMediaNestedInputSchema } from "./ContinuityItemUpdateManyWithoutMediaNestedInputSchema";
 import { MediaProcessingTaskUpdateManyWithoutMediaNestedInputSchema } from "./MediaProcessingTaskUpdateManyWithoutMediaNestedInputSchema";
 import { ProcessMediaJobUpdateManyWithoutMediaNestedInputSchema } from "./ProcessMediaJobUpdateManyWithoutMediaNestedInputSchema";
-import { AssetUpdateOneWithoutMediaNestedInputSchema } from "./AssetUpdateOneWithoutMediaNestedInputSchema";
+import { AssetUpdateManyWithoutMediaNestedInputSchema } from "./AssetUpdateManyWithoutMediaNestedInputSchema";
 
 export const MediaUpdateInputSchema: z.ZodType<Prisma.MediaUpdateInput> = z
   .object({
@@ -38,11 +38,11 @@ export const MediaUpdateInputSchema: z.ZodType<Prisma.MediaUpdateInput> = z
         z.lazy(() => EnumMediaStateFieldUpdateOperationsInputSchema),
       ])
       .optional(),
-    rundownItem: z
-      .lazy(() => RundownItemUpdateOneWithoutMediaNestedInputSchema)
+    rundownItems: z
+      .lazy(() => RundownItemUpdateManyWithoutMediaNestedInputSchema)
       .optional(),
-    continuityItem: z
-      .lazy(() => ContinuityItemUpdateOneWithoutMediaNestedInputSchema)
+    continuityItems: z
+      .lazy(() => ContinuityItemUpdateManyWithoutMediaNestedInputSchema)
       .optional(),
     tasks: z
       .lazy(() => MediaProcessingTaskUpdateManyWithoutMediaNestedInputSchema)
@@ -50,7 +50,9 @@ export const MediaUpdateInputSchema: z.ZodType<Prisma.MediaUpdateInput> = z
     process_jobs: z
       .lazy(() => ProcessMediaJobUpdateManyWithoutMediaNestedInputSchema)
       .optional(),
-    asset: z.lazy(() => AssetUpdateOneWithoutMediaNestedInputSchema).optional(),
+    assets: z
+      .lazy(() => AssetUpdateManyWithoutMediaNestedInputSchema)
+      .optional(),
   })
   .strict();
 

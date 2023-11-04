@@ -1,19 +1,19 @@
 import { z } from "zod";
 import type { Prisma } from "../../client";
-import { RundownItemArgsSchema } from "../outputTypeSchemas/RundownItemArgsSchema";
-import { ContinuityItemArgsSchema } from "../outputTypeSchemas/ContinuityItemArgsSchema";
+import { RundownItemFindManyArgsSchema } from "../outputTypeSchemas/RundownItemFindManyArgsSchema";
+import { ContinuityItemFindManyArgsSchema } from "../outputTypeSchemas/ContinuityItemFindManyArgsSchema";
 import { MediaProcessingTaskFindManyArgsSchema } from "../outputTypeSchemas/MediaProcessingTaskFindManyArgsSchema";
 import { ProcessMediaJobFindManyArgsSchema } from "../outputTypeSchemas/ProcessMediaJobFindManyArgsSchema";
-import { AssetArgsSchema } from "../outputTypeSchemas/AssetArgsSchema";
+import { AssetFindManyArgsSchema } from "../outputTypeSchemas/AssetFindManyArgsSchema";
 import { MediaCountOutputTypeArgsSchema } from "../outputTypeSchemas/MediaCountOutputTypeArgsSchema";
 
 export const MediaIncludeSchema: z.ZodType<Prisma.MediaInclude> = z
   .object({
-    rundownItem: z
-      .union([z.boolean(), z.lazy(() => RundownItemArgsSchema)])
+    rundownItems: z
+      .union([z.boolean(), z.lazy(() => RundownItemFindManyArgsSchema)])
       .optional(),
-    continuityItem: z
-      .union([z.boolean(), z.lazy(() => ContinuityItemArgsSchema)])
+    continuityItems: z
+      .union([z.boolean(), z.lazy(() => ContinuityItemFindManyArgsSchema)])
       .optional(),
     tasks: z
       .union([z.boolean(), z.lazy(() => MediaProcessingTaskFindManyArgsSchema)])
@@ -21,7 +21,9 @@ export const MediaIncludeSchema: z.ZodType<Prisma.MediaInclude> = z
     process_jobs: z
       .union([z.boolean(), z.lazy(() => ProcessMediaJobFindManyArgsSchema)])
       .optional(),
-    asset: z.union([z.boolean(), z.lazy(() => AssetArgsSchema)]).optional(),
+    assets: z
+      .union([z.boolean(), z.lazy(() => AssetFindManyArgsSchema)])
+      .optional(),
     _count: z
       .union([z.boolean(), z.lazy(() => MediaCountOutputTypeArgsSchema)])
       .optional(),

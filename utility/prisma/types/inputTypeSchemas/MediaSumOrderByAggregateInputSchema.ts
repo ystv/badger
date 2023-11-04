@@ -7,8 +7,6 @@ export const MediaSumOrderByAggregateInputSchema: z.ZodType<Prisma.MediaSumOrder
     .object({
       id: z.lazy(() => SortOrderSchema).optional(),
       durationSeconds: z.lazy(() => SortOrderSchema).optional(),
-      rundownItemID: z.lazy(() => SortOrderSchema).optional(),
-      continuityItemID: z.lazy(() => SortOrderSchema).optional(),
     })
     .strict();
 

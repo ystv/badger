@@ -1,10 +1,10 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
 import { MediaStateSchema } from "./MediaStateSchema";
-import { RundownItemCreateNestedOneWithoutMediaInputSchema } from "./RundownItemCreateNestedOneWithoutMediaInputSchema";
-import { ContinuityItemCreateNestedOneWithoutMediaInputSchema } from "./ContinuityItemCreateNestedOneWithoutMediaInputSchema";
+import { RundownItemCreateNestedManyWithoutMediaInputSchema } from "./RundownItemCreateNestedManyWithoutMediaInputSchema";
+import { ContinuityItemCreateNestedManyWithoutMediaInputSchema } from "./ContinuityItemCreateNestedManyWithoutMediaInputSchema";
 import { ProcessMediaJobCreateNestedManyWithoutMediaInputSchema } from "./ProcessMediaJobCreateNestedManyWithoutMediaInputSchema";
-import { AssetCreateNestedOneWithoutMediaInputSchema } from "./AssetCreateNestedOneWithoutMediaInputSchema";
+import { AssetCreateNestedManyWithoutMediaInputSchema } from "./AssetCreateNestedManyWithoutMediaInputSchema";
 
 export const MediaCreateWithoutTasksInputSchema: z.ZodType<Prisma.MediaCreateWithoutTasksInput> =
   z
@@ -14,17 +14,17 @@ export const MediaCreateWithoutTasksInputSchema: z.ZodType<Prisma.MediaCreateWit
       path: z.string().optional().nullable(),
       durationSeconds: z.number().int(),
       state: z.lazy(() => MediaStateSchema).optional(),
-      rundownItem: z
-        .lazy(() => RundownItemCreateNestedOneWithoutMediaInputSchema)
+      rundownItems: z
+        .lazy(() => RundownItemCreateNestedManyWithoutMediaInputSchema)
         .optional(),
-      continuityItem: z
-        .lazy(() => ContinuityItemCreateNestedOneWithoutMediaInputSchema)
+      continuityItems: z
+        .lazy(() => ContinuityItemCreateNestedManyWithoutMediaInputSchema)
         .optional(),
       process_jobs: z
         .lazy(() => ProcessMediaJobCreateNestedManyWithoutMediaInputSchema)
         .optional(),
-      asset: z
-        .lazy(() => AssetCreateNestedOneWithoutMediaInputSchema)
+      assets: z
+        .lazy(() => AssetCreateNestedManyWithoutMediaInputSchema)
         .optional(),
     })
     .strict();

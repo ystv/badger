@@ -291,10 +291,19 @@ export async function processUploadForRundownItem(
   }
 
   const baseJobID = await db.$transaction(async ($db) => {
+    // If the pre-existing media isn't used on any other items, delete it
     await $db.media.deleteMany({
       where: {
-        rundownItem: {
-          id: itemID,
+        rundownItems: {
+          every: {
+            id: itemID,
+          },
+        },
+        continuityItems: {
+          none: {},
+        },
+        assets: {
+          none: {},
         },
       },
     });
@@ -303,7 +312,7 @@ export async function processUploadForRundownItem(
         name: fileName,
         durationSeconds: 0,
         rawPath: "",
-        rundownItem: {
+        rundownItems: {
           connect: {
             id: itemID,
           },

@@ -1,12 +1,32 @@
-import { vi, describe, test, expect, beforeEach, afterEach } from "vitest";
+import {
+  vi,
+  describe,
+  test,
+  expect,
+  beforeEach,
+  afterEach,
+  beforeAll,
+} from "vitest";
 import {
   addOrReplaceMediaAsScene,
   findContinuityScenes,
   MediaType,
 } from "./obsHelpers";
 import { MockOBSConnection } from "./__mocks__/obs";
+import { selectedShow } from "./selectedShow";
 
 vi.mock("./obs");
+
+beforeAll(() => {
+  selectedShow.next({
+    id: 1,
+    name: "Test",
+    start: new Date(),
+    rundowns: [],
+    continuityItems: [],
+    version: 1,
+  });
+});
 
 describe("addOrReplaceMediaAsScene", () => {
   const testMedia: MediaType = {
@@ -14,17 +34,18 @@ describe("addOrReplaceMediaAsScene", () => {
     name: "Test.mp4",
     state: "Ready",
     path: "",
-    continuityItem: {
-      id: 1,
-      name: "Test Continuity",
-      order: 1,
-      durationSeconds: 15,
-      showId: 0,
-    },
+    continuityItems: [
+      {
+        id: 1,
+        mediaId: 1,
+        name: "Test Continuity",
+        order: 1,
+        durationSeconds: 15,
+        showId: 1,
+      },
+    ],
     durationSeconds: 15,
-    continuityItemID: 1,
     rawPath: "",
-    rundownItemID: null,
   };
   let mobs: MockOBSConnection;
   beforeEach(async () => {

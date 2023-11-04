@@ -12,6 +12,7 @@ export const RundownItemMaxOrderByAggregateInputSchema: z.ZodType<Prisma.Rundown
       durationSeconds: z.lazy(() => SortOrderSchema).optional(),
       type: z.lazy(() => SortOrderSchema).optional(),
       notes: z.lazy(() => SortOrderSchema).optional(),
+      mediaId: z.lazy(() => SortOrderSchema).optional(),
     })
     .strict();
 

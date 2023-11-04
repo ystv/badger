@@ -5,7 +5,6 @@ import { StringFieldUpdateOperationsInputSchema } from "./StringFieldUpdateOpera
 import { NullableStringFieldUpdateOperationsInputSchema } from "./NullableStringFieldUpdateOperationsInputSchema";
 import { MediaStateSchema } from "./MediaStateSchema";
 import { EnumMediaStateFieldUpdateOperationsInputSchema } from "./EnumMediaStateFieldUpdateOperationsInputSchema";
-import { NullableIntFieldUpdateOperationsInputSchema } from "./NullableIntFieldUpdateOperationsInputSchema";
 
 export const MediaUncheckedUpdateManyInputSchema: z.ZodType<Prisma.MediaUncheckedUpdateManyInput> =
   z
@@ -47,20 +46,6 @@ export const MediaUncheckedUpdateManyInputSchema: z.ZodType<Prisma.MediaUnchecke
           z.lazy(() => EnumMediaStateFieldUpdateOperationsInputSchema),
         ])
         .optional(),
-      rundownItemID: z
-        .union([
-          z.number().int(),
-          z.lazy(() => NullableIntFieldUpdateOperationsInputSchema),
-        ])
-        .optional()
-        .nullable(),
-      continuityItemID: z
-        .union([
-          z.number().int(),
-          z.lazy(() => NullableIntFieldUpdateOperationsInputSchema),
-        ])
-        .optional()
-        .nullable(),
     })
     .strict();
 

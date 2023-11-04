@@ -51,6 +51,7 @@ import { shell, ipcMain } from "electron";
 import logging from "loglevel";
 import { getAvailableDownloaders } from "./downloadFile";
 import { ShowSchema } from "@bowser/prisma/types";
+import { isAfter } from "date-fns";
 
 const logger = logging.getLogger("ipcApi");
 const rendererLogger = logging.getLogger("renderer");
@@ -244,20 +245,19 @@ export const appRouter = r({
           if (result.state !== "Ready") {
             continue;
           }
-          let showDate;
-          if (result.continuityItem) {
-            showDate = result.continuityItem.show.start;
-          } else if (result.rundownItem) {
-            showDate = result.rundownItem.rundown.show.start;
-          } else if (result.asset) {
-            showDate = result.asset.rundown.show.start;
-          } else {
-            invariant(
-              false,
-              "Media item without rundown, continuity item, or asset",
-            );
-          }
-          const age = (Date.now() - showDate.getTime()) / (1000 * 60 * 60 * 24);
+          const latestShowDate = [
+            result.rundownItems.map((x) => x.rundown.show.start),
+            result.continuityItems.map((x) => x.show.start),
+            result.assets.map((x) => x.rundown.show.start),
+          ]
+            .flat()
+            .reduce((a, b) => (isAfter(a, b) ? a : b), new Date(0));
+          invariant(
+            latestShowDate.getTime() !== 0,
+            "no rundown, continuity item, or asset for media " + result.id,
+          );
+          const age =
+            (Date.now() - latestShowDate.getTime()) / (1000 * 60 * 60 * 24);
           logger.debug(
             result.id,
             result.name,
@@ -380,13 +380,10 @@ export const appRouter = r({
       .mutation(async ({ input }) => {
         const info = await serverAPI().media.get.query({ id: input.id });
         invariant(
-          info.continuityItem,
+          info.continuityItems.length > 0,
           "No continuity item for media in obs.addMediaAsScene",
         );
-        return await addOrReplaceMediaAsScene(
-          info as MediaType,
-          input.replaceMode,
-        );
+        return await addOrReplaceMediaAsScene(info, input.replaceMode);
       }),
     addAllSelectedShowMedia: proc
       .output(
@@ -410,7 +407,7 @@ export const appRouter = r({
             const r = await addOrReplaceMediaAsScene(
               {
                 ...item.media,
-                continuityItem: item,
+                continuityItems: [item],
               },
               "replace",
             );

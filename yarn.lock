@@ -6231,6 +6231,7 @@ __metadata:
     bufferutil: ^4.0.7
     classnames: ^2.3.2
     client-only: ^0.0.1
+    date-fns: ^2.30.0
     electron: 26.2.4
     electron-log: ^4.4.8
     electron-settings: ^4.0.2

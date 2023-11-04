@@ -6,51 +6,21 @@ import { StringNullableFilterSchema } from "./StringNullableFilterSchema";
 import { IntFilterSchema } from "./IntFilterSchema";
 import { EnumMediaStateFilterSchema } from "./EnumMediaStateFilterSchema";
 import { MediaStateSchema } from "./MediaStateSchema";
-import { RundownItemNullableRelationFilterSchema } from "./RundownItemNullableRelationFilterSchema";
-import { RundownItemWhereInputSchema } from "./RundownItemWhereInputSchema";
-import { ContinuityItemNullableRelationFilterSchema } from "./ContinuityItemNullableRelationFilterSchema";
-import { ContinuityItemWhereInputSchema } from "./ContinuityItemWhereInputSchema";
+import { RundownItemListRelationFilterSchema } from "./RundownItemListRelationFilterSchema";
+import { ContinuityItemListRelationFilterSchema } from "./ContinuityItemListRelationFilterSchema";
 import { MediaProcessingTaskListRelationFilterSchema } from "./MediaProcessingTaskListRelationFilterSchema";
 import { ProcessMediaJobListRelationFilterSchema } from "./ProcessMediaJobListRelationFilterSchema";
-import { AssetNullableRelationFilterSchema } from "./AssetNullableRelationFilterSchema";
-import { AssetWhereInputSchema } from "./AssetWhereInputSchema";
+import { AssetListRelationFilterSchema } from "./AssetListRelationFilterSchema";
 
 export const MediaWhereUniqueInputSchema: z.ZodType<Prisma.MediaWhereUniqueInput> =
   z
-    .union([
-      z.object({
-        id: z.number(),
-        rundownItemID: z.number(),
-        continuityItemID: z.number(),
-      }),
-      z.object({
-        id: z.number(),
-        rundownItemID: z.number(),
-      }),
-      z.object({
-        id: z.number(),
-        continuityItemID: z.number(),
-      }),
-      z.object({
-        id: z.number(),
-      }),
-      z.object({
-        rundownItemID: z.number(),
-        continuityItemID: z.number(),
-      }),
-      z.object({
-        rundownItemID: z.number(),
-      }),
-      z.object({
-        continuityItemID: z.number(),
-      }),
-    ])
+    .object({
+      id: z.number(),
+    })
     .and(
       z
         .object({
           id: z.number().optional(),
-          rundownItemID: z.number().optional(),
-          continuityItemID: z.number().optional(),
           AND: z
             .union([
               z.lazy(() => MediaWhereInputSchema),
@@ -86,33 +56,19 @@ export const MediaWhereUniqueInputSchema: z.ZodType<Prisma.MediaWhereUniqueInput
               z.lazy(() => MediaStateSchema),
             ])
             .optional(),
-          rundownItem: z
-            .union([
-              z.lazy(() => RundownItemNullableRelationFilterSchema),
-              z.lazy(() => RundownItemWhereInputSchema),
-            ])
-            .optional()
-            .nullable(),
-          continuityItem: z
-            .union([
-              z.lazy(() => ContinuityItemNullableRelationFilterSchema),
-              z.lazy(() => ContinuityItemWhereInputSchema),
-            ])
-            .optional()
-            .nullable(),
+          rundownItems: z
+            .lazy(() => RundownItemListRelationFilterSchema)
+            .optional(),
+          continuityItems: z
+            .lazy(() => ContinuityItemListRelationFilterSchema)
+            .optional(),
           tasks: z
             .lazy(() => MediaProcessingTaskListRelationFilterSchema)
             .optional(),
           process_jobs: z
             .lazy(() => ProcessMediaJobListRelationFilterSchema)
             .optional(),
-          asset: z
-            .union([
-              z.lazy(() => AssetNullableRelationFilterSchema),
-              z.lazy(() => AssetWhereInputSchema),
-            ])
-            .optional()
-            .nullable(),
+          assets: z.lazy(() => AssetListRelationFilterSchema).optional(),
         })
         .strict(),
     );

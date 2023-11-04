@@ -5,10 +5,10 @@ import { NullableStringFieldUpdateOperationsInputSchema } from "./NullableString
 import { IntFieldUpdateOperationsInputSchema } from "./IntFieldUpdateOperationsInputSchema";
 import { MediaStateSchema } from "./MediaStateSchema";
 import { EnumMediaStateFieldUpdateOperationsInputSchema } from "./EnumMediaStateFieldUpdateOperationsInputSchema";
-import { RundownItemUpdateOneWithoutMediaNestedInputSchema } from "./RundownItemUpdateOneWithoutMediaNestedInputSchema";
-import { ContinuityItemUpdateOneWithoutMediaNestedInputSchema } from "./ContinuityItemUpdateOneWithoutMediaNestedInputSchema";
+import { RundownItemUpdateManyWithoutMediaNestedInputSchema } from "./RundownItemUpdateManyWithoutMediaNestedInputSchema";
+import { ContinuityItemUpdateManyWithoutMediaNestedInputSchema } from "./ContinuityItemUpdateManyWithoutMediaNestedInputSchema";
 import { MediaProcessingTaskUpdateManyWithoutMediaNestedInputSchema } from "./MediaProcessingTaskUpdateManyWithoutMediaNestedInputSchema";
-import { AssetUpdateOneWithoutMediaNestedInputSchema } from "./AssetUpdateOneWithoutMediaNestedInputSchema";
+import { AssetUpdateManyWithoutMediaNestedInputSchema } from "./AssetUpdateManyWithoutMediaNestedInputSchema";
 
 export const MediaUpdateWithoutProcess_jobsInputSchema: z.ZodType<Prisma.MediaUpdateWithoutProcess_jobsInput> =
   z
@@ -44,17 +44,17 @@ export const MediaUpdateWithoutProcess_jobsInputSchema: z.ZodType<Prisma.MediaUp
           z.lazy(() => EnumMediaStateFieldUpdateOperationsInputSchema),
         ])
         .optional(),
-      rundownItem: z
-        .lazy(() => RundownItemUpdateOneWithoutMediaNestedInputSchema)
+      rundownItems: z
+        .lazy(() => RundownItemUpdateManyWithoutMediaNestedInputSchema)
         .optional(),
-      continuityItem: z
-        .lazy(() => ContinuityItemUpdateOneWithoutMediaNestedInputSchema)
+      continuityItems: z
+        .lazy(() => ContinuityItemUpdateManyWithoutMediaNestedInputSchema)
         .optional(),
       tasks: z
         .lazy(() => MediaProcessingTaskUpdateManyWithoutMediaNestedInputSchema)
         .optional(),
-      asset: z
-        .lazy(() => AssetUpdateOneWithoutMediaNestedInputSchema)
+      assets: z
+        .lazy(() => AssetUpdateManyWithoutMediaNestedInputSchema)
         .optional(),
     })
     .strict();

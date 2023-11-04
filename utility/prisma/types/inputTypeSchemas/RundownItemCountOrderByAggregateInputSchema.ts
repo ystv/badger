@@ -12,6 +12,7 @@ export const RundownItemCountOrderByAggregateInputSchema: z.ZodType<Prisma.Rundo
       durationSeconds: z.lazy(() => SortOrderSchema).optional(),
       type: z.lazy(() => SortOrderSchema).optional(),
       notes: z.lazy(() => SortOrderSchema).optional(),
+      mediaId: z.lazy(() => SortOrderSchema).optional(),
     })
     .strict();
 

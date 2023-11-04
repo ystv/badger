@@ -104,6 +104,21 @@ export async function removeAsset(assetID: number) {
         rundown: true,
       },
     });
+    await $db.media.deleteMany({
+      where: {
+        assets: {
+          every: {
+            id: assetID,
+          },
+        },
+        rundownItems: {
+          none: {},
+        },
+        continuityItems: {
+          none: {},
+        },
+      },
+    });
     await $db.asset.delete({
       where: {
         id: assetID,
