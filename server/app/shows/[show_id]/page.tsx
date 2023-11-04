@@ -8,6 +8,41 @@ import { DateTime } from "@/components/DateTIme";
 import { MetadataFields } from "@/components/Metadata";
 import { MetadataTargetType } from "@bowser/prisma/client";
 import { addMeta, setMetaValue } from "./actions";
+import { cache } from "react";
+import { PastShowsMedia } from "@/components/MediaSelection";
+
+// TODO: duplicated in rundown/id/page.ts
+const pastShowsPromise = cache(
+  () =>
+    db.show.findMany({
+      where: {
+        start: {
+          lt: new Date(),
+        },
+      },
+      include: {
+        rundowns: {
+          include: {
+            items: {
+              include: {
+                media: true,
+              },
+            },
+            assets: {
+              include: {
+                media: true,
+              },
+            },
+          },
+        },
+        continuityItems: {
+          include: {
+            media: true,
+          },
+        },
+      },
+    }) satisfies Promise<PastShowsMedia>,
+);
 
 export default async function ShowPage(props: { params: { show_id: string } }) {
   const show = await db.show.findFirst({
@@ -79,7 +114,11 @@ export default async function ShowPage(props: { params: { show_id: string } }) {
         }}
       />
       <TusEndpointProvider value={getTusEndpoint()}>
-        <ShowItemsList show={show} items={items} />
+        <ShowItemsList
+          show={show}
+          items={items}
+          pastShowsPromise={pastShowsPromise()}
+        />
       </TusEndpointProvider>
     </>
   );

@@ -16,25 +16,14 @@ import clsx from "clsx";
 import Image from "next/image";
 import Spinner from "@/app/_assets/spinner.svg";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState } from "react";
 import Button from "@bowser/components/button";
-import {
-  MediaUploadDialog,
-  MediaUploadDialogHandle,
-} from "@/components/MediaUpload";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@bowser/components/popover";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@bowser/components/dialog";
-import { DialogBody } from "next/dist/client/components/react-dev-overlay/internal/components/Dialog";
+import { MediaSelectOrUploadDialog, PastShowsMedia } from "./MediaSelection";
 
 export interface CompleteMedia extends Media {
   tasks: MediaProcessingTask[];
@@ -145,14 +134,16 @@ function MediaProcessingState({
 export function ItemMediaStateAndUploadDialog({
   item,
   onUploadComplete,
+  onExistingSelected,
+  pastShowsPromise,
 }: {
   item: CompleteContinuityItem | CompleteRundownItem;
   onUploadComplete: (url: string, fileName: string) => Promise<unknown>;
+  onExistingSelected: (id: number) => Promise<unknown>;
+  pastShowsPromise: Promise<PastShowsMedia>;
 }) {
-  const [isUploadOpen, setIsUploadOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
-  const uploadRef = useRef<MediaUploadDialogHandle | null>(null);
   let base;
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
   if (item.media === null) {
     base = (
       <Button
@@ -173,46 +164,17 @@ export function ItemMediaStateAndUploadDialog({
   }
   return (
     <>
-      <Dialog
-        open={isUploadOpen}
-        onOpenChange={(v) => {
-          if (uploadRef.current && !v) {
-            const progress = uploadRef.current.getProgress();
-            if (progress > 0 && progress < 1) {
-              if (confirm("Are you sure you want to cancel the upload?")) {
-                uploadRef.current.cancel();
-                setIsUploadOpen(v);
-              }
-            } else {
-              setIsUploadOpen(v);
-            }
-          } else {
-            setIsUploadOpen(v);
-          }
-        }}
-      >
-        <DialogTrigger asChild>{base}</DialogTrigger>
-        <DialogContent className="mx-auto max-w-sm rounded bg-light p-8">
-          <DialogHeader>
-            <DialogTitle>Upload media for {item.name}</DialogTitle>
-          </DialogHeader>
-          <DialogBody>
-            <MediaUploadDialog
-              ref={uploadRef}
-              title={`Upload '${item.name}'`}
-              prompt="Drop video files here, or click to select"
-              accept={{ "video/*": [] }}
-              onComplete={(url, fileName) =>
-                startTransition(async () => {
-                  await onUploadComplete(url, fileName);
-                  setIsUploadOpen(false);
-                })
-              }
-            />
-            {isPending && <em>Processing, please wait...</em>}
-          </DialogBody>
-        </DialogContent>
-      </Dialog>
+      {base}
+      <MediaSelectOrUploadDialog
+        containerType={"type" in item ? "rundownItem" : "continuityItem"}
+        isOpen={isUploadOpen}
+        setOpen={setIsUploadOpen}
+        onUploadComplete={onUploadComplete}
+        onExistingSelected={onExistingSelected}
+        pastShowsPromise={pastShowsPromise}
+        title={`Select media for ${item.name}`}
+        acceptMedia={{ "video/*": [] }}
+      />
     </>
   );
 }

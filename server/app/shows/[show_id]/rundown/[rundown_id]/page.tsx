@@ -5,11 +5,44 @@ import RundownAssets from "./RundownAssets";
 import Link from "next/link";
 import { TusEndpointProvider } from "@/components/MediaUpload";
 import { getTusEndpoint } from "@/lib/tus";
-import { Suspense } from "react";
+import { Suspense, cache } from "react";
 import { Button } from "@bowser/components/button";
 import { MetadataTargetType } from "@bowser/prisma/client";
 import { MetadataFields } from "@/components/Metadata";
 import { addMeta, setMetaValue } from "./metaActions";
+import { PastShowsMedia } from "@/components/MediaSelection";
+
+const pastShowsPromise = cache(
+  () =>
+    db.show.findMany({
+      where: {
+        start: {
+          lt: new Date(),
+        },
+      },
+      include: {
+        rundowns: {
+          include: {
+            items: {
+              include: {
+                media: true,
+              },
+            },
+            assets: {
+              include: {
+                media: true,
+              },
+            },
+          },
+        },
+        continuityItems: {
+          include: {
+            media: true,
+          },
+        },
+      },
+    }) satisfies Promise<PastShowsMedia>,
+);
 
 async function RundownAssetsFetcher(props: { rundownID: number }) {
   const rundown = await db.rundown.findFirstOrThrow({
@@ -24,7 +57,9 @@ async function RundownAssetsFetcher(props: { rundownID: number }) {
       },
     },
   });
-  return <RundownAssets rundown={rundown} />;
+  return (
+    <RundownAssets rundown={rundown} pastShowsPromise={pastShowsPromise()} />
+  );
 }
 
 async function RundownItemsFetcher(props: { rundownID: number }) {
@@ -47,7 +82,9 @@ async function RundownItemsFetcher(props: { rundownID: number }) {
       },
     },
   });
-  return <RundownItems rundown={rundown} />;
+  return (
+    <RundownItems rundown={rundown} pastShowsPromise={pastShowsPromise()} />
+  );
 }
 
 async function RundownMetadata(props: { showID: number; rundownID: number }) {

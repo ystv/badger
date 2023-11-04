@@ -355,3 +355,37 @@ export async function processUploadForRundownItem(
   revalidatePath(`/shows/${item.rundown.showId}`);
   return { ok: true };
 }
+
+export async function attachExistingMediaToRundownItem(
+  itemID: number,
+  mediaID: number,
+) {
+  const res = await db.rundownItem.update({
+    data: {
+      media: {
+        connect: {
+          id: mediaID,
+        },
+      },
+      rundown: {
+        update: {
+          show: {
+            update: {
+              version: {
+                increment: 1,
+              },
+            },
+          },
+        },
+      },
+    },
+    where: {
+      id: itemID,
+    },
+    include: {
+      rundown: true,
+    },
+  });
+  revalidatePath(`/shows/${res.rundown.showId}`);
+  return { ok: true };
+}
