@@ -31,9 +31,9 @@ import {
 } from "@/components/FormFields";
 import { identity } from "lodash";
 import {
+  ReactNode,
   useCallback,
   useEffect,
-  useMemo,
   experimental_useOptimistic as useOptimistic,
   useRef,
   useTransition,
@@ -214,90 +214,84 @@ function ItemsTable(props: {
     };
   }, [props.rundown.items, router]);
 
-  const [items, runtimeSeconds] = useMemo(() => {
-    const items = [];
-    let runningDurationSeconds = 0;
-    for (let idx = 0; idx < optimisticItems.length; idx++) {
-      const item = optimisticItems[idx];
-      runningDurationSeconds += item.durationSeconds;
-      // Ensure the render prop closes over the current value of runningDurationSeconds
-      const dur = runningDurationSeconds;
+  const items: ReactNode[] = [];
+  let runningDurationSeconds = 0;
+  for (let idx = 0; idx < optimisticItems.length; idx++) {
+    const item = optimisticItems[idx];
+    runningDurationSeconds += item.durationSeconds;
+    // Ensure the render prop closes over the current value of runningDurationSeconds
+    const dur = runningDurationSeconds;
 
-      items.push(
-        <Draggable
-          key={item.id}
-          draggableId={item.id.toString()}
-          index={idx}
-          isDragDisabled={isPending}
-        >
-          {(provided) => (
-            <TableRow {...provided.draggableProps} ref={provided.innerRef}>
-              <TableCell
-                {...provided.dragHandleProps}
-                className="text-2xl px-4"
-              >
-                ☰
-              </TableCell>
-              <TableCell className="font-bold">{item.name}</TableCell>
-              <TableCell>
-                {item.type === "VT" && (
-                  <ItemMediaStateAndUploadDialog
+    items.push(
+      <Draggable
+        key={item.id}
+        draggableId={item.id.toString()}
+        index={idx}
+        isDragDisabled={isPending}
+      >
+        {(provided) => (
+          <TableRow {...provided.draggableProps} ref={provided.innerRef}>
+            <TableCell {...provided.dragHandleProps} className="text-2xl px-4">
+              ☰
+            </TableCell>
+            <TableCell className="font-bold">{item.name}</TableCell>
+            <TableCell>
+              {item.type === "VT" && (
+                <ItemMediaStateAndUploadDialog
+                  item={item}
+                  onUploadComplete={(url, fileName) =>
+                    processUploadForRundownItem(item.id, fileName, url)
+                  }
+                  onExistingSelected={(id) =>
+                    attachExistingMediaToRundownItem(item.id, id)
+                  }
+                  pastShowsPromise={props.pastShowsPromise}
+                />
+              )}
+            </TableCell>
+            <TableCell>
+              {formatDurationMS(item.durationSeconds * 1000)}
+            </TableCell>
+            <TableCell>{formatDurationMS(dur * 1000)}</TableCell>
+            <TableCell>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button>Edit</Button>
+                </PopoverTrigger>
+                <PopoverContent>
+                  <EditItem
+                    showID={props.rundown.showId}
+                    rundownID={props.rundown.id}
                     item={item}
-                    onUploadComplete={(url, fileName) =>
-                      processUploadForRundownItem(item.id, fileName, url)
-                    }
-                    onExistingSelected={(id) =>
-                      attachExistingMediaToRundownItem(item.id, id)
-                    }
-                    pastShowsPromise={props.pastShowsPromise}
                   />
-                )}
-              </TableCell>
-              <TableCell>
-                {formatDurationMS(item.durationSeconds * 1000)}
-              </TableCell>
-              <TableCell>{formatDurationMS(dur * 1000)}</TableCell>
-              <TableCell>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button>Edit</Button>
-                  </PopoverTrigger>
-                  <PopoverContent>
-                    <EditItem
-                      showID={props.rundown.showId}
-                      rundownID={props.rundown.id}
-                      item={item}
-                    />
-                  </PopoverContent>{" "}
-                </Popover>
-              </TableCell>
-              <TableCell className="pr-4">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button color="danger">Delet</Button>
-                  </PopoverTrigger>
-                  <PopoverContent>
-                    <Button
-                      color="danger"
-                      onClick={() => {
-                        startTransition(async () => {
-                          await deleteItem(props.rundown.id, item.id);
-                        });
-                      }}
-                      disabled={isPending}
-                    >
-                      You sure boss?
-                    </Button>
-                  </PopoverContent>
-                </Popover>
-              </TableCell>
-            </TableRow>
-          )}
-        </Draggable>,
-      );
-    }
-    return [items, runningDurationSeconds];
-  }, [optimisticItems, isPending, props.rundown.id, props.rundown.showId]);
+                </PopoverContent>{" "}
+              </Popover>
+            </TableCell>
+            <TableCell className="pr-4">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button color="danger">Delet</Button>
+                </PopoverTrigger>
+                <PopoverContent>
+                  <Button
+                    color="danger"
+                    onClick={() => {
+                      startTransition(async () => {
+                        await deleteItem(props.rundown.id, item.id);
+                      });
+                    }}
+                    disabled={isPending}
+                  >
+                    You sure boss?
+                  </Button>
+                </PopoverContent>
+              </Popover>
+            </TableCell>
+          </TableRow>
+        )}
+      </Draggable>,
+    );
+  }
 
   return (
     <>
@@ -320,7 +314,7 @@ function ItemsTable(props: {
               </TableBody>
               <TableCaption>
                 <strong>Total runtime:</strong>{" "}
-                {formatDurationMS(runtimeSeconds * 1000)}
+                {formatDurationMS(runningDurationSeconds * 1000)}
               </TableCaption>
             </Table>
           )}
