@@ -83,6 +83,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
       );
 
       // Promise.all would cancel the other tasks if one failed, so we use Promise.allSettled instead
+      // TODO: Isn't that what we want though?
       const results = await Promise.allSettled([
         (async () => {
           const rawPath = await this._wrapTask(
@@ -194,14 +195,6 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
               (x as PromiseRejectedResult).reason,
             );
           });
-        await this.db.media.update({
-          where: {
-            id: media.id,
-          },
-          data: {
-            state: MediaState.ProcessingFailed,
-          },
-        });
         throw new AggregateError(
           results
             .filter((x) => x.status === "rejected")
@@ -256,6 +249,16 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
           },
         },
       });
+    } catch (e) {
+      await this.db.media.update({
+        where: {
+          id: media.id,
+        },
+        data: {
+          state: MediaState.ProcessingFailed,
+        },
+      });
+      throw e;
     } finally {
       this._deleteTemporaryDir();
     }
