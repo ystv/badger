@@ -193,6 +193,12 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
                   `Warnings: ${qualityWarnings.join(", ")}`,
                 );
               }
+            } else {
+              await this._updateTaskStatus(
+                media,
+                "Checking quality",
+                MediaProcessingTaskState.Complete,
+              );
             }
           }
         },
