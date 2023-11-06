@@ -1057,7 +1057,7 @@ __metadata:
   dependencies:
     "@prisma/client": latest
     dotenv-cli: ^7.2.1
-    prisma: 5.2.0
+    prisma: 5.5.2
     zod-prisma-types: ^2.7.9
   languageName: unknown
   linkType: soft
@@ -2758,16 +2758,16 @@ __metadata:
   linkType: hard
 
 "@prisma/client@npm:latest":
-  version: 5.2.0
-  resolution: "@prisma/client@npm:5.2.0"
+  version: 5.5.2
+  resolution: "@prisma/client@npm:5.5.2"
   dependencies:
-    "@prisma/engines-version": 5.2.0-25.2804dc98259d2ea960602aca6b8e7fdc03c1758f
+    "@prisma/engines-version": 5.5.1-1.aebc046ce8b88ebbcb45efe31cbe7d06fd6abc0a
   peerDependencies:
     prisma: "*"
   peerDependenciesMeta:
     prisma:
       optional: true
-  checksum: ad523b7a54e31d365ecac7bdb89f5a89f62e616f5f567f5dd5060e86b122253a4652ea778c0ccbab31906e2170110e808839fbae7ee91a4fd16a8282ee86f5f1
+  checksum: 71ac5830041106070744645b882aa3270b8fb2d4a6bdf844c5e936543b2fccc3a6939e2ce47a5aad07f5c958e97ade06b7843a6664d8c9038403a357d04c5f88
   languageName: node
   linkType: hard
 
@@ -2782,17 +2782,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/engines-version@npm:5.2.0-25.2804dc98259d2ea960602aca6b8e7fdc03c1758f":
-  version: 5.2.0-25.2804dc98259d2ea960602aca6b8e7fdc03c1758f
-  resolution: "@prisma/engines-version@npm:5.2.0-25.2804dc98259d2ea960602aca6b8e7fdc03c1758f"
-  checksum: 7a0fde44dad7902aef0035a30073c8e3178bccbaf65f688583cf3db94e36d160fd0a52cae8b6422b670facdbd4201861e1d6e2c7371d57ef27b58a2e1c524213
+"@prisma/engines-version@npm:5.5.1-1.aebc046ce8b88ebbcb45efe31cbe7d06fd6abc0a":
+  version: 5.5.1-1.aebc046ce8b88ebbcb45efe31cbe7d06fd6abc0a
+  resolution: "@prisma/engines-version@npm:5.5.1-1.aebc046ce8b88ebbcb45efe31cbe7d06fd6abc0a"
+  checksum: bd0a1dd20f9c69526099800a9b1870ab5969ad8da728e3cec676b826f5d7e8751e118486901bde2f14f4edce02e98a26da1ad93560c4b51ec38be3356b1b6913
   languageName: node
   linkType: hard
 
-"@prisma/engines@npm:5.2.0":
-  version: 5.2.0
-  resolution: "@prisma/engines@npm:5.2.0"
-  checksum: c4d0a424b211ab5f02c977bd87e03a151a7d297d8448b08ef9de931a0dcebbbea76cdefc15a17fd06dacac692b164fd88b32c23eb84f7822dbaf3d0885b700a7
+"@prisma/engines@npm:5.5.2":
+  version: 5.5.2
+  resolution: "@prisma/engines@npm:5.5.2"
+  checksum: 45c74bd3db7ae3c6544e0d5303d7750a59b2fbc6cd9b33898ef3680fdbcfdb112a3058c2dfda03b0605156b8051624c2b85de8ccad25b7d859043ecf51a7cac3
   languageName: node
   linkType: hard
 
@@ -2808,10 +2808,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/nextjs-monorepo-workaround-plugin@npm:^5.2.0":
-  version: 5.2.0
-  resolution: "@prisma/nextjs-monorepo-workaround-plugin@npm:5.2.0"
-  checksum: b5cd65e41bc591464fbe69bc9eab29093b4ab1352e27eb3ff0175da35752898ab354eb0b25b51b967e429b4adea787ecc70965f164473523102b38240793d215
+"@prisma/nextjs-monorepo-workaround-plugin@npm:^5.5.2":
+  version: 5.5.2
+  resolution: "@prisma/nextjs-monorepo-workaround-plugin@npm:5.5.2"
+  checksum: a317bd32abc316ca8cfefac050f98864f76f2fdc42ece869780758530bf5e1e3b644f0fa0852625908219350024da4f34ad9d4f66593a2d850a55703da0195b2
   languageName: node
   linkType: hard
 
@@ -6352,7 +6352,7 @@ __metadata:
     "@hello-pangea/dnd": ^16.3.0
     "@hookform/resolvers": ^3.1.1
     "@playwright/test": ^1.37.0
-    "@prisma/nextjs-monorepo-workaround-plugin": ^5.2.0
+    "@prisma/nextjs-monorepo-workaround-plugin": ^5.5.2
     "@sentry/nextjs": latest
     "@sentry/utils": ^7.69.0
     "@tailwindcss/forms": ^0.5.4
@@ -13210,14 +13210,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prisma@npm:5.2.0":
-  version: 5.2.0
-  resolution: "prisma@npm:5.2.0"
+"prisma@npm:5.5.2":
+  version: 5.5.2
+  resolution: "prisma@npm:5.5.2"
   dependencies:
-    "@prisma/engines": 5.2.0
+    "@prisma/engines": 5.5.2
   bin:
     prisma: build/index.js
-  checksum: 8b99ab5a5f801c72b2eb1809db980bd104dfd699cb14c5d5db5b675566c89e46501267399bb2f02bc3ea8fb86fc2f029cccd7178768109dc4d198bc93552b1da
+  checksum: 0f728d5953f8acb136708021da909ae9b22068bd19952378b545520ce6ce4e43f38db53fc3002866ff44dd0372b19460cc7b8c8558664492b26de6687da8680b
   languageName: node
   linkType: hard
 
