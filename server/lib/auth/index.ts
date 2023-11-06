@@ -14,9 +14,17 @@ if (process.env.NEXT_RUNTIME !== "edge") {
   import("server-only");
 }
 
+export enum SignInResult {
+  Success = "success",
+  CreatedInactive = "created_inactive",
+}
+
 const cookieName = "bowser_session";
 
-export async function doSignIn(provider: string, credentials: BasicUserInfo) {
+export async function doSignIn(
+  provider: string,
+  credentials: BasicUserInfo,
+): Promise<SignInResult> {
   let user;
   if (enableUserManagement) {
     user = await db.$transaction(async ($db) => {
@@ -71,6 +79,8 @@ export async function doSignIn(provider: string, credentials: BasicUserInfo) {
       email: user.email ?? undefined,
     });
   }
+
+  return SignInResult.Success;
 }
 
 export function makePublicURL(baseUrl: URL | string) {
