@@ -7,3 +7,9 @@ export const enableQualityControl = flag(
   "ENABLE_QUALITY_CONTROL",
   true,
 );
+
+export const failUploadOnQualityControlFail = flag(
+  "Fail Upload on Quality Control Fail",
+  "FAIL_UPLOAD_ON_QUALITY_CONTROL_FAIL",
+  process.env.E2E_TEST !== "true",
+);

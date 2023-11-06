@@ -92,6 +92,10 @@ function MediaProcessingState({
       color = "purple" as const;
       status = "Media processing";
       break;
+    case MediaState.ReadyWithWarnings:
+      color = "warning" as const;
+      status = "Issues found";
+      break;
     case MediaState.Ready:
       color = "success" as const;
       status = "Good to go!";
@@ -111,6 +115,9 @@ function MediaProcessingState({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="absolute shadow-xl ml-4 z-50 m-0">
+        {media.state === MediaState.ReadyWithWarnings && (
+          <small>Potential issues found while processing this upload.</small>
+        )}
         <div className="bg-light text-dark p-4 rounded">
           <ul>
             {media.tasks.map((task) => (

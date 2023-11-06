@@ -24,7 +24,10 @@ import {
 } from "./_types.js";
 import { Progress, Upload } from "@aws-sdk/lib-storage";
 import { throttle } from "lodash";
-import { enableQualityControl } from "../featureFlags.js";
+import {
+  enableQualityControl,
+  failUploadOnQualityControlFail,
+} from "../featureFlags.js";
 
 const TARGET_LOUDNESS_LUFS = -14;
 const TARGET_LOUDNESS_RANGE_LUFS = 4;
@@ -86,6 +89,8 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
         () => this._downloadSourceFile(params),
         true,
       );
+
+      const warnings = [];
 
       // Promise.all would cancel the other tasks if one failed, so we use Promise.allSettled instead
       // TODO: Isn't that what we want though?
@@ -160,15 +165,37 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
           );
         })(),
 
-        this._wrapTask(
-          media,
-          "Checking quality",
-          () =>
-            enableQualityControl
-              ? this._qualityCheck(rawTempPath)
-              : Promise.resolve(),
-          true,
-        ),
+        async () => {
+          if (enableQualityControl) {
+            const qualityWarnings = await this._wrapTask(
+              media,
+              "Checking quality",
+              () => this._qualityCheck(rawTempPath),
+              false,
+            );
+            if (qualityWarnings.length > 0) {
+              warnings.push(...qualityWarnings);
+              if (failUploadOnQualityControlFail) {
+                await this._updateTaskStatus(
+                  media,
+                  "Checking quality",
+                  MediaProcessingTaskState.Failed,
+                  `Problems: ${qualityWarnings.join(", ")}`,
+                );
+                throw new AggregateError(
+                  qualityWarnings.map((e) => new Error(e)),
+                );
+              } else {
+                await this._updateTaskStatus(
+                  media,
+                  "Checking quality",
+                  MediaProcessingTaskState.Warning,
+                  `Warnings: ${qualityWarnings.join(", ")}`,
+                );
+              }
+            }
+          }
+        },
 
         (async () => {
           const normalisedPath = await this._wrapTask(
@@ -221,7 +248,10 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
           id: media.id,
         },
         data: {
-          state: MediaState.Ready,
+          state:
+            warnings.length > 0
+              ? MediaState.ReadyWithWarnings
+              : MediaState.Ready,
         },
       });
       await this.db.show.updateMany({
@@ -357,14 +387,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
       }
     }
 
-    if (issues.length > 0) {
-      throw new AggregateError(
-        issues.map(
-          (x) => new Error(x),
-          `Quality check failed: ${issues.join("; ")}`,
-        ),
-      );
-    }
+    return issues;
   }
 
   private async _determineDuration(path: string) {
