@@ -1,4 +1,4 @@
-import { LoginForm } from "@/app/login/form";
+import { LoginForm } from "@/app/login/@ystv/form";
 
 export default async function LoginPage(props: {
   searchParams: { return?: string };
