@@ -1,12 +1,25 @@
 import {
   AuthProvider,
+  BasicUserInfo,
   InvalidCredentials,
-  User,
-  UserSchema,
 } from "@/lib/auth/types";
+import { z } from "zod";
+
+const YSTVUserSchema = z.object({
+  id: z.coerce.string(),
+  first_name: z.string(),
+  last_name: z.string(),
+  server_name: z.string().optional().nullable(),
+  its_name: z.string().optional().nullable(),
+  email: z.string().email(),
+  groups: z.array(z.string()),
+});
 
 export const YSTVAuth: AuthProvider = {
-  async checkCredentials(username: string, password: string): Promise<User> {
+  async checkCredentials(
+    username: string,
+    password: string,
+  ): Promise<BasicUserInfo> {
     const url = `https://sso.ystv.co.uk/REST.php?api-version=latest&api-name=usermanagement&resource-name=checkcredentials`;
     const res = await fetch(url, {
       method: "POST",
@@ -30,6 +43,10 @@ export const YSTVAuth: AuthProvider = {
       throw new Error("Unexpected response from SSO");
     }
     const data = await res.json();
-    return UserSchema.parse(data);
+    return {
+      ...YSTVUserSchema.parse(data),
+      name: `${data.first_name} ${data.last_name}`,
+    };
   },
+  id: "ystv",
 };

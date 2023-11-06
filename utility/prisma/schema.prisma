@@ -22,6 +22,37 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id Int @id @default(autoincrement())
+  name String
+  email String?
+
+  isActive Boolean @default(false)
+  permissions Permission[] @default([])
+
+  identities Identity[]
+  
+  @@map("users")
+}
+
+model Identity {
+  id Int @id @default(autoincrement())
+  provider String
+  identityID String
+  userID Int
+
+  user User @relation(fields: [userID], references: [id])
+
+  @@map("identities")
+  @@unique([provider, identityID])
+}
+
+enum Permission {
+  Basic
+  ManageUsers
+  SUDO
+}
+
 model Show {
   id    Int      @id @default(autoincrement())
   name  String
