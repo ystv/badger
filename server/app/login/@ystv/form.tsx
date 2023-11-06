@@ -1,6 +1,6 @@
 "use client";
-import { handleSignIn } from "@/app/login/actions";
-import { SignInSchema } from "@/app/login/schema";
+import { handleSignIn } from "@/app/login/@ystv/actions";
+import { SignInSchema } from "@/app/login/@ystv/schema";
 import { Field, HiddenField } from "@/components/FormFields";
 import Form from "@/components/Form";
 import { usePathname } from "next/navigation";
