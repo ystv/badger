@@ -28,6 +28,7 @@ import {
   editContinuityItem,
   processUploadForContinuityItem,
   reorderShowItems,
+  retryProcessingMedia,
 } from "./actions";
 import { Show } from "@bowser/prisma/client";
 import Button from "@bowser/components/button";
@@ -242,6 +243,7 @@ const ContinuityItemRow = forwardRef<
             attachExistingMediaToContinuityItem(item.id, id)
           }
           pastShowsPromise={props.pastShowsPromise}
+          retryProcessing={retryProcessingMedia}
         />
       </TableCell>
       <TableCell data-testid="ContinuityItemRow.time">

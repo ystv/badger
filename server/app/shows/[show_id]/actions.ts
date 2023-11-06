@@ -8,6 +8,7 @@ import { editContinuityItemSchema } from "./schema";
 import { FormResponse } from "@/components/Form";
 import { zodErrorResponse } from "@/components/FormServerHelpers";
 import {
+  JobState,
   MediaFileSourceType,
   MetadataTargetType,
   Prisma,
@@ -497,5 +498,31 @@ export async function attachExistingMediaToContinuityItem(
     });
   });
   revalidatePath(`/shows/${item.showId}`);
+  return { ok: true };
+}
+
+export async function retryProcessingMedia(mediaID: number) {
+  // Reset the job status and re-enqueue it
+  const baseJob = await db.$transaction(async ($db) => {
+    const baseJob = await $db.baseJob.findUniqueOrThrow({
+      where: {
+        id: mediaID,
+      },
+    });
+    return await $db.baseJob.update({
+      where: {
+        id: baseJob.id,
+      },
+      data: {
+        state: JobState.Pending,
+        completedAt: null,
+        startedAt: null,
+        workerId: null,
+        externalJobID: null,
+        externalJobProvider: null,
+      },
+    });
+  });
+  await dispatchJobForJobrunner(baseJob.id);
   return { ok: true };
 }
