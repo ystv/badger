@@ -1,5 +1,9 @@
-function flag(name: string, def: boolean): boolean {
-  return process.env[`ENABLE_${name}`] === "true" || def;
+function flag(name: string, varName: string, def: boolean): boolean {
+  return process.env[varName] === "true" || def;
 }
 
-export const enableNomadJobQueue = flag("NOMAD_JOB_QUEUE", false);
+export const enableNomadJobQueue = flag(
+  "Nomad Job Queue",
+  "ENABLE_NOMAD_JOB_QUEUE",
+  false,
+);

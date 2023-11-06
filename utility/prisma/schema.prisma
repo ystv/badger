@@ -156,6 +156,7 @@ enum MediaState {
   Pending
   Processing
   Ready
+  ReadyWithWarnings
   ProcessingFailed
 
   @@map("media_state")

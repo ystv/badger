@@ -17,9 +17,17 @@ import got, { Response as GotResponse } from "got";
 import * as child_process from "node:child_process";
 import * as util from "node:util";
 import pEvent from "p-event";
-import { FFProbeOutput, LoudnormOutput } from "./_types.js";
+import {
+  FFProbeOutput,
+  FFProbeOutputWithStreams,
+  LoudnormOutput,
+} from "./_types.js";
 import { Progress, Upload } from "@aws-sdk/lib-storage";
 import { throttle } from "lodash";
+import {
+  enableQualityControl,
+  failUploadOnQualityControlFail,
+} from "../featureFlags.js";
 
 const TARGET_LOUDNESS_LUFS = -14;
 const TARGET_LOUDNESS_RANGE_LUFS = 4;
@@ -81,6 +89,8 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
         () => this._downloadSourceFile(params),
         true,
       );
+
+      const warnings = [];
 
       // Promise.all would cancel the other tasks if one failed, so we use Promise.allSettled instead
       // TODO: Isn't that what we want though?
@@ -155,6 +165,44 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
           );
         })(),
 
+        async () => {
+          if (enableQualityControl) {
+            const qualityWarnings = await this._wrapTask(
+              media,
+              "Checking quality",
+              () => this._qualityCheck(rawTempPath),
+              false,
+            );
+            if (qualityWarnings.length > 0) {
+              warnings.push(...qualityWarnings);
+              if (failUploadOnQualityControlFail) {
+                await this._updateTaskStatus(
+                  media,
+                  "Checking quality",
+                  MediaProcessingTaskState.Failed,
+                  `Problems: ${qualityWarnings.join(", ")}`,
+                );
+                throw new AggregateError(
+                  qualityWarnings.map((e) => new Error(e)),
+                );
+              } else {
+                await this._updateTaskStatus(
+                  media,
+                  "Checking quality",
+                  MediaProcessingTaskState.Warning,
+                  `Warnings: ${qualityWarnings.join(", ")}`,
+                );
+              }
+            } else {
+              await this._updateTaskStatus(
+                media,
+                "Checking quality",
+                MediaProcessingTaskState.Complete,
+              );
+            }
+          }
+        },
+
         (async () => {
           const normalisedPath = await this._wrapTask(
             media,
@@ -206,7 +254,10 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
           id: media.id,
         },
         data: {
-          state: MediaState.Ready,
+          state:
+            warnings.length > 0
+              ? MediaState.ReadyWithWarnings
+              : MediaState.Ready,
         },
       });
       await this.db.show.updateMany({
@@ -304,6 +355,47 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     return filePath;
   }
 
+  private async _qualityCheck(path: string) {
+    // This is safe because we created path in _downloadSourceFile
+    const res = await exec(
+      `ffprobe -v quiet -print_format json -show_format -show_streams ${path}`,
+    );
+    const data: FFProbeOutputWithStreams = JSON.parse(res.stdout);
+
+    const issues = [];
+
+    // Audio channels
+    const audioStreams = data.streams.filter(
+      (x) => x.codec_type === "audio",
+    ) as FFProbeOutputWithStreams["streams"];
+    if (audioStreams.length === 0) {
+      issues.push("No audio");
+    } else {
+      const channels = audioStreams[0].channels;
+      if (channels === 1) {
+        issues.push("Mono audio");
+      }
+    }
+
+    const videoStreams = data.streams.filter(
+      (x) => x.codec_type === "video",
+    ) as FFProbeOutputWithStreams["streams"];
+    if (videoStreams.length === 0) {
+      issues.push("No video");
+    } else {
+      const video = videoStreams[0];
+      if (video.width! < 1920 || video.height! < 1080) {
+        issues.push(`Low resolution (${video.width}x${video.height})`);
+      }
+      const fps = parseFloat(video.avg_frame_rate.replace(/\/1$/, ""));
+      if (fps < 25) {
+        issues.push(`Low framerate (${fps}fps)`);
+      }
+    }
+
+    return issues;
+  }
+
   private async _determineDuration(path: string) {
     // This is safe because we created path in _downloadSourceFile
     const res = await exec(
@@ -323,7 +415,9 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
       /(?<=\[Parsed_loudnorm_0 @ 0x[0-9a-f]+]\s*\n)[\s\S]*/.exec(output.stderr);
     if (!loudnormJSON) {
       this.logger.warn(output.stderr);
-      throw new Error("Could not find loudnorm output");
+      throw new Error(
+        "Could not find loudnorm output - file may have no or corrupt audio",
+      );
     }
     const loudnormData: LoudnormOutput = JSON.parse(loudnormJSON[0]);
 
