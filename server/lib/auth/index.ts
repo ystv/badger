@@ -1,14 +1,12 @@
 import { makeJWT, parseAndVerifyJWT } from "@/lib/auth/jwt";
 import { NextRequest } from "next/server";
 import { redirect } from "next/navigation";
-import invariant from "@/lib/invariant";
-import { DummyTestAuth } from "@/lib/auth/dummyTest";
-import { YSTVAuth } from "@/lib/auth/ystv";
 import * as Sentry from "@sentry/nextjs";
 import { Permission } from "@bowser/prisma/client";
 import { db } from "../db";
 import { UserSchema } from "@bowser/prisma/types";
 import { enableUserManagement } from "@bowser/feature-flags";
+import { BasicUserInfo } from "./types";
 
 // HACK: middleware runs in the edge runtime and for some reason fails the server-only check
 if (process.env.NEXT_RUNTIME !== "edge") {
@@ -16,31 +14,9 @@ if (process.env.NEXT_RUNTIME !== "edge") {
   import("server-only");
 }
 
-function determineProvider() {
-  if (process.env.USE_DUMMY_TEST_AUTH === "true") {
-    invariant(
-      process.env.NODE_ENV !== "production" || process.env.E2E_TEST === "true",
-      "Cannot enable dummy test auth in production",
-    );
-    console.warn("Using dummy test auth - do *not* use this in production!");
-    return DummyTestAuth;
-  }
-  if (process.env.YSTV_SSO_USERNAME && process.env.YSTV_SSO_PASSWORD) {
-    return YSTVAuth;
-  }
-  invariant(
-    false,
-    "No authentication configured. Set USE_DUMMY_TEST_AUTH=true or set YSTV_SSO_USERNAME and YSTV_SSO_PASSWORD",
-  );
-}
-
-const provider = determineProvider();
-
 const cookieName = "bowser_session";
 
-export async function doSignIn(username: string, password: string) {
-  const providerUserInfo = await provider.checkCredentials(username, password);
-
+export async function doSignIn(provider: string, credentials: BasicUserInfo) {
   let user;
   if (enableUserManagement) {
     user = await db.$transaction(async ($db) => {
@@ -48,8 +24,8 @@ export async function doSignIn(username: string, password: string) {
         where: {
           identities: {
             some: {
-              provider: provider.id,
-              identityID: providerUserInfo.id,
+              provider,
+              identityID: credentials.id,
             },
           },
         },
@@ -60,20 +36,20 @@ export async function doSignIn(username: string, password: string) {
       // TODO[BOW-108]: not auto-create
       return await $db.user.create({
         data: {
-          name: providerUserInfo.name,
+          name: credentials.name,
           permissions: [Permission.Basic],
           isActive: true,
           identities: {
             create: {
-              provider: provider.id,
-              identityID: providerUserInfo.id,
+              provider,
+              identityID: credentials.id,
             },
           },
         },
       });
     });
   } else {
-    user = providerUserInfo;
+    user = credentials;
   }
 
   const claims = user as Record<string, unknown>;
