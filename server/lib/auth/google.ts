@@ -34,5 +34,6 @@ export async function verifyToken(rawToken: string): Promise<BasicUserInfo> {
     id: payload.sub,
     name: payload.name ?? "",
     email: payload.email ?? undefined,
+    domain: payload.hd,
   };
 }

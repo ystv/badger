@@ -38,7 +38,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return NextResponse.redirect(process.env.PUBLIC_URL!);
     }
     case SignInResult.CreatedInactive:
-      return NextResponse.redirect("/login?status=created_inactive");
+    case SignInResult.Inactive:
+      return NextResponse.redirect(
+        new URL(`/login?status=${res}`, process.env.PUBLIC_URL).toString(),
+      );
     default:
       expectNever(res);
   }

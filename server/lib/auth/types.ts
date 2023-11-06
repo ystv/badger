@@ -4,6 +4,7 @@ export interface BasicUserInfo {
   id: string;
   name: string;
   email?: string;
+  domain?: string;
 }
 
 export interface AuthProvider {

@@ -46,6 +46,7 @@ export const YSTVAuth: AuthProvider = {
     return {
       ...YSTVUserSchema.parse(data),
       name: `${data.first_name} ${data.last_name}`,
+      domain: data.server_name ? "ystv.co.uk" : "york.ac.uk",
     };
   },
   id: "ystv",
