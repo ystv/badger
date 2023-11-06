@@ -17,6 +17,7 @@ if (process.env.NEXT_RUNTIME !== "edge") {
 export enum SignInResult {
   Success = "success",
   CreatedInactive = "created_inactive",
+  Inactive = "inactive",
 }
 
 const cookieName = "bowser_session";
@@ -27,7 +28,14 @@ export async function doSignIn(
 ): Promise<SignInResult> {
   let user;
   if (enableUserManagement) {
-    user = await db.$transaction(async ($db) => {
+    const autoActivateDomains = new Set(
+      process.env.USER_AUTO_CREATE_DOMAINS?.split(", "),
+    );
+    const shouldAutoActivate = autoActivateDomains.has(
+      credentials.domain ?? "NEVER",
+    );
+    let didExist;
+    [user, didExist] = await db.$transaction(async ($db) => {
       const user = await $db.user.findFirst({
         where: {
           identities: {
@@ -39,23 +47,32 @@ export async function doSignIn(
         },
       });
       if (user) {
-        return user;
+        return [user, true] as const;
       }
-      // TODO[BOW-108]: not auto-create
-      return await $db.user.create({
-        data: {
-          name: credentials.name,
-          permissions: [Permission.Basic],
-          isActive: true,
-          identities: {
-            create: {
-              provider,
-              identityID: credentials.id,
+      return [
+        await $db.user.create({
+          data: {
+            name: credentials.name,
+            email: credentials.email ?? null,
+            permissions: shouldAutoActivate ? [Permission.Basic] : [],
+            isActive: shouldAutoActivate,
+            identities: {
+              create: {
+                provider,
+                identityID: credentials.id,
+              },
             },
           },
-        },
-      });
+        }),
+        false,
+      ] as const;
     });
+    if (!didExist && !shouldAutoActivate) {
+      return SignInResult.CreatedInactive;
+    }
+    if (!user.isActive) {
+      return SignInResult.Inactive;
+    }
   } else {
     user = credentials;
   }
