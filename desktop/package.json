@@ -60,6 +60,7 @@
   },
   "dependencies": {
     "@bowser/components": "workspace:*",
+    "@bowser/feature-flags": "workspace:*",
     "@bowser/prisma": "workspace:*",
     "@bowser/testing": "workspace:*",
     "@radix-ui/react-alert-dialog": "^1.0.4",

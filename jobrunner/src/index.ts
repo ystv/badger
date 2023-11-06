@@ -11,6 +11,7 @@ import ProcessMediaJob from "./jobs/ProcessMediaJob.js";
 import { LoadAssetJob } from "./jobs/LoadAssetJob.js";
 import DummyTestJob from "./jobs/DummyTestJob.js";
 import * as Sentry from "@sentry/node";
+import { logFlagState } from "@bowser/feature-flags";
 
 // Set in the esbuild command line
 declare const global: {
@@ -256,6 +257,7 @@ if (require.main === module) {
           global.__APP_VERSION__
         } (${global.__GIT_COMMIT__?.slice(0, 7)})`,
       );
+      logFlagState();
       // Check that the DB is available before writing the PID file to ensure we're ready
       await db.$queryRaw`SELECT 1+1`;
       if (args.values.pidFile) {
