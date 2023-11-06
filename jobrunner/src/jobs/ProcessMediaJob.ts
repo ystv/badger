@@ -24,6 +24,7 @@ import {
 } from "./_types.js";
 import { Progress, Upload } from "@aws-sdk/lib-storage";
 import { throttle } from "lodash";
+import { enableQualityControl } from "../featureFlags.js";
 
 const TARGET_LOUDNESS_LUFS = -14;
 const TARGET_LOUDNESS_RANGE_LUFS = 4;
@@ -162,7 +163,10 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
         this._wrapTask(
           media,
           "Checking quality",
-          () => this._qualityCheck(rawTempPath),
+          () =>
+            enableQualityControl
+              ? this._qualityCheck(rawTempPath)
+              : Promise.resolve(),
           true,
         ),
 
