@@ -379,7 +379,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     } else {
       const video = videoStreams[0];
       if (video.width! < 1920 || video.height! < 1080) {
-        issues.push(`Low resolution (${video.width}x${video.height}`);
+        issues.push(`Low resolution (${video.width}x${video.height})`);
       }
       const fps = parseFloat(video.avg_frame_rate.replace(/\/1$/, ""));
       if (fps < 25) {
