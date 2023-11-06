@@ -1,11 +1,14 @@
 import { makeJWT, parseAndVerifyJWT } from "@/lib/auth/jwt";
 import { NextRequest } from "next/server";
 import { redirect } from "next/navigation";
-import { UserSchema } from "@/lib/auth/types";
 import invariant from "@/lib/invariant";
 import { DummyTestAuth } from "@/lib/auth/dummyTest";
 import { YSTVAuth } from "@/lib/auth/ystv";
 import * as Sentry from "@sentry/nextjs";
+import { Permission } from "@bowser/prisma/client";
+import { db } from "../db";
+import { UserSchema } from "@bowser/prisma/types";
+import { enableUserManagement } from "@bowser/feature-flags";
 
 // HACK: middleware runs in the edge runtime and for some reason fails the server-only check
 if (process.env.NEXT_RUNTIME !== "edge") {
@@ -36,8 +39,45 @@ const provider = determineProvider();
 const cookieName = "bowser_session";
 
 export async function doSignIn(username: string, password: string) {
-  const user = await provider.checkCredentials(username, password);
+  const providerUserInfo = await provider.checkCredentials(username, password);
+
+  let user;
+  if (enableUserManagement) {
+    user = await db.$transaction(async ($db) => {
+      const user = await $db.user.findFirst({
+        where: {
+          identities: {
+            some: {
+              provider: provider.id,
+              identityID: providerUserInfo.id,
+            },
+          },
+        },
+      });
+      if (user) {
+        return user;
+      }
+      // TODO[BOW-108]: not auto-create
+      return await $db.user.create({
+        data: {
+          name: providerUserInfo.name,
+          permissions: [Permission.Basic],
+          isActive: true,
+          identities: {
+            create: {
+              provider: provider.id,
+              identityID: providerUserInfo.id,
+            },
+          },
+        },
+      });
+    });
+  } else {
+    user = providerUserInfo;
+  }
+
   const claims = user as Record<string, unknown>;
+  claims.v = 2;
   claims.iss = process.env.PUBLIC_URL;
   claims.sub = user.id;
   const iat = Math.floor(Date.now() / 1000);
@@ -52,8 +92,7 @@ export async function doSignIn(username: string, password: string) {
   if (Sentry.getCurrentHub().getClient()) {
     Sentry.setUser({
       id: user.id,
-      username: user.server_name ?? user.its_name ?? user.email,
-      email: user.email,
+      email: user.email ?? undefined,
     });
   }
 }
@@ -94,13 +133,21 @@ export async function checkSession(req?: NextRequest) {
     console.warn("Failed to parse JWT", e);
     return null;
   }
+  if (rawUser.v !== 2) {
+    console.warn("Got outdated session JWT, treating as unauthenticated");
+    return null;
+  }
   const user = UserSchema.parse(rawUser);
   if (Sentry.getCurrentHub().getClient()) {
     Sentry.setUser({
       id: user.id,
-      username: user.server_name ?? user.its_name ?? user.email,
-      email: user.email,
+      email: user.email ?? undefined,
     });
+  }
+  if (!user.isActive) {
+    // TODO[BOW-108]: This doesn't check it from the database, meaning that if the user is deactivated
+    //  while signed in, they can still access the site until their session expires.
+    return null;
   }
   return user;
 }

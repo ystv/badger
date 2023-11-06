@@ -1,18 +1,22 @@
-import { AuthProvider, InvalidCredentials, User } from "@/lib/auth/types";
+import {
+  AuthProvider,
+  BasicUserInfo,
+  InvalidCredentials,
+} from "@/lib/auth/types";
 
 export const DummyTestAuth: AuthProvider = {
-  async checkCredentials(username: string, password: string): Promise<User> {
+  async checkCredentials(
+    username: string,
+    password: string,
+  ): Promise<BasicUserInfo> {
     if (username === "test" && password === "test") {
       return {
         id: "test",
-        first_name: "Test",
-        last_name: "User",
-        server_name: "test",
-        its_name: "test",
+        name: "Dummy Test User",
         email: "test@ystv.co.uk",
-        groups: ["test"],
       };
     }
     throw new InvalidCredentials();
   },
+  id: "dummyTestAuth",
 };

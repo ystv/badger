@@ -28,6 +28,8 @@ export function logFlagState(desktop?: boolean) {
 
 const e2e = process.env.E2E_TEST === "true";
 const nonE2e = !e2e;
+const production = process.env.ENVIRONMENT === "prod";
+const nonProd = !production;
 
 export const enableNomadJobQueue = flag(
   "Nomad Job Queue",
@@ -45,4 +47,10 @@ export const failUploadOnQualityControlFail = flag(
   "Fail Upload on Quality Control Fail",
   "FAIL_UPLOAD_ON_QUALITY_CONTROL_FAIL",
   nonE2e,
+);
+
+export const enableUserManagement = flag(
+  "User Management",
+  "ENABLE_USER_MANAGEMENT",
+  nonProd,
 );
