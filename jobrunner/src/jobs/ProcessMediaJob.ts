@@ -27,7 +27,7 @@ import { throttle } from "lodash";
 import {
   enableQualityControl,
   failUploadOnQualityControlFail,
-} from "../featureFlags.js";
+} from "@bowser/feature-flags";
 
 const TARGET_LOUDNESS_LUFS = -14;
 const TARGET_LOUDNESS_RANGE_LUFS = 4;

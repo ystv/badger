@@ -15,6 +15,7 @@ import { tryCreateVMixConnection } from "./vmix";
 import Icon from "../icon/png/64x64.png";
 import { tryCreateOntimeConnection } from "./ontime";
 import * as Sentry from "@sentry/electron/main";
+import { logFlagState } from "@bowser/feature-flags";
 
 logging.methodFactory = function (level) {
   return function (message) {
@@ -39,6 +40,7 @@ console.error = logging.error;
 logging.info(
   `Bowser Desktop v${global.__APP_VERSION__} (${global.__GIT_COMMIT__}) starting up.`,
 );
+logFlagState(true);
 
 if (import.meta.env.VITE_DESKTOP_SENTRY_DSN) {
   Sentry.init({

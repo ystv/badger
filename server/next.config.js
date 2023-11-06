@@ -15,6 +15,7 @@ const nextConfig = {
   output: "standalone",
   experimental: {
     serverActions: true,
+    instrumentationHook: true,
   },
   transpilePackages: ["@bowser/prisma"],
   webpack: (config, { isServer }) => {

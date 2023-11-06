@@ -1,0 +1,48 @@
+const serverFlagStates = new Map<string, boolean>();
+const desktopFlagStates = new Map<string, boolean>();
+function flag(
+  name: string,
+  varName: string,
+  def: boolean,
+  desktop?: boolean,
+): boolean {
+  const v = process.env[varName] === "true" || def;
+  if (desktop) {
+    desktopFlagStates.set(name, v);
+  } else {
+    serverFlagStates.set(name, v);
+  }
+  return v;
+}
+
+export function logFlagState(desktop?: boolean) {
+  console.log("Feature Flags:");
+  for (const [name, state] of (desktop
+    ? desktopFlagStates
+    : serverFlagStates
+  ).entries()) {
+    console.log(`  ${name}: ${state ? "enabled" : "disabled"}`);
+  }
+  console.log();
+}
+
+const e2e = process.env.E2E_TEST === "true";
+const nonE2e = !e2e;
+
+export const enableNomadJobQueue = flag(
+  "Nomad Job Queue",
+  "ENABLE_NOMAD_JOB_QUEUE",
+  false,
+);
+
+export const enableQualityControl = flag(
+  "Quality Control",
+  "ENABLE_QUALITY_CONTROL",
+  true,
+);
+
+export const failUploadOnQualityControlFail = flag(
+  "Fail Upload on Quality Control Fail",
+  "FAIL_UPLOAD_ON_QUALITY_CONTROL_FAIL",
+  nonE2e,
+);

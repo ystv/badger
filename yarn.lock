@@ -1045,6 +1045,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@bowser/feature-flags@workspace:*, @bowser/feature-flags@workspace:utility/feature-flags":
+  version: 0.0.0-use.local
+  resolution: "@bowser/feature-flags@workspace:utility/feature-flags"
+  languageName: unknown
+  linkType: soft
+
 "@bowser/prisma@workspace:*, @bowser/prisma@workspace:utility/prisma":
   version: 0.0.0-use.local
   resolution: "@bowser/prisma@workspace:utility/prisma"
@@ -6200,6 +6206,7 @@ __metadata:
   resolution: "bowser-desktop@workspace:desktop"
   dependencies:
     "@bowser/components": "workspace:*"
+    "@bowser/feature-flags": "workspace:*"
     "@bowser/prisma": "workspace:*"
     "@bowser/testing": "workspace:*"
     "@electron-forge/cli": ^6.4.2
@@ -6287,6 +6294,7 @@ __metadata:
   dependencies:
     "@aws-sdk/client-s3": ^3.374.0
     "@aws-sdk/lib-storage": ^3.428.0
+    "@bowser/feature-flags": "workspace:*"
     "@bowser/prisma": "workspace:*"
     "@bowser/testing": "workspace:*"
     "@googleapis/drive": ^8.0.0
@@ -6338,6 +6346,7 @@ __metadata:
     "@aws-sdk/s3-request-presigner": ^3.375.0
     "@aws-sdk/signature-v4-crt": ^3.370.0
     "@bowser/components": "workspace:*"
+    "@bowser/feature-flags": "workspace:*"
     "@bowser/prisma": "workspace:*"
     "@bowser/testing": "workspace:*"
     "@hello-pangea/dnd": ^16.3.0
