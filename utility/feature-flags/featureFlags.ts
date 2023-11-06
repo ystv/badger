@@ -6,7 +6,12 @@ function flag(
   def: boolean,
   desktop?: boolean,
 ): boolean {
-  const v = process.env[varName] === "true" || def;
+  let v;
+  if (varName in process.env) {
+    v = process.env[varName] === "true";
+  } else {
+    v = def;
+  }
   if (desktop) {
     desktopFlagStates.set(name, v);
   } else {
