@@ -7,7 +7,7 @@ import { zodErrorResponse } from "@/components/FormServerHelpers";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
-import { MediaFileSourceType } from "@bowser/prisma/client";
+import { JobState, MediaFileSourceType } from "@bowser/prisma/client";
 import { escapeRegExp } from "lodash";
 
 import { dispatchJobForJobrunner } from "@/lib/jobs";
@@ -395,5 +395,32 @@ export async function attachExistingMediaToRundownItem(
     });
   });
   revalidatePath(`/shows/${res.rundown.showId}`);
+  return { ok: true };
+}
+
+// TODO: duplicated with show actions
+export async function retryProcessingMedia(mediaID: number) {
+  // Reset the job status and re-enqueue it
+  const baseJob = await db.$transaction(async ($db) => {
+    const baseJob = await $db.baseJob.findUniqueOrThrow({
+      where: {
+        id: mediaID,
+      },
+    });
+    return await $db.baseJob.update({
+      where: {
+        id: baseJob.id,
+      },
+      data: {
+        state: JobState.Pending,
+        completedAt: null,
+        startedAt: null,
+        workerId: null,
+        externalJobID: null,
+        externalJobProvider: null,
+      },
+    });
+  });
+  await dispatchJobForJobrunner(baseJob.id);
   return { ok: true };
 }

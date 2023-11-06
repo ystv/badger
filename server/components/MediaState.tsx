@@ -16,7 +16,7 @@ import clsx from "clsx";
 import Image from "next/image";
 import Spinner from "@/app/_assets/spinner.svg";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import Button from "@bowser/components/button";
 import {
   Popover,
@@ -58,10 +58,13 @@ function IconForTaskState({ state }: { state: MediaProcessingTaskState }) {
 function MediaProcessingState({
   media,
   doReplace,
+  doRetry,
 }: {
   media: CompleteMedia;
   doReplace: () => void;
+  doRetry: () => Promise<unknown>;
 }) {
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const intervalRef = useRef<NodeJS.Timer | null>(null);
   useEffect(() => {
@@ -122,7 +125,24 @@ function MediaProcessingState({
               </li>
             ))}
           </ul>
-          <Button color="warning" onClick={() => doReplace()}>
+          {media.state === MediaState.ProcessingFailed && (
+            <Button
+              color="warning"
+              onClick={() =>
+                startTransition(async () => {
+                  await doRetry();
+                })
+              }
+              disabled={isPending}
+            >
+              Retry
+            </Button>
+          )}
+          <Button
+            color="warning"
+            onClick={() => doReplace()}
+            disabled={isPending}
+          >
             Replace
           </Button>
         </div>
@@ -136,11 +156,13 @@ export function ItemMediaStateAndUploadDialog({
   onUploadComplete,
   onExistingSelected,
   pastShowsPromise,
+  retryProcessing,
 }: {
   item: CompleteContinuityItem | CompleteRundownItem;
   onUploadComplete: (url: string, fileName: string) => Promise<unknown>;
   onExistingSelected: (id: number) => Promise<unknown>;
   pastShowsPromise: Promise<PastShowsMedia>;
+  retryProcessing: (mediaID: number) => Promise<unknown>;
 }) {
   let base;
   const [isUploadOpen, setIsUploadOpen] = useState(false);
@@ -159,6 +181,7 @@ export function ItemMediaStateAndUploadDialog({
       <MediaProcessingState
         media={item.media}
         doReplace={() => setIsUploadOpen(true)}
+        doRetry={() => retryProcessing(item.media!.id)}
       />
     );
   }
