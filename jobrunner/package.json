@@ -1,6 +1,6 @@
 {
   "name": "bowser-jobrunner",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "packageManager": "yarn@3.6.1",
   "devDependencies": {
     "@sentry/esbuild-plugin": "^2.7.0",
