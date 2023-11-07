@@ -63,5 +63,5 @@ export const enableUserManagement = flag(
 export const enableGoogleLogin = flag(
   "Google Login",
   "ENABLE_GOOGLE_LOGIN",
-  false,
+  nonProd,
 );
