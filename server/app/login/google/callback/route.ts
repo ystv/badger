@@ -31,16 +31,25 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       if (retURL && typeof retURL === "string") {
         if (retURL.startsWith("/")) {
           const url = new URL(retURL, process.env.PUBLIC_URL);
-          return NextResponse.redirect(url.toString());
+          return NextResponse.redirect(url.toString(), {
+            status: 303,
+          });
         }
-        return NextResponse.redirect(retURL);
+        return NextResponse.redirect(retURL, {
+          status: 303,
+        });
       }
-      return NextResponse.redirect(process.env.PUBLIC_URL!);
+      return NextResponse.redirect(process.env.PUBLIC_URL!, {
+        status: 303,
+      });
     }
     case SignInResult.CreatedInactive:
     case SignInResult.Inactive:
       return NextResponse.redirect(
         new URL(`/login?status=${res}`, process.env.PUBLIC_URL).toString(),
+        {
+          status: 303,
+        },
       );
     default:
       expectNever(res);
