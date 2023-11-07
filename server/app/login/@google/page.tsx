@@ -6,14 +6,6 @@ import { SignInResult } from "@/lib/auth";
 export default async function GoogleLogin(props: {
   searchParams: { return?: string; status?: string };
 }) {
-  // FIXME
-  // if (props.searchParams.return) {
-  //   await cookies().set("bowser_auth_return", props.searchParams.return, {
-  //     expires: new Date(Date.now() + 1000 * 60 * 60),
-  //     httpOnly: true,
-  //     sameSite: "strict"
-  //   });
-  // }
   let message;
   switch (props.searchParams.status) {
     case undefined:
