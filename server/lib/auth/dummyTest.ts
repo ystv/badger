@@ -13,7 +13,8 @@ export const DummyTestAuth: AuthProvider = {
       return {
         id: "test",
         name: "Dummy Test User",
-        email: "test@ystv.co.uk",
+        email: "test@example.com",
+        domain: "example.com",
       };
     }
     throw new InvalidCredentials();
