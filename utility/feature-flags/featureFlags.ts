@@ -57,11 +57,11 @@ export const failUploadOnQualityControlFail = flag(
 export const enableUserManagement = flag(
   "User Management",
   "ENABLE_USER_MANAGEMENT",
-  nonProd,
+  true,
 );
 
 export const enableGoogleLogin = flag(
   "Google Login",
   "ENABLE_GOOGLE_LOGIN",
-  nonProd && nonE2e,
+  nonE2e,
 );
