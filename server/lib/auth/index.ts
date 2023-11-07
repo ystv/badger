@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import * as Sentry from "@sentry/nextjs";
 import { Permission } from "@bowser/prisma/client";
 import { db } from "../db";
-import { UserSchema } from "@bowser/prisma/types";
+import { User, UserSchema } from "@bowser/prisma/types";
 import { enableUserManagement } from "@bowser/feature-flags";
 import { BasicUserInfo } from "./types";
 
@@ -26,7 +26,7 @@ export async function doSignIn(
   provider: string,
   credentials: BasicUserInfo,
 ): Promise<SignInResult> {
-  let user;
+  let user: User;
   if (enableUserManagement) {
     const autoActivateDomains = new Set(
       process.env.USER_AUTO_CREATE_DOMAINS?.split(", "),
@@ -74,7 +74,13 @@ export async function doSignIn(
       return SignInResult.Inactive;
     }
   } else {
-    user = credentials;
+    user = {
+      id: parseInt(credentials.id, 10),
+      email: credentials.email ?? null,
+      isActive: true,
+      name: credentials.name,
+      permissions: [Permission.Basic],
+    };
   }
 
   const claims = user as Record<string, unknown>;
