@@ -4,6 +4,15 @@ test.beforeAll(async ({ request }) => {
   await request.post(
     "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB",
   );
+  await request.post(
+    "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/promoteUser",
+    {
+      data: `email=test@example.com&permission=SUDO`,
+      headers: {
+        ContentType: "application/x-www-form-urlencoded",
+      },
+    },
+  );
 });
 
 test("loads", async ({ page }) => {
