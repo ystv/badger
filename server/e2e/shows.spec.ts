@@ -7,7 +7,10 @@ test.beforeAll(async ({ request }) => {
   await request.post(
     "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/promoteUser",
     {
-      data: `email=${encodeURIComponent("test@example.com")}&permission=SUDO`,
+      data: {
+        email: "test@example.com",
+        permission: "SUDO",
+      },
       headers: {
         ContentType: "application/x-www-form-urlencoded",
       },

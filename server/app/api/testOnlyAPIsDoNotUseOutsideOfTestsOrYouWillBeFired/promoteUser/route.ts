@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
     process.env.E2E_TEST === "true",
     "cannot call outside of E2E tests",
   );
-  const data = await req.formData();
+  const data = await req.json();
   const userEmail = data.get("email");
   const perm = PermissionSchema.safeParse(data.get("permission"));
   invariant(perm.success, "invalid permission");
