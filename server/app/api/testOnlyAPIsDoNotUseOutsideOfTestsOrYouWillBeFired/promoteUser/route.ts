@@ -9,12 +9,11 @@ export async function POST(req: NextRequest) {
     "cannot call outside of E2E tests",
   );
   const data = await req.json();
-  const userEmail = data.get("email");
-  const perm = PermissionSchema.safeParse(data.get("permission"));
+  const perm = PermissionSchema.safeParse(data.permission);
   invariant(perm.success, "invalid permission");
   await db.user.updateMany({
     where: {
-      email: userEmail as string,
+      email: data.email,
     },
     data: {
       permissions: {
