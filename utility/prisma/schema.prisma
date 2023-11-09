@@ -50,6 +50,8 @@ model Identity {
 enum Permission {
   Basic
   ManageUsers
+  ManageShows
+  ArchiveMedia
   SUDO
 }
 

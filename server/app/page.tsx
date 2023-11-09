@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import type { Prisma } from "@bowser/prisma/client";
+import { Permission, type Prisma } from "@bowser/prisma/client";
 import { Pagination } from "@/components/Pagination";
 import Link from "next/link";
 import Button from "@bowser/components/button";
@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@bowser/components/table";
 import { DateTime } from "@/components/DateTIme";
+import { PermissionGate } from "@/components/PermissionGate";
 
 const PAGE_SIZE = 25;
 
@@ -40,9 +41,11 @@ export default async function ShowsPage(props: {
   return (
     <div>
       <h1 className="text-4xl">Shows</h1>
-      <Link href="/shows/create">
-        <Button color="primary">New Show</Button>
-      </Link>
+      <PermissionGate permission={Permission.ManageShows}>
+        <Link href="/shows/create">
+          <Button color="primary">New Show</Button>
+        </Link>
+      </PermissionGate>
       {props.searchParams.includePast !== "true" ? (
         <Button color="ghost" asChild>
           <Link href="/?includePast=true">Include shows in the past</Link>

@@ -6,10 +6,11 @@ import { TusEndpointProvider } from "@/components/MediaUpload";
 import { getTusEndpoint } from "@/lib/tus";
 import { DateTime } from "@/components/DateTIme";
 import { MetadataFields } from "@/components/Metadata";
-import { MetadataTargetType } from "@bowser/prisma/client";
+import { MetadataTargetType, Permission } from "@bowser/prisma/client";
 import { addMeta, setMetaValue } from "./actions";
 import { cache } from "react";
 import { PastShowsMedia } from "@/components/MediaSelection";
+import { requirePermission } from "@/lib/auth";
 
 // TODO: duplicated in rundown/id/page.ts
 const pastShowsPromise = cache(
