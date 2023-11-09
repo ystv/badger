@@ -191,6 +191,7 @@ enum MediaState {
   Ready
   ReadyWithWarnings
   ProcessingFailed
+  Archived
 
   @@map("media_state")
 }

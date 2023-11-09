@@ -104,6 +104,10 @@ function MediaProcessingState({
       color = "danger" as const;
       status = "Media processing failed";
       break;
+    case MediaState.Archived:
+      color = "dark" as const;
+      status = "Media archived";
+      break;
     default:
       throw new Error(`Unhandled MediaState ${media.state}`);
   }

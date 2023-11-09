@@ -156,6 +156,10 @@ function AddToOBS({
     if (!item.media) {
       return "no-media";
     }
+    // Special-case archived
+    if (item.media.state === "Archived") {
+      return "archived";
+    }
     if (item.media.state !== "Ready") {
       return "media-processing";
     }
@@ -201,6 +205,9 @@ function AddToOBS({
       break;
     case "loading":
       contents = <Badge variant="dark">Please wait, checking status...</Badge>;
+      break;
+    case "archived":
+      contents = <Badge variant="dark">Media archived on server</Badge>;
       break;
     case "media-processing":
       contents = <Badge variant="purple">Media processing on server...</Badge>;
