@@ -1,7 +1,9 @@
 import { test, expect } from "@playwright/test";
 
 test.beforeAll(async ({ request }) => {
-  await request.post("/api/resetDBInTestsDoNotUseOrYouWillBeFired");
+  await request.post(
+    "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB",
+  );
 });
 
 test("loads", async ({ page }) => {
