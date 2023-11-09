@@ -10,12 +10,14 @@ import { zodErrorResponse } from "@/components/FormServerHelpers";
 import {
   JobState,
   MediaFileSourceType,
+  MediaState,
   MetadataTargetType,
   Prisma,
 } from "@bowser/prisma/client";
 import { escapeRegExp } from "lodash";
 
 import { dispatchJobForJobrunner } from "@/lib/jobs";
+import invariant from "@/lib/invariant";
 
 export async function addItem(
   showID: number,
@@ -522,6 +524,41 @@ export async function retryProcessingMedia(mediaID: number) {
         externalJobProvider: null,
       },
     });
+  });
+  await dispatchJobForJobrunner(baseJob.id);
+  return { ok: true };
+}
+
+export async function reprocessMedia(id: number) {
+  const baseJob = await db.$transaction(async ($db) => {
+    const media = await $db.media.findUniqueOrThrow({
+      where: {
+        id,
+      },
+    });
+    invariant(
+      media.state === MediaState.Archived,
+      "can only reprocess archived media",
+    );
+    invariant(media.rawPath, "can only reprocess media with a raw path");
+    const job = await $db.processMediaJob.create({
+      data: {
+        sourceType: MediaFileSourceType.S3,
+        source: media.rawPath,
+        media: {
+          connect: {
+            id,
+          },
+        },
+        base_job: {
+          create: {},
+        },
+      },
+      include: {
+        base_job: true,
+      },
+    });
+    return job.base_job;
   });
   await dispatchJobForJobrunner(baseJob.id);
   return { ok: true };

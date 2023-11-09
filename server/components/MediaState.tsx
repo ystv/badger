@@ -59,10 +59,12 @@ function MediaProcessingState({
   media,
   doReplace,
   doRetry,
+  doReprocess,
 }: {
   media: CompleteMedia;
   doReplace: () => void;
   doRetry: () => Promise<unknown>;
+  doReprocess: () => Promise<unknown>;
 }) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -123,19 +125,34 @@ function MediaProcessingState({
           <small>Potential issues found while processing this upload.</small>
         )}
         <div className="bg-light text-dark p-4 rounded">
-          <ul>
-            {media.tasks.map((task) => (
-              <li key={task.id}>
-                <IconForTaskState state={task.state} />
-                {task.description}
-                {task.additionalInfo.length > 0 && (
-                  <>
-                    &nbsp;<small>({task.additionalInfo})</small>
-                  </>
-                )}
-              </li>
-            ))}
-          </ul>
+          {media.state !== MediaState.Archived && (
+            <ul>
+              {media.tasks.map((task) => (
+                <li key={task.id}>
+                  <IconForTaskState state={task.state} />
+                  {task.description}
+                  {task.additionalInfo.length > 0 && (
+                    <>
+                      &nbsp;<small>({task.additionalInfo})</small>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+          {media.state === MediaState.Archived && (
+            <Button
+              color="primary"
+              disabled={isPending}
+              onClick={() =>
+                startTransition(async () => {
+                  await doReprocess();
+                })
+              }
+            >
+              Reprocess
+            </Button>
+          )}
           {media.state === MediaState.ProcessingFailed && (
             <Button
               color="warning"
@@ -168,12 +185,14 @@ export function ItemMediaStateAndUploadDialog({
   onExistingSelected,
   pastShowsPromise,
   retryProcessing,
+  reprocess,
 }: {
   item: CompleteContinuityItem | CompleteRundownItem;
   onUploadComplete: (url: string, fileName: string) => Promise<unknown>;
   onExistingSelected: (id: number) => Promise<unknown>;
   pastShowsPromise: Promise<PastShowsMedia>;
   retryProcessing: (mediaID: number) => Promise<unknown>;
+  reprocess: (mediaID: number) => Promise<unknown>;
 }) {
   let base;
   const [isUploadOpen, setIsUploadOpen] = useState(false);
@@ -193,6 +212,7 @@ export function ItemMediaStateAndUploadDialog({
         media={item.media}
         doReplace={() => setIsUploadOpen(true)}
         doRetry={() => retryProcessing(item.media!.id)}
+        doReprocess={() => reprocess(item.media!.id)}
       />
     );
   }

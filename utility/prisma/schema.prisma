@@ -210,7 +210,7 @@ model Asset {
   name String
   type AssetType
 
-  media Media @relation(fields: [mediaId], references: [id])
+  media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
 
   rundown   Rundown        @relation(fields: [rundownId], references: [id], onDelete: Cascade)
   rundownId Int
@@ -288,6 +288,7 @@ model BaseJob {
 enum MediaFileSourceType {
   Tus
   GoogleDrive
+  S3
 }
 
 model ProcessMediaJob {
