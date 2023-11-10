@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   const data = await req.json();
   const perm = PermissionSchema.safeParse(data.permission);
   invariant(perm.success, "invalid permission");
-  await db.user.updateMany({
+  const r = await db.user.updateMany({
     where: {
       email: data.email,
     },
@@ -21,5 +21,6 @@ export async function POST(req: NextRequest) {
       },
     },
   });
+  invariant(r.count > 0, "no user found");
   return new NextResponse("ok");
 }
