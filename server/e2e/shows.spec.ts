@@ -5,16 +5,7 @@ test.beforeAll(async ({ request }) => {
     "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB",
   );
   await request.post(
-    "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/promoteUser",
-    {
-      data: {
-        email: "test@example.com",
-        permission: "SUDO",
-      },
-      headers: {
-        ContentType: "application/x-www-form-urlencoded",
-      },
-    },
+    "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/provisionDummyTestUser",
   );
 });
 

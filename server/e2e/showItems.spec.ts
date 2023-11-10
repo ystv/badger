@@ -66,16 +66,7 @@ const test = base.extend<{ showPage: Page }>({
       "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB",
     );
     await request.post(
-      "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/promoteUser",
-      {
-        data: {
-          email: "test@example.com",
-          permission: "SUDO",
-        },
-        headers: {
-          ContentType: "application/x-www-form-urlencoded",
-        },
-      },
+      "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/provisionDummyTestUser",
     );
 
     await page.goto("/enableDebugMode?value=false");
