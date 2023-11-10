@@ -65,9 +65,6 @@ const test = base.extend<{ showPage: Page }>({
     await request.post(
       "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB",
     );
-    await request.post(
-      "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/provisionDummyTestUser",
-    );
 
     await page.goto("/enableDebugMode?value=false");
 

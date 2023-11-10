@@ -65,3 +65,9 @@ export const enableGoogleLogin = flag(
   "ENABLE_GOOGLE_LOGIN",
   nonE2e,
 );
+
+export const disablePermissionsChecks = flag(
+  "Disable Permissions Checks",
+  "DISABLE_PERMISSIONS_CHECKS",
+  e2e,
+);

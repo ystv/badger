@@ -4,9 +4,6 @@ test.beforeAll(async ({ request }) => {
   await request.post(
     "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB",
   );
-  await request.post(
-    "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/provisionDummyTestUser",
-  );
 });
 
 test("loads", async ({ page }) => {
