@@ -8,8 +8,20 @@ export async function POST() {
     "cannot call outside of E2E tests",
   );
   console.log("Resetting database");
-  await db.$queryRawUnsafe("TRUNCATE TABLE shows RESTART IDENTITY CASCADE");
-  await db.$queryRawUnsafe("TRUNCATE TABLE media RESTART IDENTITY CASCADE");
-  await db.$queryRawUnsafe("TRUNCATE TABLE base_jobs RESTART IDENTITY CASCADE");
+  await Promise.all(
+    [
+      "shows",
+      "rundowns",
+      "rundown_items",
+      "continuity_items",
+      "assets",
+      "media",
+      "users",
+      "metadata",
+      "base_jobs",
+    ].map((table) =>
+      db.$queryRawUnsafe(`TRUNCATE TABLE "${table}" RESTART IDENTITY CASCADE`),
+    ),
+  );
   return new NextResponse("ok");
 }
