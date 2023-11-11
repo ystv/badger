@@ -5,7 +5,10 @@ import * as Sentry from "@sentry/nextjs";
 import { Permission } from "@bowser/prisma/client";
 import { db } from "../db";
 import { User, UserSchema } from "@bowser/prisma/types";
-import { enableUserManagement } from "@bowser/feature-flags";
+import {
+  disablePermissionsChecks,
+  enableUserManagement,
+} from "@bowser/feature-flags";
 import { BasicUserInfo } from "./types";
 import { Forbidden, Unauthorized } from "./errors";
 
@@ -180,6 +183,7 @@ export async function auth(req?: NextRequest) {
 export async function hasPermission(perm: Permission, req?: NextRequest) {
   const user = await checkSession(req);
   if (!user) return false;
+  if (disablePermissionsChecks) return true;
   if (user.permissions.includes(perm)) return true;
   if (user.permissions.includes(Permission.SUDO)) return true;
   return false;
@@ -188,6 +192,7 @@ export async function hasPermission(perm: Permission, req?: NextRequest) {
 export async function requirePermission(perm: Permission, req?: NextRequest) {
   const user = await checkSession(req);
   if (!user) throw new Unauthorized();
+  if (disablePermissionsChecks) return user;
   if (user.permissions.includes(perm)) return user;
   if (user.permissions.includes(Permission.SUDO)) return user;
   throw new Forbidden(perm);

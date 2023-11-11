@@ -11,7 +11,7 @@ let tempDir: string;
 
 test.beforeEach(async ({ request, app: [app, page] }) => {
   await request.post(
-    "http://localhost:3000/api/resetDBInTestsDoNotUseOrYouWillBeFired",
+    "http://localhost:3000/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB",
   );
   testShow = await server.shows.create.mutate({
     name: "Test Show",
