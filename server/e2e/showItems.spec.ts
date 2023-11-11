@@ -62,14 +62,18 @@ async function createShow(
 
 const test = base.extend<{ showPage: Page }>({
   showPage: async ({ page, request }, use) => {
-    await request.post("/api/resetDBInTestsDoNotUseOrYouWillBeFired");
+    await request.post(
+      "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB",
+    );
 
     await page.goto("/enableDebugMode?value=false");
 
     await createShow(page, "Test Show");
 
     await use(page);
-    await request.post("/api/resetDBInTestsDoNotUseOrYouWillBeFired");
+    await request.post(
+      "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB",
+    );
   },
 });
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useEffect } from "react";
+import { createContext, useContext, useEffect } from "react";
 import * as Sentry from "@sentry/nextjs";
 import { User } from "@bowser/prisma/types";
 
@@ -24,4 +24,8 @@ export function UserProvider(props: {
       {props.children}
     </UserContext.Provider>
   );
+}
+
+export function useCurrentUser() {
+  return useContext(UserContext);
 }
