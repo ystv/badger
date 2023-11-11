@@ -94,4 +94,13 @@ if (danger.github.pr) {
       "No Linear ticket found. Please include one in either the pull request title (e.g. `[BOW-123] Fix something`), the description (`Fixes BOW-123.`), or the branch name (`bow-123-fix-something`).",
     );
   }
+
+  const touchesMigrations = danger.git.modified_files.some((f) =>
+    f.startsWith("utility/prisma/migrations"),
+  );
+  if (touchesMigrations && !danger.github.pr.title.includes("[DB]")) {
+    fail(
+      "This PR adds a database migration. Please add [DB] to the title, as a reminder to run them when deploying.",
+    );
+  }
 }
