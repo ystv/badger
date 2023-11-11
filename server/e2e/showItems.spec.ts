@@ -152,7 +152,7 @@ test("add media", async ({ showPage }) => {
 
 test("reuse media", async ({ showPage }) => {
   // TODO[BOW-130]: We should consider a test-only API to directly create a media object
-  // from a file already in S3, and skip the processing step.TODO
+  // from a file already in S3, and skip the processing step.
   test.slow();
   const testFile = readFileSync(__dirname + "/testdata/smpte_bars_15s.mp4");
 
