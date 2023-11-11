@@ -17,6 +17,7 @@ export function FeatureFlagsProvider(props: {
 }
 
 export function useFeatureFlag(flag: keyof typeof FlagsType) {
+  console.log(useContext(featureFlagsCtx));
   return useContext(featureFlagsCtx)[flag];
 }
 

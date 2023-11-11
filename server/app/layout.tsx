@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { DebugModeProvider } from "@/components/DebugMode";
 import { cookies } from "next/headers";
-import { getAllFlagValues } from "@bowser/feature-flags";
+import * as flags from "@bowser/feature-flags";
 
 import { DEBUG_MODE_COOKIE } from "@/app/enableDebugMode/constants";
 import { checkSession } from "@/lib/auth";
@@ -41,7 +41,15 @@ export default async function RootLayout({
         <DebugModeProvider
           value={cookies().get(DEBUG_MODE_COOKIE)?.value === "true"}
         >
-          <FeatureFlagsProvider value={getAllFlagValues()}>
+          <FeatureFlagsProvider
+            value={
+              Object.fromEntries(
+                Object.entries(flags).filter(
+                  ([k, v]) => typeof v === "boolean",
+                ),
+              ) as Record<string, boolean>
+            }
+          >
             <UserProvider value={user}>
               <main className="max-w-3xl mx-auto">{children}</main>
               <footer className="max-w-3xl mx-auto text-sm text-mid-dark mt-2">

@@ -31,12 +31,6 @@ export function logFlagState(desktop?: boolean) {
   console.log();
 }
 
-export function getAllFlagValues(desktop?: boolean): Record<string, boolean> {
-  return Object.fromEntries(
-    (desktop ? desktopFlagStates : serverFlagStates).entries(),
-  );
-}
-
 const e2e = process.env.E2E_TEST === "true";
 const nonE2e = !e2e;
 const production = process.env.ENVIRONMENT === "prod";
