@@ -412,6 +412,14 @@ export async function retryProcessingMedia(mediaID: number) {
         id: mediaID,
       },
     });
+    await $db.media.update({
+      where: {
+        id: mediaID,
+      },
+      data: {
+        state: MediaState.Pending,
+      },
+    });
     return await $db.baseJob.update({
       where: {
         id: baseJob.id,
@@ -431,10 +439,17 @@ export async function retryProcessingMedia(mediaID: number) {
 }
 
 export async function reprocessMedia(id: number) {
-  const baseJob = await db.$transaction(async ($db) => {
+  const [staleMedia, baseJob] = await db.$transaction(async ($db) => {
     const media = await $db.media.findUniqueOrThrow({
       where: {
         id,
+      },
+      include: {
+        rundownItems: {
+          include: {
+            rundown: true,
+          },
+        },
       },
     });
     invariant(
@@ -442,6 +457,14 @@ export async function reprocessMedia(id: number) {
       "can only reprocess archived media",
     );
     invariant(media.rawPath, "can only reprocess media with a raw path");
+    await $db.media.update({
+      where: {
+        id,
+      },
+      data: {
+        state: MediaState.Pending,
+      },
+    });
     const job = await $db.processMediaJob.create({
       data: {
         sourceType: MediaFileSourceType.S3,
@@ -459,8 +482,12 @@ export async function reprocessMedia(id: number) {
         base_job: true,
       },
     });
-    return job.base_job;
+    return [media, job.base_job];
   });
   await dispatchJobForJobrunner(baseJob.id);
+  revalidatePath("/media");
+  for (const r of staleMedia.rundownItems.map((ri) => ri.rundown)) {
+    revalidatePath(`/shows/${r.showId}`);
+  }
   return { ok: true };
 }
