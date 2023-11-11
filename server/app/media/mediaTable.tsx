@@ -5,6 +5,8 @@ import {
   createColumnHelper,
   getCoreRowModel,
   flexRender,
+  SortingState,
+  getSortedRowModel,
 } from "@tanstack/react-table";
 import {
   Asset,
@@ -38,6 +40,13 @@ import {
   AlertDialogTitle,
 } from "@bowser/components/alert-dialog";
 import { archiveMedia, deletMedia } from "./actions";
+import {
+  IoChevronDownSharp,
+  IoChevronUpSharp,
+  IoExpandSharp,
+  IoFilterSharp,
+} from "react-icons/io5";
+import { twMerge } from "tailwind-merge";
 
 interface ExtendedRundownItem extends RundownItem {
   rundown: Rundown & {
@@ -122,21 +131,30 @@ const columns = [
         .map((x) => x.start)
         .reduce((a, b) => (isAfter(a, b) ? a : b), new Date(0)),
     {
-      header: "Last used",
+      id: "lastUsed",
+      header: "Last Used",
       cell: (info) => (
         <DateTime val={info.getValue().toUTCString()} format="date" />
       ),
+      sortDescFirst: true,
+      sortingFn: "datetime",
     },
   ),
 ];
 
 export function MediaTable(props: { data: ExtendedMedia[] }) {
   const [isPending, startTransition] = useTransition();
+  const [sorting, setSorting] = useState<SortingState>([]);
   const table = useReactTable({
     data: props.data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     enableRowSelection: true,
+    state: {
+      sorting,
+    },
+    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSorting,
   });
   const [isArchiveOpen, setArchiveOpen] = useState(false);
   const [isDeletOpen, setDeletOpen] = useState(false);
@@ -171,10 +189,28 @@ export function MediaTable(props: { data: ExtendedMedia[] }) {
           {table.getHeaderGroups().map((hg) => (
             <TableRow key={hg.id}>
               {hg.headers.map((hd) => (
-                <TableHead key={hd.id}>
-                  {hd.isPlaceholder
-                    ? null
-                    : flexRender(hd.column.columnDef.header, hd.getContext())}
+                <TableHead
+                  key={hd.id}
+                  onClick={() =>
+                    hd.column.getCanSort() && hd.column.toggleSorting()
+                  }
+                  className={twMerge(
+                    hd.column.getCanSort() && "cursor-pointer",
+                  )}
+                >
+                  <div className="flex flex-row items-center space-x-2">
+                    {hd.isPlaceholder
+                      ? null
+                      : flexRender(hd.column.columnDef.header, hd.getContext())}
+                    {hd.column.getCanSort() &&
+                      (hd.column.getIsSorted() === "asc" ? (
+                        <IoChevronDownSharp />
+                      ) : hd.column.getIsSorted() === "desc" ? (
+                        <IoChevronUpSharp />
+                      ) : (
+                        <IoFilterSharp />
+                      ))}
+                  </div>
                 </TableHead>
               ))}
             </TableRow>
