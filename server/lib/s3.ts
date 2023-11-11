@@ -27,7 +27,6 @@ export async function listMediaFiles() {
         Bucket: process.env.STORAGE_BUCKET,
         // In https://github.com/ystv/bowser/pull/154 we changed the item prefix, so we
         // can't rely on prefix filtering.
-        // TODO: Remove this comment and start prefix filtering after a few months
       }),
     )
   ).Contents!;
