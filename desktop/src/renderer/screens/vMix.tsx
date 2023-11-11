@@ -81,6 +81,7 @@ export function VMixConnection() {
 
 type ItemState =
   | "no-media"
+  | "archived"
   | "media-processing"
   | "no-local"
   | "downloading"
@@ -134,6 +135,13 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
           return {
             ...item,
             _state: "no-media",
+          };
+        }
+        // Special-case archived
+        if (item.media.state === "Archived") {
+          return {
+            ...item,
+            _state: "archived",
           };
         }
         if (item.media.state !== "Ready") {
@@ -204,6 +212,11 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
                 {item._state === "no-media" && (
                   <Badge variant="dark" className="w-full">
                     No media uploaded
+                  </Badge>
+                )}
+                {item._state === "archived" && (
+                  <Badge variant="dark" className="w-full">
+                    Archived on server
                   </Badge>
                 )}
                 {item._state === "downloading" && (

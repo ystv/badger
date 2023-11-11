@@ -1,4 +1,9 @@
-import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectsCommand,
+  GetObjectCommand,
+  ListObjectsV2Command,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
@@ -14,6 +19,29 @@ const client: S3Client = new S3Client({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
 });
+
+export async function listMediaFiles() {
+  return (
+    await client.send(
+      new ListObjectsV2Command({
+        Bucket: process.env.STORAGE_BUCKET,
+        // In https://github.com/ystv/bowser/pull/154 we changed the item prefix, so we
+        // can't rely on prefix filtering.
+      }),
+    )
+  ).Contents!;
+}
+
+export async function bulkDelete(keys: string[]) {
+  return await client.send(
+    new DeleteObjectsCommand({
+      Bucket: process.env.STORAGE_BUCKET,
+      Delete: {
+        Objects: keys.map((key) => ({ Key: key })),
+      },
+    }),
+  );
+}
 
 export async function getPresignedURL(
   key: string,

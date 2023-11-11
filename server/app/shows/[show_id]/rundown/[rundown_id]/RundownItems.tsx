@@ -21,6 +21,7 @@ import {
   editItem,
   processUploadForRundownItem,
   reorder,
+  reprocessMedia,
   retryProcessingMedia,
 } from "./itemsActions";
 import { AddItemSchema, EditItemSchema, ItemTypeSchema } from "./schema";
@@ -248,6 +249,7 @@ function ItemsTable(props: {
                   }
                   pastShowsPromise={props.pastShowsPromise}
                   retryProcessing={retryProcessingMedia}
+                  reprocess={reprocessMedia}
                 />
               )}
             </TableCell>

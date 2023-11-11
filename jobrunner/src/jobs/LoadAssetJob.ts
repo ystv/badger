@@ -11,8 +11,9 @@ import fs from "node:fs";
 import got from "got";
 import pEvent from "p-event";
 import { pipeline as streamPipeline } from "node:stream/promises";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
+import { expectNever } from "ts-expect";
 
 interface AssetWithRundown extends Asset {
   rundown: Rundown;
@@ -147,7 +148,19 @@ export class LoadAssetJob extends AbstractJob<LoadAssetJobType> {
         break;
       }
 
+      case MediaFileSourceType.S3: {
+        const res = await this.s3Client.send(
+          new GetObjectCommand({
+            Bucket: process.env.STORAGE_BUCKET,
+            Key: params.source,
+          }),
+        );
+        stream = res.Body! as NodeJS.ReadableStream;
+        break;
+      }
+
       default:
+        expectNever(params.sourceType);
         throw new Error("Unknown source type");
     }
     await streamPipeline(stream, output);

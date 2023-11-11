@@ -28,6 +28,8 @@ import {
   enableQualityControl,
   failUploadOnQualityControlFail,
 } from "@bowser/feature-flags";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+import { expectNever } from "ts-expect";
 
 const TARGET_LOUDNESS_LUFS = -14;
 const TARGET_LOUDNESS_RANGE_LUFS = 4;
@@ -339,7 +341,19 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
         break;
       }
 
+      case MediaFileSourceType.S3: {
+        const res = await this.s3Client.send(
+          new GetObjectCommand({
+            Bucket: process.env.STORAGE_BUCKET,
+            Key: params.source,
+          }),
+        );
+        stream = res.Body! as NodeJS.ReadableStream;
+        break;
+      }
+
       default:
+        expectNever(params.sourceType);
         throw new Error("Unknown source type");
     }
     await streamPipeline(stream, output);

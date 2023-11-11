@@ -6,6 +6,7 @@ export const MediaStateSchema = z.enum([
   "Ready",
   "ReadyWithWarnings",
   "ProcessingFailed",
+  "Archived",
 ]);
 
 export type MediaStateType = `${z.infer<typeof MediaStateSchema>}`;

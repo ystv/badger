@@ -10,12 +10,14 @@ import { zodErrorResponse } from "@/components/FormServerHelpers";
 import {
   JobState,
   MediaFileSourceType,
+  MediaState,
   MetadataTargetType,
   Prisma,
 } from "@bowser/prisma/client";
 import { escapeRegExp } from "lodash";
 
 import { dispatchJobForJobrunner } from "@/lib/jobs";
+import invariant from "@/lib/invariant";
 
 export async function addItem(
   showID: number,
@@ -509,6 +511,14 @@ export async function retryProcessingMedia(mediaID: number) {
         id: mediaID,
       },
     });
+    await $db.media.update({
+      where: {
+        id: mediaID,
+      },
+      data: {
+        state: MediaState.Pending,
+      },
+    });
     return await $db.baseJob.update({
       where: {
         id: baseJob.id,
@@ -524,5 +534,55 @@ export async function retryProcessingMedia(mediaID: number) {
     });
   });
   await dispatchJobForJobrunner(baseJob.id);
+  return { ok: true };
+}
+
+export async function reprocessMedia(id: number) {
+  const [staleMedia, baseJob] = await db.$transaction(async ($db) => {
+    const media = await $db.media.findUniqueOrThrow({
+      where: {
+        id,
+      },
+      include: {
+        continuityItems: true,
+      },
+    });
+    invariant(
+      media.state === MediaState.Archived,
+      "can only reprocess archived media",
+    );
+    invariant(media.rawPath, "can only reprocess media with a raw path");
+    await $db.media.update({
+      where: {
+        id,
+      },
+      data: {
+        state: MediaState.Pending,
+      },
+    });
+    const job = await $db.processMediaJob.create({
+      data: {
+        sourceType: MediaFileSourceType.S3,
+        source: media.rawPath,
+        media: {
+          connect: {
+            id,
+          },
+        },
+        base_job: {
+          create: {},
+        },
+      },
+      include: {
+        base_job: true,
+      },
+    });
+    return [media, job.base_job];
+  });
+  await dispatchJobForJobrunner(baseJob.id);
+  revalidatePath("/media");
+  for (const ci of staleMedia.continuityItems) {
+    revalidatePath(`/shows/${ci.showId}`);
+  }
   return { ok: true };
 }
