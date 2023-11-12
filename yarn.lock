@@ -2809,10 +2809,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/nextjs-monorepo-workaround-plugin@npm:^5.5.2":
-  version: 5.5.2
-  resolution: "@prisma/nextjs-monorepo-workaround-plugin@npm:5.5.2"
-  checksum: a317bd32abc316ca8cfefac050f98864f76f2fdc42ece869780758530bf5e1e3b644f0fa0852625908219350024da4f34ad9d4f66593a2d850a55703da0195b2
+"@prisma/nextjs-monorepo-workaround-plugin@toniopelo/prisma-nextjs-monorepo-workaround-plugin":
+  version: 0.0.0
+  resolution: "@prisma/nextjs-monorepo-workaround-plugin@https://github.com/toniopelo/prisma-nextjs-monorepo-workaround-plugin.git#commit=6a37ec791786a2a7f386ad4c5da1f19b1fd78f38"
+  checksum: 4311c58049342a2966bd1680aff06e730c69e8e800da21feb637b5caf6c4a47b2b39343ac77fa09e0396681ff73c241adc9888905f89d3b99cf8851237943023
   languageName: node
   linkType: hard
 
@@ -6397,7 +6397,7 @@ __metadata:
     "@hello-pangea/dnd": ^16.3.0
     "@hookform/resolvers": ^3.1.1
     "@playwright/test": ^1.37.0
-    "@prisma/nextjs-monorepo-workaround-plugin": ^5.5.2
+    "@prisma/nextjs-monorepo-workaround-plugin": toniopelo/prisma-nextjs-monorepo-workaround-plugin
     "@sentry/nextjs": latest
     "@sentry/utils": ^7.69.0
     "@tailwindcss/forms": ^0.5.4
@@ -6424,6 +6424,7 @@ __metadata:
     eslint-config-next: 13.5.6
     eslint-plugin-react: latest
     google-auth-library: ^9.2.0
+    googleapis: ^128.0.0
     jsdom: ^22.1.0
     lodash: ^4.17.21
     next: 13.5.6
@@ -9470,7 +9471,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"gaxios@npm:^6.0.0":
+"gaxios@npm:^6.0.0, gaxios@npm:^6.0.3":
   version: 6.1.1
   resolution: "gaxios@npm:6.1.1"
   dependencies:
@@ -9851,7 +9852,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"google-auth-library@npm:^9.2.0":
+"google-auth-library@npm:^9.0.0, google-auth-library@npm:^9.2.0":
   version: 9.2.0
   resolution: "google-auth-library@npm:9.2.0"
   dependencies:
@@ -9887,6 +9888,30 @@ __metadata:
     url-template: ^2.0.8
     uuid: ^9.0.0
   checksum: 718db6b533bdbfaef8f50df8ad9c7cf5a145a346dde16601e7380c5a845920c0801fa84b915e82998f9c4fc1ca77022b585fa5e94c3a40ec35600def7b9d94fe
+  languageName: node
+  linkType: hard
+
+"googleapis-common@npm:^7.0.0":
+  version: 7.0.1
+  resolution: "googleapis-common@npm:7.0.1"
+  dependencies:
+    extend: ^3.0.2
+    gaxios: ^6.0.3
+    google-auth-library: ^9.0.0
+    qs: ^6.7.0
+    url-template: ^2.0.8
+    uuid: ^9.0.0
+  checksum: b87f3e14aed5fab82d3327d924e82a1f1527715c93c0b3534b2e28de698abc02daea00bebe375966ca8bb491394f5fd521e6b615cb89e1bfbe8870b7caa5f899
+  languageName: node
+  linkType: hard
+
+"googleapis@npm:^128.0.0":
+  version: 128.0.0
+  resolution: "googleapis@npm:128.0.0"
+  dependencies:
+    google-auth-library: ^9.0.0
+    googleapis-common: ^7.0.0
+  checksum: ac03a2e715073c6b73f1433672b926e8c96e0804216c5e042903b79f0ff8622552f8ec0ebce11a67fe9d575ffe125f324711865726b2954f8963f1eb5beac398
   languageName: node
   linkType: hard
 

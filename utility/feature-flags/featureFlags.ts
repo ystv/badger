@@ -36,23 +36,11 @@ const nonE2e = !e2e;
 const production = process.env.ENVIRONMENT === "prod";
 const nonProd = !production;
 
-export const enableNomadJobQueue = flag(
-  "Nomad Job Queue",
-  "ENABLE_NOMAD_JOB_QUEUE",
-  false,
-);
-
-export const enableQualityControl = flag(
-  "Quality Control",
-  "ENABLE_QUALITY_CONTROL",
-  true,
-);
-
-export const failUploadOnQualityControlFail = flag(
-  "Fail Upload on Quality Control Fail",
-  "FAIL_UPLOAD_ON_QUALITY_CONTROL_FAIL",
-  nonE2e,
-);
+// -----------------------------------------------------------------
+// Rolled-out features
+//
+// Flags that can likely be removed now as the feature is always on
+// -----------------------------------------------------------------
 
 export const enableUserManagement = flag(
   "User Management",
@@ -60,9 +48,66 @@ export const enableUserManagement = flag(
   true,
 );
 
+// -----------------------------------------------------------------
+// Kill-switches
+//
+// Flags that solely exist to allow us to disable a feature in production
+// if it starts causing problems
+// -----------------------------------------------------------------
+
+export const enableQualityControl = flag(
+  "Quality Control",
+  "ENABLE_QUALITY_CONTROL",
+  true,
+);
+
+// -----------------------------------------------------------------
+// Development features
+//
+// Flags that allow us to enable a feature in development that
+// isn't yet ready for production use.
+// -----------------------------------------------------------------
+
+export const enableYoutube = flag(
+  "YouTube Integration",
+  "ENABLE_YOUTUBE",
+  nonProd,
+);
+
+// -----------------------------------------------------------------
+// Feature controls
+//
+// Flags that allow us to enable/disable a feature in production.
+// Unlike other flags, there are legitimate reasons to enable or
+// disable these.
+//
+// If we ever have a proper settings system, these should be
+// migrated to that.
+// -----------------------------------------------------------------
+
+export const enableNomadJobQueue = flag(
+  "Nomad Job Queue",
+  "ENABLE_NOMAD_JOB_QUEUE",
+  false,
+);
+
 export const enableGoogleLogin = flag(
   "Google Login",
   "ENABLE_GOOGLE_LOGIN",
+  nonE2e,
+);
+
+// -----------------------------------------------------------------
+// Testing behaviour switches
+//
+// Flags that allow us to change behaviour in tests if a feature
+// is simply untestable or too difficult to test. These should
+// never be enabled in production.
+// -----------------------------------------------------------------
+
+export const failUploadOnQualityControlFail = flag(
+  "Fail Upload on Quality Control Fail",
+  "FAIL_UPLOAD_ON_QUALITY_CONTROL_FAIL",
   nonE2e,
 );
 
