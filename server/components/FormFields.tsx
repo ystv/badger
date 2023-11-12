@@ -157,7 +157,11 @@ export function DatePickerField(props: {
             data-testid="DatePickerField.trigger"
           >
             <IoCalendarSharp className="inline mr-2 h-4 w-4" />
-            {v ? format(v, "PPP") : <span className="h-4">Pick a date</span>}
+            {v ? (
+              format(v, props.showTimeSelect ? "PPP, HH:mm" : "PPP")
+            ) : (
+              <span className="h-4">Pick a date</span>
+            )}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0">

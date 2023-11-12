@@ -2,6 +2,7 @@ import type { Prisma } from "../../client";
 import { z } from "zod";
 import { UserCreatepermissionsInputSchema } from "./UserCreatepermissionsInputSchema";
 import { PermissionSchema } from "./PermissionSchema";
+import { ConnectionUncheckedCreateNestedManyWithoutUserInputSchema } from "./ConnectionUncheckedCreateNestedManyWithoutUserInputSchema";
 
 export const UserUncheckedCreateWithoutIdentitiesInputSchema: z.ZodType<Prisma.UserUncheckedCreateWithoutIdentitiesInput> =
   z
@@ -15,6 +16,9 @@ export const UserUncheckedCreateWithoutIdentitiesInputSchema: z.ZodType<Prisma.U
           z.lazy(() => UserCreatepermissionsInputSchema),
           z.lazy(() => PermissionSchema).array(),
         ])
+        .optional(),
+      connections: z
+        .lazy(() => ConnectionUncheckedCreateNestedManyWithoutUserInputSchema)
         .optional(),
     })
     .strict();

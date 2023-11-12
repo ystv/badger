@@ -7,6 +7,7 @@ import { BoolFieldUpdateOperationsInputSchema } from "./BoolFieldUpdateOperation
 import { UserUpdatepermissionsInputSchema } from "./UserUpdatepermissionsInputSchema";
 import { PermissionSchema } from "./PermissionSchema";
 import { IdentityUncheckedUpdateManyWithoutUserNestedInputSchema } from "./IdentityUncheckedUpdateManyWithoutUserNestedInputSchema";
+import { ConnectionUncheckedUpdateManyWithoutUserNestedInputSchema } from "./ConnectionUncheckedUpdateManyWithoutUserNestedInputSchema";
 
 export const UserUncheckedUpdateInputSchema: z.ZodType<Prisma.UserUncheckedUpdateInput> =
   z
@@ -44,6 +45,9 @@ export const UserUncheckedUpdateInputSchema: z.ZodType<Prisma.UserUncheckedUpdat
         .optional(),
       identities: z
         .lazy(() => IdentityUncheckedUpdateManyWithoutUserNestedInputSchema)
+        .optional(),
+      connections: z
+        .lazy(() => ConnectionUncheckedUpdateManyWithoutUserNestedInputSchema)
         .optional(),
     })
     .strict();

@@ -6,6 +6,7 @@ import { StringNullableFilterSchema } from "./StringNullableFilterSchema";
 import { BoolFilterSchema } from "./BoolFilterSchema";
 import { EnumPermissionNullableListFilterSchema } from "./EnumPermissionNullableListFilterSchema";
 import { IdentityListRelationFilterSchema } from "./IdentityListRelationFilterSchema";
+import { ConnectionListRelationFilterSchema } from "./ConnectionListRelationFilterSchema";
 
 export const UserWhereInputSchema: z.ZodType<Prisma.UserWhereInput> = z
   .object({
@@ -36,6 +37,7 @@ export const UserWhereInputSchema: z.ZodType<Prisma.UserWhereInput> = z
       .lazy(() => EnumPermissionNullableListFilterSchema)
       .optional(),
     identities: z.lazy(() => IdentityListRelationFilterSchema).optional(),
+    connections: z.lazy(() => ConnectionListRelationFilterSchema).optional(),
   })
   .strict();
 
