@@ -1,7 +1,10 @@
 import { db } from "@/lib/db";
 import { enableYoutube } from "@bowser/feature-flags";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import CreateYTStreamsForm from "./form";
+import { getSetting } from "@/lib/settings";
+import { ConnectionTarget } from "@bowser/prisma/client";
+import { checkSession } from "@/lib/auth";
 
 export default async function ShowYouTubePage(props: {
   params: { show_id: string };
@@ -9,7 +12,19 @@ export default async function ShowYouTubePage(props: {
   if (!enableYoutube) {
     notFound();
   }
-  // FIXME: Check for a connection
+
+  const me = await checkSession();
+
+  const conn = await db.connection.findFirst({
+    where: {
+      target: ConnectionTarget.google,
+      userId: me?.id,
+    },
+  });
+  if (!conn) {
+    redirect("/connect/google");
+  }
+
   const show = await db.show.findFirst({
     where: {
       id: parseInt(props.params.show_id, 10),
@@ -40,10 +55,19 @@ export default async function ShowYouTubePage(props: {
     notFound();
   }
 
+  const [titleFieldID, descFieldID] = await Promise.all([
+    getSetting("YouTube", "TitleMetadataID"),
+    getSetting("YouTube", "DescriptionMetadataID"),
+  ]);
+
   return (
     <div>
       <h1>Create YouTube Streams for {show.name}</h1>
-      <CreateYTStreamsForm show={show} />
+      <CreateYTStreamsForm
+        show={show}
+        titleFieldID={titleFieldID}
+        descFieldID={descFieldID}
+      />
     </div>
   );
 }

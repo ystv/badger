@@ -11,6 +11,7 @@ import { OAuth2Client } from "google-auth-library";
 import { ConnectionTarget } from "@bowser/prisma/client";
 import { redirect } from "next/navigation";
 import invariant from "@/lib/invariant";
+import { getSetting } from "@/lib/settings";
 
 async function getAccessTokenForCurrentUser() {
   // If we already have an access token in cookies, use that
@@ -94,6 +95,7 @@ export async function doCreateStreams(
     if (!item.enabled) {
       continue;
     }
+
     const broadcast = await yt.liveBroadcasts.insert({
       part: ["id", "snippet", "status", "contentDetails"],
       requestBody: {

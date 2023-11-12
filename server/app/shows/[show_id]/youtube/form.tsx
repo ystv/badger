@@ -85,6 +85,8 @@ function StreamItem(props: { namePrefix: string; name: string }) {
 
 export default function CreateYTStreamsForm(props: {
   show: YTStreamsShowData;
+  titleFieldID?: number;
+  descFieldID?: number;
 }) {
   const items = [...props.show.rundowns, ...props.show.continuityItems].sort(
     (a, b) => a.order - b.order,
@@ -106,10 +108,32 @@ export default function CreateYTStreamsForm(props: {
       "durationSeconds" in item
         ? item.durationSeconds
         : item.items.map((x) => x.durationSeconds).reduce((a, b) => a + b, 0);
+
+    let title, description;
+    if (props.titleFieldID && "metadata" in item) {
+      const field = item.metadata.find((x) => x.fieldId == props.titleFieldID);
+      if (field) {
+        title = (field.value as string) + " | " + item.name;
+      }
+    }
+    if (!title) {
+      title = item.name;
+    }
+
+    if (props.descFieldID && "metadata" in item) {
+      const field = item.metadata.find((x) => x.fieldId == props.descFieldID);
+      if (field) {
+        description = field.value as string;
+      }
+    }
+    if (!description) {
+      description = "";
+    }
+
     initialValues.items!.push({
       enabled: !("durationSeconds" in item), // it's a rundown
-      title: item.name, // TODO metadata
-      description: "TODO", // TODO metadata
+      title,
+      description,
       start: new Date(time),
       end: new Date(time + durationSeconds * 1000),
       visibility: "public",
@@ -127,9 +151,33 @@ export default function CreateYTStreamsForm(props: {
     time += durationSeconds;
   }
 
+  let title, description;
+  if (props.titleFieldID) {
+    const field = props.show.metadata.find(
+      (x) => x.fieldId == props.titleFieldID,
+    );
+    if (field) {
+      title = field.value as string;
+    }
+  }
+  if (!title) {
+    title = props.show.name;
+  }
+  if (props.descFieldID) {
+    const field = props.show.metadata.find(
+      (x) => x.fieldId == props.descFieldID,
+    );
+    if (field) {
+      description = field.value as string;
+    }
+  }
+  if (!description) {
+    description = "";
+  }
+
   initialValues.items!.unshift({
-    title: props.show.name,
-    description: "TODO", // TODO metadata
+    title,
+    description,
     start: props.show.start,
     end: new Date(time),
     enabled: true,
