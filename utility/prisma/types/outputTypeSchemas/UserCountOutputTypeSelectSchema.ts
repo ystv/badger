@@ -5,6 +5,7 @@ export const UserCountOutputTypeSelectSchema: z.ZodType<Prisma.UserCountOutputTy
   z
     .object({
       identities: z.boolean().optional(),
+      connections: z.boolean().optional(),
     })
     .strict();
 

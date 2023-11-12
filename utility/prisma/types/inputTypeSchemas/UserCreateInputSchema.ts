@@ -3,6 +3,7 @@ import { z } from "zod";
 import { UserCreatepermissionsInputSchema } from "./UserCreatepermissionsInputSchema";
 import { PermissionSchema } from "./PermissionSchema";
 import { IdentityCreateNestedManyWithoutUserInputSchema } from "./IdentityCreateNestedManyWithoutUserInputSchema";
+import { ConnectionCreateNestedManyWithoutUserInputSchema } from "./ConnectionCreateNestedManyWithoutUserInputSchema";
 
 export const UserCreateInputSchema: z.ZodType<Prisma.UserCreateInput> = z
   .object({
@@ -17,6 +18,9 @@ export const UserCreateInputSchema: z.ZodType<Prisma.UserCreateInput> = z
       .optional(),
     identities: z
       .lazy(() => IdentityCreateNestedManyWithoutUserInputSchema)
+      .optional(),
+    connections: z
+      .lazy(() => ConnectionCreateNestedManyWithoutUserInputSchema)
       .optional(),
   })
   .strict();
