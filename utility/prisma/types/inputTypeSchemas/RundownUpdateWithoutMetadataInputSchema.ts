@@ -2,6 +2,7 @@ import type { Prisma } from "../../client";
 import { z } from "zod";
 import { StringFieldUpdateOperationsInputSchema } from "./StringFieldUpdateOperationsInputSchema";
 import { IntFieldUpdateOperationsInputSchema } from "./IntFieldUpdateOperationsInputSchema";
+import { NullableStringFieldUpdateOperationsInputSchema } from "./NullableStringFieldUpdateOperationsInputSchema";
 import { ShowUpdateOneRequiredWithoutRundownsNestedInputSchema } from "./ShowUpdateOneRequiredWithoutRundownsNestedInputSchema";
 import { RundownItemUpdateManyWithoutRundownNestedInputSchema } from "./RundownItemUpdateManyWithoutRundownNestedInputSchema";
 import { AssetUpdateManyWithoutRundownNestedInputSchema } from "./AssetUpdateManyWithoutRundownNestedInputSchema";
@@ -21,6 +22,13 @@ export const RundownUpdateWithoutMetadataInputSchema: z.ZodType<Prisma.RundownUp
           z.lazy(() => IntFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      ytBroadcastID: z
+        .union([
+          z.string(),
+          z.lazy(() => NullableStringFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       show: z
         .lazy(() => ShowUpdateOneRequiredWithoutRundownsNestedInputSchema)
         .optional(),

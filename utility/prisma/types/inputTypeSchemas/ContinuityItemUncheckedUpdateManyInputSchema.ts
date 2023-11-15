@@ -2,6 +2,7 @@ import type { Prisma } from "../../client";
 import { z } from "zod";
 import { IntFieldUpdateOperationsInputSchema } from "./IntFieldUpdateOperationsInputSchema";
 import { StringFieldUpdateOperationsInputSchema } from "./StringFieldUpdateOperationsInputSchema";
+import { NullableStringFieldUpdateOperationsInputSchema } from "./NullableStringFieldUpdateOperationsInputSchema";
 import { NullableIntFieldUpdateOperationsInputSchema } from "./NullableIntFieldUpdateOperationsInputSchema";
 
 export const ContinuityItemUncheckedUpdateManyInputSchema: z.ZodType<Prisma.ContinuityItemUncheckedUpdateManyInput> =
@@ -37,6 +38,13 @@ export const ContinuityItemUncheckedUpdateManyInputSchema: z.ZodType<Prisma.Cont
           z.lazy(() => IntFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      ytBroadcastID: z
+        .union([
+          z.string(),
+          z.lazy(() => NullableStringFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       mediaId: z
         .union([
           z.number().int(),

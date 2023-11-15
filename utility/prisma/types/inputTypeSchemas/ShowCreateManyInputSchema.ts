@@ -8,6 +8,8 @@ export const ShowCreateManyInputSchema: z.ZodType<Prisma.ShowCreateManyInput> =
       name: z.string(),
       start: z.coerce.date(),
       version: z.number().int().optional(),
+      ytStreamID: z.string().optional().nullable(),
+      ytBroadcastID: z.string().optional().nullable(),
     })
     .strict();
 

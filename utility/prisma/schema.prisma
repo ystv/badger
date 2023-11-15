@@ -81,6 +81,9 @@ model Show {
   /// This is used by Desktop to watch for changes.
   version Int @default(0)
 
+  ytStreamID String?
+  ytBroadcastID String?
+
   rundowns        Rundown[]
   continuityItems ContinuityItem[]
   metadata        Metadata[]
@@ -107,6 +110,8 @@ model Rundown {
   name   String
   showId Int
   order  Int
+
+  ytBroadcastID String?
 
   show     Show          @relation(fields: [showId], references: [id])
   items    RundownItem[]
@@ -148,6 +153,7 @@ model ContinuityItem {
   order           Int
   showId          Int
   durationSeconds Int
+  ytBroadcastID String?
 
   media   Media? @relation(fields: [mediaId], references: [id], onDelete: SetNull)
   mediaId Int?

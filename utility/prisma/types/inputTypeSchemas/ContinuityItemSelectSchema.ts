@@ -11,6 +11,7 @@ export const ContinuityItemSelectSchema: z.ZodType<Prisma.ContinuityItemSelect> 
       order: z.boolean().optional(),
       showId: z.boolean().optional(),
       durationSeconds: z.boolean().optional(),
+      ytBroadcastID: z.boolean().optional(),
       mediaId: z.boolean().optional(),
       media: z.union([z.boolean(), z.lazy(() => MediaArgsSchema)]).optional(),
       show: z.union([z.boolean(), z.lazy(() => ShowArgsSchema)]).optional(),

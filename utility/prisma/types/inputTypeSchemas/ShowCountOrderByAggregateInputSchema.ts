@@ -9,6 +9,8 @@ export const ShowCountOrderByAggregateInputSchema: z.ZodType<Prisma.ShowCountOrd
       name: z.lazy(() => SortOrderSchema).optional(),
       start: z.lazy(() => SortOrderSchema).optional(),
       version: z.lazy(() => SortOrderSchema).optional(),
+      ytStreamID: z.lazy(() => SortOrderSchema).optional(),
+      ytBroadcastID: z.lazy(() => SortOrderSchema).optional(),
     })
     .strict();
 

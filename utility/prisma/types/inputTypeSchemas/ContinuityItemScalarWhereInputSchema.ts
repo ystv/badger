@@ -2,6 +2,7 @@ import type { Prisma } from "../../client";
 import { z } from "zod";
 import { IntFilterSchema } from "./IntFilterSchema";
 import { StringFilterSchema } from "./StringFilterSchema";
+import { StringNullableFilterSchema } from "./StringNullableFilterSchema";
 import { IntNullableFilterSchema } from "./IntNullableFilterSchema";
 
 export const ContinuityItemScalarWhereInputSchema: z.ZodType<Prisma.ContinuityItemScalarWhereInput> =
@@ -30,6 +31,10 @@ export const ContinuityItemScalarWhereInputSchema: z.ZodType<Prisma.ContinuityIt
       durationSeconds: z
         .union([z.lazy(() => IntFilterSchema), z.number()])
         .optional(),
+      ytBroadcastID: z
+        .union([z.lazy(() => StringNullableFilterSchema), z.string()])
+        .optional()
+        .nullable(),
       mediaId: z
         .union([z.lazy(() => IntNullableFilterSchema), z.number()])
         .optional()

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { RundownWhereInputSchema } from "./RundownWhereInputSchema";
 import { StringFilterSchema } from "./StringFilterSchema";
 import { IntFilterSchema } from "./IntFilterSchema";
+import { StringNullableFilterSchema } from "./StringNullableFilterSchema";
 import { ShowRelationFilterSchema } from "./ShowRelationFilterSchema";
 import { ShowWhereInputSchema } from "./ShowWhereInputSchema";
 import { RundownItemListRelationFilterSchema } from "./RundownItemListRelationFilterSchema";
@@ -43,6 +44,10 @@ export const RundownWhereUniqueInputSchema: z.ZodType<Prisma.RundownWhereUniqueI
           order: z
             .union([z.lazy(() => IntFilterSchema), z.number()])
             .optional(),
+          ytBroadcastID: z
+            .union([z.lazy(() => StringNullableFilterSchema), z.string()])
+            .optional()
+            .nullable(),
           show: z
             .union([
               z.lazy(() => ShowRelationFilterSchema),

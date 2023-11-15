@@ -9,6 +9,7 @@ export const RundownMinOrderByAggregateInputSchema: z.ZodType<Prisma.RundownMinO
       name: z.lazy(() => SortOrderSchema).optional(),
       showId: z.lazy(() => SortOrderSchema).optional(),
       order: z.lazy(() => SortOrderSchema).optional(),
+      ytBroadcastID: z.lazy(() => SortOrderSchema).optional(),
     })
     .strict();
 

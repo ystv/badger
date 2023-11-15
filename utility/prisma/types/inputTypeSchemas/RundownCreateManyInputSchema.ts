@@ -8,6 +8,7 @@ export const RundownCreateManyInputSchema: z.ZodType<Prisma.RundownCreateManyInp
       name: z.string(),
       showId: z.number().int(),
       order: z.number().int(),
+      ytBroadcastID: z.string().optional().nullable(),
     })
     .strict();
 

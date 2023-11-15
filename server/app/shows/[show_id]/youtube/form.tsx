@@ -22,6 +22,7 @@ import { ReactNode } from "react";
 import { RundownItem } from "@bowser/prisma/client";
 import { z } from "zod";
 import { identity } from "lodash";
+import { twMerge } from "tailwind-merge";
 
 interface MetaValueWithField extends Metadata {
   field: MetadataField;
@@ -38,15 +39,24 @@ export interface YTStreamsShowData extends Show {
   metadata: MetaValueWithField[];
 }
 
-function StreamItem(props: { namePrefix: string; name: string }) {
+function StreamItem(props: {
+  namePrefix: string;
+  name: string;
+  broadcastExists?: boolean;
+}) {
   const enabled = useController({
     name: props.namePrefix + ".enabled",
   });
 
   return (
-    <div className="border p-4">
+    <div
+      className={twMerge("border p-4", props.broadcastExists && "bg-green-300")}
+    >
       <div className="flex flex-row">
-        <CheckBoxField name={`${props.namePrefix}.enabled`} />
+        <CheckBoxField
+          name={`${props.namePrefix}.enabled`}
+          disabled={props.broadcastExists}
+        />
         <h3 className="text-xl ml-2">{props.name}</h3>
       </div>
       {enabled.field.value && (
@@ -131,7 +141,7 @@ export default function CreateYTStreamsForm(props: {
     }
 
     initialValues.items!.push({
-      enabled: !("durationSeconds" in item), // it's a rundown
+      enabled: !("durationSeconds" in item) || !!item.ytBroadcastID, // it's a rundown or it already exists
       title,
       description,
       start: new Date(time),
@@ -145,6 +155,7 @@ export default function CreateYTStreamsForm(props: {
         namePrefix={`items[${
           idx + 1 /* all will be shifted down one at the unshift() below */
         }]`}
+        broadcastExists={!!item.ytBroadcastID}
       />,
     );
     idx++;

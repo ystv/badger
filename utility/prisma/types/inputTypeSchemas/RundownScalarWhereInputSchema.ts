@@ -2,6 +2,7 @@ import type { Prisma } from "../../client";
 import { z } from "zod";
 import { IntFilterSchema } from "./IntFilterSchema";
 import { StringFilterSchema } from "./StringFilterSchema";
+import { StringNullableFilterSchema } from "./StringNullableFilterSchema";
 
 export const RundownScalarWhereInputSchema: z.ZodType<Prisma.RundownScalarWhereInput> =
   z
@@ -26,6 +27,10 @@ export const RundownScalarWhereInputSchema: z.ZodType<Prisma.RundownScalarWhereI
       name: z.union([z.lazy(() => StringFilterSchema), z.string()]).optional(),
       showId: z.union([z.lazy(() => IntFilterSchema), z.number()]).optional(),
       order: z.union([z.lazy(() => IntFilterSchema), z.number()]).optional(),
+      ytBroadcastID: z
+        .union([z.lazy(() => StringNullableFilterSchema), z.string()])
+        .optional()
+        .nullable(),
     })
     .strict();
 

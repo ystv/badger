@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 /////////////////////////////////////////
 // SHOW SCHEMA
@@ -13,8 +13,10 @@ export const ShowSchema = z.object({
    * This is used by Desktop to watch for changes.
    */
   version: z.number().int(),
-})
+  ytStreamID: z.string().nullable(),
+  ytBroadcastID: z.string().nullable(),
+});
 
-export type Show = z.infer<typeof ShowSchema>
+export type Show = z.infer<typeof ShowSchema>;
 
 export default ShowSchema;

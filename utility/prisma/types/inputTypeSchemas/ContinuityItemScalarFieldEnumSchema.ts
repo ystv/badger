@@ -6,6 +6,7 @@ export const ContinuityItemScalarFieldEnumSchema = z.enum([
   "order",
   "showId",
   "durationSeconds",
+  "ytBroadcastID",
   "mediaId",
 ]);
 

@@ -55,83 +55,156 @@ export async function doCreateStreams(
   dataRaw: z.infer<typeof createStreamsPayloadSchema>,
 ): Promise<FormResponse> {
   const data = createStreamsPayloadSchema.parse(dataRaw);
-  console.log(data);
-  const show = await db.show.findUniqueOrThrow({
-    where: {
-      id: data.show_id,
-    },
-  });
 
-  const token = await getAccessTokenForCurrentUser();
-
-  const oauth = new OAuth2Client({
-    clientId: process.env.GOOGLE_CLIENT_ID!,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-  });
-  oauth.setCredentials({
-    access_token: token,
-  });
-
-  const yt = new youtube_v3.Youtube({
-    auth: oauth,
-  });
-
-  // Create the stream
-  const stream = await yt.liveStreams.insert({
-    part: ["id", "snippet", "cdn"],
-    requestBody: {
-      snippet: {
-        title: show.name,
+  await db.$transaction(async ($db) => {
+    // Lock the row for the duration of this transaction
+    await $db.$queryRaw`SELECT id FROM shows WHERE id = ${data.show_id} FOR UPDATE`;
+    const show = await $db.show.findUniqueOrThrow({
+      where: {
+        id: data.show_id,
       },
-      cdn: {
-        ingestionType: data.ingestionType,
-        resolution: data.resolution,
-        frameRate: data.frameRate,
+      include: {
+        rundowns: true,
+        continuityItems: true,
       },
-    },
-  });
-  // Now create the broadcasts
-  for (const item of data.items) {
-    if (!item.enabled) {
-      continue;
+    });
+
+    const token = await getConnectionAccessToken(
+      ConnectionTarget.google,
+      me.id,
+    );
+    if (!token) {
+      redirect("/connect/google");
     }
+    const client = makeGoogleOauthClient();
+    client.setCredentials({
+      access_token: token,
+    });
 
-    const broadcast = await yt.liveBroadcasts.insert({
-      part: ["id", "snippet", "status", "contentDetails"],
-      requestBody: {
-        snippet: {
-          title: item.title,
-          description: item.description,
-          scheduledStartTime: item.start.toISOString(),
-          scheduledEndTime: item.end.toISOString(),
-        },
-        status: {
-          privacyStatus: item.visibility,
-          selfDeclaredMadeForKids: false,
-        },
-        contentDetails: {
-          enableAutoStart: false,
-          enableAutoStop: false,
-          enableClosedCaptions: true,
-          enableDvr: true,
-          enableEmbed: true,
-          recordFromStart: true,
-        },
-      },
+    const yt = new youtube_v3.Youtube({
+      auth: client,
     });
-    // await yt.thumbnails.set({
-    //   videoId: broadcast.data.id!,
-    //   media: {
-    //     mimeType: "image/jpeg",
-    //     body: item.thumbnail, // FIXME
-    //   }
-    // });
-    await yt.liveBroadcasts.bind({
-      id: broadcast.data.id!,
-      part: ["id"],
-      streamId: stream.data.id!,
-    });
-  }
-  // TODO[BOW-12]: Store the broadcast/stream IDs
+
+    // Create the stream
+    let streamID;
+    if (show.ytStreamID) {
+      console.log("Using existing stream", show.ytStreamID);
+      streamID = show.ytStreamID;
+    } else {
+      const stream = await yt.liveStreams.insert({
+        part: ["id", "snippet", "cdn"],
+        requestBody: {
+          snippet: {
+            title: show.name,
+          },
+          cdn: {
+            ingestionType: data.ingestionType,
+            resolution: data.resolution,
+            frameRate: data.frameRate,
+          },
+        },
+      });
+      await $db.show.update({
+        where: {
+          id: show.id,
+        },
+        data: {
+          ytStreamID: stream.data.id!,
+        },
+      });
+      streamID = stream.data.id!;
+    }
+    // Now create the broadcasts
+    for (const item of data.items) {
+      if (!item.enabled) {
+        continue;
+      }
+      if (item.rundownID) {
+        const rd = show.rundowns.find((x) => x.id === item.rundownID);
+        if (rd?.ytBroadcastID?.length) {
+          console.log("Skipping broadcast creation for rundown", rd.id);
+          continue;
+        }
+      } else if (item.continuityItemID) {
+        const ci = show.continuityItems.find(
+          (x) => x.id === item.continuityItemID,
+        );
+        if (ci?.ytBroadcastID?.length) {
+          console.log("Skipping broadcast creation for continuity item", ci.id);
+          continue;
+        }
+      } else if (item.isShowBroadcast) {
+        if (show.ytBroadcastID?.length) {
+          console.log("Skipping broadcast creation for show", show.id);
+          continue;
+        }
+      }
+
+      const broadcast = await yt.liveBroadcasts.insert({
+        part: ["id", "snippet", "status", "contentDetails"],
+        requestBody: {
+          snippet: {
+            title: item.title,
+            description: item.description,
+            scheduledStartTime: item.start.toISOString(),
+            scheduledEndTime: item.end.toISOString(),
+          },
+          status: {
+            privacyStatus: item.visibility,
+            selfDeclaredMadeForKids: false,
+          },
+          contentDetails: {
+            enableAutoStart: false,
+            enableAutoStop: false,
+            enableClosedCaptions: true,
+            enableDvr: true,
+            enableEmbed: true,
+            recordFromStart: true,
+          },
+        },
+      });
+      // await yt.thumbnails.set({
+      //   videoId: broadcast.data.id!,
+      //   media: {
+      //     mimeType: "image/jpeg",
+      //     body: item.thumbnail, // FIXME
+      //   }
+      // });
+      await yt.liveBroadcasts.bind({
+        id: broadcast.data.id!,
+        part: ["id"],
+        streamId: streamID,
+      });
+      if (item.rundownID) {
+        await $db.rundown.update({
+          where: {
+            id: item.rundownID,
+          },
+          data: {
+            ytBroadcastID: broadcast.data.id!,
+          },
+        });
+      } else if (item.continuityItemID) {
+        await $db.continuityItem.update({
+          where: {
+            id: item.continuityItemID,
+          },
+          data: {
+            ytBroadcastID: broadcast.data.id!,
+          },
+        });
+      } else if (item.isShowBroadcast) {
+        await $db.show.update({
+          where: {
+            id: show.id,
+          },
+          data: {
+            ytBroadcastID: broadcast.data.id!,
+          },
+        });
+      }
+    }
+  });
+
   return { ok: true };
 }

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { IntFieldUpdateOperationsInputSchema } from "./IntFieldUpdateOperationsInputSchema";
 import { StringFieldUpdateOperationsInputSchema } from "./StringFieldUpdateOperationsInputSchema";
 import { DateTimeFieldUpdateOperationsInputSchema } from "./DateTimeFieldUpdateOperationsInputSchema";
+import { NullableStringFieldUpdateOperationsInputSchema } from "./NullableStringFieldUpdateOperationsInputSchema";
 import { RundownUncheckedUpdateManyWithoutShowNestedInputSchema } from "./RundownUncheckedUpdateManyWithoutShowNestedInputSchema";
 import { MetadataUncheckedUpdateManyWithoutShowNestedInputSchema } from "./MetadataUncheckedUpdateManyWithoutShowNestedInputSchema";
 
@@ -33,6 +34,20 @@ export const ShowUncheckedUpdateWithoutContinuityItemsInputSchema: z.ZodType<Pri
           z.lazy(() => IntFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      ytStreamID: z
+        .union([
+          z.string(),
+          z.lazy(() => NullableStringFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
+      ytBroadcastID: z
+        .union([
+          z.string(),
+          z.lazy(() => NullableStringFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       rundowns: z
         .lazy(() => RundownUncheckedUpdateManyWithoutShowNestedInputSchema)
         .optional(),

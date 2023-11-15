@@ -11,6 +11,8 @@ export const ShowSelectSchema: z.ZodType<Prisma.ShowSelect> = z
     name: z.boolean().optional(),
     start: z.boolean().optional(),
     version: z.boolean().optional(),
+    ytStreamID: z.boolean().optional(),
+    ytBroadcastID: z.boolean().optional(),
     rundowns: z
       .union([z.boolean(), z.lazy(() => RundownFindManyArgsSchema)])
       .optional(),
