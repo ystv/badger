@@ -147,6 +147,8 @@ export default function CreateYTStreamsForm(props: {
       start: new Date(time),
       end: new Date(time + durationSeconds * 1000),
       visibility: "public",
+      rundownID: "durationSeconds" in item ? item.id : undefined,
+      continuityItemID: "durationSeconds" in item ? undefined : item.id,
     });
     itemFields.push(
       <StreamItem
@@ -193,6 +195,7 @@ export default function CreateYTStreamsForm(props: {
     end: new Date(time),
     enabled: true,
     visibility: "public",
+    isShowBroadcast: true,
   });
   itemFields.unshift(
     <StreamItem key={-1} name={"Main Stream"} namePrefix={`items[0]`} />,
