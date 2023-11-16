@@ -48,7 +48,13 @@ const TEST_TIME = new Date("2023-07-21T16:46:35.036Z");
 
 integrate("youtube/doCreateStreams", async () => {
   beforeEach(async () => {
-    await db.$executeRawUnsafe("TRUNCATE TABLE shows RESTART IDENTITY CASCADE");
+    await Promise.all(
+      ["shows", "metadata"].map((table) =>
+        db.$executeRawUnsafe(
+          `TRUNCATE TABLE ${table} RESTART IDENTITY CASCADE`,
+        ),
+      ),
+    );
     await db.show.create({
       data: {
         id: 1,
