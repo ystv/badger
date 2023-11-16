@@ -163,11 +163,12 @@ export async function doCreateStreams(
           },
         },
       });
+      // TODO[BOW-132]: Set thumbnail
       // await yt.thumbnails.set({
       //   videoId: broadcast.data.id!,
       //   media: {
       //     mimeType: "image/jpeg",
-      //     body: item.thumbnail, // FIXME
+      //     body: item.thumbnail,
       //   }
       // });
       await yt.liveBroadcasts.bind({
