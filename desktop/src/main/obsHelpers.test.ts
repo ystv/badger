@@ -25,6 +25,8 @@ beforeAll(() => {
     rundowns: [],
     continuityItems: [],
     version: 1,
+    ytBroadcastID: null,
+    ytStreamID: null,
   });
 });
 
@@ -42,6 +44,7 @@ describe("addOrReplaceMediaAsScene", () => {
         order: 1,
         durationSeconds: 15,
         showId: 1,
+        ytBroadcastID: null,
       },
     ],
     durationSeconds: 15,
