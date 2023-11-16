@@ -1,0 +1,103 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`youtube/doCreateStreams > works 1`] = `
+{
+  "part": [
+    "id",
+    "snippet",
+    "cdn",
+  ],
+  "requestBody": {
+    "cdn": {
+      "frameRate": "30fps",
+      "ingestionType": "rtmp",
+      "resolution": "1080p",
+    },
+    "snippet": {
+      "title": "Test Show",
+    },
+  },
+}
+`;
+
+exports[`youtube/doCreateStreams > works 2`] = `
+{
+  "part": [
+    "id",
+    "snippet",
+    "status",
+    "contentDetails",
+  ],
+  "requestBody": {
+    "contentDetails": {
+      "enableAutoStart": false,
+      "enableAutoStop": false,
+      "enableClosedCaptions": true,
+      "enableDvr": true,
+      "enableEmbed": true,
+      "recordFromStart": true,
+    },
+    "snippet": {
+      "description": "",
+      "scheduledEndTime": "2023-07-21T16:46:35.036Z",
+      "scheduledStartTime": "2023-07-21T16:46:35.036Z",
+      "title": "Test Show",
+    },
+    "status": {
+      "privacyStatus": "public",
+      "selfDeclaredMadeForKids": false,
+    },
+  },
+}
+`;
+
+exports[`youtube/doCreateStreams > works 3`] = `
+{
+  "id": "test-broadcast-0",
+  "part": [
+    "id",
+  ],
+  "streamId": "test-stream-0",
+}
+`;
+
+exports[`youtube/doCreateStreams > works 4`] = `
+{
+  "part": [
+    "id",
+    "snippet",
+    "status",
+    "contentDetails",
+  ],
+  "requestBody": {
+    "contentDetails": {
+      "enableAutoStart": false,
+      "enableAutoStop": false,
+      "enableClosedCaptions": true,
+      "enableDvr": true,
+      "enableEmbed": true,
+      "recordFromStart": true,
+    },
+    "snippet": {
+      "description": "",
+      "scheduledEndTime": "2023-07-21T16:46:35.036Z",
+      "scheduledStartTime": "2023-07-21T16:46:35.036Z",
+      "title": "Test 1",
+    },
+    "status": {
+      "privacyStatus": "public",
+      "selfDeclaredMadeForKids": false,
+    },
+  },
+}
+`;
+
+exports[`youtube/doCreateStreams > works 5`] = `
+{
+  "id": "test-broadcast-1",
+  "part": [
+    "id",
+  ],
+  "streamId": "test-stream-0",
+}
+`;

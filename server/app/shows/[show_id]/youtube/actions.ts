@@ -11,7 +11,6 @@ import { OAuth2Client } from "google-auth-library";
 import { ConnectionTarget } from "@bowser/prisma/client";
 import { redirect } from "next/navigation";
 import invariant from "@/lib/invariant";
-import { getSetting } from "@/lib/settings";
 import {
   getConnectionAccessToken,
   makeGoogleOauthClient,
@@ -90,6 +89,7 @@ export async function doCreateStreams(
     const yt = new youtube_v3.Youtube({
       auth: client,
     });
+    console.log(yt);
 
     // Create the stream
     let streamID;
