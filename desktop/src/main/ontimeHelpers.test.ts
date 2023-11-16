@@ -9,6 +9,8 @@ describe("ontimeHelpers", () => {
         name: "Test",
         start: new Date("2023-10-06T19:00:00+01:00"),
         version: 0,
+        ytBroadcastID: null,
+        ytStreamID: null,
         rundowns: [
           {
             id: 1,
@@ -16,6 +18,7 @@ describe("ontimeHelpers", () => {
             showId: 1,
             order: 1,
             assets: [],
+            ytBroadcastID: null,
             items: [
               {
                 id: 1,

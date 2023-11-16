@@ -12,6 +12,10 @@ import { ConnectionTarget } from "@bowser/prisma/client";
 import { redirect } from "next/navigation";
 import invariant from "@/lib/invariant";
 import { getSetting } from "@/lib/settings";
+import {
+  getConnectionAccessToken,
+  makeGoogleOauthClient,
+} from "@/lib/connections";
 
 async function getAccessTokenForCurrentUser() {
   // If we already have an access token in cookies, use that
@@ -55,6 +59,8 @@ export async function doCreateStreams(
   dataRaw: z.infer<typeof createStreamsPayloadSchema>,
 ): Promise<FormResponse> {
   const data = createStreamsPayloadSchema.parse(dataRaw);
+  const me = await checkSession();
+  invariant(me, "no current user");
 
   await db.$transaction(async ($db) => {
     // Lock the row for the duration of this transaction
