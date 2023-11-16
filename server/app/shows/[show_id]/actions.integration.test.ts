@@ -72,18 +72,21 @@ integrate("reorderShowItems", () => {
           "name": "Test 2",
           "order": 0,
           "showId": 1,
+          "ytBroadcastID": null,
         },
         {
           "id": 1,
           "name": "Test 1",
           "order": 1,
           "showId": 1,
+          "ytBroadcastID": null,
         },
         {
           "id": 2,
           "name": "Test 3",
           "order": 2,
           "showId": 1,
+          "ytBroadcastID": null,
         },
         {
           "durationSeconds": 0,
@@ -92,6 +95,7 @@ integrate("reorderShowItems", () => {
           "name": "Test 4",
           "order": 3,
           "showId": 1,
+          "ytBroadcastID": null,
         },
       ]
     `);
@@ -113,12 +117,14 @@ integrate("reorderShowItems", () => {
           "name": "Test 3",
           "order": 0,
           "showId": 1,
+          "ytBroadcastID": null,
         },
         {
           "id": 1,
           "name": "Test 1",
           "order": 1,
           "showId": 1,
+          "ytBroadcastID": null,
         },
         {
           "durationSeconds": 0,
@@ -127,6 +133,7 @@ integrate("reorderShowItems", () => {
           "name": "Test 2",
           "order": 2,
           "showId": 1,
+          "ytBroadcastID": null,
         },
         {
           "durationSeconds": 0,
@@ -135,6 +142,7 @@ integrate("reorderShowItems", () => {
           "name": "Test 4",
           "order": 3,
           "showId": 1,
+          "ytBroadcastID": null,
         },
       ]
     `);
@@ -158,12 +166,14 @@ integrate("reorderShowItems", () => {
           "name": "Test 2",
           "order": 0,
           "showId": 1,
+          "ytBroadcastID": null,
         },
         {
           "id": 2,
           "name": "Test 3",
           "order": 1,
           "showId": 1,
+          "ytBroadcastID": null,
         },
         {
           "durationSeconds": 0,
@@ -172,12 +182,14 @@ integrate("reorderShowItems", () => {
           "name": "Test 4",
           "order": 2,
           "showId": 1,
+          "ytBroadcastID": null,
         },
         {
           "id": 1,
           "name": "Test 1",
           "order": 3,
           "showId": 1,
+          "ytBroadcastID": null,
         },
       ]
     `);

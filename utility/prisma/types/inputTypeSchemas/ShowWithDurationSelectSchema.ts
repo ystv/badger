@@ -10,6 +10,8 @@ export const ShowWithDurationSelectSchema: z.ZodType<Prisma.ShowWithDurationSele
       durationSeconds: z.boolean().optional(),
       end: z.boolean().optional(),
       version: z.boolean().optional(),
+      ytStreamID: z.boolean().optional(),
+      ytBroadcastID: z.boolean().optional(),
     })
     .strict();
 

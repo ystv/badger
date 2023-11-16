@@ -102,6 +102,9 @@ view ShowWithDuration {
   /// This is used by Desktop to watch for changes.
   version Int @default(0)
 
+  ytStreamID String?
+  ytBroadcastID String?
+
   @@map("shows_with_duration")
 }
 

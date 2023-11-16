@@ -3,6 +3,7 @@ import { z } from "zod";
 import { IntFilterSchema } from "./IntFilterSchema";
 import { StringFilterSchema } from "./StringFilterSchema";
 import { DateTimeFilterSchema } from "./DateTimeFilterSchema";
+import { StringNullableFilterSchema } from "./StringNullableFilterSchema";
 
 export const ShowWithDurationWhereInputSchema: z.ZodType<Prisma.ShowWithDurationWhereInput> =
   z
@@ -35,6 +36,14 @@ export const ShowWithDurationWhereInputSchema: z.ZodType<Prisma.ShowWithDuration
         .union([z.lazy(() => DateTimeFilterSchema), z.coerce.date()])
         .optional(),
       version: z.union([z.lazy(() => IntFilterSchema), z.number()]).optional(),
+      ytStreamID: z
+        .union([z.lazy(() => StringNullableFilterSchema), z.string()])
+        .optional()
+        .nullable(),
+      ytBroadcastID: z
+        .union([z.lazy(() => StringNullableFilterSchema), z.string()])
+        .optional()
+        .nullable(),
     })
     .strict();
 

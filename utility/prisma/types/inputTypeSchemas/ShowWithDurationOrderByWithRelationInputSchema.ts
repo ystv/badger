@@ -1,6 +1,7 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
 import { SortOrderSchema } from "./SortOrderSchema";
+import { SortOrderInputSchema } from "./SortOrderInputSchema";
 
 export const ShowWithDurationOrderByWithRelationInputSchema: z.ZodType<Prisma.ShowWithDurationOrderByWithRelationInput> =
   z
@@ -11,6 +12,18 @@ export const ShowWithDurationOrderByWithRelationInputSchema: z.ZodType<Prisma.Sh
       durationSeconds: z.lazy(() => SortOrderSchema).optional(),
       end: z.lazy(() => SortOrderSchema).optional(),
       version: z.lazy(() => SortOrderSchema).optional(),
+      ytStreamID: z
+        .union([
+          z.lazy(() => SortOrderSchema),
+          z.lazy(() => SortOrderInputSchema),
+        ])
+        .optional(),
+      ytBroadcastID: z
+        .union([
+          z.lazy(() => SortOrderSchema),
+          z.lazy(() => SortOrderInputSchema),
+        ])
+        .optional(),
     })
     .strict();
 

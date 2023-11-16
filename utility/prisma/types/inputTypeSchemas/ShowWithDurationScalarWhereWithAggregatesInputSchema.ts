@@ -3,6 +3,7 @@ import { z } from "zod";
 import { IntWithAggregatesFilterSchema } from "./IntWithAggregatesFilterSchema";
 import { StringWithAggregatesFilterSchema } from "./StringWithAggregatesFilterSchema";
 import { DateTimeWithAggregatesFilterSchema } from "./DateTimeWithAggregatesFilterSchema";
+import { StringNullableWithAggregatesFilterSchema } from "./StringNullableWithAggregatesFilterSchema";
 
 export const ShowWithDurationScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.ShowWithDurationScalarWhereWithAggregatesInput> =
   z
@@ -51,6 +52,20 @@ export const ShowWithDurationScalarWhereWithAggregatesInputSchema: z.ZodType<Pri
       version: z
         .union([z.lazy(() => IntWithAggregatesFilterSchema), z.number()])
         .optional(),
+      ytStreamID: z
+        .union([
+          z.lazy(() => StringNullableWithAggregatesFilterSchema),
+          z.string(),
+        ])
+        .optional()
+        .nullable(),
+      ytBroadcastID: z
+        .union([
+          z.lazy(() => StringNullableWithAggregatesFilterSchema),
+          z.string(),
+        ])
+        .optional()
+        .nullable(),
     })
     .strict();
 

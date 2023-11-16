@@ -15,6 +15,8 @@ export const ShowWithDurationSchema = z.object({
    * This is used by Desktop to watch for changes.
    */
   version: z.number().int(),
+  ytStreamID: z.string().nullable(),
+  ytBroadcastID: z.string().nullable(),
 });
 
 export type ShowWithDuration = z.infer<typeof ShowWithDurationSchema>;
