@@ -3,6 +3,7 @@ import { z } from "zod";
 import { SortOrderSchema } from "./SortOrderSchema";
 import { SortOrderInputSchema } from "./SortOrderInputSchema";
 import { IdentityOrderByRelationAggregateInputSchema } from "./IdentityOrderByRelationAggregateInputSchema";
+import { ConnectionOrderByRelationAggregateInputSchema } from "./ConnectionOrderByRelationAggregateInputSchema";
 
 export const UserOrderByWithRelationInputSchema: z.ZodType<Prisma.UserOrderByWithRelationInput> =
   z
@@ -19,6 +20,9 @@ export const UserOrderByWithRelationInputSchema: z.ZodType<Prisma.UserOrderByWit
       permissions: z.lazy(() => SortOrderSchema).optional(),
       identities: z
         .lazy(() => IdentityOrderByRelationAggregateInputSchema)
+        .optional(),
+      connections: z
+        .lazy(() => ConnectionOrderByRelationAggregateInputSchema)
         .optional(),
     })
     .strict();

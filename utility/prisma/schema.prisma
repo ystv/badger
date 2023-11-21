@@ -23,28 +23,29 @@ datasource db {
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  name String
+  id    Int     @id @default(autoincrement())
+  name  String
   email String?
 
-  isActive Boolean @default(false)
+  isActive    Boolean      @default(false)
   permissions Permission[] @default([])
 
-  identities Identity[]
-  
+  identities  Identity[]
+  connections Connection[]
+
   @@map("users")
 }
 
 model Identity {
-  id Int @id @default(autoincrement())
-  provider String
+  id         Int    @id @default(autoincrement())
+  provider   String
   identityID String
-  userID Int
+  userID     Int
 
   user User @relation(fields: [userID], references: [id])
 
-  @@map("identities")
   @@unique([provider, identityID])
+  @@map("identities")
 }
 
 enum Permission {
@@ -53,6 +54,22 @@ enum Permission {
   ManageShows
   ArchiveMedia
   SUDO
+}
+
+model Connection {
+  id           Int              @id @default(autoincrement())
+  userId       Int
+  target       ConnectionTarget
+  refreshToken String
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, target])
+  @@map("connections")
+}
+
+enum ConnectionTarget {
+  google
 }
 
 model Show {
