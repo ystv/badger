@@ -20,9 +20,7 @@ export async function POST() {
     "metadata",
     "base_jobs",
   ]) {
-    await db.$executeRawUnsafe(
-      `TRUNCATE TABLE "${table}" RESTART IDENTITY CASCADE;`,
-    );
+    await db.$executeRawUnsafe(`DELETE FROM "${table}";`);
   }
   return new NextResponse("ok");
 }

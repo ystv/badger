@@ -50,9 +50,7 @@ integrate("youtube/doCreateStreams", async () => {
   beforeEach(async () => {
     await Promise.all(
       ["shows", "metadata"].map((table) =>
-        db.$executeRawUnsafe(
-          `TRUNCATE TABLE ${table} RESTART IDENTITY CASCADE`,
-        ),
+        db.$executeRawUnsafe(`DELETE FROM ${table}`),
       ),
     );
     await db.show.create({

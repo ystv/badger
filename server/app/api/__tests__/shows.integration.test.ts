@@ -8,7 +8,7 @@ const api = appRouter.createCaller({});
 
 integrate("shows", () => {
   beforeEach(async () => {
-    await db.$executeRawUnsafe("TRUNCATE TABLE shows CASCADE");
+    await db.$executeRawUnsafe("DELETE FROM shows");
   });
   describe("listUpcoming", () => {
     it("returns nothing with no shows", async () => {

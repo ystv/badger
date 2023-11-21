@@ -42,7 +42,7 @@ model Identity {
   identityID String
   userID     Int
 
-  user User @relation(fields: [userID], references: [id])
+  user User @relation(fields: [userID], references: [id], onDelete: Cascade)
 
   @@unique([provider, identityID])
   @@map("identities")
@@ -62,7 +62,7 @@ model Connection {
   target       ConnectionTarget
   refreshToken String
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, target])
   @@map("connections")
@@ -116,7 +116,7 @@ model Rundown {
 
   ytBroadcastID String?
 
-  show     Show          @relation(fields: [showId], references: [id])
+  show     Show          @relation(fields: [showId], references: [id], onDelete: Cascade)
   items    RundownItem[]
   assets   Asset[]
   metadata Metadata[]
@@ -143,7 +143,7 @@ model RundownItem {
   media   Media? @relation(fields: [mediaId], references: [id], onDelete: SetNull)
   mediaId Int?
 
-  rundown Rundown @relation(fields: [rundownId], references: [id])
+  rundown Rundown @relation(fields: [rundownId], references: [id], onDelete: Cascade)
 
   // Do not be tempted to include a @@unique on the order!
   // See https://github.com/prisma/prisma/issues/13115 and https://github.com/prisma/prisma/issues/8807
@@ -161,7 +161,7 @@ model ContinuityItem {
   media   Media? @relation(fields: [mediaId], references: [id], onDelete: SetNull)
   mediaId Int?
 
-  show Show @relation(fields: [showId], references: [id])
+  show Show @relation(fields: [showId], references: [id], onDelete: Cascade)
 
   // Do not be tempted to include a @@unique on the order!
   // See https://github.com/prisma/prisma/issues/13115 and https://github.com/prisma/prisma/issues/8807
@@ -201,7 +201,7 @@ model Metadata {
   showId    Int?
   rundownId Int?
 
-  field   MetadataField @relation(fields: [fieldId], references: [id])
+  field   MetadataField @relation(fields: [fieldId], references: [id], onDelete: Cascade)
   show    Show?         @relation(fields: [showId], references: [id], onDelete: Cascade)
   rundown Rundown?      @relation(fields: [rundownId], references: [id], onDelete: Cascade)
 
