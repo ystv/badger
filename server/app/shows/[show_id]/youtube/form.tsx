@@ -42,20 +42,18 @@ export interface YTStreamsShowData extends Show {
 function StreamItem(props: {
   namePrefix: string;
   name: string;
-  broadcastExists?: boolean;
+  broadcastID?: string;
 }) {
   const enabled = useController({
     name: props.namePrefix + ".enabled",
   });
 
   return (
-    <div
-      className={twMerge("border p-4", props.broadcastExists && "bg-green-300")}
-    >
+    <div className={twMerge("border p-4", props.broadcastID && "bg-green-300")}>
       <div className="flex flex-row">
         <CheckBoxField
           name={`${props.namePrefix}.enabled`}
-          disabled={props.broadcastExists}
+          disabled={!!props.broadcastID}
         />
         <h3 className="text-xl ml-2">{props.name}</h3>
       </div>
@@ -88,6 +86,11 @@ function StreamItem(props: {
             filter={false}
           />
         </>
+      )}
+      {props.broadcastID && (
+        <a href={`https://youtu.be/${props.broadcastID}`}>
+          https://youtu.be/{props.broadcastID}
+        </a>
       )}
     </div>
   );
@@ -158,7 +161,7 @@ export default function CreateYTStreamsForm(props: {
         namePrefix={`items[${
           idx + 1 /* all will be shifted down one at the unshift() below */
         }]`}
-        broadcastExists={!!item.ytBroadcastID}
+        broadcastID={item.ytBroadcastID ?? undefined}
       />,
     );
     idx++;

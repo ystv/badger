@@ -15,6 +15,7 @@ import {
   getConnectionAccessToken,
   makeGoogleOauthClient,
 } from "@/lib/connections";
+import { revalidatePath } from "next/cache";
 
 async function getAccessTokenForCurrentUser() {
   // If we already have an access token in cookies, use that
@@ -214,5 +215,6 @@ export async function doCreateStreams(
     }
   });
 
+  revalidatePath(`/shows/${data.show_id}/youtube`);
   return { ok: true };
 }
