@@ -7,6 +7,7 @@ export * from "./RundownItemSchema";
 export * from "./ContinuityItemSchema";
 export * from "./MetadataFieldSchema";
 export * from "./MetadataSchema";
+export * from "./SettingSchema";
 export * from "./AssetSchema";
 export * from "./MediaSchema";
 export * from "./MediaProcessingTaskSchema";
