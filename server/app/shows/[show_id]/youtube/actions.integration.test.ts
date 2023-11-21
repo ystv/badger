@@ -94,6 +94,7 @@ integrate("youtube/doCreateStreams", () => {
       resolution: "1080p",
       frameRate: "30fps",
       ingestionType: "rtmp",
+      enableEmbed: true,
       items: [
         {
           title: "Test Show",
