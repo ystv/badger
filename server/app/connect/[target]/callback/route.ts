@@ -23,7 +23,6 @@ export async function GET(
     redirectUri: process.env.PUBLIC_URL! + "/connect/google/callback",
   });
   const tokenRes = await client.getToken(url.searchParams.get("code")!);
-  console.log(tokenRes);
   invariant(
     tokenRes.res?.status === 200,
     "Failed to get token: " + tokenRes.res?.statusText,
