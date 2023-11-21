@@ -1,10 +1,9 @@
 import { db } from "@/lib/db";
-import { test, vi, beforeEach, expect } from "vitest";
 import { reorderShowItems } from "./actions";
 import { integrate } from "@bowser/testing";
 
-vi.mock("server-only", () => ({}));
-vi.mock("next/cache", () => ({ revalidatePath: () => {} }));
+jest.mock("server-only", () => ({}));
+jest.mock("next/cache", () => ({ revalidatePath: () => {} }));
 
 const TEST_TIME = new Date("2023-07-21T16:46:35.036Z");
 
