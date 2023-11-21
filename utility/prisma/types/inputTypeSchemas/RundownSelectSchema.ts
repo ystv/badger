@@ -12,6 +12,7 @@ export const RundownSelectSchema: z.ZodType<Prisma.RundownSelect> = z
     name: z.boolean().optional(),
     showId: z.boolean().optional(),
     order: z.boolean().optional(),
+    ytBroadcastID: z.boolean().optional(),
     show: z.union([z.boolean(), z.lazy(() => ShowArgsSchema)]).optional(),
     items: z
       .union([z.boolean(), z.lazy(() => RundownItemFindManyArgsSchema)])

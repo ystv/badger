@@ -13,6 +13,12 @@ export const ContinuityItemOrderByWithRelationInputSchema: z.ZodType<Prisma.Cont
       order: z.lazy(() => SortOrderSchema).optional(),
       showId: z.lazy(() => SortOrderSchema).optional(),
       durationSeconds: z.lazy(() => SortOrderSchema).optional(),
+      ytBroadcastID: z
+        .union([
+          z.lazy(() => SortOrderSchema),
+          z.lazy(() => SortOrderInputSchema),
+        ])
+        .optional(),
       mediaId: z
         .union([
           z.lazy(() => SortOrderSchema),

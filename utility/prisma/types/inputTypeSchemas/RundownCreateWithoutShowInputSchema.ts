@@ -9,6 +9,7 @@ export const RundownCreateWithoutShowInputSchema: z.ZodType<Prisma.RundownCreate
     .object({
       name: z.string(),
       order: z.number().int(),
+      ytBroadcastID: z.string().optional().nullable(),
       items: z
         .lazy(() => RundownItemCreateNestedManyWithoutRundownInputSchema)
         .optional(),

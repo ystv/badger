@@ -8,6 +8,7 @@ export const ContinuityItemUncheckedCreateWithoutShowInputSchema: z.ZodType<Pris
       name: z.string(),
       order: z.number().int(),
       durationSeconds: z.number().int(),
+      ytBroadcastID: z.string().optional().nullable(),
       mediaId: z.number().int().optional().nullable(),
     })
     .strict();

@@ -9,6 +9,7 @@ export const ContinuityItemCreateManyInputSchema: z.ZodType<Prisma.ContinuityIte
       order: z.number().int(),
       showId: z.number().int(),
       durationSeconds: z.number().int(),
+      ytBroadcastID: z.string().optional().nullable(),
       mediaId: z.number().int().optional().nullable(),
     })
     .strict();

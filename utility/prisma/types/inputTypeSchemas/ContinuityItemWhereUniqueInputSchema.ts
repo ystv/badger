@@ -3,6 +3,7 @@ import { z } from "zod";
 import { ContinuityItemWhereInputSchema } from "./ContinuityItemWhereInputSchema";
 import { StringFilterSchema } from "./StringFilterSchema";
 import { IntFilterSchema } from "./IntFilterSchema";
+import { StringNullableFilterSchema } from "./StringNullableFilterSchema";
 import { IntNullableFilterSchema } from "./IntNullableFilterSchema";
 import { MediaNullableRelationFilterSchema } from "./MediaNullableRelationFilterSchema";
 import { MediaWhereInputSchema } from "./MediaWhereInputSchema";
@@ -46,6 +47,10 @@ export const ContinuityItemWhereUniqueInputSchema: z.ZodType<Prisma.ContinuityIt
           durationSeconds: z
             .union([z.lazy(() => IntFilterSchema), z.number()])
             .optional(),
+          ytBroadcastID: z
+            .union([z.lazy(() => StringNullableFilterSchema), z.string()])
+            .optional()
+            .nullable(),
           mediaId: z
             .union([z.lazy(() => IntNullableFilterSchema), z.number()])
             .optional()

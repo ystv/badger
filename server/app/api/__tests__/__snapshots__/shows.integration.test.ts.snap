@@ -6,5 +6,7 @@ exports[`shows listUpcoming returns upcoming shows 1`] = `
   "name": "Test Show",
   "start": Any<Date>,
   "version": 0,
+  "ytBroadcastID": null,
+  "ytStreamID": null,
 }
 `;

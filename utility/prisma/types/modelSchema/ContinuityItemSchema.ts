@@ -10,6 +10,7 @@ export const ContinuityItemSchema = z.object({
   order: z.number().int(),
   showId: z.number().int(),
   durationSeconds: z.number().int(),
+  ytBroadcastID: z.string().nullable(),
   mediaId: z.number().int().nullable(),
 });
 

@@ -194,15 +194,29 @@ export function DatePickerField(props: {
   );
 }
 
-export function CheckBoxField(props: { name: string; label?: string }) {
+export function CheckBoxField(props: {
+  name: string;
+  label?: string;
+  disabled?: boolean;
+}) {
   const ctx = useFormContext();
   if (!props.label) {
-    return <input type="checkbox" {...ctx.register(props.name)} />;
+    return (
+      <input
+        type="checkbox"
+        {...ctx.register(props.name)}
+        disabled={props.disabled}
+      />
+    );
   }
   return (
     <label className="block">
       <span className="font-bold text-gray-700">{props.label}</span>
-      <input type="checkbox" {...ctx.register(props.name)} />
+      <input
+        type="checkbox"
+        {...ctx.register(props.name)}
+        disabled={props.disabled}
+      />
     </label>
   );
 }

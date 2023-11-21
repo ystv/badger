@@ -42,7 +42,7 @@ model Identity {
   identityID String
   userID     Int
 
-  user User @relation(fields: [userID], references: [id])
+  user User @relation(fields: [userID], references: [id], onDelete: Cascade)
 
   @@unique([provider, identityID])
   @@map("identities")
@@ -62,7 +62,7 @@ model Connection {
   target       ConnectionTarget
   refreshToken String
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, target])
   @@map("connections")
@@ -80,6 +80,9 @@ model Show {
   /// The version of the show. This is incremented every time the show, or any of its dependent data, is changed.
   /// This is used by Desktop to watch for changes.
   version Int @default(0)
+
+  ytStreamID String?
+  ytBroadcastID String?
 
   rundowns        Rundown[]
   continuityItems ContinuityItem[]
@@ -99,6 +102,9 @@ view ShowWithDuration {
   /// This is used by Desktop to watch for changes.
   version Int @default(0)
 
+  ytStreamID String?
+  ytBroadcastID String?
+
   @@map("shows_with_duration")
 }
 
@@ -108,7 +114,9 @@ model Rundown {
   showId Int
   order  Int
 
-  show     Show          @relation(fields: [showId], references: [id])
+  ytBroadcastID String?
+
+  show     Show          @relation(fields: [showId], references: [id], onDelete: Cascade)
   items    RundownItem[]
   assets   Asset[]
   metadata Metadata[]
@@ -135,7 +143,7 @@ model RundownItem {
   media   Media? @relation(fields: [mediaId], references: [id], onDelete: SetNull)
   mediaId Int?
 
-  rundown Rundown @relation(fields: [rundownId], references: [id])
+  rundown Rundown @relation(fields: [rundownId], references: [id], onDelete: Cascade)
 
   // Do not be tempted to include a @@unique on the order!
   // See https://github.com/prisma/prisma/issues/13115 and https://github.com/prisma/prisma/issues/8807
@@ -148,11 +156,12 @@ model ContinuityItem {
   order           Int
   showId          Int
   durationSeconds Int
+  ytBroadcastID String?
 
   media   Media? @relation(fields: [mediaId], references: [id], onDelete: SetNull)
   mediaId Int?
 
-  show Show @relation(fields: [showId], references: [id])
+  show Show @relation(fields: [showId], references: [id], onDelete: Cascade)
 
   // Do not be tempted to include a @@unique on the order!
   // See https://github.com/prisma/prisma/issues/13115 and https://github.com/prisma/prisma/issues/8807
@@ -192,7 +201,7 @@ model Metadata {
   showId    Int?
   rundownId Int?
 
-  field   MetadataField @relation(fields: [fieldId], references: [id])
+  field   MetadataField @relation(fields: [fieldId], references: [id], onDelete: Cascade)
   show    Show?         @relation(fields: [showId], references: [id], onDelete: Cascade)
   rundown Rundown?      @relation(fields: [rundownId], references: [id], onDelete: Cascade)
 

@@ -11,6 +11,7 @@ export const RundownUncheckedCreateInputSchema: z.ZodType<Prisma.RundownUnchecke
       name: z.string(),
       showId: z.number().int(),
       order: z.number().int(),
+      ytBroadcastID: z.string().optional().nullable(),
       items: z
         .lazy(
           () => RundownItemUncheckedCreateNestedManyWithoutRundownInputSchema,

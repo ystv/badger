@@ -10,6 +10,7 @@ export const RundownUncheckedCreateWithoutShowInputSchema: z.ZodType<Prisma.Rund
       id: z.number().int().optional(),
       name: z.string(),
       order: z.number().int(),
+      ytBroadcastID: z.string().optional().nullable(),
       items: z
         .lazy(
           () => RundownItemUncheckedCreateNestedManyWithoutRundownInputSchema,

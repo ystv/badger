@@ -7,6 +7,8 @@ export const ShowWithDurationScalarFieldEnumSchema = z.enum([
   "durationSeconds",
   "end",
   "version",
+  "ytStreamID",
+  "ytBroadcastID",
 ]);
 
 export default ShowWithDurationScalarFieldEnumSchema;

@@ -9,6 +9,8 @@ export const ShowCreateWithoutContinuityItemsInputSchema: z.ZodType<Prisma.ShowC
       name: z.string(),
       start: z.coerce.date(),
       version: z.number().int().optional(),
+      ytStreamID: z.string().optional().nullable(),
+      ytBroadcastID: z.string().optional().nullable(),
       rundowns: z
         .lazy(() => RundownCreateNestedManyWithoutShowInputSchema)
         .optional(),

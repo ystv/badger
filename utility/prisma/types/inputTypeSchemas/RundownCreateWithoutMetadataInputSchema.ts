@@ -9,6 +9,7 @@ export const RundownCreateWithoutMetadataInputSchema: z.ZodType<Prisma.RundownCr
     .object({
       name: z.string(),
       order: z.number().int(),
+      ytBroadcastID: z.string().optional().nullable(),
       show: z.lazy(() => ShowCreateNestedOneWithoutRundownsInputSchema),
       items: z
         .lazy(() => RundownItemCreateNestedManyWithoutRundownInputSchema)
