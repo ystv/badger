@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { test, vi, beforeEach, expect } from "vitest";
 import { reorderShowItems } from "./actions";
 import { integrate } from "@bowser/testing";
+import { Show } from "@bowser/prisma/client";
 
 vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ revalidatePath: () => {} }));
@@ -9,23 +10,21 @@ vi.mock("next/cache", () => ({ revalidatePath: () => {} }));
 const TEST_TIME = new Date("2023-07-21T16:46:35.036Z");
 
 integrate("reorderShowItems", () => {
+  let testShow: Show;
   beforeEach(async () => {
     await db.$executeRawUnsafe("DELETE FROM shows");
-    await db.show.create({
+    testShow = await db.show.create({
       data: {
-        id: 1,
         name: "Test Show",
         start: TEST_TIME,
         rundowns: {
           createMany: {
             data: [
               {
-                id: 1,
                 name: "Test 1",
                 order: 0,
               },
               {
-                id: 2,
                 name: "Test 3",
                 order: 2,
               },
@@ -36,13 +35,11 @@ integrate("reorderShowItems", () => {
           createMany: {
             data: [
               {
-                id: 1,
                 name: "Test 2",
                 durationSeconds: 0,
                 order: 1,
               },
               {
-                id: 2,
                 name: "Test 4",
                 durationSeconds: 0,
                 order: 3,
@@ -57,7 +54,7 @@ integrate("reorderShowItems", () => {
   test("move 2 to 1", async () => {
     await reorderShowItems(1, "continuity_item", 1, 0);
     const newShow = await db.show.findFirstOrThrow({
-      where: { id: 1 },
+      where: { id: testShow.id },
       include: { rundowns: true, continuityItems: true },
     });
     const newItems = [...newShow.rundowns, ...newShow.continuityItems].sort(
@@ -104,7 +101,7 @@ integrate("reorderShowItems", () => {
   test("move 3 to 1", async () => {
     await reorderShowItems(1, "rundown", 2, 0);
     const newShow = await db.show.findFirstOrThrow({
-      where: { id: 1 },
+      where: { id: testShow.id },
       include: { rundowns: true, continuityItems: true },
     });
     const newItems = [...newShow.rundowns, ...newShow.continuityItems].sort(
@@ -151,7 +148,7 @@ integrate("reorderShowItems", () => {
   test("move 1 to 4", async () => {
     await reorderShowItems(1, "rundown", 1, 3);
     const newShow = await db.show.findFirstOrThrow({
-      where: { id: 1 },
+      where: { id: testShow.id },
       include: { rundowns: true, continuityItems: true },
     });
     const newItems = [...newShow.rundowns, ...newShow.continuityItems].sort(

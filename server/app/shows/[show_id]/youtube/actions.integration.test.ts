@@ -3,6 +3,7 @@ import { test, vi, beforeEach, expect, it } from "vitest";
 import { doCreateStreams } from "./actions";
 import { integrate } from "@bowser/testing";
 import { youtube_v3 } from "googleapis";
+import { Show } from "@bowser/prisma/client";
 
 vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ revalidatePath: () => {} }));
@@ -47,22 +48,21 @@ vi.mock("googleapis", async () => {
 const TEST_TIME = new Date("2023-07-21T16:46:35.036Z");
 
 integrate("youtube/doCreateStreams", async () => {
+  let testShow: Show;
   beforeEach(async () => {
     await Promise.all(
       ["shows", "metadata"].map((table) =>
         db.$executeRawUnsafe(`DELETE FROM ${table}`),
       ),
     );
-    await db.show.create({
+    testShow = await db.show.create({
       data: {
-        id: 1,
         name: "Test Show",
         start: TEST_TIME,
         rundowns: {
           createMany: {
             data: [
               {
-                id: 1,
                 name: "Test 1",
                 order: 0,
               },
@@ -73,7 +73,6 @@ integrate("youtube/doCreateStreams", async () => {
           createMany: {
             data: [
               {
-                id: 1,
                 name: "Test 2",
                 durationSeconds: 0,
                 order: 1,
@@ -87,7 +86,7 @@ integrate("youtube/doCreateStreams", async () => {
 
   it("works", async () => {
     await doCreateStreams({
-      show_id: 1,
+      show_id: testShow.id,
       resolution: "1080p",
       frameRate: "30fps",
       ingestionType: "rtmp",
