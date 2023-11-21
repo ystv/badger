@@ -13,9 +13,16 @@ const customJestConfig = {
   ].filter(Boolean),
   moduleNameMapper: {
     "^@/(.+)$": "<rootDir>/$1",
-    // HACK
+    // HACK - for some reason jest struggles to resolve the import in prisma/types transformJsonNull
     "../../client": "<rootDir>/../utility/prisma/client",
   },
+  collectCoverageFrom: [
+    "app/**",
+    "components/**",
+    "lib/**",
+    "../utility/components/**",
+    "../utility/prisma/utilityTypes.ts",
+  ],
 };
 
 // createJestConfig is exported in this way to ensure that next/jest can load the Next.js configuration, which is async

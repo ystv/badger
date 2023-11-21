@@ -9,7 +9,7 @@ export default defineConfig({
       enabled: true,
       provider: "v8",
       all: true,
-      include: ["jobrunner/src/**", "utility/**"],
+      include: ["src/**", "utility/**"],
       // Prisma client ships with broken sourcemaps, so exclude it
       exclude: [
         "**/prisma/client/runtime/*",
