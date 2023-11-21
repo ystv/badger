@@ -9,6 +9,7 @@ jest.mock("server-only", () => ({}));
 jest.mock("next/cache", () => ({ revalidatePath: () => {} }));
 jest.mock("@/lib/auth", () => ({
   checkSession: () => Promise.resolve({}),
+  requirePermission: () => {},
 }));
 jest.mock("@/lib/connections", () => {
   return {
