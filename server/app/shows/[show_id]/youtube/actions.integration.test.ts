@@ -3,6 +3,7 @@ import { doCreateStreams } from "./actions";
 import { integrate } from "@bowser/testing";
 import { youtube_v3 } from "googleapis";
 import { Show } from "@bowser/prisma/client";
+import { OAuth2Client } from "google-auth-library";
 
 jest.mock("server-only", () => ({}));
 jest.mock("next/cache", () => ({ revalidatePath: () => {} }));
@@ -10,12 +11,8 @@ jest.mock("@/lib/auth", () => ({
   checkSession: () => Promise.resolve({}),
 }));
 jest.mock("@/lib/connections", () => {
-  const actual =
-    jest.createMockFromModule<typeof import("@/lib/connections")>(
-      "@/lib/connections",
-    );
   return {
-    ...actual,
+    makeGoogleOauthClient: () => new OAuth2Client(),
     getConnectionAccessToken: () => "GOOGLE_ACCESS_TOKEN",
   };
 });
@@ -46,8 +43,11 @@ jest.mock("googleapis", () => {
 
 const TEST_TIME = new Date("2023-07-21T16:46:35.036Z");
 
-integrate("youtube/doCreateStreams", async () => {
-  let testShow: Show;
+integrate("youtube/doCreateStreams", () => {
+  let testShow: Show & {
+    rundowns: Rundown[];
+    continuityItems: ContinuityItem[];
+  };
   beforeEach(async () => {
     await Promise.all(
       ["shows", "metadata"].map((table) =>
@@ -80,6 +80,10 @@ integrate("youtube/doCreateStreams", async () => {
           },
         },
       },
+      include: {
+        rundowns: true,
+        continuityItems: true,
+      },
     });
   });
 
@@ -106,7 +110,7 @@ integrate("youtube/doCreateStreams", async () => {
           end: TEST_TIME,
           enabled: true,
           visibility: "public",
-          rundownID: 1,
+          rundownID: testShow.rundowns[0].id,
         },
         {
           title: "Test 2",
@@ -115,7 +119,7 @@ integrate("youtube/doCreateStreams", async () => {
           end: TEST_TIME,
           enabled: false,
           visibility: "public",
-          continuityItemID: 1,
+          continuityItemID: testShow.continuityItems[0].id,
         },
       ],
     });
@@ -140,7 +144,7 @@ integrate("youtube/doCreateStreams", async () => {
     ).toMatchSnapshot();
 
     const dbShow = await db.show.findFirstOrThrow({
-      where: { id: 1 },
+      where: { id: testShow.id },
       include: { rundowns: true, continuityItems: true },
     });
     expect(dbShow.ytStreamID).toEqual("test-stream-0");

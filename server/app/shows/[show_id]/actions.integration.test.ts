@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { reorderShowItems } from "./actions";
 import { integrate } from "@bowser/testing";
-import { Show } from "@bowser/prisma/client";
+import { ContinuityItem, Rundown, Show } from "@bowser/prisma/client";
 
 jest.mock("server-only", () => ({}));
 jest.mock("next/cache", () => ({ revalidatePath: () => {} }));
@@ -9,7 +9,10 @@ jest.mock("next/cache", () => ({ revalidatePath: () => {} }));
 const TEST_TIME = new Date("2023-07-21T16:46:35.036Z");
 
 integrate("reorderShowItems", () => {
-  let testShow: Show;
+  let testShow: Show & {
+    rundowns: Rundown[];
+    continuityItems: ContinuityItem[];
+  };
   beforeEach(async () => {
     await db.$executeRawUnsafe("DELETE FROM shows");
     testShow = await db.show.create({
@@ -47,11 +50,20 @@ integrate("reorderShowItems", () => {
           },
         },
       },
+      include: {
+        rundowns: true,
+        continuityItems: true,
+      },
     });
   });
 
   test("move 2 to 1", async () => {
-    await reorderShowItems(1, "continuity_item", 1, 0);
+    await reorderShowItems(
+      testShow.id,
+      "continuity_item",
+      testShow.continuityItems[0].id,
+      0,
+    );
     const newShow = await db.show.findFirstOrThrow({
       where: { id: testShow.id },
       include: { rundowns: true, continuityItems: true },
@@ -59,46 +71,16 @@ integrate("reorderShowItems", () => {
     const newItems = [...newShow.rundowns, ...newShow.continuityItems].sort(
       (a, b) => a.order - b.order,
     );
-    expect(newItems).toMatchInlineSnapshot(`
-      [
-        {
-          "durationSeconds": 0,
-          "id": 1,
-          "mediaId": null,
-          "name": "Test 2",
-          "order": 0,
-          "showId": 1,
-          "ytBroadcastID": null,
-        },
-        {
-          "id": 1,
-          "name": "Test 1",
-          "order": 1,
-          "showId": 1,
-          "ytBroadcastID": null,
-        },
-        {
-          "id": 2,
-          "name": "Test 3",
-          "order": 2,
-          "showId": 1,
-          "ytBroadcastID": null,
-        },
-        {
-          "durationSeconds": 0,
-          "id": 2,
-          "mediaId": null,
-          "name": "Test 4",
-          "order": 3,
-          "showId": 1,
-          "ytBroadcastID": null,
-        },
-      ]
-    `);
+    expect(newItems.map((x) => x.id)).toEqual([
+      testShow.continuityItems[0].id,
+      testShow.rundowns[0].id,
+      testShow.rundowns[1].id,
+      testShow.continuityItems[1].id,
+    ]);
   });
 
   test("move 3 to 1", async () => {
-    await reorderShowItems(1, "rundown", 2, 0);
+    await reorderShowItems(testShow.id, "rundown", testShow.rundowns[1].id, 0);
     const newShow = await db.show.findFirstOrThrow({
       where: { id: testShow.id },
       include: { rundowns: true, continuityItems: true },
@@ -106,46 +88,16 @@ integrate("reorderShowItems", () => {
     const newItems = [...newShow.rundowns, ...newShow.continuityItems].sort(
       (a, b) => a.order - b.order,
     );
-    expect(newItems).toMatchInlineSnapshot(`
-      [
-        {
-          "id": 2,
-          "name": "Test 3",
-          "order": 0,
-          "showId": 1,
-          "ytBroadcastID": null,
-        },
-        {
-          "id": 1,
-          "name": "Test 1",
-          "order": 1,
-          "showId": 1,
-          "ytBroadcastID": null,
-        },
-        {
-          "durationSeconds": 0,
-          "id": 1,
-          "mediaId": null,
-          "name": "Test 2",
-          "order": 2,
-          "showId": 1,
-          "ytBroadcastID": null,
-        },
-        {
-          "durationSeconds": 0,
-          "id": 2,
-          "mediaId": null,
-          "name": "Test 4",
-          "order": 3,
-          "showId": 1,
-          "ytBroadcastID": null,
-        },
-      ]
-    `);
+    expect(newItems.map((x) => x.id)).toEqual([
+      testShow.rundowns[1].id,
+      testShow.rundowns[0].id,
+      testShow.continuityItems[0].id,
+      testShow.continuityItems[1].id,
+    ]);
   });
 
   test("move 1 to 4", async () => {
-    await reorderShowItems(1, "rundown", 1, 3);
+    await reorderShowItems(testShow.id, "rundown", testShow.rundowns[0].id, 3);
     const newShow = await db.show.findFirstOrThrow({
       where: { id: testShow.id },
       include: { rundowns: true, continuityItems: true },
@@ -153,41 +105,11 @@ integrate("reorderShowItems", () => {
     const newItems = [...newShow.rundowns, ...newShow.continuityItems].sort(
       (a, b) => a.order - b.order,
     );
-    expect(newItems).toMatchInlineSnapshot(`
-      [
-        {
-          "durationSeconds": 0,
-          "id": 1,
-          "mediaId": null,
-          "name": "Test 2",
-          "order": 0,
-          "showId": 1,
-          "ytBroadcastID": null,
-        },
-        {
-          "id": 2,
-          "name": "Test 3",
-          "order": 1,
-          "showId": 1,
-          "ytBroadcastID": null,
-        },
-        {
-          "durationSeconds": 0,
-          "id": 2,
-          "mediaId": null,
-          "name": "Test 4",
-          "order": 2,
-          "showId": 1,
-          "ytBroadcastID": null,
-        },
-        {
-          "id": 1,
-          "name": "Test 1",
-          "order": 3,
-          "showId": 1,
-          "ytBroadcastID": null,
-        },
-      ]
-    `);
+    expect(newItems.map((x) => x.id)).toEqual([
+      testShow.continuityItems[0].id,
+      testShow.rundowns[1].id,
+      testShow.continuityItems[1].id,
+      testShow.rundowns[0].id,
+    ]);
   });
 });

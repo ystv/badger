@@ -23,6 +23,7 @@ const customJestConfig = {
     "../utility/components/**",
     "../utility/prisma/utilityTypes.ts",
   ],
+  prettierPath: null,
 };
 
 // createJestConfig is exported in this way to ensure that next/jest can load the Next.js configuration, which is async

@@ -1,6 +1,6 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+// Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`youtube/doCreateStreams > works 1`] = `
+exports[`youtube/doCreateStreams works 1`] = `
 {
   "part": [
     "id",
@@ -20,7 +20,7 @@ exports[`youtube/doCreateStreams > works 1`] = `
 }
 `;
 
-exports[`youtube/doCreateStreams > works 2`] = `
+exports[`youtube/doCreateStreams works 2`] = `
 {
   "part": [
     "id",
@@ -51,7 +51,7 @@ exports[`youtube/doCreateStreams > works 2`] = `
 }
 `;
 
-exports[`youtube/doCreateStreams > works 3`] = `
+exports[`youtube/doCreateStreams works 3`] = `
 {
   "id": "test-broadcast-0",
   "part": [
@@ -61,7 +61,7 @@ exports[`youtube/doCreateStreams > works 3`] = `
 }
 `;
 
-exports[`youtube/doCreateStreams > works 4`] = `
+exports[`youtube/doCreateStreams works 4`] = `
 {
   "part": [
     "id",
@@ -92,7 +92,7 @@ exports[`youtube/doCreateStreams > works 4`] = `
 }
 `;
 
-exports[`youtube/doCreateStreams > works 5`] = `
+exports[`youtube/doCreateStreams works 5`] = `
 {
   "id": "test-broadcast-1",
   "part": [
