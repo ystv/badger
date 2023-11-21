@@ -164,7 +164,7 @@ export async function doCreateStreams(
             enableAutoStop: false,
             enableClosedCaptions: true,
             enableDvr: true,
-            enableEmbed: true,
+            enableEmbed: data.enableEmbed,
             recordFromStart: true,
           },
         },

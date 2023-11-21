@@ -232,6 +232,7 @@ export default function CreateYTStreamsForm(props: {
         renderOption={identity}
         filter={false}
       />
+      <CheckBoxField name="enableEmbed" label="Enable embedding" />
       <div className="flex flex-col space-y-4 my-6">{itemFields}</div>
     </Form>
   );
