@@ -1,18 +1,17 @@
 import { db } from "@/lib/db";
-import { test, vi, beforeEach, expect, it } from "vitest";
 import { doCreateStreams } from "./actions";
 import { integrate } from "@bowser/testing";
 import { youtube_v3 } from "googleapis";
 import { Show } from "@bowser/prisma/client";
 
-vi.mock("server-only", () => ({}));
-vi.mock("next/cache", () => ({ revalidatePath: () => {} }));
-vi.mock("@/lib/auth", () => ({
+jest.mock("server-only", () => ({}));
+jest.mock("next/cache", () => ({ revalidatePath: () => {} }));
+jest.mock("@/lib/auth", () => ({
   checkSession: () => Promise.resolve({}),
 }));
-vi.mock("@/lib/connections", async () => {
+jest.mock("@/lib/connections", () => {
   const actual =
-    await vi.importActual<typeof import("@/lib/connections")>(
+    jest.createMockFromModule<typeof import("@/lib/connections")>(
       "@/lib/connections",
     );
   return {
@@ -20,26 +19,26 @@ vi.mock("@/lib/connections", async () => {
     getConnectionAccessToken: () => "GOOGLE_ACCESS_TOKEN",
   };
 });
-vi.mock("googleapis", async () => {
-  const Youtube = vi.fn();
+jest.mock("googleapis", () => {
+  const Youtube = jest.fn();
 
   let streamID = 0;
   let broadcastID = 0;
 
   Youtube.prototype.liveStreams = {
-    insert: vi.fn(() => ({
+    insert: jest.fn(() => ({
       data: {
         id: "test-stream-" + streamID++,
       },
     })),
   };
   Youtube.prototype.liveBroadcasts = {
-    insert: vi.fn(() => ({
+    insert: jest.fn(() => ({
       data: {
         id: "test-broadcast-" + broadcastID++,
       },
     })),
-    bind: vi.fn(),
+    bind: jest.fn(),
   };
 
   return { youtube_v3: { Youtube } };
@@ -120,24 +119,24 @@ integrate("youtube/doCreateStreams", async () => {
         },
       ],
     });
-    const yt = vi.mocked(youtube_v3.Youtube).mock.instances[0];
+    const yt = jest.mocked(youtube_v3.Youtube).mock.instances[0];
     expect(yt.liveStreams.insert).toHaveBeenCalled();
     expect(
-      vi.mocked(yt.liveStreams.insert).mock.lastCall![0],
+      jest.mocked(yt.liveStreams.insert).mock.lastCall![0],
     ).toMatchSnapshot();
 
     expect(yt.liveBroadcasts.insert).toHaveBeenCalledTimes(2);
     expect(
-      vi.mocked(yt.liveBroadcasts.insert).mock.calls[0][0],
+      jest.mocked(yt.liveBroadcasts.insert).mock.calls[0][0],
     ).toMatchSnapshot();
     expect(
-      vi.mocked(yt.liveBroadcasts.bind).mock.calls[0][0],
+      jest.mocked(yt.liveBroadcasts.bind).mock.calls[0][0],
     ).toMatchSnapshot();
     expect(
-      vi.mocked(yt.liveBroadcasts.insert).mock.calls[1][0],
+      jest.mocked(yt.liveBroadcasts.insert).mock.calls[1][0],
     ).toMatchSnapshot();
     expect(
-      vi.mocked(yt.liveBroadcasts.bind).mock.calls[1][0],
+      jest.mocked(yt.liveBroadcasts.bind).mock.calls[1][0],
     ).toMatchSnapshot();
 
     const dbShow = await db.show.findFirstOrThrow({
