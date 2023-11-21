@@ -53,6 +53,7 @@ enum Permission {
   ManageUsers
   ManageShows
   ArchiveMedia
+  ManageYouTubeStreams
   SUDO
 }
 
