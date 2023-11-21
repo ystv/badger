@@ -23,6 +23,7 @@
     "lint": "yarn workspaces foreach -p --exclude bowser-root-workspace run lint",
     "prettify": "yarn workspaces foreach -p --exclude bowser-root-workspace run prettify",
     "test": "yarn workspaces foreach --exclude bowser-root-workspace run test",
+    "test:integration": "yarn workspaces foreach --exclude bowser-root-workspace run test:integration",
     "typecheck": "yarn workspaces foreach -p --exclude bowser-root-workspace run tsc --noEmit",
     "prepare": "husky install"
   },
