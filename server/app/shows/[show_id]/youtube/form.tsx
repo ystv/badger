@@ -109,6 +109,7 @@ export default function CreateYTStreamsForm(props: {
       resolution: "1080p",
       frameRate: "30fps",
       ingestionType: "rtmp",
+      enableEmbed: true,
     };
   let time = props.show.start.getTime();
   let idx = 0;

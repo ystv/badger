@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const createStreamsPayloadSchema = z.object({
   show_id: z.coerce.number(),
-  enableEmbed: z.boolean().default(true),
+  enableEmbed: z.boolean(),
   items: z.array(
     z.object({
       enabled: z.boolean(),
