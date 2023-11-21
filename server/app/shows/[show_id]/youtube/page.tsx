@@ -4,7 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import CreateYTStreamsForm from "./form";
 import { getSetting } from "@/lib/settings";
 import { ConnectionTarget } from "@bowser/prisma/client";
-import { checkSession } from "@/lib/auth";
+import { checkSession, requirePermission } from "@/lib/auth";
 
 export default async function ShowYouTubePage(props: {
   params: { show_id: string };
@@ -12,6 +12,7 @@ export default async function ShowYouTubePage(props: {
   if (!enableYoutube) {
     notFound();
   }
+  requirePermission("ManageYouTubeStreams");
 
   const me = await checkSession();
 

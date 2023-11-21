@@ -5,7 +5,7 @@ import { youtube_v3 } from "googleapis";
 import { z } from "zod";
 import { createStreamsPayloadSchema } from "./schema";
 import { FormResponse } from "@/components/Form";
-import { checkSession } from "@/lib/auth";
+import { checkSession, requirePermission } from "@/lib/auth";
 import { cookies } from "next/headers";
 import { OAuth2Client } from "google-auth-library";
 import { ConnectionTarget } from "@bowser/prisma/client";
@@ -57,6 +57,7 @@ async function getAccessTokenForCurrentUser() {
 export async function doCreateStreams(
   dataRaw: z.infer<typeof createStreamsPayloadSchema>,
 ): Promise<FormResponse> {
+  requirePermission("ManageYouTubeStreams");
   const data = createStreamsPayloadSchema.parse(dataRaw);
   const me = await checkSession();
   invariant(me, "no current user");
