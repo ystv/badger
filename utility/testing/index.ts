@@ -1,4 +1,6 @@
-import { describe } from "vitest";
+import { describe as describeVitest } from "vitest";
+
+const realDescribe = typeof jest === "undefined" ? describeVitest : describe;
 
 export const integrate =
-  process.env.TEST_INTEGRATION === "true" ? describe : describe.skip;
+  process.env.TEST_INTEGRATION === "true" ? realDescribe : realDescribe.skip;

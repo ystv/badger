@@ -9,14 +9,7 @@ export default defineConfig({
       enabled: true,
       provider: "v8",
       all: true,
-      include: [
-        "server/app/**",
-        "server/lib/**",
-        "server/components/**",
-        "server/middleware.ts",
-        "jobrunner/src/**",
-        "utility/**",
-      ],
+      include: ["jobrunner/src/**", "utility/**"],
       // Prisma client ships with broken sourcemaps, so exclude it
       exclude: [
         "**/prisma/client/runtime/*",
