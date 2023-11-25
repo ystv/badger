@@ -1,11 +1,8 @@
 import * as path from "node:path";
 import * as fs from "node:fs";
-import { pipeline as streamPipeline } from "node:stream/promises";
-import AbstractJob from "./base.js";
 import {
   ContinuityItem,
   Media,
-  MediaFileSourceType,
   MediaProcessingTaskState,
   MediaState,
   ProcessMediaJob as ProcessMediaJobType,
@@ -13,23 +10,18 @@ import {
   RundownItem,
   Show,
 } from "@bowser/prisma/client";
-import got, { Response as GotResponse } from "got";
 import * as child_process from "node:child_process";
 import * as util from "node:util";
-import pEvent from "p-event";
 import {
   FFProbeOutput,
   FFProbeOutputWithStreams,
   LoudnormOutput,
 } from "./_types.js";
-import { Progress, Upload } from "@aws-sdk/lib-storage";
-import { throttle } from "lodash";
 import {
   enableQualityControl,
   failUploadOnQualityControlFail,
 } from "@bowser/feature-flags";
-import { GetObjectCommand } from "@aws-sdk/client-s3";
-import { expectNever } from "ts-expect";
+import { MediaJobCommon } from "./MediaJobCommon.js";
 
 const TARGET_LOUDNESS_LUFS = -14;
 const TARGET_LOUDNESS_RANGE_LUFS = 4;
@@ -42,7 +34,7 @@ interface CompleteMedia extends Media {
   rundownItems: (RundownItem & { rundown: Rundown & { show: Show } })[];
 }
 
-export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
+export default class ProcessMediaJob extends MediaJobCommon {
   constructor() {
     super();
 
@@ -104,9 +96,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
             () =>
               this._uploadFileToS3(
                 rawTempPath,
-                "raw",
-                media,
-                "Uploading source file to storage",
+                `media/${media.id}/raw/${media.name}`,
               ),
             true,
           );
@@ -219,9 +209,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
             () =>
               this._uploadFileToS3(
                 normalisedPath,
-                "final",
-                media,
-                "Uploading processed file",
+                `media/${media.id}/final/${media.name}`,
               ),
             true,
           );
@@ -315,58 +303,6 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     } finally {
       this._deleteTemporaryDir();
     }
-  }
-
-  private async _downloadSourceFile(params: ProcessMediaJobType) {
-    const filePath = path.join(this.temporaryDir, "raw");
-    const output = fs.createWriteStream(filePath);
-    let stream: NodeJS.ReadableStream;
-    switch (params.sourceType) {
-      case MediaFileSourceType.Tus:
-        stream = got.stream.get(process.env.TUS_ENDPOINT + "/" + params.source);
-        (await pEvent(stream, "response")) as GotResponse; // this ensures that any errors are thrown
-        break;
-
-      case MediaFileSourceType.GoogleDrive: {
-        const res = await this.driveClient.files.get(
-          {
-            fileId: params.source,
-            alt: "media",
-          },
-          {
-            responseType: "stream",
-          },
-        );
-        stream = res.data;
-        break;
-      }
-
-      case MediaFileSourceType.S3: {
-        const res = await this.s3Client.send(
-          new GetObjectCommand({
-            Bucket: process.env.STORAGE_BUCKET,
-            Key: params.source,
-          }),
-        );
-        stream = res.Body! as NodeJS.ReadableStream;
-        break;
-      }
-
-      default:
-        expectNever(params.sourceType);
-        throw new Error("Unknown source type");
-    }
-    await streamPipeline(stream, output);
-
-    // Once we have the file locally, we can delete it from Tus.
-    if (params.sourceType === MediaFileSourceType.Tus) {
-      await got.delete(process.env.TUS_ENDPOINT + "/" + params.source, {
-        headers: {
-          "Tus-Resumable": "1.0.0",
-        },
-      });
-    }
-    return filePath;
   }
 
   private async _qualityCheck(path: string) {
@@ -481,46 +417,6 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     return normalisedPath;
   }
 
-  private async _uploadFileToS3(
-    path: string,
-    fileType: "raw" | "final",
-    item: CompleteMedia,
-    taskDescr?: string,
-  ) {
-    const stream = fs.createReadStream(path);
-    const s3Path = `media/${item.id}/${fileType}/${item.name}`;
-    const upload = new Upload({
-      client: this.s3Client,
-      params: {
-        Bucket: process.env.STORAGE_BUCKET,
-        Key: s3Path,
-        Body: stream,
-      },
-      leavePartsOnError: false,
-    });
-    const throttledProgress = throttle(async (progress: Progress) => {
-      this.logger.info(
-        `[${item.id}] Uploading ${fileType}: ${progress.loaded} / ${progress.total}`,
-      );
-      if (progress.loaded && progress.total) {
-        if (taskDescr) {
-          await this._updateTaskStatus(
-            item,
-            taskDescr,
-            MediaProcessingTaskState.Running,
-            `${((progress.loaded / progress.total) * 100).toFixed(1)}%`,
-          );
-        }
-      }
-    }, 10_000);
-    if (taskDescr) {
-      upload.on("httpUploadProgress", throttledProgress);
-    }
-    await upload.done();
-    throttledProgress.cancel();
-    return s3Path;
-  }
-
   /**
    * Wrap a task in a try/catch block that updates the start and end of the task.
    * @private
@@ -543,6 +439,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
           media,
           descr,
           MediaProcessingTaskState.Complete,
+          "",
         );
       }
       return r;

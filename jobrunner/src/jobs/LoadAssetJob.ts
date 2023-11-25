@@ -1,25 +1,10 @@
-import AbstractJob from "./base.js";
 import {
-  Asset,
   LoadAssetJob as LoadAssetJobType,
-  MediaFileSourceType,
   MediaState,
-  Rundown,
 } from "@bowser/prisma/client";
-import path from "node:path";
-import fs from "node:fs";
-import got from "got";
-import pEvent from "p-event";
-import { pipeline as streamPipeline } from "node:stream/promises";
-import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
-import { Upload } from "@aws-sdk/lib-storage";
-import { expectNever } from "ts-expect";
+import { MediaJobCommon } from "./MediaJobCommon.js";
 
-interface AssetWithRundown extends Asset {
-  rundown: Rundown;
-}
-
-export class LoadAssetJob extends AbstractJob<LoadAssetJobType> {
+export class LoadAssetJob extends MediaJobCommon {
   constructor() {
     super();
   }
@@ -62,7 +47,11 @@ export class LoadAssetJob extends AbstractJob<LoadAssetJobType> {
     });
     try {
       const path = await this._downloadSourceFile(params);
-      const res = await this._uploadFileToS3(path, fullJob.asset);
+      const asset = fullJob.asset;
+      const res = await this._uploadFileToS3(
+        path,
+        `shows/${asset.rundown.showId}/rundown/${asset.rundown.id}/assets/${asset.id} - ${asset.name}`,
+      );
       await this.db.asset.update({
         where: {
           id: fullJob.asset.id,
@@ -114,80 +103,5 @@ export class LoadAssetJob extends AbstractJob<LoadAssetJobType> {
       });
       throw e;
     }
-  }
-
-  // TODO duplicated with ProcessMediaJob
-  private async _downloadSourceFile(params: LoadAssetJobType) {
-    const filePath = path.join(this.temporaryDir, "raw");
-    const output = fs.createWriteStream(filePath);
-    let stream: NodeJS.ReadableStream;
-    switch (params.sourceType) {
-      case MediaFileSourceType.Tus:
-        stream = got.stream.get(
-          process.env.TUS_ENDPOINT + "/" + params.source,
-          {
-            retry: {
-              limit: 5,
-            },
-          },
-        );
-        await pEvent(stream, "response"); // this ensures that any errors are thrown
-        break;
-
-      case MediaFileSourceType.GoogleDrive: {
-        const res = await this.driveClient.files.get(
-          {
-            fileId: params.source,
-            alt: "media",
-          },
-          {
-            responseType: "stream",
-          },
-        );
-        stream = res.data;
-        break;
-      }
-
-      case MediaFileSourceType.S3: {
-        const res = await this.s3Client.send(
-          new GetObjectCommand({
-            Bucket: process.env.STORAGE_BUCKET,
-            Key: params.source,
-          }),
-        );
-        stream = res.Body! as NodeJS.ReadableStream;
-        break;
-      }
-
-      default:
-        expectNever(params.sourceType);
-        throw new Error("Unknown source type");
-    }
-    await streamPipeline(stream, output);
-    // Once we have the file locally, we can delete it from Tus.
-    if (params.sourceType === MediaFileSourceType.Tus) {
-      await got.delete(process.env.TUS_ENDPOINT + "/" + params.source, {
-        headers: {
-          "Tus-Resumable": "1.0.0",
-        },
-      });
-    }
-    return filePath;
-  }
-
-  private async _uploadFileToS3(path: string, asset: AssetWithRundown) {
-    const stream = fs.createReadStream(path);
-    const s3Path = `shows/${asset.rundown.showId}/rundown/${asset.rundown.id}/assets/${asset.id} - ${asset.name}`;
-    const upload = new Upload({
-      client: this.s3Client,
-      params: {
-        Bucket: process.env.STORAGE_BUCKET,
-        Key: s3Path,
-        Body: stream,
-      },
-      leavePartsOnError: false,
-    });
-    await upload.done();
-    return s3Path;
   }
 }
