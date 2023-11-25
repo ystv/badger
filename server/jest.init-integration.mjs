@@ -18,7 +18,6 @@ let dbs = [];
 
 const dbInstances = new Map();
 
-const dbMock = jest.requireMock("@/lib/db");
 jest.mock("@/lib/db", () => {
   const db = { db: null };
   return new Proxy(db, {
@@ -62,13 +61,6 @@ beforeEach(async () => {
     },
   });
   dbs.push(`bowser_test_${hash}`);
-  dbMock.db = new PrismaClient({
-    datasources: {
-      db: {
-        url: `postgresql://root:postgres@localhost:5432/bowser_test_${hash}`,
-      },
-    },
-  });
 });
 
 afterEach(async () => {
