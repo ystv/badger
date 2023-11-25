@@ -63,6 +63,20 @@ export async function doCreateStreams(
   const me = await checkSession();
   invariant(me, "no current user");
 
+  const token = await getConnectionAccessToken(ConnectionTarget.google, me.id);
+  if (!token) {
+    redirect("/connect/google");
+  }
+  const client = makeGoogleOauthClient();
+  client.setCredentials({
+    access_token: token,
+  });
+
+  const yt = new youtube_v3.Youtube({
+    auth: client,
+  });
+
+  let streamID: string;
   await db.$transaction(async ($db) => {
     // Lock the row for the duration of this transaction
     await $db.$queryRaw`SELECT id FROM shows WHERE id = ${data.show_id} FOR UPDATE`;
@@ -76,25 +90,7 @@ export async function doCreateStreams(
       },
     });
 
-    const token = await getConnectionAccessToken(
-      ConnectionTarget.google,
-      me.id,
-    );
-    if (!token) {
-      redirect("/connect/google");
-    }
-    const client = makeGoogleOauthClient();
-    client.setCredentials({
-      access_token: token,
-    });
-
-    const yt = new youtube_v3.Youtube({
-      auth: client,
-    });
-    console.log(yt);
-
     // Create the stream
-    let streamID;
     if (show.ytStreamID) {
       console.log("Using existing stream", show.ytStreamID);
       streamID = show.ytStreamID;
@@ -122,16 +118,35 @@ export async function doCreateStreams(
       });
       streamID = stream.data.id!;
     }
-    // Now create the broadcasts
-    for (const item of data.items) {
-      if (!item.enabled) {
-        continue;
-      }
+
+    return show;
+  });
+
+  // Now create the broadcasts
+  // NB: we wrap each one in an individual transaction.
+  // This is because it's possible that one YouTube operation succeeds but another
+  // fails, and we want to ensure that the broadcast/stream IDs get set even
+  // if a later operation fails.
+  for (const item of data.items) {
+    if (!item.enabled) {
+      continue;
+    }
+    await db.$transaction(async ($db) => {
+      // await $db.$queryRaw`SELECT id FROM shows WHERE id = ${data.show_id} FOR UPDATE`;
+      const show = await $db.show.findUniqueOrThrow({
+        where: {
+          id: data.show_id,
+        },
+        include: {
+          rundowns: true,
+          continuityItems: true,
+        },
+      });
       if (item.rundownID) {
         const rd = show.rundowns.find((x) => x.id === item.rundownID);
         if (rd?.ytBroadcastID?.length) {
           console.log("Skipping broadcast creation for rundown", rd.id);
-          continue;
+          return;
         }
       } else if (item.continuityItemID) {
         const ci = show.continuityItems.find(
@@ -139,12 +154,12 @@ export async function doCreateStreams(
         );
         if (ci?.ytBroadcastID?.length) {
           console.log("Skipping broadcast creation for continuity item", ci.id);
-          continue;
+          return;
         }
       } else if (item.isShowBroadcast) {
         if (show.ytBroadcastID?.length) {
           console.log("Skipping broadcast creation for show", show.id);
-          continue;
+          return;
         }
       }
 
@@ -185,7 +200,7 @@ export async function doCreateStreams(
         streamId: streamID,
       });
       if (item.rundownID) {
-        await $db.rundown.update({
+        await db.rundown.update({
           where: {
             id: item.rundownID,
           },
@@ -194,7 +209,7 @@ export async function doCreateStreams(
           },
         });
       } else if (item.continuityItemID) {
-        await $db.continuityItem.update({
+        await db.continuityItem.update({
           where: {
             id: item.continuityItemID,
           },
@@ -203,7 +218,7 @@ export async function doCreateStreams(
           },
         });
       } else if (item.isShowBroadcast) {
-        await $db.show.update({
+        await db.show.update({
           where: {
             id: show.id,
           },
@@ -212,8 +227,8 @@ export async function doCreateStreams(
           },
         });
       }
-    }
-  });
+    });
+  }
 
   revalidatePath(`/shows/${data.show_id}/youtube`);
   return { ok: true };
