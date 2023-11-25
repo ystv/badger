@@ -6928,6 +6928,7 @@ __metadata:
     "@typescript-eslint/parser": latest
     dotenv: ^16.3.1
     dotenv-flow: ^3.2.0
+    easydl: ^1.1.1
     esbuild: ^0.18.16
     eslint: latest
     glob: ^10.3.3
@@ -6937,6 +6938,7 @@ __metadata:
     loglevel-plugin-prefix: ^0.8.4
     p-event: ^6.0.0
     prettier: ^3.0.3
+    s3-readstream: ^2.0.1
     ts-expect: ^1.3.0
     tsx: ^3.12.7
     typescript: ^5.1.6
@@ -8514,6 +8516,13 @@ __metadata:
   version: 0.2.0
   resolution: "eastasianwidth@npm:0.2.0"
   checksum: 7d00d7cd8e49b9afa762a813faac332dee781932d6f2c848dc348939c4253f1d4564341b7af1d041853bc3f32c2ef141b58e0a4d9862c17a7f08f68df1e0f1ed
+  languageName: node
+  linkType: hard
+
+"easydl@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "easydl@npm:1.1.1"
+  checksum: f6fe22524e6632a551b961fec96554c34ef3f4aef6c6ac5cde10ee18c3a020dc62aec7114fcff50a303dfacbd9e2b4dfe465099fe1f89e7f2ecc1815c4fc138a
   languageName: node
   linkType: hard
 
@@ -15675,6 +15684,13 @@ __metadata:
   dependencies:
     tslib: ^2.1.0
   checksum: de4b53db1063e618ec2eca0f7965d9137cabe98cf6be9272efe6c86b47c17b987383df8574861bcced18ebd590764125a901d5506082be84a8b8e364bf05f119
+  languageName: node
+  linkType: hard
+
+"s3-readstream@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "s3-readstream@npm:2.0.1"
+  checksum: 19b324c5100e9e471ca52abd0dc4e500fb27bf643c66cb2833a43dd32ea462dcf12c42de956c89e28c71f4c03ebe83a12b724b2b938acb87ef639b607dc856a1
   languageName: node
   linkType: hard
 

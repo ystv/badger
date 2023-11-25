@@ -244,7 +244,7 @@ const ContinuityItemRow = forwardRef<
             attachExistingMediaToContinuityItem(item.id, id)
           }
           pastShowsPromise={props.pastShowsPromise}
-          retryProcessing={retryProcessingMedia}
+          retryProcessing={(m) => retryProcessingMedia(m, item.showId)}
           reprocess={reprocessMedia}
         />
       </TableCell>
