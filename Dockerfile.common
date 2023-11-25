@@ -1,6 +1,6 @@
 #syntax=docker/dockerfile:1
 
-FROM node:18-bookworm-slim AS base
+FROM node:20-bookworm-slim AS base
 RUN apt-get update -y && apt-get install -y ca-certificates git openssl
 
 FROM base AS build
