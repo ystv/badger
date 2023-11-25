@@ -26,7 +26,7 @@ const customJestConfig = {
   prettierPath: null,
   testTimeout: 15_000,
   setupFilesAfterEnv: [
-    process.env.TEST_INTEGRATION !== "true" &&
+    process.env.TEST_INTEGRATION === "true" &&
       "<rootDir>/jest.init-integration.mjs",
   ].filter(Boolean),
 };
