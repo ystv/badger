@@ -248,7 +248,13 @@ function ItemsTable(props: {
                     attachExistingMediaToRundownItem(item.id, id)
                   }
                   pastShowsPromise={props.pastShowsPromise}
-                  retryProcessing={retryProcessingMedia}
+                  retryProcessing={(m) =>
+                    retryProcessingMedia(
+                      m,
+                      props.rundown.id,
+                      props.rundown.showId,
+                    )
+                  }
                   reprocess={reprocessMedia}
                 />
               )}

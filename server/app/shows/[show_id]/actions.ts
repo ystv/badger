@@ -503,7 +503,7 @@ export async function attachExistingMediaToContinuityItem(
   return { ok: true };
 }
 
-export async function retryProcessingMedia(mediaID: number) {
+export async function retryProcessingMedia(mediaID: number, showID: number) {
   // Reset the job status and re-enqueue it
   const baseJob = await db.$transaction(async ($db) => {
     const baseJob = await $db.baseJob.findUniqueOrThrow({
@@ -534,6 +534,7 @@ export async function retryProcessingMedia(mediaID: number) {
     });
   });
   await dispatchJobForJobrunner(baseJob.id);
+  revalidatePath(`/shows/${showID}`);
   return { ok: true };
 }
 

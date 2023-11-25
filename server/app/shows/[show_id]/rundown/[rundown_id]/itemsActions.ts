@@ -404,7 +404,11 @@ export async function attachExistingMediaToRundownItem(
 }
 
 // TODO: duplicated with show actions
-export async function retryProcessingMedia(mediaID: number) {
+export async function retryProcessingMedia(
+  mediaID: number,
+  showID: number,
+  rundownID: number,
+) {
   // Reset the job status and re-enqueue it
   const baseJob = await db.$transaction(async ($db) => {
     const baseJob = await $db.baseJob.findUniqueOrThrow({
@@ -435,6 +439,7 @@ export async function retryProcessingMedia(mediaID: number) {
     });
   });
   await dispatchJobForJobrunner(baseJob.id);
+  revalidatePath(`/shows/${showID}/rundown/${rundownID}`);
   return { ok: true };
 }
 
