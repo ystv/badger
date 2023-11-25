@@ -4,6 +4,13 @@ import { exec as execRaw } from "node:child_process";
 import { promisify } from "node:util";
 import { PrismaClient } from "@bowser/prisma/client/index.js";
 
+/*
+ * his file sets up and tears down a PostgreSQL database for each Jest test using Prisma.
+ * It ensures that each test runs in isolation by creating a unique database and cleaning up afterward.
+ * The use of dynamic database names allows parallel test execution without conflicts.
+ * The Jest mock for the database module helps control and isolate database interactions during testing.
+ */
+
 const exec = promisify(execRaw);
 
 function getTestHash() {

@@ -25,7 +25,10 @@ const customJestConfig = {
   ],
   prettierPath: null,
   testTimeout: 15_000,
-  setupFilesAfterEnv: ["<rootDir>/jest.init-integration.mjs"],
+  setupFilesAfterEnv: [
+    process.env.TEST_INTEGRATION !== "true" &&
+      "<rootDir>/jest.init-integration.mjs",
+  ].filter(Boolean),
 };
 
 // createJestConfig is exported in this way to ensure that next/jest can load the Next.js configuration, which is async
