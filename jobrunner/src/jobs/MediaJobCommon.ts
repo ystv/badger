@@ -58,7 +58,7 @@ export abstract class MediaJobCommon extends AbstractJob<
           }),
           s3: this.s3Client,
           maxLength: head.ContentLength!,
-          byteRange: 10 * 1024 * 1024, // 10MB
+          byteRange: 50 * 1024 * 1024, // 50MB
         });
         const output = fs.createWriteStream(filePath);
         await streamPipeline(stream, output);
