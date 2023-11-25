@@ -10,7 +10,7 @@ import * as path from "node:path";
 import * as fs from "node:fs";
 import invariant from "../invariant";
 import got from "got";
-import { GetObjectCommand } from "@aws-sdk/client-s3";
+import { GetObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
 import { expectNever } from "ts-expect";
 import EasyDL from "easydl";
 import { S3ReadStream } from "s3-readstream";
@@ -45,7 +45,7 @@ export abstract class MediaJobCommon extends AbstractJob<
 
       case MediaFileSourceType.S3: {
         const head = await this.s3Client.send(
-          new GetObjectCommand({
+          new HeadObjectCommand({
             Bucket: process.env.STORAGE_BUCKET,
             Key: params.source,
           }),
