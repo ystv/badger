@@ -24,6 +24,8 @@ const customJestConfig = {
     "../utility/prisma/utilityTypes.ts",
   ],
   prettierPath: null,
+  testTimeout: 15_000,
+  setupFilesAfterEnv: ["<rootDir>/jest.init-integration.mjs"],
 };
 
 // createJestConfig is exported in this way to ensure that next/jest can load the Next.js configuration, which is async

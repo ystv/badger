@@ -132,7 +132,7 @@ export async function doCreateStreams(
       continue;
     }
     await db.$transaction(async ($db) => {
-      await $db.$queryRaw`SELECT id FROM shows WHERE id = ${data.show_id} FOR UPDATE`;
+      // await $db.$queryRaw`SELECT id FROM shows WHERE id = ${data.show_id} FOR UPDATE`;
       const show = await $db.show.findUniqueOrThrow({
         where: {
           id: data.show_id,
