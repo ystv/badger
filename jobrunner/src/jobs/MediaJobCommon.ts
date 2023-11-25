@@ -44,13 +44,21 @@ export abstract class MediaJobCommon extends AbstractJob<
       }
 
       case MediaFileSourceType.S3: {
+        const head = await this.s3Client.send(
+          new GetObjectCommand({
+            Bucket: process.env.STORAGE_BUCKET,
+            Key: params.source,
+          }),
+        );
+
         const stream = new S3ReadStream({
           command: new GetObjectCommand({
             Bucket: process.env.STORAGE_BUCKET,
             Key: params.source,
           }),
           s3: this.s3Client,
-          maxLength: 50 * 1024 * 1024,
+          maxLength: head.ContentLength!,
+          byteRange: 10 * 1024 * 1024, // 10MB
         });
         const output = fs.createWriteStream(filePath);
         await streamPipeline(stream, output);
