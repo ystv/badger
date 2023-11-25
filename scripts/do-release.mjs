@@ -67,6 +67,7 @@ const data = await inq.prompt([
     type: "confirm",
     name: "prerelease",
     message: "Should this be a pre-release?",
+    default: false,
   },
   {
     type: "confirm",
@@ -76,6 +77,24 @@ const data = await inq.prompt([
     default: false,
   },
 ]);
+
+let preRelType;
+
+if (data.type === "prerelease") {
+  preRelType = await inq.prompt([
+    {
+      type: "list",
+      name: "type",
+      message: "What type of pre-release is this?",
+      choices: [
+        { name: "Alpha (x.y.z-alpha.w)", value: "alpha" },
+        { name: "Beta (x.y.z-beta.w)", value: "beta" },
+        { name: "Release candidate (x.y.z-rc.w)", value: "rc" },
+        { name: "Other (x.y.z-pre.w)", value: "pre" },
+      ],
+    },
+  ]);
+}
 
 const octo = new Octokit({
   auth: (await exec("gh auth token")).stdout.trim(),
@@ -90,8 +109,19 @@ for (const workspace of ["desktop", "jobrunner", "server"]) {
       .version,
   );
 }
-const maxV = semver.maxSatisfying(versions, "*");
-const newV = semver.inc(maxV, data.type, data.prerelease ? "beta" : undefined);
+
+let maxV = versions[0];
+for (const v of versions) {
+  if (semver.gt(v, maxV)) {
+    maxV = v;
+  }
+}
+
+const newV = semver.inc(
+  maxV,
+  data.type,
+  data.type === "prerelease" ? preRelType : undefined,
+);
 console.log(`Bumping version from ${maxV} to ${newV}`);
 for (const workspace of ["desktop", "jobrunner", "server"]) {
   // We don't use a JSON.parse/JSON.stringify cycle here because we want to preserve the formatting
