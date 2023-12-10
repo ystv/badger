@@ -121,7 +121,10 @@ export async function downloadFile(
       downloader = CurlDownloader;
       break;
     case "Auto":
-      downloader = (await isCurlInstalled()) ? CurlDownloader : NodeDownloader;
+      downloader =
+        (await isCurlInstalled()) && process.platform !== "win32"
+          ? CurlDownloader
+          : NodeDownloader;
       break;
     default:
       throw new Error(`Unknown downloader ${settings.downloader}`);
