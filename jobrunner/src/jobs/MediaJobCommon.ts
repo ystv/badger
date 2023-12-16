@@ -48,7 +48,14 @@ export abstract class MediaJobCommon extends AbstractJob<
           params.sourceType === MediaFileSourceType.Tus
             ? process.env.TUS_S3_BUCKET
             : process.env.STORAGE_BUCKET;
-        const key = params.source;
+        let key = params.source;
+        if (params.sourceType === MediaFileSourceType.Tus) {
+          // The source will be in the format "<objectID>+<multipartID>"
+          // (https://github.com/tus/tusd/blob/e13b64869e7920b17396fd634624ccc88b698d8b/pkg/s3store/s3store.go#L339)
+          // we only want the objectID
+          key = key.split("+")[0];
+        }
+
         const head = await this.s3Client.send(
           new HeadObjectCommand({
             Bucket: bucket,
