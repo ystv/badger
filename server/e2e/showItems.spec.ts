@@ -312,6 +312,7 @@ test("media archival", async ({ showPage }) => {
 
   await showPage.goto("/");
   await showPage.getByRole("button", { name: "View/Edit" }).click();
+  await showPage.reload();
   await showPage.getByRole("button", { name: "Media archived" }).click();
   await showPage.getByRole("button", { name: "Reprocess" }).click();
 
