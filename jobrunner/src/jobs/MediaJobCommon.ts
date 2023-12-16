@@ -24,37 +24,42 @@ export abstract class MediaJobCommon extends AbstractJob<
     const filePath = path.join(this.temporaryDir, "raw");
     switch (params.sourceType) {
       case MediaFileSourceType.Tus: {
-        const dl = new EasyDL(
-          process.env.TUS_ENDPOINT + "/" + params.source,
-          filePath,
-        );
-        invariant(await dl.wait(), "download did not succeed");
+        // If Tus is running against a S3 backend, we can download directly from S3
+        // for better performance and resumability support
+        if (!process.env.TUS_S3_BUCKET) {
+          const dl = new EasyDL(
+            process.env.TUS_ENDPOINT + "/" + params.source,
+            filePath,
+          );
+          invariant(await dl.wait(), "download did not succeed");
 
-        await got.delete(process.env.TUS_ENDPOINT + "/" + params.source, {
-          headers: {
-            "Tus-Resumable": "1.0.0",
-          },
-        });
-        break;
-      }
-
-      case MediaFileSourceType.GoogleDrive: {
-        invariant(false, "Google Drive not supported");
-        break;
+          await got.delete(process.env.TUS_ENDPOINT + "/" + params.source, {
+            headers: {
+              "Tus-Resumable": "1.0.0",
+            },
+          });
+          break;
+        }
+        //fallthrough
       }
 
       case MediaFileSourceType.S3: {
+        const bucket =
+          params.sourceType === MediaFileSourceType.Tus
+            ? process.env.TUS_S3_BUCKET
+            : process.env.STORAGE_BUCKET;
+        const key = params.source;
         const head = await this.s3Client.send(
           new HeadObjectCommand({
-            Bucket: process.env.STORAGE_BUCKET,
-            Key: params.source,
+            Bucket: bucket,
+            Key: key,
           }),
         );
 
         const stream = new S3ReadStream({
           command: new GetObjectCommand({
-            Bucket: process.env.STORAGE_BUCKET,
-            Key: params.source,
+            Bucket: bucket,
+            Key: key,
           }),
           s3: this.s3Client,
           maxLength: head.ContentLength!,
@@ -62,6 +67,20 @@ export abstract class MediaJobCommon extends AbstractJob<
         });
         const output = fs.createWriteStream(filePath);
         await streamPipeline(stream, output);
+
+        if (params.sourceType === MediaFileSourceType.Tus) {
+          // Need to clean up
+          await got.delete(process.env.TUS_ENDPOINT + "/" + params.source, {
+            headers: {
+              "Tus-Resumable": "1.0.0",
+            },
+          });
+        }
+        break;
+      }
+
+      case MediaFileSourceType.GoogleDrive: {
+        invariant(false, "Google Drive not supported");
         break;
       }
 
