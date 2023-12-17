@@ -159,5 +159,4 @@ test("scrolling for a show with lots of rundown items", async ({
 
   await page.getByRole("cell", { name: "Item 40" }).scrollIntoViewIfNeeded();
   await expect(page.getByRole("cell", { name: "Item 40" })).toBeInViewport();
-  await page.pause();
 });
