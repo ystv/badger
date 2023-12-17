@@ -46,6 +46,11 @@ export class LoadAssetJob extends MediaJobCommon {
       },
     });
     try {
+      // Test only: allow testing failure handling
+      if (fullJob.asset.name.includes("__FAIL__")) {
+        throw new Error("Test failure!");
+      }
+
       const path = await this._downloadSourceFile(params);
       const asset = fullJob.asset;
       const res = await this._uploadFileToS3(
@@ -85,7 +90,7 @@ export class LoadAssetJob extends MediaJobCommon {
         data: {
           media: {
             update: {
-              state: MediaState.Processing,
+              state: MediaState.ProcessingFailed,
             },
           },
           rundown: {

@@ -11,6 +11,7 @@ import {
   IoMusicalNoteSharp,
   IoTvSharp,
   IoVolumeMediumSharp,
+  IoWarningSharp,
 } from "react-icons/io5";
 import { IconType } from "react-icons/lib/cjs/iconBase";
 import {
@@ -37,6 +38,7 @@ import {
   MediaSelectOrUploadDialog,
   PastShowsMedia,
 } from "@/components/MediaSelection";
+import { expectNever } from "ts-expect";
 
 export interface RundownWithAssets extends Rundown {
   assets: (Asset & { media: Media })[];
@@ -124,18 +126,42 @@ export default function RundownAssets(props: {
         <div className="flex flex-col">
           {assets.map((asset) => {
             let icon;
-            if (asset.media.state !== MediaState.Ready) {
-              icon = <Image src={Spinner} alt="" className="inline-block" />;
-            } else {
-              const Icon = AssetIcons[asset.type];
-              icon = (
-                <Icon
-                  className={classNames(
-                    "w-6 h-6",
-                    AssetColorClasses[asset.type],
-                  )}
-                />
-              );
+            switch (asset.media.state) {
+              case MediaState.Pending:
+              case MediaState.Processing:
+                icon = <Image src={Spinner} alt="" className="inline-block" />;
+                break;
+              case MediaState.ProcessingFailed:
+                icon = (
+                  <IoWarningSharp
+                    className="inline"
+                    data-testid="RundownAssets.loadFailed"
+                  />
+                );
+                break;
+              case MediaState.Ready:
+              case MediaState.ReadyWithWarnings: {
+                const Icon = AssetIcons[asset.type];
+                icon = (
+                  <Icon
+                    className={classNames(
+                      "w-6 h-6",
+                      AssetColorClasses[asset.type],
+                    )}
+                  />
+                );
+                break;
+              }
+              case MediaState.Archived:
+                icon = (
+                  <IoWarningSharp
+                    className="inline"
+                    data-testid="RundownAssets.archived"
+                  />
+                );
+                break;
+              default:
+                expectNever(asset.media.state);
             }
             return (
               <div
