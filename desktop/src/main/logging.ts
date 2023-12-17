@@ -50,8 +50,7 @@ export function getLogger(name: string) {
 }
 
 export function setLogLevel(level: LogLevelNames) {
-  // This is always logged at the highest level
-  logging.error(`Changing log level to ${level}`);
+  logging[level](`Changing log level to ${level}`);
   logLevel = level;
   for (const logger of loggers) {
     logging.getLogger(logger).setLevel(level);
