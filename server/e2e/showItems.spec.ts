@@ -264,6 +264,42 @@ test("media/assets for long rundowns", async ({ showPage }) => {
   await req;
 });
 
+test("asset upload failure (BOW-54)", async ({ showPage }) => {
+  const testFile = readFileSync(
+    path.join(__dirname, "testdata", "smpte_bars_15s.mp4"),
+  );
+  await showPage.getByRole("button", { name: "New Rundown" }).click();
+  await expect(showPage.getByTestId("name-rundown")).toBeVisible();
+  await showPage.getByTestId("name-rundown").fill("Test");
+  await showPage.getByTestId("create-rundown").click();
+  await expect(showPage.getByLabel("Name")).toHaveValue("");
+  await showPage.locator("body").press("Escape");
+
+  await showPage.getByRole("link", { name: "Edit" }).click();
+  await showPage.waitForURL("**/shows/*/rundown/*");
+
+  await showPage.getByRole("button", { name: "Upload new asset" }).click();
+  await showPage.getByRole("combobox").selectOption("Graphic");
+  await showPage.getByText("Upload file").click();
+  const req = showPage.waitForRequest("http://localhost:1080/*");
+  await showPage
+    .getByText("Drop files here, or click to select")
+    .dispatchEvent("drop", {
+      dataTransfer: await fileToDataTransfer(
+        showPage,
+        testFile,
+        // This triggers LoadAssetJob to fail - see jobrunner/src/jobs/LoadAssetJob.ts
+        "__FAIL__smpte_bars_15s.mp4",
+        "video/mp4",
+      ),
+    });
+  await req;
+
+  await expect(showPage.getByTestId("RundownAssets.loadFailed")).toBeVisible({
+    timeout: 30_000,
+  });
+});
+
 test("media archival", async ({ showPage }) => {
   await showPage.getByRole("button", { name: "New Continuity Item" }).click();
   await showPage.getByTestId("name-continuity_item").fill("Test");
