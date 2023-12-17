@@ -381,7 +381,7 @@ export default function OBSScreen() {
   });
 
   if (connectionState.isLoading) {
-    return <div>Please wait...</div>;
+    return <div>Please wait, getting OBS connection state...</div>;
   }
   if (connectionState.error) {
     return (

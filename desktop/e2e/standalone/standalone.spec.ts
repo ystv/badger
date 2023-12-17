@@ -1,3 +1,4 @@
+import { Show } from "@bowser/prisma/client";
 import {
   test as base,
   _electron as electron,
@@ -5,7 +6,7 @@ import {
   type ElectronApplication,
   type Page,
 } from "@playwright/test";
-import type { CalledWithMock } from "jest-mock-extended";
+import { add } from "date-fns";
 
 export const test = base.extend<{
   app: [ElectronApplication, Page];
@@ -28,10 +29,35 @@ export const test = base.extend<{
 
     await win.waitForLoadState("domcontentloaded");
 
+    await app.evaluate(
+      (_, testTime) => {
+        __MOCK_SERVER_API__.mock("query", "ping", "pong");
+        __MOCK_SERVER_API__.mock("query", "shows.listUpcoming", [
+          {
+            id: 1,
+            name: "Test show",
+            start: testTime,
+            version: 1,
+            ytBroadcastID: null,
+            ytStreamID: null,
+          },
+        ] satisfies Show[]);
+      },
+      add(new Date(), { days: 1 }),
+    );
+
     await win.getByLabel("Server address").fill("http://localhost:3000");
     await win.getByLabel("Server Password").fill("aaa");
 
     await win.getByRole("button", { name: "Connect" }).click();
+
+    await win.waitForLoadState("domcontentloaded");
+
+    // await win.pause();
+
+    await expect(
+      win.getByRole("heading", { name: "Select a show" }),
+    ).toBeVisible();
 
     await use([app, win]);
 
@@ -48,22 +74,24 @@ export const test = base.extend<{
   },
 });
 
-test.beforeEach(async ({ app: [app] }) => {
-  await app.evaluate(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (globalThis as any).__MOCK_SERVER_API__.mock("query", "ping", "pong");
-  });
-});
+declare global {
+  // eslint-disable-next-line no-var
+  var __MOCK_SERVER_API__: {
+    mock: (
+      type: "query" | "mutation",
+      name: string,
+      returnValue: unknown,
+    ) => void;
+    reset: () => void;
+  };
+}
 
 test.afterEach(async ({ app: [app] }) => {
   await app.evaluate(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (globalThis as any).__MOCK_SERVER_API__.reset();
+    globalThis.__MOCK_SERVER_API__.reset();
   });
 });
 
 test("it works", async ({ app: [app, page] }) => {
-  await expect(
-    page.getByRole("heading", { name: "Select a show" }),
-  ).toBeVisible();
+  await page.getByText("Test show").click();
 });

@@ -496,7 +496,7 @@ export default function VMixScreen(props: {
   const connectionState = ipc.vmix.getConnectionState.useQuery();
 
   if (connectionState.isLoading) {
-    return <div>Please wait...</div>;
+    return <div>Please wait, getting vMix connection state...</div>;
   }
   if (connectionState.isError) {
     return (

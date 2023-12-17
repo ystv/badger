@@ -63,7 +63,7 @@ export function SelectShowForm(props: { onSelect?: () => void }) {
     },
   });
   if (listShows.isLoading) {
-    return <div>Please wait...</div>;
+    return <div>Please wait, loading shows list...</div>;
   }
   if (listShows.error) {
     return (
@@ -114,7 +114,7 @@ export default function ConnectAndSelectShowGate(props: {
   }, [queryClient]);
 
   if (connState.isLoading || selectedShow.isLoading) {
-    return <div>Please wait...</div>;
+    return <div>Please wait, getting selected show...</div>;
   }
   if (connState.data === true && selectedShow.data !== null) {
     return props.children;
