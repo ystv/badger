@@ -222,6 +222,8 @@ const ContinuityItemRow = forwardRef<
       ref={ref}
       {...props.draggableProps}
       className="[&>td]:m-2 align-top"
+      data-testid="ContinuityItemRow"
+      data-item-id={item.id}
     >
       <TableCell
         {...props.dragHandleProps}

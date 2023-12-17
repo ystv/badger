@@ -1,7 +1,7 @@
 import { expect } from "@playwright/test";
 import { readFileSync } from "fs";
 import * as path from "node:path";
-import { test, fileToDataTransfer, createShow } from "./lib";
+import { test, fileToDataTransfer, createShow, createMedia } from "./lib";
 
 test("add, reorder, remove items", async ({ showPage }) => {
   await expect
@@ -151,10 +151,7 @@ test("add media", async ({ showPage }) => {
 });
 
 test("reuse media", async ({ showPage }) => {
-  // TODO[BOW-130]: We should consider a test-only API to directly create a media object
-  // from a file already in S3, and skip the processing step.
   test.slow();
-  const testFile = readFileSync(__dirname + "/testdata/smpte_bars_15s.mp4");
 
   // Upload the media to a show in the past
   await createShow(showPage, "Test 2", "past");
@@ -164,24 +161,17 @@ test("reuse media", async ({ showPage }) => {
   await showPage.getByTestId("create-continuity_item").click();
   await showPage.locator("body").press("Escape");
 
-  await showPage.getByRole("button", { name: "Media Missing" }).click();
-  await showPage.getByText("Upload file").click();
-  await showPage
-    .getByText("Drop files here, or click to select")
-    .dispatchEvent("drop", {
-      dataTransfer: await fileToDataTransfer(
-        showPage,
-        testFile,
-        "smpte_bars_15s.mp4",
-        "video/mp4",
-      ),
-    });
-
-  await expect(
-    showPage.getByRole("button", { name: "Good to go!" }),
-  ).toBeVisible({
-    timeout: 30_000,
-  });
+  const itemId = parseInt(
+    (await showPage
+      .getByTestId("ContinuityItemRow")
+      .getAttribute("data-item-id"))!,
+  );
+  await createMedia(
+    "smpte_bars_15s.mp4",
+    readFileSync(__dirname + "/testdata/smpte_bars_15s.mp4"),
+    "continuityItem",
+    itemId,
+  );
 
   // Now go back to the initial test show
   await showPage.goto("/");
@@ -275,34 +265,22 @@ test("media/assets for long rundowns", async ({ showPage }) => {
 });
 
 test("media archival", async ({ showPage }) => {
-  // TODO[BOW-130]: We should consider a test-only API to directly create a media object
-  // from a file already in S3, and skip the processing step.
-  test.slow();
-  const testFile = readFileSync(__dirname + "/testdata/smpte_bars_15s.mp4");
-
   await showPage.getByRole("button", { name: "New Continuity Item" }).click();
   await showPage.getByTestId("name-continuity_item").fill("Test");
   await showPage.getByTestId("create-continuity_item").click();
   await showPage.locator("body").press("Escape");
 
-  await showPage.getByRole("button", { name: "Media Missing" }).click();
-  await showPage.getByText("Upload file").click();
-  await showPage
-    .getByText("Drop files here, or click to select")
-    .dispatchEvent("drop", {
-      dataTransfer: await fileToDataTransfer(
-        showPage,
-        testFile,
-        "smpte_bars_15s.mp4",
-        "video/mp4",
-      ),
-    });
-
-  await expect(
-    showPage.getByRole("button", { name: "Good to go!" }),
-  ).toBeVisible({
-    timeout: 30_000,
-  });
+  const itemId = parseInt(
+    (await showPage
+      .getByTestId("ContinuityItemRow")
+      .getAttribute("data-item-id"))!,
+  );
+  await createMedia(
+    "smpte_bars_15s.mp4",
+    readFileSync(__dirname + "/testdata/smpte_bars_15s.mp4"),
+    "continuityItem",
+    itemId,
+  );
 
   await showPage.goto("/media");
 
@@ -325,34 +303,22 @@ test("media archival", async ({ showPage }) => {
 });
 
 test("media deletion", async ({ showPage }) => {
-  // TODO[BOW-130]: We should consider a test-only API to directly create a media object
-  // from a file already in S3, and skip the processing step.
-  test.slow();
-  const testFile = readFileSync(__dirname + "/testdata/smpte_bars_15s.mp4");
-
   await showPage.getByRole("button", { name: "New Continuity Item" }).click();
   await showPage.getByTestId("name-continuity_item").fill("Test");
   await showPage.getByTestId("create-continuity_item").click();
   await showPage.locator("body").press("Escape");
 
-  await showPage.getByRole("button", { name: "Media Missing" }).click();
-  await showPage.getByText("Upload file").click();
-  await showPage
-    .getByText("Drop files here, or click to select")
-    .dispatchEvent("drop", {
-      dataTransfer: await fileToDataTransfer(
-        showPage,
-        testFile,
-        "smpte_bars_15s.mp4",
-        "video/mp4",
-      ),
-    });
-
-  await expect(
-    showPage.getByRole("button", { name: "Good to go!" }),
-  ).toBeVisible({
-    timeout: 30_000,
-  });
+  const itemId = parseInt(
+    (await showPage
+      .getByTestId("ContinuityItemRow")
+      .getAttribute("data-item-id"))!,
+  );
+  await createMedia(
+    "smpte_bars_15s.mp4",
+    readFileSync(__dirname + "/testdata/smpte_bars_15s.mp4"),
+    "continuityItem",
+    itemId,
+  );
 
   await showPage.goto("/media");
 

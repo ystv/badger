@@ -71,6 +71,7 @@
   "devDependencies": {
     "@playwright/test": "^1.37.0",
     "@prisma/nextjs-monorepo-workaround-plugin": "toniopelo/prisma-nextjs-monorepo-workaround-plugin",
+    "@trpc/client": "^10.44.1",
     "@types/jest": "^29.5.9",
     "@types/shelljs": "^0.8.12",
     "@vitejs/plugin-react": "^4.0.3",
