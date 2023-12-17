@@ -5256,6 +5256,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@trpc/client@npm:^10.44.1":
+  version: 10.44.1
+  resolution: "@trpc/client@npm:10.44.1"
+  peerDependencies:
+    "@trpc/server": 10.44.1
+  checksum: c3277e9f6e1ff650e9da82b4f6ec1718bca86ad1d17f083a200e29ad635da7d988c9223c0ccd0c575ed1ab3cb59b47e1d83c659e3ae8f6537d3c54ea34010f2a
+  languageName: node
+  linkType: hard
+
 "@trpc/react-query@npm:^10.35.0":
   version: 10.35.0
   resolution: "@trpc/react-query@npm:10.35.0"
@@ -6981,6 +6990,7 @@ __metadata:
     "@sentry/utils": ^7.69.0
     "@tailwindcss/forms": ^0.5.4
     "@tanstack/react-table": ^8.10.7
+    "@trpc/client": ^10.44.1
     "@trpc/server": ^10.34.0
     "@types/jest": ^29.5.9
     "@types/lodash": ^4.14.196

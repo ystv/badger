@@ -17,6 +17,7 @@ import {
   RundownSchema,
   ShowSchema,
   ShowUpdateInputSchema,
+  MediaUpdateInputSchema,
 } from "@bowser/prisma/types";
 import invariant from "@/lib/invariant";
 import { dispatchJobForJobrunner } from "@/lib/jobs";
@@ -310,6 +311,22 @@ export const appRouter = router({
         });
         await dispatchJobForJobrunner(job.base_job_id);
         return media;
+      }),
+    update: e2eProcedure
+      .input(
+        z.object({
+          id: z.number(),
+          data: MediaUpdateInputSchema,
+        }),
+      )
+      .output(MediaSchema)
+      .mutation(async ({ input }) => {
+        return db.media.update({
+          where: {
+            id: input.id,
+          },
+          data: input.data,
+        });
       }),
     bulkGet: publicProcedure
       .input(z.array(z.number()))
