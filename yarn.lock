@@ -5247,16 +5247,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@trpc/client@npm:^10.38.1":
-  version: 10.38.1
-  resolution: "@trpc/client@npm:10.38.1"
-  peerDependencies:
-    "@trpc/server": 10.38.1
-  checksum: b37dab8703582913411a24400c361f019a1f24b3304e77ad3b4c6d700b3aa5e43b8cd2b83e2cd463ccbe12ae45ef42e186c01bbd85b940871adfd05e31553797
-  languageName: node
-  linkType: hard
-
-"@trpc/client@npm:^10.44.1":
+"@trpc/client@npm:^10.38.1, @trpc/client@npm:^10.44.1":
   version: 10.44.1
   resolution: "@trpc/client@npm:10.44.1"
   peerDependencies:
