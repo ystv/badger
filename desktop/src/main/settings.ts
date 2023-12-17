@@ -5,7 +5,7 @@ import * as fsp from "fs/promises";
 import { AssetTypeSchema } from "@bowser/prisma/types";
 import { IPCEvents } from "./ipcEventBus";
 import { ipcMain } from "electron";
-import logging from "loglevel";
+import logging from "./logging";
 
 const logger = logging.getLogger("settings");
 

@@ -19,7 +19,7 @@ import {
 import { z } from "zod";
 import * as qs from "qs";
 import { v4 as uuidV4 } from "uuid";
-import { getLogger } from "loglevel";
+import { getLogger } from "./logging";
 
 const logger = getLogger("vmix");
 

@@ -48,7 +48,7 @@ import {
 } from "./ontime";
 import { showToOntimeEvents } from "./ontimeHelpers";
 import { shell, ipcMain } from "electron";
-import logging from "loglevel";
+import logging, { logLevel, setLogLevel } from "./logging";
 import { getAvailableDownloaders } from "./downloadFile";
 import { ShowSchema } from "@bowser/prisma/types";
 import { isAfter } from "date-fns";
@@ -119,6 +119,16 @@ export const appRouter = r({
   supportedIntegrations: proc.output(z.array(Integration)).query(() => {
     return supportedIntegrations;
   }),
+  getLogLevel: proc
+    .output(z.enum(["trace", "debug", "info", "warn", "error"]))
+    .query(() => {
+      return logLevel;
+    }),
+  setLogLevel: proc
+    .input(z.enum(["trace", "debug", "info", "warn", "error"]))
+    .mutation(async ({ input }) => {
+      setLogLevel(input);
+    }),
   devtools: r({
     getSettings: proc
       .output(devToolsConfigSchema)

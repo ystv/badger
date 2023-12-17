@@ -1,7 +1,7 @@
 import got, { type Got } from "got";
 import invariant from "../common/invariant";
 import { getOntimeSettings } from "./settings";
-import { getLogger } from "loglevel";
+import { getLogger } from "./logging";
 
 const logger = getLogger("ontime");
 

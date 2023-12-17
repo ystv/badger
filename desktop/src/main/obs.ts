@@ -3,7 +3,7 @@ import OBSWebSocket, {
   OBSResponseTypes,
 } from "obs-websocket-js";
 import { getOBSSettings, saveOBSSettings } from "./settings";
-import { getLogger } from "loglevel";
+import { getLogger } from "./logging";
 import { inspect } from "node:util";
 
 const logger = getLogger("obs");

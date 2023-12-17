@@ -2,12 +2,13 @@ import {
   CreateTRPCProxyClient,
   createTRPCProxyClient,
   httpBatchLink,
+  httpLink,
   loggerLink,
 } from "@trpc/client";
 import type { AppRouter } from "bowser-server/app/api/_router";
 import superjson from "superjson";
 import { getServerSettings, saveServerSettings } from "./settings";
-import logging from "loglevel";
+import logging from "./logging";
 
 const logger = logging.getLogger("serverApiClient");
 
@@ -35,7 +36,8 @@ async function newAPIClient(endpoint: string, password: string) {
           logger.trace(parts.join(" "));
         },
       }),
-      httpBatchLink({
+      // We disable batching in E2E tests to make mocking easier
+      (process.env.E2E_TEST === "true" ? httpLink : httpBatchLink)({
         url: endpoint,
         headers: () => ({
           authorization: `Bearer ${password}`,

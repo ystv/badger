@@ -2,7 +2,7 @@ import * as wget from "wget-improved";
 import { spawn } from "child_process";
 import which from "which";
 import invariant from "../common/invariant";
-import logging from "loglevel";
+import logging from "./logging";
 import { getDownloadsSettings } from "./settings";
 import { throttle } from "lodash";
 

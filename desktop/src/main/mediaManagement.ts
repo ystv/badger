@@ -12,7 +12,7 @@ import { serverApiClient } from "./serverApiClient";
 import { z } from "zod";
 import { IPCEvents } from "./ipcEventBus";
 import { downloadFile } from "./downloadFile";
-import logging from "loglevel";
+import logging from "./logging";
 
 const logger = logging.getLogger("mediaManagement");
 
