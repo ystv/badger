@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@bowser/components/select";
+import { LogLevelNames } from "loglevel";
 
 export function Settings() {
   const queryClient = useQueryClient();
@@ -31,6 +32,7 @@ export function Settings() {
     ipc.media.getAvailableDownloaders.useSuspenseQuery();
   const [selectedDownloader] =
     ipc.media.getSelectedDownloader.useSuspenseQuery();
+  const [logLevel] = ipc.getLogLevel.useSuspenseQuery();
 
   const doMainError = ipc.devtools.throwException.useMutation();
   const doMainCrash = ipc.devtools.crash.useMutation();
@@ -44,6 +46,11 @@ export function Settings() {
       queryClient.invalidateQueries(
         getQueryKey(ipc.media.getSelectedDownloader),
       );
+    },
+  });
+  const doSetLogLevel = ipc.setLogLevel.useMutation({
+    onSettled() {
+      queryClient.invalidateQueries(getQueryKey(ipc.getLogLevel));
     },
   });
 
@@ -126,6 +133,24 @@ export function Settings() {
             {availableDownloaders.map((d) => (
               <SelectItem key={d} value={d}>
                 {d}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <h2 className="text-xl">Logging</h2>
+        <Label htmlFor="logLevel">Log Level</Label>
+        <Select
+          value={logLevel}
+          onValueChange={(e) => doSetLogLevel.mutate(e as LogLevelNames)}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {["error", "warn", "info", "debug", "trace"].map((l) => (
+              <SelectItem key={l} value={l}>
+                {l}
               </SelectItem>
             ))}
           </SelectContent>

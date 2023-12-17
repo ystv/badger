@@ -52,23 +52,26 @@ logging.methodFactory = function (levelName, level, logger) {
   };
 };
 
-const oldConsole = console;
+const { log, info, warn, error } = console;
 window.console.log = (...args: unknown[]) => {
-  oldConsole.log(...args);
+  log(...args);
   ipcProxy.log.mutate({ level: "debug", message: args.join(" ") });
 };
 window.console.info = (...args: unknown[]) => {
-  oldConsole.info(...args);
+  info(...args);
   ipcProxy.log.mutate({ level: "info", message: args.join(" ") });
 };
 window.console.warn = (...args: unknown[]) => {
-  oldConsole.warn(...args);
+  warn(...args);
   ipcProxy.log.mutate({ level: "warn", message: args.join(" ") });
 };
 window.console.error = (...args: unknown[]) => {
-  oldConsole.error(...args);
+  error(...args);
   ipcProxy.log.mutate({ level: "error", message: args.join(" ") });
 };
+
+// eslint-disable-next-line no-console
+console.info("Renderer IPC logging initialised.");
 
 export function useInvalidateQueryOnIPCEvent(
   query: QueryKey,

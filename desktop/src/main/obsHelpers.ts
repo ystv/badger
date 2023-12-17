@@ -7,7 +7,7 @@ import {
 import { getLocalMediaSettings, LocalMediaType } from "./settings";
 import invariant from "../common/invariant";
 import type { Media, ContinuityItem } from "@bowser/prisma/client";
-import { getLogger } from "loglevel";
+import { getLogger } from "./logging";
 import { selectedShow } from "./selectedShow";
 
 const logger = getLogger("obsHelpers");
