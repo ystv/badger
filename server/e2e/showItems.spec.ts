@@ -308,11 +308,12 @@ test("media archival", async ({ showPage }) => {
 
   await showPage.getByLabel("Select", { exact: true }).click();
   await showPage.getByRole("button", { name: "Archive Selected" }).click();
+  const reqPromise = showPage.waitForRequest("/media");
   await showPage.getByRole("button", { name: "Archive" }).click();
+  await reqPromise;
 
   await showPage.goto("/");
   await showPage.getByRole("button", { name: "View/Edit" }).click();
-  await showPage.reload();
   await showPage.getByRole("button", { name: "Media archived" }).click();
   await showPage.getByRole("button", { name: "Reprocess" }).click();
 
@@ -357,7 +358,9 @@ test("media deletion", async ({ showPage }) => {
 
   await showPage.getByLabel("Select", { exact: true }).click();
   await showPage.getByRole("button", { name: "Delet Selected" }).click();
+  const reqPromise = showPage.waitForRequest("/media");
   await showPage.getByRole("button", { name: "Delet" }).click();
+  await reqPromise;
 
   await showPage.goto("/");
   await showPage.getByRole("button", { name: "View/Edit" }).click();
