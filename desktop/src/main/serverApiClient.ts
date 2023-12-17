@@ -9,6 +9,7 @@ import type { AppRouter } from "bowser-server/app/api/_router";
 import superjson from "superjson";
 import { getServerSettings, saveServerSettings } from "./settings";
 import logging from "./logging";
+import { mockServerAPIClient } from "./serverApiClient.mock";
 
 const logger = logging.getLogger("serverApiClient");
 
@@ -51,6 +52,10 @@ async function newAPIClient(endpoint: string, password: string) {
 }
 
 export async function createAPIClient(endpoint: string, password: string) {
+  if (process.env.__USE_MOCK_SERVER_API) {
+    serverApiClient = mockServerAPIClient;
+    return;
+  }
   serverApiClient = await newAPIClient(endpoint, password);
   await saveServerSettings({ endpoint, password });
 }

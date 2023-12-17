@@ -1,4 +1,4 @@
-import { CompleteShowType } from "../src/common/types";
+import { CompleteShowType } from "../../src/common/types";
 import { createAndUploadTestMedia, server } from "./serverAPI";
 import { test } from "./desktopE2EUtils";
 import * as os from "node:os";
@@ -41,7 +41,7 @@ test("download continuity media and load into OBS", async ({
   app: [app, page],
 }) => {
   const testFile = await fsp.readFile(
-    path.join(__dirname, "testdata", "smpte_bars_15s.mp4"),
+    path.join(__dirname, "..", "testdata", "smpte_bars_15s.mp4"),
   );
   const media = await createAndUploadTestMedia(
     "continuityItem",

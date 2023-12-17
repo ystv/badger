@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test";
-import { test } from "./desktopE2EUtils";
+import { test } from "../complete/desktopE2EUtils";
 
 // If this test fails, it means that the app didn't start up properly at all and everything else is probably broken too.
 // Rerun with DEBUG=pw:browser* to see Electron's output.
