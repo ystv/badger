@@ -205,7 +205,7 @@ export default function MainScreen() {
           </DropdownMenuContent>
         </DropdownMenu>
       </nav>
-      <div className="relative mb-12 px-2 overflow-y-scroll">
+      <div className="relative mb-12 px-2 max-h-[100vh] overflow-y-scroll">
         {selectedRundown === "continuity" ? (
           <OBSScreen />
         ) : (
