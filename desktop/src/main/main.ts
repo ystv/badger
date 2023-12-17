@@ -13,7 +13,6 @@ import Icon from "../icon/png/64x64.png";
 import { tryCreateOntimeConnection } from "./ontime";
 import * as Sentry from "@sentry/electron/main";
 import { logFlagState } from "@bowser/feature-flags";
-import "isomorphic-fetch";
 import { getLogger } from "./logging";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
