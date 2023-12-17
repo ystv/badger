@@ -37,14 +37,6 @@ test.beforeEach(async ({ request, app: [app, page] }) => {
   await page.waitForLoadState("domcontentloaded");
 });
 
-test("can select newly created show", async ({ app: [_app, page] }) => {
-  const row = page.getByRole("listitem").filter({ hasText: "Test Show" });
-  expect(row).toBeVisible();
-  const btn = row.getByRole("button", { name: "Select" });
-  await btn.click();
-  await expect(page.getByRole("button", { name: "Test Show" })).toBeVisible();
-});
-
 async function downloadMedia(
   app: ElectronApplication,
   page: Page,

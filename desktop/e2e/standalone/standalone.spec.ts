@@ -7,6 +7,7 @@ import {
   type Page,
 } from "@playwright/test";
 import { add } from "date-fns";
+import type { CompleteShowType } from "../../src/common/types";
 
 export const test = base.extend<{
   app: [ElectronApplication, Page];
@@ -20,6 +21,7 @@ export const test = base.extend<{
         NODE_ENV: "test",
         E2E_TEST: "true",
         __USE_MOCK_SERVER_API: "true",
+        __USE_MOCK_VMIX: "true",
       },
     });
 
@@ -90,4 +92,72 @@ test.afterEach(async ({ app: [app] }) => {
 
 test("it works", async ({ app: [app, page] }) => {
   await page.getByText("Test show").click();
+});
+
+test("scrolling for a show with lots of rundown items", async ({
+  app: [app, page],
+}) => {
+  await app.evaluate(({ ipcMain }) => {
+    ipcMain.emit("doIPCMutation", {}, "devtools.setSettings", {
+      enabled: true,
+    });
+  });
+  await app.evaluate(
+    ({ ipcMain }, testTime) => {
+      ipcMain.emit("doIPCMutation", {}, "devtools.setEnabledIntegrations", [
+        "obs",
+        "ontime",
+        "vmix",
+      ]);
+      __MOCK_SERVER_API__.mock("query", "shows.getVersion", { version: 1 });
+      __MOCK_SERVER_API__.mock("query", "shows.get", {
+        id: 1,
+        name: "Test show",
+        start: testTime,
+        version: 1,
+        rundowns: [
+          {
+            id: 1,
+            name: "Rundown 1",
+            order: 0,
+            assets: [],
+            items: new Array(50).fill(null).map((_, i) => ({
+              id: i,
+              type: "VT",
+              notes: "",
+              rundownId: 1,
+              name: `Item ${i}`,
+              durationSeconds: 0,
+              order: i,
+              showId: 1,
+              ytBroadcastID: null,
+              mediaId: 1,
+              media: {
+                id: 1,
+                durationSeconds: 0,
+                name: "Test media",
+                path: "",
+                rawPath: "",
+                state: "Ready",
+              },
+            })),
+            showId: 1,
+            ytBroadcastID: null,
+          },
+        ],
+        continuityItems: [],
+        ytBroadcastID: null,
+        ytStreamID: null,
+      } satisfies CompleteShowType);
+    },
+    add(new Date(), { days: 1 }),
+  );
+  await page.getByRole("button", { name: "Select" }).click();
+
+  await page.getByText("Continuity").click();
+  await page.getByRole("menuitem", { name: "Rundown 1" }).click();
+
+  await page.getByRole("cell", { name: "Item 40" }).scrollIntoViewIfNeeded();
+  await expect(page.getByRole("cell", { name: "Item 40" })).toBeInViewport();
+  await page.pause();
 });

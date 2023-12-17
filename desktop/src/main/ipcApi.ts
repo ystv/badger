@@ -136,6 +136,7 @@ export const appRouter = r({
     setSettings: proc
       .input(devToolsConfigSchema)
       .mutation(async ({ input }) => {
+        logger.info("Dev Tools settings change: " + JSON.stringify(input));
         await saveDevToolsConfig(input);
         IPCEvents.devToolsSettingsChange();
       }),
@@ -647,6 +648,9 @@ export type AppRouter = typeof appRouter;
 
 if (process.env.E2E_TEST === "true") {
   ipcMain.on("doIPCMutation", async (_, proc: string, input: unknown) => {
+    logger.debug(
+      "doIPCMutation: " + JSON.stringify(proc) + " " + JSON.stringify(input),
+    );
     await callProcedure({
       procedures: appRouter._def.procedures,
       path: proc,
