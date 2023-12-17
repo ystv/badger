@@ -223,6 +223,7 @@ export const appRouter = router({
           fileName: z.string(),
           targetType: z.enum(["rundownItem", "continuityItem"]), // TODO: support assets
           targetID: z.number(),
+          process: z.boolean(),
         }),
       )
       .output(MediaSchema)
@@ -293,23 +294,28 @@ export const appRouter = router({
             default:
               invariant(false, "Invalid target type " + input.targetType);
           }
-          const job = await $db.processMediaJob.create({
-            data: {
-              sourceType: input.sourceType,
-              source: input.source,
-              media: {
-                connect: {
-                  id: med.id,
+          let job;
+          if (input.process) {
+            job = await $db.processMediaJob.create({
+              data: {
+                sourceType: input.sourceType,
+                source: input.source,
+                media: {
+                  connect: {
+                    id: med.id,
+                  },
+                },
+                base_job: {
+                  create: {},
                 },
               },
-              base_job: {
-                create: {},
-              },
-            },
-          });
+            });
+          }
           return [med, job] as const;
         });
-        await dispatchJobForJobrunner(job.base_job_id);
+        if (job) {
+          await dispatchJobForJobrunner(job.base_job_id);
+        }
         return media;
       }),
     update: e2eProcedure

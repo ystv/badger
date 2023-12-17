@@ -45,7 +45,6 @@ let apiClient: CreateTRPCProxyClient<AppRouter>;
 
 function getAPIClient() {
   if (!apiClient) {
-    console.log(test.info().config);
     apiClient = createTRPCProxyClient<AppRouter>({
       transformer: SuperJSON,
       links: [
@@ -106,6 +105,7 @@ export async function createMedia(
     targetID,
     sourceType: "S3",
     source: "TEMPORARY",
+    process: false,
   });
   const rawPath = `media/${media.id}/raw/${fileName}`;
   const finalPath = `media/${media.id}/final/${fileName}`;
