@@ -4,13 +4,12 @@ import { app } from "electron";
 import path from "path";
 import fs from "fs";
 
-fs.mkdirSync(path.join(app.getPath("userData"), "logs"), { recursive: true });
-const logStream = fs.createWriteStream(
-  path.join(app.getPath("userData"), "logs", "main.log"),
-  {
-    flags: "a",
-  },
-);
+const logsPath =
+  process.env.BOWSER_LOGS_PATH ?? path.join(app.getPath("userData"), "logs");
+fs.mkdirSync(logsPath, { recursive: true });
+const logStream = fs.createWriteStream(path.join(logsPath, "main.log"), {
+  flags: "a",
+});
 
 app.on("will-quit", () => {
   logStream.end();
