@@ -51,10 +51,6 @@ export const test = base.extend<{
 
     await win.getByRole("button", { name: "Connect" }).click();
 
-    await win.waitForLoadState("domcontentloaded");
-
-    // await win.pause();
-
     await expect(
       win.getByRole("heading", { name: "Select a show" }),
     ).toBeVisible();
