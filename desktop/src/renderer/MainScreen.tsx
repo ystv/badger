@@ -160,7 +160,7 @@ export default function MainScreen() {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader className="text-3xl">Settings</DialogHeader>
-              <Suspense fallback={<b>Please wait...</b>}>
+              <Suspense fallback={<b>Please wait, loading settings...</b>}>
                 <Settings />
               </Suspense>
             </DialogContent>

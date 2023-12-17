@@ -33,8 +33,14 @@ export default defineConfig({
   /* Configure projects for major browsers */
   projects: [
     {
-      name: "electron",
+      name: "complete",
       use: {},
+      testDir: "./e2e/complete",
+    },
+    {
+      name: "standalone",
+      use: {},
+      testDir: "./e2e/standalone",
     },
   ],
 

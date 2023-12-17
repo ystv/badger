@@ -2,7 +2,7 @@ import { ElectronApplication, Page, expect } from "@playwright/test";
 import * as fsp from "node:fs/promises";
 import * as path from "node:path";
 import { createAndUploadTestMedia, server } from "./serverAPI";
-import { CompleteShowType } from "../src/common/types";
+import { CompleteShowType } from "../../src/common/types";
 import * as os from "node:os";
 import { test } from "./desktopE2EUtils";
 
@@ -84,7 +84,7 @@ test("download media", async ({ app: [app, page] }) => {
   await expect(page.getByRole("button", { name: "Test Show" })).toBeVisible();
 
   const testFile = await fsp.readFile(
-    path.join(__dirname, "testdata", "smpte_bars_15s.mp4"),
+    path.join(__dirname, "..", "testdata", "smpte_bars_15s.mp4"),
   );
   const media = await createAndUploadTestMedia(
     "continuityItem",
@@ -116,7 +116,7 @@ test("delete old media", async ({ app: [app, page] }) => {
   await expect(page.getByRole("button", { name: "Test Show 2" })).toBeVisible();
 
   const testFile = await fsp.readFile(
-    path.join(__dirname, "testdata", "smpte_bars_15s.mp4"),
+    path.join(__dirname, "..", "testdata", "smpte_bars_15s.mp4"),
   );
   const media = await createAndUploadTestMedia(
     "continuityItem",
