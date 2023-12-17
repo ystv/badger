@@ -48,6 +48,7 @@ export async function createAndUploadTestMedia(
     fileName,
     targetID,
     targetType,
+    process: true,
   });
 
   // And wait for Jobrunner to process it
