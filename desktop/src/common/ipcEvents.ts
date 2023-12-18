@@ -12,5 +12,6 @@ export const Events = {
   assetsSettingsChange() {},
   devToolsSettingsChange() {},
   downloadStatusChange() {},
+  localMediaStateChange() {},
 } as const;
 export type Events = typeof Events;

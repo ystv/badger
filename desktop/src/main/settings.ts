@@ -210,7 +210,7 @@ export async function saveAssetsSettings(
   val: z.infer<typeof assetsSettingsSchema>,
 ): Promise<void> {
   await settings.set("assets", val);
-  IPCEvents.assetsSettingsChange();
+  IPCEvents.send("assetsSettingsChange");
 }
 
 export const devToolsConfigSchema = z.object({

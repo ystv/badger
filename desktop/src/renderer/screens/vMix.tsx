@@ -85,6 +85,7 @@ type ItemState =
   | "media-processing"
   | "no-local"
   | "downloading"
+  | "download-error"
   | "ready"
   | "loaded";
 
@@ -158,11 +159,33 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
             (x) => x.mediaID === item.media!.id,
           );
           if (dl) {
-            return {
-              ...item,
-              _state: "downloading",
-              _downloadProgress: dl.progressPercent,
-            };
+            switch (dl.status) {
+              case "downloading":
+                return {
+                  ...item,
+                  _state: "downloading",
+                  _downloadProgress: dl.progressPercent,
+                };
+              case "pending":
+                return {
+                  ...item,
+                  _state: "downloading",
+                  _downloadProgress: 0,
+                };
+              case "error":
+                return {
+                  ...item,
+                  _state: "download-error",
+                };
+              case "done":
+                // This should advance into "ready" as soon as the localMedia query
+                // updates, but for now it'll get stuck as no-local, which is undesirable.
+                return {
+                  ...item,
+                  _state: "downloading",
+                  _downloadProgress: 100,
+                };
+            }
           }
           return {
             ...item,
@@ -186,14 +209,6 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
     props.rundown.items,
     vtsListState?.items,
   ]);
-
-  const doDownloadAll = useCallback(() => {
-    for (const item of items) {
-      if (item._state === "no-local" && item.media) {
-        doDownload.mutate({ id: item.media.id, name: item.media.name });
-      }
-    }
-  }, [doDownload, items]);
 
   return (
     <>
@@ -222,7 +237,15 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
                 {item._state === "downloading" && (
                   <Progress value={item._downloadProgress} className="w-16" />
                 )}
-                {item._state === "no-local" && (
+                {item._state === "download-error" && (
+                  <>
+                    <Badge variant="danger" className="w-full">
+                      Download error!
+                    </Badge>
+                  </>
+                )}
+                {(item._state === "no-local" ||
+                  item._state === "download-error") && (
                   <Button
                     color="primary"
                     className="w-full"
@@ -237,7 +260,7 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
                       );
                     }}
                   >
-                    Download
+                    {item._state === "no-local" ? "Download" : "Retry"}
                   </Button>
                 )}
                 {item._state === "ready" && (
@@ -264,7 +287,7 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
                   items.some((x) => x._state === "ready") ? "primary" : "ghost"
                 }
               >
-                Load All
+                Load All <span className="sr-only">VTs</span>
               </Button>
             </TableCell>
           </TableRow>
@@ -297,6 +320,10 @@ function RundownAssets(props: {
   useInvalidateQueryOnIPCEvent(
     getQueryKey(ipc.assets.getSettings),
     "assetsSettingsChange",
+  );
+  useInvalidateQueryOnIPCEvent(
+    getQueryKey(ipc.media.getLocalMedia),
+    "localMediaStateChange",
   );
   const doDownload = ipc.media.downloadMedia.useMutation({
     async onSuccess() {
@@ -470,7 +497,7 @@ function RundownAssets(props: {
                   });
                 }}
               >
-                Load All
+                Load All <span className="sr-only">Assets</span>
               </Button>
             </TableCell>
           </TableRow>

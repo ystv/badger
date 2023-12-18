@@ -20,7 +20,7 @@ import { z } from "zod";
 import * as qs from "qs";
 import { v4 as uuidV4 } from "uuid";
 import { getLogger } from "./logging";
-import { MockVMixConnection } from "./vmix.mock";
+import { getMockVMix } from "./vMix.mock";
 
 const logger = getLogger("vmix");
 
@@ -377,6 +377,9 @@ export async function tryCreateVMixConnection(
   host?: string,
   port?: number,
 ): Promise<VMixConnection | null> {
+  if (process.env.__USE_MOCK_VMIX) {
+    return getMockVMix();
+  }
   if (!conn) {
     try {
       conn = await VMixConnection.connect(host, port);
@@ -393,7 +396,7 @@ export async function createVMixConnection(
   port?: number,
 ): Promise<VMixConnection> {
   if (process.env.__USE_MOCK_VMIX) {
-    return new MockVMixConnection() as VMixConnection;
+    return getMockVMix();
   }
   if (!conn) {
     try {
@@ -408,7 +411,7 @@ export async function createVMixConnection(
 
 export function getVMixConnection(): VMixConnection | null {
   if (process.env.__USE_MOCK_VMIX) {
-    return new MockVMixConnection() as VMixConnection;
+    return getMockVMix();
   }
   return conn;
 }

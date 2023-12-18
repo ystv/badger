@@ -1,5 +1,8 @@
 import { Events } from "../common/ipcEvents";
 import { Subscribable } from "rxjs";
+import { getLogger } from "./logging";
+
+const logger = getLogger("ipcEventBus");
 
 let sender: (evt: keyof Events, ...args: unknown[]) => void = () => {
   throw new Error("sender not initialized");
@@ -9,13 +12,12 @@ export function setSender(newSender: typeof sender) {
   sender = newSender;
 }
 
-export const IPCEvents = new Proxy(Events, {
-  get: (target, prop: keyof Events) => {
-    return (...args: unknown[]) => {
-      sender(prop, ...args);
-    };
+export const IPCEvents = {
+  send(evt: keyof Events, ...args: unknown[]) {
+    logger.debug(`sending ${evt}`);
+    sender(evt, ...args);
   },
-});
+};
 
 export function emitObservable<K extends keyof Events>(
   evt: K,
@@ -23,6 +25,7 @@ export function emitObservable<K extends keyof Events>(
 ) {
   obs.subscribe({
     next(val) {
+      logger.debug(`emitting observable ${evt}`);
       sender(evt, val);
     },
   });

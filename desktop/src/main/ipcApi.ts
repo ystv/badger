@@ -52,6 +52,7 @@ import logging, { logLevel, setLogLevel } from "./logging";
 import { getAvailableDownloaders } from "./downloadFile";
 import { ShowSchema } from "@bowser/prisma/types";
 import { isAfter } from "date-fns";
+import { inspect } from "node:util";
 
 const logger = logging.getLogger("ipcApi");
 const rendererLogger = logging.getLogger("renderer");
@@ -106,6 +107,9 @@ export const appRouter = r({
     return await serverAPI().shows.listUpcoming.query();
   }),
   getSelectedShow: proc.output(CompleteShowModel.nullable()).query(() => {
+    logger.debug(
+      `getSelectedShow called, current value is ${inspect(selectedShow.value)}`,
+    );
     return selectedShow.value;
   }),
   setSelectedShow: proc
@@ -138,7 +142,7 @@ export const appRouter = r({
       .mutation(async ({ input }) => {
         logger.info("Dev Tools settings change: " + JSON.stringify(input));
         await saveDevToolsConfig(input);
-        IPCEvents.devToolsSettingsChange();
+        IPCEvents.send("devToolsSettingsChange");
       }),
     throwException: proc.mutation(async () => {
       if (!(await getDevToolsConfig()).enabled) {
@@ -486,6 +490,7 @@ export const appRouter = r({
           return { connected: false };
         }
         const state = await conn.getFullState();
+        logger.debug("VMix state", state);
         return {
           connected: true,
           host: conn.host,

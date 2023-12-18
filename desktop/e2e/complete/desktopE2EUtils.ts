@@ -7,16 +7,20 @@ import {
 } from "@playwright/test";
 
 export const test = base.extend<{
+  appEnv: Record<string, string>;
   app: [ElectronApplication, Page];
 }>({
+  appEnv: {},
+
   // eslint-disable-next-line no-empty-pattern
-  app: async ({}, use, testInfo) => {
+  app: async ({ appEnv }, use, testInfo) => {
     const app = await electron.launch({
       args: ["--enable-logging", ".vite/build/main.js"],
       env: {
         ...process.env,
         NODE_ENV: "test",
         E2E_TEST: "true",
+        ...appEnv,
       },
     });
     const win = await app.firstWindow();
