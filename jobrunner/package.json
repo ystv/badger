@@ -27,7 +27,7 @@
     "test:integration": "TEST_INTEGRATION=true vitest run --config ./vitest.config-integration.mts"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.374.0",
+    "@aws-sdk/client-s3": "^3.474.0",
     "@aws-sdk/lib-storage": "^3.428.0",
     "@bowser/feature-flags": "workspace:*",
     "@bowser/prisma": "workspace:*",
