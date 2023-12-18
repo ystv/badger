@@ -1,6 +1,6 @@
 import { Events } from "../common/ipcEvents";
 import { Subscribable } from "rxjs";
-import { getLogger } from "./logging";
+import { getLogger } from "./base/logging";
 
 const logger = getLogger("ipcEventBus");
 
