@@ -16,6 +16,14 @@ import { MockOBSConnection } from "./__mocks__/obs";
 import { selectedShow } from "../base/selectedShow";
 
 vi.mock("./obs");
+vi.mock("../base/settings", () => ({
+  getLocalMediaSettings: () => [
+    {
+      mediaID: 1,
+      path: "TEST_PATH",
+    },
+  ],
+}));
 
 beforeAll(() => {
   selectedShow.next({
@@ -54,14 +62,6 @@ describe("addOrReplaceMediaAsScene", () => {
   beforeEach(async () => {
     mobs = (await import("./obs"))
       .obsConnection as unknown as MockOBSConnection;
-    vi.mock("./settings", () => ({
-      getLocalMediaSettings: () => [
-        {
-          mediaID: 1,
-          path: "TEST_PATH",
-        },
-      ],
-    }));
   });
   afterEach(() => {
     mobs._reset();

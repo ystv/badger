@@ -16,4 +16,6 @@ const testSafeStorage = {
 };
 
 export const safeStorage =
-  process.env.E2E_TEST === "true" ? testSafeStorage : electronSafeStorage;
+  import.meta.env.MODE === "test" || process.env.E2E_TEST === "true"
+    ? testSafeStorage
+    : electronSafeStorage;
