@@ -53,7 +53,7 @@ export const DownloadStatusSchema = z.object({
 type DownloadStatus = z.infer<typeof DownloadStatusSchema>;
 
 const downloadQueue: DownloadQueueItem[] = [];
-export const downloadStatus: Map<number, DownloadStatus> = new Map();
+const downloadStatus: Map<number, DownloadStatus> = new Map();
 let isDownloadRunning = false;
 
 async function doDownloadMedia() {
@@ -95,12 +95,13 @@ async function doDownloadMedia() {
       progressPercent: 0,
     };
     downloadStatus.set(info.id, status);
-    IPCEvents.downloadStatusChange();
+    IPCEvents.send("downloadStatusChange");
 
     try {
       await downloadFile(urlRaw, outputPath, (progress: number) => {
         status.progressPercent = progress;
-        IPCEvents.downloadStatusChange();
+        downloadStatus.set(info.id, status);
+        IPCEvents.send("downloadStatusChange");
       });
     } catch (e) {
       logger.error(`Error downloading media ${info.id} [${newFileName}]`, e);
@@ -109,7 +110,7 @@ async function doDownloadMedia() {
       if (downloadQueue.length > 0) {
         process.nextTick(doDownloadMedia);
       }
-      IPCEvents.downloadStatusChange();
+      IPCEvents.send("downloadStatusChange");
       return;
     }
 
@@ -117,7 +118,12 @@ async function doDownloadMedia() {
       `Downloaded media ${info.id} [${newFileName}] to ${outputPath}`,
     );
     status.status = "done";
-    IPCEvents.downloadStatusChange();
+    status.progressPercent = 100;
+    downloadStatus.set(info.id, status);
+
+    IPCEvents.send("downloadStatusChange");
+    IPCEvents.send("localMediaStateChange");
+    logger.trace("IPC sent (ostensibly)");
     await updateLocalMediaState(info.id, {
       mediaID: info.id,
       path: outputPath,
@@ -162,4 +168,5 @@ export async function deleteMedia(mediaID: number) {
   await updateLocalMediaState(mediaID, null);
   await fsp.unlink(item.path);
   logger.info("Deleted", item.path);
+  IPCEvents.send("localMediaStateChange");
 }

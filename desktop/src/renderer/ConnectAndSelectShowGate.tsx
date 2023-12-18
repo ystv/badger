@@ -116,7 +116,11 @@ export default function ConnectAndSelectShowGate(props: {
   if (connState.isLoading || selectedShow.isLoading) {
     return <div>Please wait, getting selected show...</div>;
   }
-  if (connState.data === true && selectedShow.data !== null) {
+  if (
+    connState.data === true &&
+    typeof selectedShow.data === "object" &&
+    selectedShow.data !== null
+  ) {
     return props.children;
   }
   return (

@@ -1,4 +1,4 @@
-import { ipc } from "../ipc";
+import { ipc, useInvalidateQueryOnIPCEvent } from "../ipc";
 import { useForm } from "react-hook-form";
 import { Button } from "@bowser/components/button";
 import { useQueryClient } from "@tanstack/react-query";
@@ -123,6 +123,10 @@ function AddToOBS({
   const downloadStatus = ipc.media.getDownloadStatus.useQuery(void 0, {
     refetchInterval: 1000,
   });
+  useInvalidateQueryOnIPCEvent(
+    getQueryKey(ipc.media.getLocalMedia),
+    "localMediaStateChange",
+  );
   const ourDownloadStatus = useMemo(
     () => downloadStatus.data?.find((x) => x.mediaID === item.media?.id),
     [downloadStatus.data, item.media?.id],
