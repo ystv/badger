@@ -195,27 +195,6 @@ function ItemsTable(props: {
     [props.rundown.id, doOptimisticMove],
   );
 
-  // Periodically refresh if any items are pending
-  const intervalRef = useRef<NodeJS.Timer | null>(null);
-  useEffect(() => {
-    const anyPending = props.rundown.items.some(
-      (x) =>
-        x.media?.state === MediaState.Pending ||
-        x.media?.state === MediaState.Processing,
-    );
-    if (!anyPending) {
-      return;
-    }
-    intervalRef.current = setInterval(() => {
-      router.refresh();
-    }, 2500);
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [props.rundown.items, router]);
-
   const items: ReactNode[] = [];
   let runningDurationSeconds = 0;
   for (let idx = 0; idx < optimisticItems.length; idx++) {
