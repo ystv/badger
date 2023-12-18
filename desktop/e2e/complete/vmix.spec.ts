@@ -2,14 +2,10 @@ import { expect } from "@playwright/test";
 import { test } from "./desktopE2EUtils";
 import * as fsp from "node:fs/promises";
 import * as path from "node:path";
-import {
-  createAndUploadTestMedia,
-  directlyCreateTestMedia,
-  server,
-} from "./serverAPI";
+import { directlyCreateTestMedia, server } from "./serverAPI";
 import type { CompleteShowType } from "../../src/common/types";
 import * as os from "os";
-import VMixConnection from "../../src/main/vmix";
+import type VMixConnection from "../../src/main/vmix/vmix";
 
 let testShow: CompleteShowType;
 let tempDir: string;

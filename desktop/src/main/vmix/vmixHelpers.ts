@@ -1,9 +1,9 @@
-import invariant from "../common/invariant";
+import invariant from "../../common/invariant";
 import { getVMixConnection } from "./vmix";
 import { InputType, ListInput } from "./vmixTypes";
 import type { Asset, Media } from "@bowser/prisma/client";
-import { getAssetsSettings, getLocalMediaSettings } from "./settings";
-import { VMIX_NAMES } from "../common/constants";
+import { getAssetsSettings, getLocalMediaSettings } from "../base/settings";
+import { VMIX_NAMES } from "../../common/constants";
 
 export async function reconcileList(listName: string, elements: string[]) {
   const conn = getVMixConnection();

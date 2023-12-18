@@ -1,9 +1,9 @@
 import * as wget from "wget-improved";
 import { spawn } from "child_process";
 import which from "which";
-import invariant from "../common/invariant";
-import logging from "./logging";
-import { getDownloadsSettings } from "./settings";
+import invariant from "../../common/invariant";
+import logging from "../base/logging";
+import { getDownloadsSettings } from "../base/settings";
 import { throttle } from "lodash";
 
 const logger = logging.getLogger("downloadFile");

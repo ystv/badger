@@ -5,14 +5,14 @@ import {
   getLocalMediaSettings,
   getMediaSettings,
   updateLocalMediaState,
-} from "./settings";
+} from "../base/settings";
 import * as fsp from "fs/promises";
 import * as path from "path";
-import { serverApiClient } from "./serverApiClient";
+import { serverApiClient } from "../base/serverApiClient";
 import { z } from "zod";
-import { IPCEvents } from "./ipcEventBus";
+import { IPCEvents } from "../ipcEventBus";
 import { downloadFile } from "./downloadFile";
-import logging from "./logging";
+import logging from "../base/logging";
 
 const logger = logging.getLogger("mediaManagement");
 

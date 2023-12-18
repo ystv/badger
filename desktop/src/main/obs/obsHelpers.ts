@@ -4,11 +4,11 @@ import {
   OBSVideoSettings,
   SceneItem,
 } from "./obs";
-import { getLocalMediaSettings, LocalMediaType } from "./settings";
-import invariant from "../common/invariant";
+import { getLocalMediaSettings, LocalMediaType } from "../base/settings";
+import invariant from "../../common/invariant";
 import type { Media, ContinuityItem } from "@bowser/prisma/client";
-import { getLogger } from "./logging";
-import { selectedShow } from "./selectedShow";
+import { getLogger } from "../base/logging";
+import { selectedShow } from "../base/selectedShow";
 
 const logger = getLogger("obsHelpers");
 

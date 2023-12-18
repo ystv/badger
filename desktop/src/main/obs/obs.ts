@@ -2,8 +2,8 @@ import OBSWebSocket, {
   OBSRequestTypes,
   OBSResponseTypes,
 } from "obs-websocket-js";
-import { getOBSSettings, saveOBSSettings } from "./settings";
-import { getLogger } from "./logging";
+import { getOBSSettings, saveOBSSettings } from "../base/settings";
+import { getLogger } from "../base/logging";
 import { inspect } from "node:util";
 
 const logger = getLogger("obs");
