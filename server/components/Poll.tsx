@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useTransition } from "react";
+import { useEffect, useRef, useTransition } from "react";
 
 /**
  * Implements the "polling server action" pattern: https://twitter.com/sebmarkbage/status/1667217918105403416
@@ -14,16 +14,19 @@ export function Poll<TParams extends unknown[] = []>(props: {
 }) {
   const [_, startTransition] = useTransition();
   const { params, action, interval = 5000 } = props;
+  const idRef = useRef<number | NodeJS.Timeout | null>(null);
   useEffect(() => {
     function poll() {
       startTransition(async () => {
         await action(...params);
-        setTimeout(poll, interval);
+        idRef.current = setTimeout(poll, interval);
       });
     }
-    const id = setTimeout(poll, interval);
+    idRef.current = setTimeout(poll, interval);
     return () => {
-      clearTimeout(id);
+      if (idRef.current) {
+        clearTimeout(idRef.current);
+      }
     };
   }, [params, action, interval]);
   return null;
