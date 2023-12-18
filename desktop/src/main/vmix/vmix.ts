@@ -1,5 +1,5 @@
 import { Socket, connect } from "node:net";
-import invariant from "../common/invariant";
+import invariant from "../../common/invariant";
 import { XMLParser } from "fast-xml-parser";
 import {
   AudioFileInput,
@@ -19,7 +19,7 @@ import {
 import { z } from "zod";
 import * as qs from "qs";
 import { v4 as uuidV4 } from "uuid";
-import { getLogger } from "./logging";
+import { getLogger } from "../base/logging";
 import { getMockVMix } from "./vMix.mock";
 
 const logger = getLogger("vmix");

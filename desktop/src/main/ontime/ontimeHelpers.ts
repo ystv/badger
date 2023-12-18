@@ -1,6 +1,6 @@
-import { CompleteShowType } from "../common/types";
+import { CompleteShowType } from "../../common/types";
 import { OntimeBaseEvent, OntimeEvent, OntimeFullEvent } from "./ontime";
-import invariant from "../common/invariant";
+import invariant from "../../common/invariant";
 import { set } from "lodash/fp";
 import type {
   CompleteRundownType,

@@ -3,17 +3,17 @@ import * as path from "path";
 import { createIPCHandler } from "electron-trpc/main";
 import { emitObservable, setSender } from "./ipcEventBus";
 import { appRouter } from "./ipcApi";
-import { tryCreateAPIClient } from "./serverApiClient";
-import { tryCreateOBSConnection } from "./obs";
-import { validateLocalMediaState } from "./settings";
+import { tryCreateAPIClient } from "./base/serverApiClient";
+import { tryCreateOBSConnection } from "./obs/obs";
+import { validateLocalMediaState } from "./base/settings";
 import isSquirrel from "electron-squirrel-startup";
-import { selectedShow } from "./selectedShow";
-import { tryCreateVMixConnection } from "./vmix";
+import { selectedShow } from "./base/selectedShow";
+import { tryCreateVMixConnection } from "./vmix/vmix";
 import Icon from "../icon/png/64x64.png";
-import { tryCreateOntimeConnection } from "./ontime";
+import { tryCreateOntimeConnection } from "./ontime/ontime";
 import * as Sentry from "@sentry/electron/main";
 import { logFlagState } from "@bowser/feature-flags";
-import { getLogger } from "./logging";
+import { getLogger } from "./base/logging";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (isSquirrel) {

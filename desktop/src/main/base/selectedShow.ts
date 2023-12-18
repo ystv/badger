@@ -1,7 +1,7 @@
-import { CompleteShowType } from "../common/types";
+import { CompleteShowType } from "../../common/types";
 import { serverApiClient } from "./serverApiClient";
 import { BehaviorSubject } from "rxjs";
-import invariant from "../common/invariant";
+import invariant from "../../common/invariant";
 
 export const selectedShow = new BehaviorSubject<CompleteShowType | null>(null);
 

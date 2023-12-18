@@ -13,7 +13,7 @@ import {
   MediaType,
 } from "./obsHelpers";
 import { MockOBSConnection } from "./__mocks__/obs";
-import { selectedShow } from "./selectedShow";
+import { selectedShow } from "../base/selectedShow";
 
 vi.mock("./obs");
 

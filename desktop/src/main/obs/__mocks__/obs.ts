@@ -5,7 +5,7 @@ import {
   Scene,
   SceneItem,
 } from "../obs";
-import invariant from "../../common/invariant";
+import invariant from "../../../common/invariant";
 
 export interface MockSource {
   sceneItemId: number;

@@ -9,7 +9,8 @@ import type { AppRouter } from "bowser-server/app/api/_router";
 import superjson from "superjson";
 import { getServerSettings, saveServerSettings } from "./settings";
 import logging from "./logging";
-import { mockServerAPIClient } from "./serverApiClient.mock";
+import { mockServerAPIClient } from "../base/serverApiClient.mock";
+import invariant from "../../common/invariant";
 
 const logger = logging.getLogger("serverApiClient");
 
@@ -78,4 +79,9 @@ export async function tryCreateAPIClient() {
       logger.warn("Failed to connect to server (will continue)", e);
     }
   }
+}
+
+export function serverAPI() {
+  invariant(serverApiClient !== null, "serverApiClient is null");
+  return serverApiClient;
 }
