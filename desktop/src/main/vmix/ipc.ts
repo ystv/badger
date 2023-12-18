@@ -24,6 +24,7 @@ export const vmixRouter = r({
       }),
     )
     .query(async () => {
+      // TODO[BOW-136]: don't use the connection for this
       const conn = getVMixConnection();
       if (conn === null) {
         return { connected: false };

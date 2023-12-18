@@ -141,7 +141,7 @@ export const mediaRouter = r({
     const show = selectedShow.value;
     invariant(show, "No show selected");
     const state = await getLocalMediaSettings();
-    // TODO: Rather than checking for the connection, split out supportedIntegrations and enabledIntegrations and check the latter
+    // TODO[BOW-136]: Rather than checking for the connection, split out supportedIntegrations and enabledIntegrations and check the latter
     if (getVMixConnection() !== null) {
       for (const rundown of show.rundowns) {
         for (const item of rundown.items) {
@@ -162,7 +162,7 @@ export const mediaRouter = r({
         }
       }
     }
-    // TODO: Rather than checking for the connection, split out supportedIntegrations and enabledIntegrations and check the latter
+    // TODO[BOW-136]: Rather than checking for the connection, split out supportedIntegrations and enabledIntegrations and check the latter
     if (obsConnection !== null) {
       for (const item of show.continuityItems) {
         if (
