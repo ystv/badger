@@ -11,6 +11,8 @@ import { MetadataTargetType } from "@bowser/prisma/client";
 import { MetadataFields } from "@/components/Metadata";
 import { addMeta, setMetaValue } from "./metaActions";
 import { PastShowsMedia } from "@/components/MediaSelection";
+import { Poll } from "@/components/Poll";
+import { revalidateIfChanged } from "./actions";
 
 const pastShowsPromise = cache(
   () =>
@@ -135,6 +137,13 @@ export default async function RundownPage(props: {
     where: {
       id: parseInt(props.params.rundown_id, 10),
     },
+    include: {
+      show: {
+        select: {
+          version: true,
+        },
+      },
+    },
   });
   if (!rundown) {
     notFound();
@@ -161,6 +170,10 @@ export default async function RundownPage(props: {
           </Suspense>
         </TusEndpointProvider>
       </div>
+      <Poll
+        action={revalidateIfChanged}
+        params={[rundown.id, rundown.show.version]}
+      />
     </div>
   );
 }

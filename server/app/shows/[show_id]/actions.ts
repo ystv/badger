@@ -19,6 +19,23 @@ import { escapeRegExp } from "lodash";
 import { dispatchJobForJobrunner } from "@/lib/jobs";
 import invariant from "@/lib/invariant";
 
+export async function revalidateIfChanged(showID: number, version: number) {
+  const show = await db.show.findUnique({
+    where: {
+      id: showID,
+    },
+    select: {
+      version: true,
+    },
+  });
+  if (!show) {
+    notFound();
+  }
+  if (show.version !== version) {
+    revalidatePath(`/shows/${showID}`);
+  }
+}
+
 export async function addItem(
   showID: number,
   type: "rundown" | "continuity_item",
