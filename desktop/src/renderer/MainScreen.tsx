@@ -112,37 +112,25 @@ export default function MainScreen() {
   return (
     <div>
       <nav className="relative top-0 left-0 w-full h-12 px-4 bg-dark text-light flex flex-nowrap items-center justify-between">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button color="ghost" className="font-bold">
-              {show.name}
-              <IoEllipsisVertical
-                className="h-4 w-4 inline-block ml-1"
-                size={24}
-              />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => downloadAll.mutate()}>
-              {downloadAll.status === "success" && (
-                <IoCheckmarkSharp className="h-4 w-4 inline-block" size={24} />
-              )}
-              {downloadAll.status === "error" && (
-                <IoAlertSharp className="h-4 w-4 inline-block" size={24} />
-              )}
-              Download all media
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setIsChangeShowOpen(true)}>
-              Change selected show
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => setOntimePushOpen(true)}
-              disabled={!ontimeState.isSuccess || ontimeState.data === null}
-            >
-              Push to Ontime
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button onClick={() => downloadAll.mutate()} color="ghost">
+          {downloadAll.status === "success" && (
+            <IoCheckmarkSharp className="h-4 w-4 inline-block" size={24} />
+          )}
+          {downloadAll.status === "error" && (
+            <IoAlertSharp className="h-4 w-4 inline-block" size={24} />
+          )}
+          Download all media
+        </Button>
+        <Button onClick={() => setIsChangeShowOpen(true)} color="ghost">
+          Change selected show
+        </Button>
+        <Button
+          onClick={() => setOntimePushOpen(true)}
+          disabled={!ontimeState.isSuccess || ontimeState.data === null}
+          color="ghost"
+        >
+          Push to Ontime
+        </Button>
         <Dialog open={isChangeShowOpen} onOpenChange={setIsChangeShowOpen}>
           <DialogContent>
             <DialogHeader className="text-3xl">Change Show</DialogHeader>
