@@ -6,6 +6,7 @@ import { OBSSettings, getOBSSettings, saveOBSSettings } from "../base/settings";
 import { getLogger } from "../base/logging";
 import { inspect } from "node:util";
 import { IntegrationManager } from "../base/integrations";
+import { MockOBSConnection } from "./obs.mock";
 
 const logger = getLogger("obs");
 
@@ -294,6 +295,10 @@ export const OBSIntegration = new IntegrationManager<
 >(
   "obs",
   async (settings, notifyClosed) => {
+    if (process.env.__USE_MOCK_OBS) {
+      logger.warn("Using mock OBS connection");
+      return new MockOBSConnection() as unknown as OBSConnection;
+    }
     const conn = await OBSConnection.create(
       settings.host,
       settings.password,
