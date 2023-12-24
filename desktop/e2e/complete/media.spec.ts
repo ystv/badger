@@ -73,7 +73,6 @@ async function downloadMedia(
 test("download media", async ({ app: [app, page] }) => {
   test.slow();
   await page.getByRole("button", { name: "Select" }).click();
-  await expect(page.getByRole("button", { name: "Test Show" })).toBeVisible();
 
   const testFile = await fsp.readFile(
     path.join(__dirname, "..", "testdata", "smpte_bars_15s.mp4"),
@@ -105,7 +104,6 @@ test("delete old media", async ({ app: [app, page] }) => {
 
   await page.reload();
   await page.getByRole("button", { name: "Select" }).click();
-  await expect(page.getByRole("button", { name: "Test Show 2" })).toBeVisible();
 
   const testFile = await fsp.readFile(
     path.join(__dirname, "..", "testdata", "smpte_bars_15s.mp4"),

@@ -100,7 +100,7 @@ test("load into vMix", async ({ app: [app, page] }) => {
   await page.getByText("Continuity").click();
   await page.getByRole("menuitem", { name: "Test Rundown" }).click();
 
-  await page.getByRole("button", { name: "Download" }).click();
+  await page.getByRole("button", { name: "Download", exact: true }).click();
 
   await app.evaluate((_, testMediaPath) => {
     globalThis.__MOCK_VMIX((when, vmix, It) => {
