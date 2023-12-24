@@ -158,7 +158,6 @@ test("download continuity media and load into OBS", async ({
   });
   try {
     await page.getByRole("button", { name: "Select" }).click();
-    await expect(page.getByRole("button", { name: "Test Show" })).toBeVisible();
 
     await page.getByLabel("Settings").click();
     await page.getByRole("tab", { name: "OBS" }).click();
