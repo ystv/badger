@@ -172,7 +172,7 @@ test("download continuity media and load into OBS", async ({
     await expect(page.getByTestId("OBSSettings.success")).toBeVisible();
     await page.keyboard.press("Escape");
 
-    await page.getByRole("button", { name: "Download" }).click();
+    await page.getByRole("button", { name: "Download", exact: true }).click();
 
     await expect(page.getByRole("button", { name: "Add to OBS" })).toBeVisible({
       timeout: 15_000,
