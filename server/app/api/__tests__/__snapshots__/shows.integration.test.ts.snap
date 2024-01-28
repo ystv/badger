@@ -1,10 +1,12 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+// Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`shows > listUpcoming > returns upcoming shows 1`] = `
+exports[`shows listUpcoming returns upcoming shows 1`] = `
 {
   "id": Any<Number>,
   "name": "Test Show",
   "start": Any<Date>,
   "version": 0,
+  "ytBroadcastID": null,
+  "ytStreamID": null,
 }
 `;

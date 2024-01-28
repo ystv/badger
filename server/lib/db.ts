@@ -1,6 +1,9 @@
 import { PrismaClient } from "@bowser/prisma/client";
 import invariant from "@/lib/invariant";
 import { PHASE_PRODUCTION_BUILD } from "next/constants";
+import makeDebug from "debug";
+
+const debug = makeDebug("db");
 
 // Playwright can't handle the react-server import
 if (process.env.E2E_TEST !== "true") {
@@ -40,7 +43,7 @@ if (process.env.NODE_ENV === "development") {
   // @ts-expect-error This works, trust me.
   prisma.$on("query", async (e) => {
     // @ts-expect-error This works, trust me.
-    console.log(`${e.query}\n\t${e.params}`);
+    debug(`${e.query}\n\t${e.params}`);
   });
 } else {
   // Next will execute these as part of the build and fail

@@ -12,6 +12,7 @@ export const RundownItemSelectSchema: z.ZodType<Prisma.RundownItemSelect> = z
     durationSeconds: z.boolean().optional(),
     type: z.boolean().optional(),
     notes: z.boolean().optional(),
+    mediaId: z.boolean().optional(),
     media: z.union([z.boolean(), z.lazy(() => MediaArgsSchema)]).optional(),
     rundown: z.union([z.boolean(), z.lazy(() => RundownArgsSchema)]).optional(),
   })

@@ -4,7 +4,7 @@ import { StringFieldUpdateOperationsInputSchema } from "./StringFieldUpdateOpera
 import { IntFieldUpdateOperationsInputSchema } from "./IntFieldUpdateOperationsInputSchema";
 import { RundownItemTypeSchema } from "./RundownItemTypeSchema";
 import { EnumRundownItemTypeFieldUpdateOperationsInputSchema } from "./EnumRundownItemTypeFieldUpdateOperationsInputSchema";
-import { MediaUpdateOneWithoutRundownItemNestedInputSchema } from "./MediaUpdateOneWithoutRundownItemNestedInputSchema";
+import { MediaUpdateOneWithoutRundownItemsNestedInputSchema } from "./MediaUpdateOneWithoutRundownItemsNestedInputSchema";
 
 export const RundownItemUpdateWithoutRundownInputSchema: z.ZodType<Prisma.RundownItemUpdateWithoutRundownInput> =
   z
@@ -40,7 +40,7 @@ export const RundownItemUpdateWithoutRundownInputSchema: z.ZodType<Prisma.Rundow
         ])
         .optional(),
       media: z
-        .lazy(() => MediaUpdateOneWithoutRundownItemNestedInputSchema)
+        .lazy(() => MediaUpdateOneWithoutRundownItemsNestedInputSchema)
         .optional(),
     })
     .strict();

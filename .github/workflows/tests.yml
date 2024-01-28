@@ -4,7 +4,6 @@ on:
   push:
     branches: ["main"]
   pull_request:
-    branches: ["main"]
 
 jobs:
   yarn-duplicates:
@@ -75,7 +74,7 @@ jobs:
           cache-dependency-path: "yarn.lock"
       - run: yarn install --immutable --inline-builds
 
-      - run: yarn test
+      - run: yarn test -- --coverage
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
@@ -110,13 +109,13 @@ jobs:
 
       - run: yarn prisma:migrateProd
 
-      - run: yarn test:integration
+      - run: yarn test:integration -- --coverage
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage/coverage-final.json
+          files: ./server/coverage/coverage-final.json,./jobrunner/coverage/coverage-final.json
 
   test-e2e-server:
     timeout-minutes: 60
@@ -193,7 +192,51 @@ jobs:
           path: ./server/playwright-report/
           retention-days: 30
 
-  test-e2e-desktop:
+  test-e2e-desktop-standalone:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+      E2E_TEST: "true"
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
+
+      - name: Install dependencies
+        run: yarn install --immutable --inline-builds
+
+      - name: Build desktop
+        run: yarn package
+        working-directory: ./desktop
+
+      - name: Make logs folder
+        run: mkdir -p ${{ runner.temp }}/logs
+
+      - name: Run Playwright tests
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn ${{ runner.debug && 'test:e2e:debug' || 'test:e2e' }} --project standalone
+        working-directory: ./desktop
+        env:
+          PLAYWRIGHT_HTML_REPORT: ${{ github.workspace }}/desktop/playwright-report
+          BOWSER_LOGS_PATH: ${{ runner.temp }}/logs
+
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report-desktop
+          path: |
+            ./desktop/playwright-report/
+            ./desktop/traces/
+            ./desktop/test-results/
+            ${{ runner.temp }}/logs
+          retention-days: 30
+
+  test-e2e-desktop-complete:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     env:
@@ -250,15 +293,16 @@ jobs:
 
       - name: Start server
         run: |
-          node server/server.js > ${{ runner.temp }}/logs/server.log 2>&1 &
-          npx -y wait-on http://localhost:3000/api/healthz
+          HOSTNAME=localhost node server/server.js > ${{ runner.temp }}/logs/server.log 2>&1 &
+          npx -y wait-on -v -t 120000 http://localhost:3000/api/healthz
         working-directory: ./server/.next/standalone
 
       - name: Run Playwright tests
-        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn ${{ runner.debug && 'test:e2e:debug' || 'test:e2e' }}
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn ${{ runner.debug && 'test:e2e:debug' || 'test:e2e' }} --project complete
         working-directory: ./desktop
         env:
           PLAYWRIGHT_HTML_REPORT: ${{ github.workspace }}/desktop/playwright-report
+          BOWSER_LOGS_PATH: ${{ runner.temp }}/logs
 
       - uses: actions/upload-artifact@v3
         if: always()

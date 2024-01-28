@@ -1,11 +1,16 @@
 import { makeJWT, parseAndVerifyJWT } from "@/lib/auth/jwt";
 import { NextRequest } from "next/server";
 import { redirect } from "next/navigation";
-import { UserSchema } from "@/lib/auth/types";
-import invariant from "@/lib/invariant";
-import { DummyTestAuth } from "@/lib/auth/dummyTest";
-import { YSTVAuth } from "@/lib/auth/ystv";
 import * as Sentry from "@sentry/nextjs";
+import { Permission } from "@bowser/prisma/client";
+import { db } from "../db";
+import { User, UserSchema } from "@bowser/prisma/types";
+import {
+  disablePermissionsChecks,
+  enableUserManagement,
+} from "@bowser/feature-flags";
+import { BasicUserInfo } from "./types";
+import { Forbidden, Unauthorized } from "./errors";
 
 // HACK: middleware runs in the edge runtime and for some reason fails the server-only check
 if (process.env.NEXT_RUNTIME !== "edge") {
@@ -13,31 +18,77 @@ if (process.env.NEXT_RUNTIME !== "edge") {
   import("server-only");
 }
 
-function determineProvider() {
-  if (process.env.USE_DUMMY_TEST_AUTH === "true") {
-    invariant(
-      process.env.NODE_ENV !== "production" || process.env.E2E_TEST === "true",
-      "Cannot enable dummy test auth in production",
-    );
-    console.warn("Using dummy test auth - do *not* use this in production!");
-    return DummyTestAuth;
-  }
-  if (process.env.YSTV_SSO_USERNAME && process.env.YSTV_SSO_PASSWORD) {
-    return YSTVAuth;
-  }
-  invariant(
-    false,
-    "No authentication configured. Set USE_DUMMY_TEST_AUTH=true or set YSTV_SSO_USERNAME and YSTV_SSO_PASSWORD",
-  );
+export enum SignInResult {
+  Success = "success",
+  CreatedInactive = "created_inactive",
+  Inactive = "inactive",
 }
-
-const provider = determineProvider();
 
 const cookieName = "bowser_session";
 
-export async function doSignIn(username: string, password: string) {
-  const user = await provider.checkCredentials(username, password);
+export async function doSignIn(
+  provider: string,
+  credentials: BasicUserInfo,
+): Promise<SignInResult> {
+  let user: User;
+  if (enableUserManagement) {
+    const autoActivateDomains = new Set(
+      process.env.USER_AUTO_CREATE_DOMAINS?.split(", "),
+    );
+    const shouldAutoActivate = autoActivateDomains.has(
+      credentials.domain ?? "NEVER",
+    );
+    let didExist;
+    [user, didExist] = await db.$transaction(async ($db) => {
+      const user = await $db.user.findFirst({
+        where: {
+          identities: {
+            some: {
+              provider,
+              identityID: credentials.id,
+            },
+          },
+        },
+      });
+      if (user) {
+        return [user, true] as const;
+      }
+      return [
+        await $db.user.create({
+          data: {
+            name: credentials.name,
+            email: credentials.email ?? null,
+            permissions: shouldAutoActivate ? [Permission.Basic] : [],
+            isActive: shouldAutoActivate,
+            identities: {
+              create: {
+                provider,
+                identityID: credentials.id,
+              },
+            },
+          },
+        }),
+        false,
+      ] as const;
+    });
+    if (!didExist && !shouldAutoActivate) {
+      return SignInResult.CreatedInactive;
+    }
+    if (!user.isActive) {
+      return SignInResult.Inactive;
+    }
+  } else {
+    user = {
+      id: parseInt(credentials.id, 10),
+      email: credentials.email ?? null,
+      isActive: true,
+      name: credentials.name,
+      permissions: [Permission.Basic],
+    };
+  }
+
   const claims = user as Record<string, unknown>;
+  claims.v = 2;
   claims.iss = process.env.PUBLIC_URL;
   claims.sub = user.id;
   const iat = Math.floor(Date.now() / 1000);
@@ -52,10 +103,11 @@ export async function doSignIn(username: string, password: string) {
   if (Sentry.getCurrentHub().getClient()) {
     Sentry.setUser({
       id: user.id,
-      username: user.server_name ?? user.its_name ?? user.email,
-      email: user.email,
+      email: user.email ?? undefined,
     });
   }
+
+  return SignInResult.Success;
 }
 
 export function makePublicURL(baseUrl: URL | string) {
@@ -82,6 +134,11 @@ async function getSessionFromCookie(req?: NextRequest) {
   return sessionID.value;
 }
 
+export async function deleteSession() {
+  const { cookies } = await import("next/headers");
+  cookies().delete(cookieName);
+}
+
 export async function checkSession(req?: NextRequest) {
   const sid = await getSessionFromCookie(req);
   if (!sid) return null;
@@ -94,13 +151,21 @@ export async function checkSession(req?: NextRequest) {
     console.warn("Failed to parse JWT", e);
     return null;
   }
+  if (rawUser.v !== 2) {
+    console.warn("Got outdated session JWT, treating as unauthenticated");
+    return null;
+  }
   const user = UserSchema.parse(rawUser);
   if (Sentry.getCurrentHub().getClient()) {
     Sentry.setUser({
       id: user.id,
-      username: user.server_name ?? user.its_name ?? user.email,
-      email: user.email,
+      email: user.email ?? undefined,
     });
+  }
+  if (!user.isActive) {
+    // TODO[BOW-108]: This doesn't check it from the database, meaning that if the user is deactivated
+    //  while signed in, they can still access the site until their session expires.
+    return null;
   }
   return user;
 }
@@ -113,4 +178,22 @@ export async function auth(req?: NextRequest) {
     );
   }
   return u;
+}
+
+export async function hasPermission(perm: Permission, req?: NextRequest) {
+  const user = await checkSession(req);
+  if (!user) return false;
+  if (disablePermissionsChecks) return true;
+  if (user.permissions.includes(perm)) return true;
+  if (user.permissions.includes(Permission.SUDO)) return true;
+  return false;
+}
+
+export async function requirePermission(perm: Permission, req?: NextRequest) {
+  const user = await checkSession(req);
+  if (!user) throw new Unauthorized();
+  if (disablePermissionsChecks) return user;
+  if (user.permissions.includes(perm)) return user;
+  if (user.permissions.includes(Permission.SUDO)) return user;
+  throw new Forbidden(perm);
 }

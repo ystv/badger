@@ -2,7 +2,8 @@ import type { Prisma } from "../../client";
 import { z } from "zod";
 import { StringFieldUpdateOperationsInputSchema } from "./StringFieldUpdateOperationsInputSchema";
 import { IntFieldUpdateOperationsInputSchema } from "./IntFieldUpdateOperationsInputSchema";
-import { MediaUpdateOneWithoutContinuityItemNestedInputSchema } from "./MediaUpdateOneWithoutContinuityItemNestedInputSchema";
+import { NullableStringFieldUpdateOperationsInputSchema } from "./NullableStringFieldUpdateOperationsInputSchema";
+import { MediaUpdateOneWithoutContinuityItemsNestedInputSchema } from "./MediaUpdateOneWithoutContinuityItemsNestedInputSchema";
 import { ShowUpdateOneRequiredWithoutContinuityItemsNestedInputSchema } from "./ShowUpdateOneRequiredWithoutContinuityItemsNestedInputSchema";
 
 export const ContinuityItemUpdateInputSchema: z.ZodType<Prisma.ContinuityItemUpdateInput> =
@@ -26,8 +27,15 @@ export const ContinuityItemUpdateInputSchema: z.ZodType<Prisma.ContinuityItemUpd
           z.lazy(() => IntFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      ytBroadcastID: z
+        .union([
+          z.string(),
+          z.lazy(() => NullableStringFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       media: z
-        .lazy(() => MediaUpdateOneWithoutContinuityItemNestedInputSchema)
+        .lazy(() => MediaUpdateOneWithoutContinuityItemsNestedInputSchema)
         .optional(),
       show: z
         .lazy(

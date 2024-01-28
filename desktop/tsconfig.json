@@ -3,8 +3,9 @@
   "compilerOptions": {
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
+    "downlevelIteration": true,
     "paths": {
-      "@/*": ["../server/*"]
-    }
-  }
+      "@/*": ["../server/*"],
+    },
+  },
 }

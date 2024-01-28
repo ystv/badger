@@ -17,31 +17,38 @@ import {
   RundownSchema,
   ShowSchema,
   ShowUpdateInputSchema,
+  MediaUpdateInputSchema,
 } from "@bowser/prisma/types";
 import invariant from "@/lib/invariant";
 import { dispatchJobForJobrunner } from "@/lib/jobs";
 
 const ExtendedMediaModelWithDownloadURL = ExtendedMediaModel.extend({
-  continuityItem: ContinuityItemSchema.nullable(),
-  rundownItem: RundownItemSchema.nullable(),
-  asset: AssetSchema.nullable(),
+  continuityItems: z.array(ContinuityItemSchema),
+  rundownItems: z.array(RundownItemSchema),
+  assets: z.array(AssetSchema),
   downloadURL: z.string().optional().nullable(),
 });
 
 const CompleteMediaModel = ExtendedMediaModel.extend({
-  continuityItem: ContinuityItemSchema.extend({
-    show: ShowSchema,
-  }).nullable(),
-  rundownItem: RundownItemSchema.extend({
-    rundown: RundownSchema.extend({
+  continuityItems: z.array(
+    ContinuityItemSchema.extend({
       show: ShowSchema,
     }),
-  }).nullable(),
-  asset: AssetSchema.extend({
-    rundown: RundownSchema.extend({
-      show: ShowSchema,
+  ),
+  rundownItems: z.array(
+    RundownItemSchema.extend({
+      rundown: RundownSchema.extend({
+        show: ShowSchema,
+      }),
     }),
-  }).nullable(),
+  ),
+  assets: z.array(
+    AssetSchema.extend({
+      rundown: RundownSchema.extend({
+        show: ShowSchema,
+      }),
+    }),
+  ),
 });
 
 export const appRouter = router({
@@ -196,9 +203,9 @@ export const appRouter = router({
           },
           include: {
             tasks: true,
-            continuityItem: true,
-            rundownItem: true,
-            asset: true,
+            continuityItems: true,
+            rundownItems: true,
+            assets: true,
           },
         });
         if (obj.path !== null) {
@@ -216,6 +223,7 @@ export const appRouter = router({
           fileName: z.string(),
           targetType: z.enum(["rundownItem", "continuityItem"]), // TODO: support assets
           targetID: z.number(),
+          process: z.boolean(),
         }),
       )
       .output(MediaSchema)
@@ -229,7 +237,7 @@ export const appRouter = router({
                   name: input.fileName,
                   rawPath: "",
                   durationSeconds: 0,
-                  rundownItem: {
+                  rundownItems: {
                     connect: {
                       id: input.targetID,
                     },
@@ -261,7 +269,7 @@ export const appRouter = router({
                   name: input.fileName,
                   rawPath: "",
                   durationSeconds: 0,
-                  continuityItem: {
+                  continuityItems: {
                     connect: {
                       id: input.targetID,
                     },
@@ -286,24 +294,45 @@ export const appRouter = router({
             default:
               invariant(false, "Invalid target type " + input.targetType);
           }
-          const job = await $db.processMediaJob.create({
-            data: {
-              sourceType: input.sourceType,
-              source: input.source,
-              media: {
-                connect: {
-                  id: med.id,
+          let job;
+          if (input.process) {
+            job = await $db.processMediaJob.create({
+              data: {
+                sourceType: input.sourceType,
+                source: input.source,
+                media: {
+                  connect: {
+                    id: med.id,
+                  },
+                },
+                base_job: {
+                  create: {},
                 },
               },
-              base_job: {
-                create: {},
-              },
-            },
-          });
+            });
+          }
           return [med, job] as const;
         });
-        await dispatchJobForJobrunner(job.base_job_id);
+        if (job) {
+          await dispatchJobForJobrunner(job.base_job_id);
+        }
         return media;
+      }),
+    update: e2eProcedure
+      .input(
+        z.object({
+          id: z.number(),
+          data: MediaUpdateInputSchema,
+        }),
+      )
+      .output(MediaSchema)
+      .mutation(async ({ input }) => {
+        return db.media.update({
+          where: {
+            id: input.id,
+          },
+          data: input.data,
+        });
       }),
     bulkGet: publicProcedure
       .input(z.array(z.number()))
@@ -317,12 +346,12 @@ export const appRouter = router({
           },
           include: {
             tasks: true,
-            continuityItem: {
+            continuityItems: {
               include: {
                 show: true,
               },
             },
-            rundownItem: {
+            rundownItems: {
               include: {
                 rundown: {
                   include: {
@@ -331,7 +360,7 @@ export const appRouter = router({
                 },
               },
             },
-            asset: {
+            assets: {
               include: {
                 rundown: {
                   include: {

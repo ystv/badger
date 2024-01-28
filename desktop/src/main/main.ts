@@ -1,63 +1,53 @@
 import { app, BrowserWindow } from "electron";
-import log from "electron-log";
 import * as path from "path";
 import { createIPCHandler } from "electron-trpc/main";
 import { emitObservable, setSender } from "./ipcEventBus";
 import { appRouter } from "./ipcApi";
-import { tryCreateAPIClient } from "./serverApiClient";
-import { tryCreateOBSConnection } from "./obs";
-import { validateLocalMediaState } from "./settings";
+import { tryCreateAPIClient } from "./base/serverApiClient";
+import { tryCreateOBSConnection } from "./obs/obs";
+import { validateLocalMediaState } from "./base/settings";
 import isSquirrel from "electron-squirrel-startup";
-import { selectedShow } from "./selectedShow";
-import logging, { LogLevelNames } from "loglevel";
-import prefix from "loglevel-plugin-prefix";
-import { tryCreateVMixConnection } from "./vmix";
+import { selectedShow } from "./base/selectedShow";
+import { tryCreateVMixConnection } from "./vmix/vmix";
 import Icon from "../icon/png/64x64.png";
-import { tryCreateOntimeConnection } from "./ontime";
+import { tryCreateOntimeConnection } from "./ontime/ontime";
 import * as Sentry from "@sentry/electron/main";
-
-logging.methodFactory = function (level) {
-  return function (message) {
-    log[level === "trace" ? "silly" : level](message);
-  };
-};
-logging.setLevel(
-  (process.env.LOG_LEVEL as LogLevelNames) ?? logging.levels.DEBUG,
-);
-prefix.reg(logging);
-prefix.apply(logging, {
-  template: "%n:",
-});
-
-/* eslint-disable no-console */
-console.log = logging.debug;
-console.info = logging.info;
-console.warn = logging.warn;
-console.error = logging.error;
-/* eslint-enable no-console */
-
-logging.info(
-  `Bowser Desktop v${global.__APP_VERSION__} (${global.__GIT_COMMIT__}) starting up.`,
-);
-
-if (import.meta.env.VITE_DESKTOP_SENTRY_DSN) {
-  Sentry.init({
-    dsn: import.meta.env.VITE_DESKTOP_SENTRY_DSN,
-    release: global.__SENTRY_RELEASE__,
-  });
-  logging.info("[Main] Sentry enabled");
-}
-
-// https://www.electronforge.io/config/plugins/vite
-declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
-declare const MAIN_WINDOW_VITE_NAME: string;
+import { logFlagState } from "@bowser/feature-flags";
+import { getLogger } from "./base/logging";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (isSquirrel) {
   app.quit();
 }
 
+const logger = getLogger("main");
+
+/* eslint-disable no-console */
+console.log = logger.debug;
+console.info = logger.info;
+console.warn = logger.warn;
+console.error = logger.error;
+/* eslint-enable no-console */
+
+logger.info(
+  `Bowser Desktop v${global.__APP_VERSION__} (${global.__GIT_COMMIT__}) starting up.`,
+);
+logFlagState(true);
+
+if (import.meta.env.VITE_DESKTOP_SENTRY_DSN) {
+  Sentry.init({
+    dsn: import.meta.env.VITE_DESKTOP_SENTRY_DSN,
+    release: global.__SENTRY_RELEASE__,
+  });
+  logger.info("[Main] Sentry enabled");
+}
+
+// https://www.electronforge.io/config/plugins/vite
+declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
+declare const MAIN_WINDOW_VITE_NAME: string;
+
 const createWindow = async () => {
+  logger.debug("Pre-flight...");
   await Promise.all([
     validateLocalMediaState(),
     tryCreateAPIClient(),
@@ -67,6 +57,7 @@ const createWindow = async () => {
       : Promise.resolve(),
     tryCreateOntimeConnection(),
   ]);
+  logger.debug("Pre-flight complete, starting app");
 
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -80,6 +71,7 @@ const createWindow = async () => {
   });
 
   // and load the index.html of the app.
+  logger.debug("Loading main window JS...");
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     await mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
   } else {
@@ -93,9 +85,11 @@ const createWindow = async () => {
     mainWindow.webContents.openDevTools();
   }
 
+  logger.debug("Creating IPC handler...");
   createIPCHandler({ router: appRouter, windows: [mainWindow] });
   setSender(mainWindow.webContents.send.bind(mainWindow.webContents));
   emitObservable("selectedShowChange", selectedShow);
+  logger.info("Startup complete.");
 };
 
 // This method will be called when Electron has finished

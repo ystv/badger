@@ -1,4 +1,4 @@
-import { ipc } from "../ipc";
+import { ipc, useInvalidateQueryOnIPCEvent } from "../ipc";
 import { useForm } from "react-hook-form";
 import { Button } from "@bowser/components/button";
 import { useQueryClient } from "@tanstack/react-query";
@@ -123,6 +123,10 @@ function AddToOBS({
   const downloadStatus = ipc.media.getDownloadStatus.useQuery(void 0, {
     refetchInterval: 1000,
   });
+  useInvalidateQueryOnIPCEvent(
+    getQueryKey(ipc.media.getLocalMedia),
+    "localMediaStateChange",
+  );
   const ourDownloadStatus = useMemo(
     () => downloadStatus.data?.find((x) => x.mediaID === item.media?.id),
     [downloadStatus.data, item.media?.id],
@@ -155,6 +159,10 @@ function AddToOBS({
   const state = useMemo(() => {
     if (!item.media) {
       return "no-media";
+    }
+    // Special-case archived
+    if (item.media.state === "Archived") {
+      return "archived";
     }
     if (item.media.state !== "Ready") {
       return "media-processing";
@@ -201,6 +209,9 @@ function AddToOBS({
       break;
     case "loading":
       contents = <Badge variant="dark">Please wait, checking status...</Badge>;
+      break;
+    case "archived":
+      contents = <Badge variant="dark">Media archived on server</Badge>;
       break;
     case "media-processing":
       contents = <Badge variant="purple">Media processing on server...</Badge>;
@@ -374,7 +385,7 @@ export default function OBSScreen() {
   });
 
   if (connectionState.isLoading) {
-    return <div>Please wait...</div>;
+    return <div>Please wait, getting OBS connection state...</div>;
   }
   if (connectionState.error) {
     return (

@@ -3,7 +3,9 @@ import { z } from "zod";
 import { StringFieldUpdateOperationsInputSchema } from "./StringFieldUpdateOperationsInputSchema";
 import { DateTimeFieldUpdateOperationsInputSchema } from "./DateTimeFieldUpdateOperationsInputSchema";
 import { IntFieldUpdateOperationsInputSchema } from "./IntFieldUpdateOperationsInputSchema";
+import { NullableStringFieldUpdateOperationsInputSchema } from "./NullableStringFieldUpdateOperationsInputSchema";
 import { RundownUpdateManyWithoutShowNestedInputSchema } from "./RundownUpdateManyWithoutShowNestedInputSchema";
+import { MetadataUpdateManyWithoutShowNestedInputSchema } from "./MetadataUpdateManyWithoutShowNestedInputSchema";
 
 export const ShowUpdateWithoutContinuityItemsInputSchema: z.ZodType<Prisma.ShowUpdateWithoutContinuityItemsInput> =
   z
@@ -26,8 +28,25 @@ export const ShowUpdateWithoutContinuityItemsInputSchema: z.ZodType<Prisma.ShowU
           z.lazy(() => IntFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      ytStreamID: z
+        .union([
+          z.string(),
+          z.lazy(() => NullableStringFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
+      ytBroadcastID: z
+        .union([
+          z.string(),
+          z.lazy(() => NullableStringFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       rundowns: z
         .lazy(() => RundownUpdateManyWithoutShowNestedInputSchema)
+        .optional(),
+      metadata: z
+        .lazy(() => MetadataUpdateManyWithoutShowNestedInputSchema)
         .optional(),
     })
     .strict();

@@ -1,6 +1,7 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
 import { SortOrderSchema } from "./SortOrderSchema";
+import { SortOrderInputSchema } from "./SortOrderInputSchema";
 import { ShowWithDurationCountOrderByAggregateInputSchema } from "./ShowWithDurationCountOrderByAggregateInputSchema";
 import { ShowWithDurationAvgOrderByAggregateInputSchema } from "./ShowWithDurationAvgOrderByAggregateInputSchema";
 import { ShowWithDurationMaxOrderByAggregateInputSchema } from "./ShowWithDurationMaxOrderByAggregateInputSchema";
@@ -16,6 +17,18 @@ export const ShowWithDurationOrderByWithAggregationInputSchema: z.ZodType<Prisma
       durationSeconds: z.lazy(() => SortOrderSchema).optional(),
       end: z.lazy(() => SortOrderSchema).optional(),
       version: z.lazy(() => SortOrderSchema).optional(),
+      ytStreamID: z
+        .union([
+          z.lazy(() => SortOrderSchema),
+          z.lazy(() => SortOrderInputSchema),
+        ])
+        .optional(),
+      ytBroadcastID: z
+        .union([
+          z.lazy(() => SortOrderSchema),
+          z.lazy(() => SortOrderInputSchema),
+        ])
+        .optional(),
       _count: z
         .lazy(() => ShowWithDurationCountOrderByAggregateInputSchema)
         .optional(),

@@ -19,22 +19,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import Button from "@bowser/components/button";
 import {
-  MediaUploadDialog,
-  MediaUploadDialogHandle,
-} from "@/components/MediaUpload";
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@bowser/components/popover";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@bowser/components/dialog";
-import { DialogBody } from "next/dist/client/components/react-dev-overlay/internal/components/Dialog";
+import { MediaSelectOrUploadDialog, PastShowsMedia } from "./MediaSelection";
 
 export interface CompleteMedia extends Media {
   tasks: MediaProcessingTask[];
@@ -69,10 +58,15 @@ function IconForTaskState({ state }: { state: MediaProcessingTaskState }) {
 function MediaProcessingState({
   media,
   doReplace,
+  doRetry,
+  doReprocess,
 }: {
   media: CompleteMedia;
   doReplace: () => void;
+  doRetry: () => Promise<unknown>;
+  doReprocess: () => Promise<unknown>;
 }) {
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const intervalRef = useRef<NodeJS.Timer | null>(null);
   useEffect(() => {
@@ -100,6 +94,10 @@ function MediaProcessingState({
       color = "purple" as const;
       status = "Media processing";
       break;
+    case MediaState.ReadyWithWarnings:
+      color = "warning" as const;
+      status = "Issues found";
+      break;
     case MediaState.Ready:
       color = "success" as const;
       status = "Good to go!";
@@ -107,6 +105,10 @@ function MediaProcessingState({
     case MediaState.ProcessingFailed:
       color = "danger" as const;
       status = "Media processing failed";
+      break;
+    case MediaState.Archived:
+      color = "dark" as const;
+      status = "Media archived";
       break;
     default:
       throw new Error(`Unhandled MediaState ${media.state}`);
@@ -119,21 +121,56 @@ function MediaProcessingState({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="absolute shadow-xl ml-4 z-50 m-0">
+        {media.state === MediaState.ReadyWithWarnings && (
+          <small>Potential issues found while processing this upload.</small>
+        )}
         <div className="bg-light text-dark p-4 rounded">
-          <ul>
-            {media.tasks.map((task) => (
-              <li key={task.id}>
-                <IconForTaskState state={task.state} />
-                {task.description}
-                {task.additionalInfo.length > 0 && (
-                  <>
-                    &nbsp;<small>({task.additionalInfo})</small>
-                  </>
-                )}
-              </li>
-            ))}
-          </ul>
-          <Button color="warning" onClick={() => doReplace()}>
+          {media.state !== MediaState.Archived && (
+            <ul>
+              {media.tasks.map((task) => (
+                <li key={task.id}>
+                  <IconForTaskState state={task.state} />
+                  {task.description}
+                  {task.additionalInfo.length > 0 && (
+                    <>
+                      &nbsp;<small>({task.additionalInfo})</small>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+          {media.state === MediaState.Archived && (
+            <Button
+              color="primary"
+              disabled={isPending}
+              onClick={() =>
+                startTransition(async () => {
+                  await doReprocess();
+                })
+              }
+            >
+              Reprocess
+            </Button>
+          )}
+          {media.state === MediaState.ProcessingFailed && (
+            <Button
+              color="warning"
+              onClick={() =>
+                startTransition(async () => {
+                  await doRetry();
+                })
+              }
+              disabled={isPending}
+            >
+              Retry
+            </Button>
+          )}
+          <Button
+            color="warning"
+            onClick={() => doReplace()}
+            disabled={isPending}
+          >
             Replace
           </Button>
         </div>
@@ -145,14 +182,20 @@ function MediaProcessingState({
 export function ItemMediaStateAndUploadDialog({
   item,
   onUploadComplete,
+  onExistingSelected,
+  pastShowsPromise,
+  retryProcessing,
+  reprocess,
 }: {
   item: CompleteContinuityItem | CompleteRundownItem;
   onUploadComplete: (url: string, fileName: string) => Promise<unknown>;
+  onExistingSelected: (id: number) => Promise<unknown>;
+  pastShowsPromise: Promise<PastShowsMedia>;
+  retryProcessing: (mediaID: number) => Promise<unknown>;
+  reprocess: (mediaID: number) => Promise<unknown>;
 }) {
-  const [isUploadOpen, setIsUploadOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
-  const uploadRef = useRef<MediaUploadDialogHandle | null>(null);
   let base;
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
   if (item.media === null) {
     base = (
       <Button
@@ -168,51 +211,24 @@ export function ItemMediaStateAndUploadDialog({
       <MediaProcessingState
         media={item.media}
         doReplace={() => setIsUploadOpen(true)}
+        doRetry={() => retryProcessing(item.media!.id)}
+        doReprocess={() => reprocess(item.media!.id)}
       />
     );
   }
   return (
     <>
-      <Dialog
-        open={isUploadOpen}
-        onOpenChange={(v) => {
-          if (uploadRef.current && !v) {
-            const progress = uploadRef.current.getProgress();
-            if (progress > 0 && progress < 1) {
-              if (confirm("Are you sure you want to cancel the upload?")) {
-                uploadRef.current.cancel();
-                setIsUploadOpen(v);
-              }
-            } else {
-              setIsUploadOpen(v);
-            }
-          } else {
-            setIsUploadOpen(v);
-          }
-        }}
-      >
-        <DialogTrigger asChild>{base}</DialogTrigger>
-        <DialogContent className="mx-auto max-w-sm rounded bg-light p-8">
-          <DialogHeader>
-            <DialogTitle>Upload media for {item.name}</DialogTitle>
-          </DialogHeader>
-          <DialogBody>
-            <MediaUploadDialog
-              ref={uploadRef}
-              title={`Upload '${item.name}'`}
-              prompt="Drop video files here, or click to select"
-              accept={{ "video/*": [] }}
-              onComplete={(url, fileName) =>
-                startTransition(async () => {
-                  await onUploadComplete(url, fileName);
-                  setIsUploadOpen(false);
-                })
-              }
-            />
-            {isPending && <em>Processing, please wait...</em>}
-          </DialogBody>
-        </DialogContent>
-      </Dialog>
+      {base}
+      <MediaSelectOrUploadDialog
+        containerType={"type" in item ? "rundownItem" : "continuityItem"}
+        isOpen={isUploadOpen}
+        setOpen={setIsUploadOpen}
+        onUploadComplete={onUploadComplete}
+        onExistingSelected={onExistingSelected}
+        pastShowsPromise={pastShowsPromise}
+        title={`Select media for ${item.name}`}
+        acceptMedia={{ "video/*": [] }}
+      />
     </>
   );
 }

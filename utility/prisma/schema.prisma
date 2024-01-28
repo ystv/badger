@@ -22,6 +22,57 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id    Int     @id @default(autoincrement())
+  name  String
+  email String?
+
+  isActive    Boolean      @default(false)
+  permissions Permission[] @default([])
+
+  identities  Identity[]
+  connections Connection[]
+
+  @@map("users")
+}
+
+model Identity {
+  id         Int    @id @default(autoincrement())
+  provider   String
+  identityID String
+  userID     Int
+
+  user User @relation(fields: [userID], references: [id], onDelete: Cascade)
+
+  @@unique([provider, identityID])
+  @@map("identities")
+}
+
+enum Permission {
+  Basic
+  ManageUsers
+  ManageShows
+  ArchiveMedia
+  ManageYouTubeStreams
+  SUDO
+}
+
+model Connection {
+  id           Int              @id @default(autoincrement())
+  userId       Int
+  target       ConnectionTarget
+  refreshToken String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, target])
+  @@map("connections")
+}
+
+enum ConnectionTarget {
+  google
+}
+
 model Show {
   id    Int      @id @default(autoincrement())
   name  String
@@ -31,8 +82,12 @@ model Show {
   /// This is used by Desktop to watch for changes.
   version Int @default(0)
 
+  ytStreamID String?
+  ytBroadcastID String?
+
   rundowns        Rundown[]
   continuityItems ContinuityItem[]
+  metadata        Metadata[]
 
   @@map("shows")
 }
@@ -48,6 +103,9 @@ view ShowWithDuration {
   /// This is used by Desktop to watch for changes.
   version Int @default(0)
 
+  ytStreamID String?
+  ytBroadcastID String?
+
   @@map("shows_with_duration")
 }
 
@@ -57,9 +115,12 @@ model Rundown {
   showId Int
   order  Int
 
-  show   Show          @relation(fields: [showId], references: [id])
-  items  RundownItem[]
-  assets Asset[]
+  ytBroadcastID String?
+
+  show     Show          @relation(fields: [showId], references: [id], onDelete: Cascade)
+  items    RundownItem[]
+  assets   Asset[]
+  metadata Metadata[]
 
   @@map("rundowns")
 }
@@ -80,9 +141,10 @@ model RundownItem {
   type            RundownItemType
   notes           String          @default("")
 
-  media Media?
+  media   Media? @relation(fields: [mediaId], references: [id], onDelete: SetNull)
+  mediaId Int?
 
-  rundown Rundown @relation(fields: [rundownId], references: [id])
+  rundown Rundown @relation(fields: [rundownId], references: [id], onDelete: Cascade)
 
   // Do not be tempted to include a @@unique on the order!
   // See https://github.com/prisma/prisma/issues/13115 and https://github.com/prisma/prisma/issues/8807
@@ -95,21 +157,87 @@ model ContinuityItem {
   order           Int
   showId          Int
   durationSeconds Int
+  ytBroadcastID String?
 
-  media Media?
+  media   Media? @relation(fields: [mediaId], references: [id], onDelete: SetNull)
+  mediaId Int?
 
-  show Show @relation(fields: [showId], references: [id])
+  show Show @relation(fields: [showId], references: [id], onDelete: Cascade)
 
   // Do not be tempted to include a @@unique on the order!
   // See https://github.com/prisma/prisma/issues/13115 and https://github.com/prisma/prisma/issues/8807
   @@map("continuity_items")
 }
 
+enum MetadataTargetType {
+  Show
+  Rundown
+  ShowOrRundown
+}
+
+enum MetadataValueType {
+  Text
+  LongText
+  URL
+}
+
+model MetadataField {
+  id       Int                @id @default(autoincrement())
+  name     String
+  type     MetadataValueType
+  target   MetadataTargetType
+  archived Boolean            @default(false)
+  default  Boolean            @default(false)
+
+  values Metadata[]
+
+  @@map("metadata_fields")
+}
+
+model Metadata {
+  id      Int  @id @default(autoincrement())
+  value   Json
+  fieldId Int
+
+  showId    Int?
+  rundownId Int?
+
+  field   MetadataField @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  show    Show?         @relation(fields: [showId], references: [id], onDelete: Cascade)
+  rundown Rundown?      @relation(fields: [rundownId], references: [id], onDelete: Cascade)
+
+  @@unique([fieldId, showId, rundownId])
+  @@index([showId])
+  @@index([rundownId])
+  @@map("metadata")
+}
+
+enum SettingsCategory {
+  YouTube
+}
+
+enum SettingKey {
+  TitleMetadataID
+  DescriptionMetadataID
+}
+
+model Setting {
+  id       Int              @id @default(autoincrement())
+  category SettingsCategory
+  key      SettingKey
+  value    Json
+
+  @@unique([category, key])
+  @@map("settings")
+}
+
 enum MediaState {
   Pending
   Processing
   Ready
+  ReadyWithWarnings
   ProcessingFailed
+  Archived
 
   @@map("media_state")
 }
@@ -128,12 +256,12 @@ model Asset {
   name String
   type AssetType
 
-  media Media @relation(fields: [mediaId], references: [id])
+  media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
 
   rundown   Rundown        @relation(fields: [rundownId], references: [id], onDelete: Cascade)
   rundownId Int
   loadJobs  LoadAssetJob[]
-  mediaId   Int            @unique
+  mediaId   Int
 
   @@map("assets")
 }
@@ -146,14 +274,11 @@ model Media {
   durationSeconds Int
   state           MediaState @default(Pending)
 
-  rundownItemID    Int? @unique
-  continuityItemID Int? @unique
-
-  rundownItem    RundownItem?          @relation(fields: [rundownItemID], references: [id], onDelete: Cascade)
-  continuityItem ContinuityItem?       @relation(fields: [continuityItemID], references: [id], onDelete: Cascade)
-  tasks          MediaProcessingTask[]
-  process_jobs   ProcessMediaJob[]
-  asset          Asset?
+  rundownItems    RundownItem[]
+  continuityItems ContinuityItem[]
+  tasks           MediaProcessingTask[]
+  process_jobs    ProcessMediaJob[]
+  assets          Asset[]
 
   @@map("media")
 }
@@ -209,6 +334,7 @@ model BaseJob {
 enum MediaFileSourceType {
   Tus
   GoogleDrive
+  S3
 }
 
 model ProcessMediaJob {

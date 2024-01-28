@@ -9,6 +9,7 @@ export const RundownItemSumOrderByAggregateInputSchema: z.ZodType<Prisma.Rundown
       rundownId: z.lazy(() => SortOrderSchema).optional(),
       order: z.lazy(() => SortOrderSchema).optional(),
       durationSeconds: z.lazy(() => SortOrderSchema).optional(),
+      mediaId: z.lazy(() => SortOrderSchema).optional(),
     })
     .strict();
 

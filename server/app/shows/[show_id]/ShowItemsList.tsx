@@ -23,10 +23,13 @@ import React, {
 } from "react";
 import {
   addItem,
+  attachExistingMediaToContinuityItem,
   deleteItem,
   editContinuityItem,
   processUploadForContinuityItem,
   reorderShowItems,
+  reprocessMedia,
+  retryProcessingMedia,
 } from "./actions";
 import { Show } from "@bowser/prisma/client";
 import Button from "@bowser/components/button";
@@ -56,6 +59,7 @@ import { formatDurationMS } from "@/lib/time";
 import { DateTime } from "@/components/DateTIme";
 import { z } from "zod";
 import { UseFormReturn } from "react-hook-form";
+import { PastShowsMedia } from "@/components/MediaSelection";
 
 const addItemFormSchema = z.object({
   name: z.string(),
@@ -208,6 +212,7 @@ const ContinuityItemRow = forwardRef<
     dragHandleProps: React.ComponentPropsWithoutRef<"td">;
     time: Date;
     runningDuration: number;
+    pastShowsPromise: Promise<PastShowsMedia>;
   }
 >(function ContinuityItemRow(props, ref) {
   const item = props.item;
@@ -217,6 +222,8 @@ const ContinuityItemRow = forwardRef<
       ref={ref}
       {...props.draggableProps}
       className="[&>td]:m-2 align-top"
+      data-testid="ContinuityItemRow"
+      data-item-id={item.id}
     >
       <TableCell
         {...props.dragHandleProps}
@@ -232,9 +239,15 @@ const ContinuityItemRow = forwardRef<
       <TableCell>
         <ItemMediaStateAndUploadDialog
           item={item}
-          onUploadComplete={async (url, fileName) =>
+          onUploadComplete={(url, fileName) =>
             processUploadForContinuityItem(item.id, fileName, url)
           }
+          onExistingSelected={(id) =>
+            attachExistingMediaToContinuityItem(item.id, id)
+          }
+          pastShowsPromise={props.pastShowsPromise}
+          retryProcessing={(m) => retryProcessingMedia(m, item.showId)}
+          reprocess={reprocessMedia}
         />
       </TableCell>
       <TableCell data-testid="ContinuityItemRow.time">
@@ -282,6 +295,7 @@ const ContinuityItemRow = forwardRef<
 export function ShowItemsList(props: {
   show: Show;
   items: RundownOrContinuity[];
+  pastShowsPromise: Promise<PastShowsMedia>;
 }) {
   const [isPending, startTransition] = useTransition();
   const [optimisticItems, doOptimisticMove] = useOptimistic(
@@ -364,6 +378,7 @@ export function ShowItemsList(props: {
                 item={item}
                 time={itemStartTime}
                 runningDuration={duration}
+                pastShowsPromise={props.pastShowsPromise}
               />
             )
           }

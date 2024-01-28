@@ -3,10 +3,12 @@ import { z } from "zod";
 import { RundownWhereInputSchema } from "./RundownWhereInputSchema";
 import { StringFilterSchema } from "./StringFilterSchema";
 import { IntFilterSchema } from "./IntFilterSchema";
+import { StringNullableFilterSchema } from "./StringNullableFilterSchema";
 import { ShowRelationFilterSchema } from "./ShowRelationFilterSchema";
 import { ShowWhereInputSchema } from "./ShowWhereInputSchema";
 import { RundownItemListRelationFilterSchema } from "./RundownItemListRelationFilterSchema";
 import { AssetListRelationFilterSchema } from "./AssetListRelationFilterSchema";
+import { MetadataListRelationFilterSchema } from "./MetadataListRelationFilterSchema";
 
 export const RundownWhereUniqueInputSchema: z.ZodType<Prisma.RundownWhereUniqueInput> =
   z
@@ -42,6 +44,10 @@ export const RundownWhereUniqueInputSchema: z.ZodType<Prisma.RundownWhereUniqueI
           order: z
             .union([z.lazy(() => IntFilterSchema), z.number()])
             .optional(),
+          ytBroadcastID: z
+            .union([z.lazy(() => StringNullableFilterSchema), z.string()])
+            .optional()
+            .nullable(),
           show: z
             .union([
               z.lazy(() => ShowRelationFilterSchema),
@@ -50,6 +56,7 @@ export const RundownWhereUniqueInputSchema: z.ZodType<Prisma.RundownWhereUniqueI
             .optional(),
           items: z.lazy(() => RundownItemListRelationFilterSchema).optional(),
           assets: z.lazy(() => AssetListRelationFilterSchema).optional(),
+          metadata: z.lazy(() => MetadataListRelationFilterSchema).optional(),
         })
         .strict(),
     );

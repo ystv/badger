@@ -48,12 +48,8 @@ async function uploadTestFileToTus() {
 
 integrate("ProcessMediaJob", () => {
   beforeEach(async () => {
-    await db.$executeRawUnsafe(
-      `TRUNCATE TABLE "base_jobs" RESTART IDENTITY CASCADE`,
-    );
-    await db.$executeRawUnsafe(
-      `TRUNCATE TABLE "shows" RESTART IDENTITY CASCADE`,
-    );
+    await db.$executeRawUnsafe(`DELETE FROM "base_jobs"`);
+    await db.$executeRawUnsafe(`DELETE FROM "shows"`);
   });
   it("works", async () => {
     const testMediaID = await uploadTestFileToTus();
@@ -69,7 +65,7 @@ integrate("ProcessMediaJob", () => {
             name: "smpte_bars_15s.mp4",
             durationSeconds: 0,
             rawPath: "",
-            continuityItem: {
+            continuityItems: {
               create: {
                 name: "Test",
                 durationSeconds: 0,

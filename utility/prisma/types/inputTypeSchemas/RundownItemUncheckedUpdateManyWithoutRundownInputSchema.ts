@@ -4,6 +4,7 @@ import { IntFieldUpdateOperationsInputSchema } from "./IntFieldUpdateOperationsI
 import { StringFieldUpdateOperationsInputSchema } from "./StringFieldUpdateOperationsInputSchema";
 import { RundownItemTypeSchema } from "./RundownItemTypeSchema";
 import { EnumRundownItemTypeFieldUpdateOperationsInputSchema } from "./EnumRundownItemTypeFieldUpdateOperationsInputSchema";
+import { NullableIntFieldUpdateOperationsInputSchema } from "./NullableIntFieldUpdateOperationsInputSchema";
 
 export const RundownItemUncheckedUpdateManyWithoutRundownInputSchema: z.ZodType<Prisma.RundownItemUncheckedUpdateManyWithoutRundownInput> =
   z
@@ -44,6 +45,13 @@ export const RundownItemUncheckedUpdateManyWithoutRundownInputSchema: z.ZodType<
           z.lazy(() => StringFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      mediaId: z
+        .union([
+          z.number().int(),
+          z.lazy(() => NullableIntFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
     })
     .strict();
 

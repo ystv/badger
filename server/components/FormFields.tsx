@@ -157,7 +157,11 @@ export function DatePickerField(props: {
             data-testid="DatePickerField.trigger"
           >
             <IoCalendarSharp className="inline mr-2 h-4 w-4" />
-            {v ? format(v, "PPP") : <span className="h-4">Pick a date</span>}
+            {v ? (
+              format(v, props.showTimeSelect ? "PPP, HH:mm" : "PPP")
+            ) : (
+              <span className="h-4">Pick a date</span>
+            )}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0">
@@ -190,15 +194,29 @@ export function DatePickerField(props: {
   );
 }
 
-export function CheckBoxField(props: { name: string; label?: string }) {
+export function CheckBoxField(props: {
+  name: string;
+  label?: string;
+  disabled?: boolean;
+}) {
   const ctx = useFormContext();
   if (!props.label) {
-    return <input type="checkbox" {...ctx.register(props.name)} />;
+    return (
+      <input
+        type="checkbox"
+        {...ctx.register(props.name)}
+        disabled={props.disabled}
+      />
+    );
   }
   return (
     <label className="block">
       <span className="font-bold text-gray-700">{props.label}</span>
-      <input type="checkbox" {...ctx.register(props.name)} />
+      <input
+        type="checkbox"
+        {...ctx.register(props.name)}
+        disabled={props.disabled}
+      />
     </label>
   );
 }

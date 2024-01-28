@@ -7,10 +7,34 @@ import { z } from "zod";
 import { editContinuityItemSchema } from "./schema";
 import { FormResponse } from "@/components/Form";
 import { zodErrorResponse } from "@/components/FormServerHelpers";
-import { MediaFileSourceType } from "@bowser/prisma/client";
+import {
+  JobState,
+  MediaFileSourceType,
+  MediaState,
+  MetadataTargetType,
+  Prisma,
+} from "@bowser/prisma/client";
 import { escapeRegExp } from "lodash";
 
 import { dispatchJobForJobrunner } from "@/lib/jobs";
+import invariant from "@/lib/invariant";
+
+export async function revalidateIfChanged(showID: number, version: number) {
+  const show = await db.show.findUnique({
+    where: {
+      id: showID,
+    },
+    select: {
+      version: true,
+    },
+  });
+  if (!show) {
+    notFound();
+  }
+  if (show.version !== version) {
+    revalidatePath(`/shows/${showID}`);
+  }
+}
 
 export async function addItem(
   showID: number,
@@ -296,6 +320,43 @@ export async function reorderShowItems(
   return { ok: true };
 }
 
+export async function setMetaValue(
+  showID: number,
+  metaID: number,
+  newValue: Prisma.InputJsonValue,
+): Promise<FormResponse> {
+  await db.metadata.update({
+    where: {
+      field: {
+        target: MetadataTargetType.Show,
+      },
+      showId: showID,
+      id: metaID,
+    },
+    data: {
+      value: newValue,
+    },
+  });
+  revalidatePath(`/shows/${showID}`);
+  return { ok: true };
+}
+
+export async function addMeta(
+  showID: number,
+  fieldID: number,
+  newValue: Prisma.InputJsonValue,
+): Promise<FormResponse> {
+  await db.metadata.create({
+    data: {
+      fieldId: fieldID,
+      showId: showID,
+      value: newValue,
+    },
+  });
+  revalidatePath(`/shows/${showID}`);
+  return { ok: true };
+}
+
 async function ensureContiguousDEV(
   showID: number,
   $db: Parameters<Parameters<typeof db.$transaction>[0]>[0],
@@ -363,8 +424,16 @@ export async function processUploadForContinuityItem(
   const baseJobID = await db.$transaction(async ($db) => {
     await $db.media.deleteMany({
       where: {
-        continuityItem: {
-          id: itemID,
+        continuityItems: {
+          every: {
+            id: itemID,
+          },
+        },
+        rundownItems: {
+          none: {},
+        },
+        assets: {
+          none: {},
         },
       },
     });
@@ -373,7 +442,7 @@ export async function processUploadForContinuityItem(
         name: fileName,
         durationSeconds: 0,
         rawPath: "",
-        continuityItem: {
+        continuityItems: {
           connect: {
             id: itemID,
           },
@@ -410,5 +479,128 @@ export async function processUploadForContinuityItem(
   });
   await dispatchJobForJobrunner(baseJobID);
   revalidatePath(`/shows/${item.showId}`);
+  return { ok: true };
+}
+
+export async function attachExistingMediaToContinuityItem(
+  itemID: number,
+  mediaID: number,
+) {
+  const item = await db.$transaction(async ($db) => {
+    const media = await $db.media.findUniqueOrThrow({
+      where: {
+        id: mediaID,
+      },
+      include: {
+        continuityItems: true,
+      },
+    });
+    return await $db.continuityItem.update({
+      where: {
+        id: itemID,
+      },
+      data: {
+        media: {
+          connect: {
+            id: mediaID,
+          },
+        },
+        durationSeconds: media.durationSeconds,
+        show: {
+          update: {
+            version: {
+              increment: 1,
+            },
+          },
+        },
+      },
+    });
+  });
+  revalidatePath(`/shows/${item.showId}`);
+  return { ok: true };
+}
+
+export async function retryProcessingMedia(mediaID: number, showID: number) {
+  // Reset the job status and re-enqueue it
+  const baseJob = await db.$transaction(async ($db) => {
+    const baseJob = await $db.baseJob.findUniqueOrThrow({
+      where: {
+        id: mediaID,
+      },
+    });
+    await $db.media.update({
+      where: {
+        id: mediaID,
+      },
+      data: {
+        state: MediaState.Pending,
+      },
+    });
+    return await $db.baseJob.update({
+      where: {
+        id: baseJob.id,
+      },
+      data: {
+        state: JobState.Pending,
+        completedAt: null,
+        startedAt: null,
+        workerId: null,
+        externalJobID: null,
+        externalJobProvider: null,
+      },
+    });
+  });
+  await dispatchJobForJobrunner(baseJob.id);
+  revalidatePath(`/shows/${showID}`);
+  return { ok: true };
+}
+
+export async function reprocessMedia(id: number) {
+  const [staleMedia, baseJob] = await db.$transaction(async ($db) => {
+    const media = await $db.media.findUniqueOrThrow({
+      where: {
+        id,
+      },
+      include: {
+        continuityItems: true,
+      },
+    });
+    invariant(
+      media.state === MediaState.Archived,
+      "can only reprocess archived media",
+    );
+    invariant(media.rawPath, "can only reprocess media with a raw path");
+    await $db.media.update({
+      where: {
+        id,
+      },
+      data: {
+        state: MediaState.Pending,
+      },
+    });
+    const job = await $db.processMediaJob.create({
+      data: {
+        sourceType: MediaFileSourceType.S3,
+        source: media.rawPath,
+        media: {
+          connect: {
+            id,
+          },
+        },
+        base_job: {
+          create: {},
+        },
+      },
+      include: {
+        base_job: true,
+      },
+    });
+    return [media, job.base_job];
+  });
+  await dispatchJobForJobrunner(baseJob.id);
+  revalidatePath("/media");
+  for (const ci of staleMedia.continuityItems) {
+    revalidatePath(`/shows/${ci.showId}`);
+  }
   return { ok: true };
 }

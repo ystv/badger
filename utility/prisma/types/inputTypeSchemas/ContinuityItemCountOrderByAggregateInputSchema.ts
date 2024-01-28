@@ -10,6 +10,8 @@ export const ContinuityItemCountOrderByAggregateInputSchema: z.ZodType<Prisma.Co
       order: z.lazy(() => SortOrderSchema).optional(),
       showId: z.lazy(() => SortOrderSchema).optional(),
       durationSeconds: z.lazy(() => SortOrderSchema).optional(),
+      ytBroadcastID: z.lazy(() => SortOrderSchema).optional(),
+      mediaId: z.lazy(() => SortOrderSchema).optional(),
     })
     .strict();
 

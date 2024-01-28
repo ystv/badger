@@ -3,7 +3,7 @@
   "private": true,
   "devDependencies": {
     "dotenv-cli": "^7.2.1",
-    "prisma": "5.2.0",
+    "prisma": "5.5.2",
     "zod-prisma-types": "^2.7.9"
   },
   "scripts": {

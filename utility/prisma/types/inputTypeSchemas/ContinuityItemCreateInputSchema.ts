@@ -1,6 +1,6 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
-import { MediaCreateNestedOneWithoutContinuityItemInputSchema } from "./MediaCreateNestedOneWithoutContinuityItemInputSchema";
+import { MediaCreateNestedOneWithoutContinuityItemsInputSchema } from "./MediaCreateNestedOneWithoutContinuityItemsInputSchema";
 import { ShowCreateNestedOneWithoutContinuityItemsInputSchema } from "./ShowCreateNestedOneWithoutContinuityItemsInputSchema";
 
 export const ContinuityItemCreateInputSchema: z.ZodType<Prisma.ContinuityItemCreateInput> =
@@ -9,8 +9,9 @@ export const ContinuityItemCreateInputSchema: z.ZodType<Prisma.ContinuityItemCre
       name: z.string(),
       order: z.number().int(),
       durationSeconds: z.number().int(),
+      ytBroadcastID: z.string().optional().nullable(),
       media: z
-        .lazy(() => MediaCreateNestedOneWithoutContinuityItemInputSchema)
+        .lazy(() => MediaCreateNestedOneWithoutContinuityItemsInputSchema)
         .optional(),
       show: z.lazy(() => ShowCreateNestedOneWithoutContinuityItemsInputSchema),
     })

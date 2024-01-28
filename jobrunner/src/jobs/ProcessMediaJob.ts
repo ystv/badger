@@ -1,11 +1,8 @@
 import * as path from "node:path";
 import * as fs from "node:fs";
-import { pipeline as streamPipeline } from "node:stream/promises";
-import AbstractJob from "./base.js";
 import {
   ContinuityItem,
   Media,
-  MediaFileSourceType,
   MediaProcessingTaskState,
   MediaState,
   ProcessMediaJob as ProcessMediaJobType,
@@ -13,13 +10,18 @@ import {
   RundownItem,
   Show,
 } from "@bowser/prisma/client";
-import got, { Response as GotResponse } from "got";
 import * as child_process from "node:child_process";
 import * as util from "node:util";
-import pEvent from "p-event";
-import { FFProbeOutput, LoudnormOutput } from "./_types.js";
-import { Progress, Upload } from "@aws-sdk/lib-storage";
-import { throttle } from "lodash";
+import {
+  FFProbeOutput,
+  FFProbeOutputWithStreams,
+  LoudnormOutput,
+} from "./_types.js";
+import {
+  enableQualityControl,
+  failUploadOnQualityControlFail,
+} from "@bowser/feature-flags";
+import { MediaJobCommon } from "./MediaJobCommon.js";
 
 const TARGET_LOUDNESS_LUFS = -14;
 const TARGET_LOUDNESS_RANGE_LUFS = 4;
@@ -28,11 +30,11 @@ const TARGET_TRUE_PEAK_DBTP = -1;
 const exec = util.promisify(child_process.exec);
 
 interface CompleteMedia extends Media {
-  continuityItem: null | (ContinuityItem & { show: Show });
-  rundownItem: null | (RundownItem & { rundown: Rundown & { show: Show } });
+  continuityItems: (ContinuityItem & { show: Show })[];
+  rundownItems: (RundownItem & { rundown: Rundown & { show: Show } })[];
 }
 
-export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
+export default class ProcessMediaJob extends MediaJobCommon {
   constructor() {
     super();
 
@@ -49,12 +51,12 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
         id: params.mediaId,
       },
       include: {
-        continuityItem: {
+        continuityItems: {
           include: {
             show: true,
           },
         },
-        rundownItem: {
+        rundownItems: {
           include: {
             rundown: {
               include: {
@@ -82,7 +84,10 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
         true,
       );
 
+      const warnings = [];
+
       // Promise.all would cancel the other tasks if one failed, so we use Promise.allSettled instead
+      // TODO: Isn't that what we want though?
       const results = await Promise.allSettled([
         (async () => {
           const rawPath = await this._wrapTask(
@@ -91,9 +96,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
             () =>
               this._uploadFileToS3(
                 rawTempPath,
-                "raw",
-                media,
-                "Uploading source file to storage",
+                `media/${media.id}/raw/${media.name}`,
               ),
             true,
           );
@@ -125,28 +128,24 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
             },
             data: {
               durationSeconds: duration,
+              rundownItems: {
+                updateMany: {
+                  where: {},
+                  data: {
+                    durationSeconds: duration,
+                  },
+                },
+              },
+              continuityItems: {
+                updateMany: {
+                  where: {},
+                  data: {
+                    durationSeconds: duration,
+                  },
+                },
+              },
             },
           });
-          if (media.continuityItem) {
-            await this.db.continuityItem.update({
-              where: {
-                id: media.continuityItem.id,
-              },
-              data: {
-                durationSeconds: duration,
-              },
-            });
-          }
-          if (media.rundownItem) {
-            await this.db.rundownItem.update({
-              where: {
-                id: media.rundownItem.id,
-              },
-              data: {
-                durationSeconds: duration,
-              },
-            });
-          }
           const durationMMSS = `${Math.floor(duration / 60)}:${(
             "0" + Math.floor(duration % 60)
           ).slice(-2)}`;
@@ -157,6 +156,44 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
             `Duration: ${durationMMSS}`,
           );
         })(),
+
+        async () => {
+          if (enableQualityControl) {
+            const qualityWarnings = await this._wrapTask(
+              media,
+              "Checking quality",
+              () => this._qualityCheck(rawTempPath),
+              false,
+            );
+            if (qualityWarnings.length > 0) {
+              warnings.push(...qualityWarnings);
+              if (failUploadOnQualityControlFail) {
+                await this._updateTaskStatus(
+                  media,
+                  "Checking quality",
+                  MediaProcessingTaskState.Failed,
+                  `Problems: ${qualityWarnings.join(", ")}`,
+                );
+                throw new AggregateError(
+                  qualityWarnings.map((e) => new Error(e)),
+                );
+              } else {
+                await this._updateTaskStatus(
+                  media,
+                  "Checking quality",
+                  MediaProcessingTaskState.Warning,
+                  `Warnings: ${qualityWarnings.join(", ")}`,
+                );
+              }
+            } else {
+              await this._updateTaskStatus(
+                media,
+                "Checking quality",
+                MediaProcessingTaskState.Complete,
+              );
+            }
+          }
+        },
 
         (async () => {
           const normalisedPath = await this._wrapTask(
@@ -172,9 +209,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
             () =>
               this._uploadFileToS3(
                 normalisedPath,
-                "final",
-                media,
-                "Uploading processed file",
+                `media/${media.id}/final/${media.name}`,
               ),
             true,
           );
@@ -198,14 +233,6 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
               (x as PromiseRejectedResult).reason,
             );
           });
-        await this.db.media.update({
-          where: {
-            id: media.id,
-          },
-          data: {
-            state: MediaState.ProcessingFailed,
-          },
-        });
         throw new AggregateError(
           results
             .filter((x) => x.status === "rejected")
@@ -217,87 +244,106 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
           id: media.id,
         },
         data: {
-          state: MediaState.Ready,
+          state:
+            warnings.length > 0
+              ? MediaState.ReadyWithWarnings
+              : MediaState.Ready,
         },
       });
-      if (media.rundownItem) {
-        await this.db.rundownItem.update({
-          where: {
-            id: media.rundownItem.id,
-          },
-          data: {
-            rundown: {
-              update: {
-                show: {
-                  update: {
-                    version: {
-                      increment: 1,
+      await this.db.show.updateMany({
+        where: {
+          OR: [
+            {
+              rundowns: {
+                some: {
+                  OR: [
+                    {
+                      items: {
+                        some: {
+                          mediaId: media.id,
+                        },
+                      },
                     },
-                  },
+                    {
+                      assets: {
+                        some: {
+                          mediaId: media.id,
+                        },
+                      },
+                    },
+                  ],
                 },
               },
             },
-          },
-        });
-      } else if (media.continuityItem) {
-        await this.db.continuityItem.update({
-          where: {
-            id: media.continuityItem.id,
-          },
-          data: {
-            show: {
-              update: {
-                version: {
-                  increment: 1,
+            {
+              continuityItems: {
+                some: {
+                  mediaId: media.id,
                 },
               },
             },
+          ],
+        },
+        data: {
+          version: {
+            increment: 1,
           },
-        });
-      }
+        },
+      });
+    } catch (e) {
+      await this.db.media.update({
+        where: {
+          id: media.id,
+        },
+        data: {
+          state: MediaState.ProcessingFailed,
+        },
+      });
+      throw e;
     } finally {
       this._deleteTemporaryDir();
     }
   }
 
-  private async _downloadSourceFile(params: ProcessMediaJobType) {
-    const filePath = path.join(this.temporaryDir, "raw");
-    const output = fs.createWriteStream(filePath);
-    let stream: NodeJS.ReadableStream;
-    switch (params.sourceType) {
-      case MediaFileSourceType.Tus:
-        stream = got.stream.get(process.env.TUS_ENDPOINT + "/" + params.source);
-        (await pEvent(stream, "response")) as GotResponse; // this ensures that any errors are thrown
-        break;
+  private async _qualityCheck(path: string) {
+    // This is safe because we created path in _downloadSourceFile
+    const res = await exec(
+      `ffprobe -v quiet -print_format json -show_format -show_streams ${path}`,
+    );
+    const data: FFProbeOutputWithStreams = JSON.parse(res.stdout);
 
-      case MediaFileSourceType.GoogleDrive: {
-        const res = await this.driveClient.files.get(
-          {
-            fileId: params.source,
-            alt: "media",
-          },
-          {
-            responseType: "stream",
-          },
-        );
-        stream = res.data;
-        break;
+    const issues = [];
+
+    // Audio channels
+    const audioStreams = data.streams.filter(
+      (x) => x.codec_type === "audio",
+    ) as FFProbeOutputWithStreams["streams"];
+    if (audioStreams.length === 0) {
+      issues.push("No audio");
+    } else {
+      const channels = audioStreams[0].channels;
+      if (channels === 1) {
+        issues.push("Mono audio");
       }
-
-      default:
-        throw new Error("Unknown source type");
     }
-    await streamPipeline(stream, output);
 
-    // Once we have the file locally, we can delete it from Tus.
-    if (params.sourceType === MediaFileSourceType.Tus) {
-      await got.delete(process.env.TUS_ENDPOINT + "/" + params.source, {
-        headers: {
-          "Tus-Resumable": "1.0.0",
-        },
-      });
+    const videoStreams = data.streams.filter(
+      (x) => x.codec_type === "video",
+    ) as FFProbeOutputWithStreams["streams"];
+    if (videoStreams.length === 0) {
+      issues.push("No video");
+    } else {
+      const video = videoStreams[0];
+      if (video.width! < 1920 || video.height! < 1080) {
+        issues.push(`Low resolution (${video.width}x${video.height})`);
+      }
+      const fps = parseFloat(video.avg_frame_rate.replace(/\/1$/, ""));
+      if (fps < 25) {
+        issues.push(`Low framerate (${fps}fps)`);
+      }
     }
-    return filePath;
+
+    return issues;
   }
 
   private async _determineDuration(path: string) {
@@ -319,7 +365,9 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
       /(?<=\[Parsed_loudnorm_0 @ 0x[0-9a-f]+]\s*\n)[\s\S]*/.exec(output.stderr);
     if (!loudnormJSON) {
       this.logger.warn(output.stderr);
-      throw new Error("Could not find loudnorm output");
+      throw new Error(
+        "Could not find loudnorm output - file may have no or corrupt audio",
+      );
     }
     const loudnormData: LoudnormOutput = JSON.parse(loudnormJSON[0]);
 
@@ -369,55 +417,6 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
     return normalisedPath;
   }
 
-  private async _uploadFileToS3(
-    path: string,
-    fileType: "raw" | "final",
-    item: CompleteMedia,
-    taskDescr?: string,
-  ) {
-    const stream = fs.createReadStream(path);
-    const s3Path = item.continuityItem
-      ? `shows/${item.continuityItem.show.id}/continuity/${item.continuityItem.id}/${fileType}/${item.name}`
-      : item.rundownItem
-      ? `shows/${item.rundownItem.rundown.show.id}/rundown/${item.rundownItem.rundown.id}/${item.rundownItem.id}/${fileType}/${item.name}`
-      : null;
-    if (!s3Path) {
-      throw new Error(
-        "Impossible: media item without either continuity or rundown item parent",
-      );
-    }
-    const upload = new Upload({
-      client: this.s3Client,
-      params: {
-        Bucket: process.env.STORAGE_BUCKET,
-        Key: s3Path,
-        Body: stream,
-      },
-      leavePartsOnError: false,
-    });
-    const throttledProgress = throttle(async (progress: Progress) => {
-      this.logger.info(
-        `[${item.id}] Uploading ${fileType}: ${progress.loaded} / ${progress.total}`,
-      );
-      if (progress.loaded && progress.total) {
-        if (taskDescr) {
-          await this._updateTaskStatus(
-            item,
-            taskDescr,
-            MediaProcessingTaskState.Running,
-            `${((progress.loaded / progress.total) * 100).toFixed(1)}%`,
-          );
-        }
-      }
-    }, 10_000);
-    if (taskDescr) {
-      upload.on("httpUploadProgress", throttledProgress);
-    }
-    await upload.done();
-    throttledProgress.cancel();
-    return s3Path;
-  }
-
   /**
    * Wrap a task in a try/catch block that updates the start and end of the task.
    * @private
@@ -440,6 +439,7 @@ export default class ProcessMediaJob extends AbstractJob<ProcessMediaJobType> {
           media,
           descr,
           MediaProcessingTaskState.Complete,
+          "",
         );
       }
       return r;

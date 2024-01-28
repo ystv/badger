@@ -3,7 +3,6 @@
 import {
   Media,
   MediaProcessingTask,
-  MediaState,
   Rundown,
   RundownItem,
 } from "@bowser/prisma/client";
@@ -16,10 +15,13 @@ import {
 import Form from "@/components/Form";
 import {
   addItem,
+  attachExistingMediaToRundownItem,
   deleteItem,
   editItem,
   processUploadForRundownItem,
   reorder,
+  reprocessMedia,
+  retryProcessingMedia,
 } from "./itemsActions";
 import { AddItemSchema, EditItemSchema, ItemTypeSchema } from "./schema";
 import {
@@ -30,9 +32,8 @@ import {
 } from "@/components/FormFields";
 import { identity } from "lodash";
 import {
+  ReactNode,
   useCallback,
-  useEffect,
-  useMemo,
   useOptimistic,
   useRef,
   useTransition,
@@ -55,6 +56,7 @@ import {
   TableRow,
 } from "@bowser/components/table";
 import { formatDurationMS } from "@/lib/time";
+import { PastShowsMedia } from "@/components/MediaSelection";
 
 export interface MediaWithTasks extends Media {
   tasks: MediaProcessingTask[];
@@ -140,7 +142,10 @@ function EditItem(props: {
   );
 }
 
-function ItemsTable(props: { rundown: CompleteRundown }) {
+function ItemsTable(props: {
+  rundown: CompleteRundown;
+  pastShowsPromise: Promise<PastShowsMedia>;
+}) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -188,107 +193,92 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
     [props.rundown.id, doOptimisticMove],
   );
 
-  // Periodically refresh if any items are pending
-  const intervalRef = useRef<NodeJS.Timer | null>(null);
-  useEffect(() => {
-    const anyPending = props.rundown.items.some(
-      (x) =>
-        x.media?.state === MediaState.Pending ||
-        x.media?.state === MediaState.Processing,
-    );
-    if (!anyPending) {
-      return;
-    }
-    intervalRef.current = setInterval(() => {
-      router.refresh();
-    }, 2500);
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [props.rundown.items, router]);
+  const items: ReactNode[] = [];
+  let runningDurationSeconds = 0;
+  for (let idx = 0; idx < optimisticItems.length; idx++) {
+    const item = optimisticItems[idx];
+    runningDurationSeconds += item.durationSeconds;
+    // Ensure the render prop closes over the current value of runningDurationSeconds
+    const dur = runningDurationSeconds;
 
-  const [items, runtimeSeconds] = useMemo(() => {
-    const items = [];
-    let runningDurationSeconds = 0;
-    for (let idx = 0; idx < optimisticItems.length; idx++) {
-      const item = optimisticItems[idx];
-      runningDurationSeconds += item.durationSeconds;
-      // Ensure the render prop closes over the current value of runningDurationSeconds
-      const dur = runningDurationSeconds;
-
-      items.push(
-        <Draggable
-          key={item.id}
-          draggableId={item.id.toString()}
-          index={idx}
-          isDragDisabled={isPending}
-        >
-          {(provided) => (
-            <TableRow {...provided.draggableProps} ref={provided.innerRef}>
-              <TableCell
-                {...provided.dragHandleProps}
-                className="text-2xl px-4"
-              >
-                ☰
-              </TableCell>
-              <TableCell className="font-bold">{item.name}</TableCell>
-              <TableCell>
-                {item.type === "VT" && (
-                  <ItemMediaStateAndUploadDialog
+    items.push(
+      <Draggable
+        key={item.id}
+        draggableId={item.id.toString()}
+        index={idx}
+        isDragDisabled={isPending}
+      >
+        {(provided) => (
+          <TableRow {...provided.draggableProps} ref={provided.innerRef}>
+            <TableCell {...provided.dragHandleProps} className="text-2xl px-4">
+              ☰
+            </TableCell>
+            <TableCell className="font-bold">{item.name}</TableCell>
+            <TableCell>
+              {item.type === "VT" && (
+                <ItemMediaStateAndUploadDialog
+                  item={item}
+                  onUploadComplete={(url, fileName) =>
+                    processUploadForRundownItem(item.id, fileName, url)
+                  }
+                  onExistingSelected={(id) =>
+                    attachExistingMediaToRundownItem(item.id, id)
+                  }
+                  pastShowsPromise={props.pastShowsPromise}
+                  retryProcessing={(m) =>
+                    retryProcessingMedia(
+                      m,
+                      props.rundown.id,
+                      props.rundown.showId,
+                    )
+                  }
+                  reprocess={reprocessMedia}
+                />
+              )}
+            </TableCell>
+            <TableCell>
+              {formatDurationMS(item.durationSeconds * 1000)}
+            </TableCell>
+            <TableCell>{formatDurationMS(dur * 1000)}</TableCell>
+            <TableCell>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button>Edit</Button>
+                </PopoverTrigger>
+                <PopoverContent>
+                  <EditItem
+                    showID={props.rundown.showId}
+                    rundownID={props.rundown.id}
                     item={item}
-                    onUploadComplete={async (url, fileName) =>
-                      processUploadForRundownItem(item.id, fileName, url)
-                    }
                   />
-                )}
-              </TableCell>
-              <TableCell>
-                {formatDurationMS(item.durationSeconds * 1000)}
-              </TableCell>
-              <TableCell>{formatDurationMS(dur * 1000)}</TableCell>
-              <TableCell>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button>Edit</Button>
-                  </PopoverTrigger>
-                  <PopoverContent>
-                    <EditItem
-                      showID={props.rundown.showId}
-                      rundownID={props.rundown.id}
-                      item={item}
-                    />
-                  </PopoverContent>{" "}
-                </Popover>
-              </TableCell>
-              <TableCell className="pr-4">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button color="danger">Delet</Button>
-                  </PopoverTrigger>
-                  <PopoverContent>
-                    <Button
-                      color="danger"
-                      onClick={() => {
-                        startTransition(async () => {
-                          await deleteItem(props.rundown.id, item.id);
-                        });
-                      }}
-                      disabled={isPending}
-                    >
-                      You sure boss?
-                    </Button>
-                  </PopoverContent>
-                </Popover>
-              </TableCell>
-            </TableRow>
-          )}
-        </Draggable>,
-      );
-    }
-    return [items, runningDurationSeconds];
-  }, [optimisticItems, isPending, props.rundown.id, props.rundown.showId]);
+                </PopoverContent>{" "}
+              </Popover>
+            </TableCell>
+            <TableCell className="pr-4">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button color="danger">Delet</Button>
+                </PopoverTrigger>
+                <PopoverContent>
+                  <Button
+                    color="danger"
+                    onClick={() => {
+                      startTransition(async () => {
+                        await deleteItem(props.rundown.id, item.id);
+                      });
+                    }}
+                    disabled={isPending}
+                  >
+                    You sure boss?
+                  </Button>
+                </PopoverContent>
+              </Popover>
+            </TableCell>
+          </TableRow>
+        )}
+      </Draggable>,
+    );
+  }
 
   return (
     <>
@@ -311,7 +301,7 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
               </TableBody>
               <TableCaption>
                 <strong>Total runtime:</strong>{" "}
-                {formatDurationMS(runtimeSeconds * 1000)}
+                {formatDurationMS(runningDurationSeconds * 1000)}
               </TableCaption>
             </Table>
           )}
@@ -321,11 +311,17 @@ function ItemsTable(props: { rundown: CompleteRundown }) {
   );
 }
 
-export function RundownItems(props: { rundown: CompleteRundown }) {
+export function RundownItems(props: {
+  rundown: CompleteRundown;
+  pastShowsPromise: Promise<PastShowsMedia>;
+}) {
   return (
     <div>
       <h2 className="text-xl">Rundown</h2>
-      <ItemsTable rundown={props.rundown} />
+      <ItemsTable
+        rundown={props.rundown}
+        pastShowsPromise={props.pastShowsPromise}
+      />
       <AddSegment rundown={props.rundown} />
     </div>
   );

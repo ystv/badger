@@ -6,6 +6,7 @@ export const RundownCountOutputTypeSelectSchema: z.ZodType<Prisma.RundownCountOu
     .object({
       items: z.boolean().optional(),
       assets: z.boolean().optional(),
+      metadata: z.boolean().optional(),
     })
     .strict();
 

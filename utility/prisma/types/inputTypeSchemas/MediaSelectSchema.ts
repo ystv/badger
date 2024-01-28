@@ -1,10 +1,10 @@
 import { z } from "zod";
 import type { Prisma } from "../../client";
-import { RundownItemArgsSchema } from "../outputTypeSchemas/RundownItemArgsSchema";
-import { ContinuityItemArgsSchema } from "../outputTypeSchemas/ContinuityItemArgsSchema";
+import { RundownItemFindManyArgsSchema } from "../outputTypeSchemas/RundownItemFindManyArgsSchema";
+import { ContinuityItemFindManyArgsSchema } from "../outputTypeSchemas/ContinuityItemFindManyArgsSchema";
 import { MediaProcessingTaskFindManyArgsSchema } from "../outputTypeSchemas/MediaProcessingTaskFindManyArgsSchema";
 import { ProcessMediaJobFindManyArgsSchema } from "../outputTypeSchemas/ProcessMediaJobFindManyArgsSchema";
-import { AssetArgsSchema } from "../outputTypeSchemas/AssetArgsSchema";
+import { AssetFindManyArgsSchema } from "../outputTypeSchemas/AssetFindManyArgsSchema";
 import { MediaCountOutputTypeArgsSchema } from "../outputTypeSchemas/MediaCountOutputTypeArgsSchema";
 
 export const MediaSelectSchema: z.ZodType<Prisma.MediaSelect> = z
@@ -15,13 +15,11 @@ export const MediaSelectSchema: z.ZodType<Prisma.MediaSelect> = z
     path: z.boolean().optional(),
     durationSeconds: z.boolean().optional(),
     state: z.boolean().optional(),
-    rundownItemID: z.boolean().optional(),
-    continuityItemID: z.boolean().optional(),
-    rundownItem: z
-      .union([z.boolean(), z.lazy(() => RundownItemArgsSchema)])
+    rundownItems: z
+      .union([z.boolean(), z.lazy(() => RundownItemFindManyArgsSchema)])
       .optional(),
-    continuityItem: z
-      .union([z.boolean(), z.lazy(() => ContinuityItemArgsSchema)])
+    continuityItems: z
+      .union([z.boolean(), z.lazy(() => ContinuityItemFindManyArgsSchema)])
       .optional(),
     tasks: z
       .union([z.boolean(), z.lazy(() => MediaProcessingTaskFindManyArgsSchema)])
@@ -29,7 +27,9 @@ export const MediaSelectSchema: z.ZodType<Prisma.MediaSelect> = z
     process_jobs: z
       .union([z.boolean(), z.lazy(() => ProcessMediaJobFindManyArgsSchema)])
       .optional(),
-    asset: z.union([z.boolean(), z.lazy(() => AssetArgsSchema)]).optional(),
+    assets: z
+      .union([z.boolean(), z.lazy(() => AssetFindManyArgsSchema)])
+      .optional(),
     _count: z
       .union([z.boolean(), z.lazy(() => MediaCountOutputTypeArgsSchema)])
       .optional(),

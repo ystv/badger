@@ -26,5 +26,5 @@ export async function create(
   });
   revalidatePath(`/`);
   revalidatePath(`/shows/${res.id}`);
-  redirect(`/shows/${res.id}`);
+  return { ok: true, id: res.id }; // TODO: this should not be necessary, a redirect() should suffice
 }

@@ -2,6 +2,7 @@ import type { Prisma } from "../../client";
 import { z } from "zod";
 import { IntWithAggregatesFilterSchema } from "./IntWithAggregatesFilterSchema";
 import { StringWithAggregatesFilterSchema } from "./StringWithAggregatesFilterSchema";
+import { StringNullableWithAggregatesFilterSchema } from "./StringNullableWithAggregatesFilterSchema";
 
 export const RundownScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.RundownScalarWhereWithAggregatesInput> =
   z
@@ -34,6 +35,13 @@ export const RundownScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.Rundo
       order: z
         .union([z.lazy(() => IntWithAggregatesFilterSchema), z.number()])
         .optional(),
+      ytBroadcastID: z
+        .union([
+          z.lazy(() => StringNullableWithAggregatesFilterSchema),
+          z.string(),
+        ])
+        .optional()
+        .nullable(),
     })
     .strict();
 

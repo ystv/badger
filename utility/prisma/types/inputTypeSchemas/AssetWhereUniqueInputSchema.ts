@@ -13,23 +13,13 @@ import { LoadAssetJobListRelationFilterSchema } from "./LoadAssetJobListRelation
 
 export const AssetWhereUniqueInputSchema: z.ZodType<Prisma.AssetWhereUniqueInput> =
   z
-    .union([
-      z.object({
-        id: z.number(),
-        mediaId: z.number(),
-      }),
-      z.object({
-        id: z.number(),
-      }),
-      z.object({
-        mediaId: z.number(),
-      }),
-    ])
+    .object({
+      id: z.number(),
+    })
     .and(
       z
         .object({
           id: z.number().optional(),
-          mediaId: z.number().optional(),
           AND: z
             .union([
               z.lazy(() => AssetWhereInputSchema),
@@ -56,6 +46,9 @@ export const AssetWhereUniqueInputSchema: z.ZodType<Prisma.AssetWhereUniqueInput
             ])
             .optional(),
           rundownId: z
+            .union([z.lazy(() => IntFilterSchema), z.number()])
+            .optional(),
+          mediaId: z
             .union([z.lazy(() => IntFilterSchema), z.number()])
             .optional(),
           media: z

@@ -12,6 +12,7 @@ export const RundownItemCreateManyInputSchema: z.ZodType<Prisma.RundownItemCreat
       durationSeconds: z.number().int(),
       type: z.lazy(() => RundownItemTypeSchema),
       notes: z.string().optional(),
+      mediaId: z.number().int().optional().nullable(),
     })
     .strict();
 

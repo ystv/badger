@@ -14,14 +14,15 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "downlevelIteration": true,
     "plugins": [
       {
-        "name": "next"
-      }
+        "name": "next",
+      },
     ],
     "paths": {
-      "@/*": ["./*"]
-    }
+      "@/*": ["./*"],
+    },
   },
   "include": [
     "next-env.d.ts",
@@ -29,7 +30,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "../utility/testing/scripts/run-integration-tests.mts",
-    "../utility/testing/vitest-config-integration-base.ts"
+    "../utility/testing/vitest-config-integration-base.ts",
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
 }

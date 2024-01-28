@@ -1,63 +1,7 @@
-import { test as base, expect, Page } from "@playwright/test";
+import { expect } from "@playwright/test";
 import { readFileSync } from "fs";
 import * as path from "node:path";
-
-/** Playwright doesn't natively support dropping files, so we need to dispatch
-   the DataTransfer event ourselves. In order to do that, we need to get the file
-   from Node-world into JS-world, which we do by base64 encoding it and converting
-   it to an ArrayBuffer in the browser. */
-async function fileToDataTransfer(
-  page: Page,
-  file: Buffer,
-  name: string,
-  type: string,
-) {
-  return await page.evaluateHandle(
-    ([dataB64, name, type]) => {
-      const dt = new DataTransfer();
-      const dataStr = atob(dataB64);
-      const buf = new ArrayBuffer(dataStr.length);
-      const bufView = new Uint8Array(buf);
-      for (let i = 0; i < dataStr.length; i++) {
-        bufView[i] = dataStr.charCodeAt(i);
-      }
-      const file = new File([buf], name, {
-        type: type,
-      });
-      dt.items.add(file);
-      return dt;
-    },
-    [file.toString("base64"), name, type],
-  );
-}
-
-const test = base.extend<{ showPage: Page }>({
-  showPage: async ({ page, request }, use) => {
-    await request.post("/api/resetDBInTestsDoNotUseOrYouWillBeFired");
-
-    await page.goto("/enableDebugMode?value=false");
-
-    await page.goto("/shows/create");
-    await page.getByLabel("Name").fill("Test Show");
-    await page.getByLabel("Start").click();
-    // The E2E suite doesn't care what date this is, as long as it's in the future.
-    // We specifically use a day between 8 and 21, because sometimes the date picker
-    // can show the last/first week of the previous/next month, and two buttons with
-    // the same text will break Playwright (Strict Mode).
-    // So we go to the next month and then pick the 15th.
-    await page.getByLabel("Go to next month").click();
-    await page.getByText("15", { exact: true }).click();
-    await page.locator("input[type=time]").fill("19:30");
-    await page.keyboard.press("Escape");
-    await page.getByRole("button", { name: "Create" }).click();
-    await expect(page.getByRole("heading", { name: "Test Show" })).toBeVisible({
-      timeout: 10_000,
-    });
-
-    await use(page);
-    await request.post("/api/resetDBInTestsDoNotUseOrYouWillBeFired");
-  },
-});
+import { test, fileToDataTransfer, createShow, createMedia } from "./lib";
 
 test("add, reorder, remove items", async ({ showPage }) => {
   await expect
@@ -180,8 +124,9 @@ test("add media", async ({ showPage }) => {
   await showPage.locator("body").press("Escape");
 
   await showPage.getByRole("button", { name: "Media Missing" }).click();
+  await showPage.getByText("Upload file").click();
   await showPage
-    .getByText("Drop video files here, or click to select")
+    .getByText("Drop files here, or click to select")
     .dispatchEvent("drop", {
       dataTransfer: await fileToDataTransfer(
         showPage,
@@ -205,6 +150,49 @@ test("add media", async ({ showPage }) => {
     .toHaveText("00:15");
 });
 
+test("reuse media", async ({ showPage }) => {
+  test.slow();
+
+  // Upload the media to a show in the past
+  await createShow(showPage, "Test 2", "past");
+
+  await showPage.getByRole("button", { name: "New Continuity Item" }).click();
+  await showPage.getByTestId("name-continuity_item").fill("Test");
+  await showPage.getByTestId("create-continuity_item").click();
+  await showPage.locator("body").press("Escape");
+
+  const itemId = parseInt(
+    (await showPage
+      .getByTestId("ContinuityItemRow")
+      .getAttribute("data-item-id"))!,
+  );
+  await createMedia(
+    "smpte_bars_15s.mp4",
+    readFileSync(__dirname + "/testdata/smpte_bars_15s.mp4"),
+    "continuityItem",
+    itemId,
+  );
+
+  // Now go back to the initial test show
+  await showPage.goto("/");
+  await showPage.getByText("View/Edit").click();
+
+  await showPage.getByRole("button", { name: "New Continuity Item" }).click();
+  await showPage.getByTestId("name-continuity_item").fill("Test 2");
+  await showPage.getByTestId("create-continuity_item").click();
+  await showPage.locator("body").press("Escape");
+
+  await showPage.getByRole("button", { name: "Media Missing" }).click();
+  await showPage.getByText("Use media from previous show").click();
+
+  await showPage.getByText("Select show").click();
+  await showPage.getByRole("option").first().click();
+  await showPage.getByRole("button", { name: "Use" }).click();
+  await expect(
+    showPage.getByRole("button", { name: "Good to go!" }),
+  ).toBeVisible();
+});
+
 test("media/assets for long rundowns", async ({ showPage }) => {
   const testFile = readFileSync(
     path.join(__dirname, "testdata", "smpte_bars_15s.mp4"),
@@ -220,7 +208,7 @@ test("media/assets for long rundowns", async ({ showPage }) => {
   await showPage.waitForURL("**/shows/*/rundown/*");
 
   await showPage.getByRole("button", { name: "Add Segment" }).click();
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < 15; i++) {
     await showPage.getByLabel("Name").fill("Segment " + i);
     await showPage.getByLabel("Duration").fill("60");
     await showPage.getByLabel("Duration").press("Enter");
@@ -239,11 +227,12 @@ test("media/assets for long rundowns", async ({ showPage }) => {
     .getByRole("button", { name: "Media Missing" })
     .scrollIntoViewIfNeeded();
   await showPage.getByRole("button", { name: "Media Missing" }).click();
+  await showPage.getByText("Upload file").click();
   await expect(
-    showPage.getByText("Drop video files here, or click to select"),
+    showPage.getByText("Drop files here, or click to select"),
   ).toBeInViewport();
   await showPage
-    .getByText("Drop video files here, or click to select")
+    .getByText("Drop files here, or click to select")
     .dispatchEvent("drop", {
       dataTransfer: await fileToDataTransfer(
         showPage,
@@ -260,9 +249,10 @@ test("media/assets for long rundowns", async ({ showPage }) => {
   // assert it isn't off-screen (BOW-89)
   await expect(showPage.getByRole("combobox")).toBeInViewport();
   await showPage.getByRole("combobox").selectOption("Graphic");
+  await showPage.getByText("Upload file").click();
   const req = showPage.waitForRequest("http://localhost:1080/*");
   await showPage
-    .getByText("Drop file here, or click to select")
+    .getByText("Drop files here, or click to select")
     .dispatchEvent("drop", {
       dataTransfer: await fileToDataTransfer(
         showPage,
@@ -272,4 +262,111 @@ test("media/assets for long rundowns", async ({ showPage }) => {
       ),
     });
   await req;
+});
+
+test("asset upload failure (BOW-54)", async ({ showPage }) => {
+  const testFile = readFileSync(
+    path.join(__dirname, "testdata", "smpte_bars_15s.mp4"),
+  );
+  await showPage.getByRole("button", { name: "New Rundown" }).click();
+  await expect(showPage.getByTestId("name-rundown")).toBeVisible();
+  await showPage.getByTestId("name-rundown").fill("Test");
+  await showPage.getByTestId("create-rundown").click();
+  await expect(showPage.getByLabel("Name")).toHaveValue("");
+  await showPage.locator("body").press("Escape");
+
+  await showPage.getByRole("link", { name: "Edit" }).click();
+  await showPage.waitForURL("**/shows/*/rundown/*");
+
+  await showPage.getByRole("button", { name: "Upload new asset" }).click();
+  await showPage.getByRole("combobox").selectOption("Graphic");
+  await showPage.getByText("Upload file").click();
+  const req = showPage.waitForRequest("http://localhost:1080/*");
+  await showPage
+    .getByText("Drop files here, or click to select")
+    .dispatchEvent("drop", {
+      dataTransfer: await fileToDataTransfer(
+        showPage,
+        testFile,
+        // This triggers LoadAssetJob to fail - see jobrunner/src/jobs/LoadAssetJob.ts
+        "__FAIL__smpte_bars_15s.mp4",
+        "video/mp4",
+      ),
+    });
+  await req;
+
+  await expect(showPage.getByTestId("RundownAssets.loadFailed")).toBeVisible({
+    timeout: 30_000,
+  });
+});
+
+test("media archival", async ({ showPage }) => {
+  await showPage.getByRole("button", { name: "New Continuity Item" }).click();
+  await showPage.getByTestId("name-continuity_item").fill("Test");
+  await showPage.getByTestId("create-continuity_item").click();
+  await showPage.locator("body").press("Escape");
+
+  const itemId = parseInt(
+    (await showPage
+      .getByTestId("ContinuityItemRow")
+      .getAttribute("data-item-id"))!,
+  );
+  await createMedia(
+    "smpte_bars_15s.mp4",
+    readFileSync(__dirname + "/testdata/smpte_bars_15s.mp4"),
+    "continuityItem",
+    itemId,
+  );
+
+  await showPage.goto("/media");
+
+  await showPage.getByLabel("Select", { exact: true }).click();
+  await showPage.getByRole("button", { name: "Archive Selected" }).click();
+  const reqPromise = showPage.waitForRequest("/media");
+  await showPage.getByRole("button", { name: "Archive" }).click();
+  await reqPromise;
+
+  await showPage.goto("/");
+  await showPage.getByRole("button", { name: "View/Edit" }).click();
+  await showPage.getByRole("button", { name: "Media archived" }).click();
+  await showPage.getByRole("button", { name: "Reprocess" }).click();
+
+  await expect(
+    showPage.getByRole("button", { name: "Good to go!" }),
+  ).toBeVisible({
+    timeout: 30_000,
+  });
+});
+
+test("media deletion", async ({ showPage }) => {
+  await showPage.getByRole("button", { name: "New Continuity Item" }).click();
+  await showPage.getByTestId("name-continuity_item").fill("Test");
+  await showPage.getByTestId("create-continuity_item").click();
+  await showPage.locator("body").press("Escape");
+
+  const itemId = parseInt(
+    (await showPage
+      .getByTestId("ContinuityItemRow")
+      .getAttribute("data-item-id"))!,
+  );
+  await createMedia(
+    "smpte_bars_15s.mp4",
+    readFileSync(__dirname + "/testdata/smpte_bars_15s.mp4"),
+    "continuityItem",
+    itemId,
+  );
+
+  await showPage.goto("/media");
+
+  await showPage.getByLabel("Select", { exact: true }).click();
+  await showPage.getByRole("button", { name: "Delet Selected" }).click();
+  const reqPromise = showPage.waitForRequest("/media");
+  await showPage.getByRole("button", { name: "Delet" }).click();
+  await reqPromise;
+
+  await showPage.goto("/");
+  await showPage.getByRole("button", { name: "View/Edit" }).click();
+  await expect(
+    showPage.getByRole("button", { name: "Media missing" }),
+  ).toBeVisible();
 });

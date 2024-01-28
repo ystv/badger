@@ -81,6 +81,52 @@ export async function processAssetUpload(
   return { ok: true };
 }
 
+export async function createAssetFromExistingMedia(
+  rundownID: number,
+  type: AssetTypeType,
+  mediaID: number,
+) {
+  await db.$transaction(async ($db) => {
+    const media = await $db.media.findUniqueOrThrow({
+      where: {
+        id: mediaID,
+      },
+    });
+    await $db.asset.create({
+      data: {
+        name: media.name,
+        type,
+        media: {
+          connect: {
+            id: mediaID,
+          },
+        },
+        rundown: {
+          connect: {
+            id: rundownID,
+          },
+        },
+      },
+    });
+    await $db.rundown.update({
+      where: {
+        id: rundownID,
+      },
+      data: {
+        show: {
+          update: {
+            version: {
+              increment: 1,
+            },
+          },
+        },
+      },
+    });
+  });
+  revalidatePath(`/shows/${rundownID}`);
+  return { ok: true };
+}
+
 export async function removeAsset(assetID: number) {
   const res = await db.$transaction(async ($db) => {
     const res = await $db.asset.update({
@@ -107,6 +153,19 @@ export async function removeAsset(assetID: number) {
     await $db.asset.delete({
       where: {
         id: assetID,
+      },
+    });
+    await $db.media.deleteMany({
+      where: {
+        assets: {
+          none: {},
+        },
+        rundownItems: {
+          none: {},
+        },
+        continuityItems: {
+          none: {},
+        },
       },
     });
     return res;

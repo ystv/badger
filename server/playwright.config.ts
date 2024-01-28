@@ -1,11 +1,16 @@
 import { defineConfig, devices } from "@playwright/test";
+import * as df from "dotenv-flow";
+import * as fs from "fs";
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require("dotenv-flow").config();
+// We override process.env because it can throw in wacky values, in particular for HOSTNAME.
+const serverEnv = df.load(
+  df
+    .listDotenvFiles(__dirname, { node_env: "test" })
+    .filter((f) => fs.existsSync(f)),
+  {
+    silent: true,
+  },
+);
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -95,6 +100,7 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
       stdout: "pipe",
       stderr: "pipe",
+      env: serverEnv.parsed!,
     },
     {
       command: process.env.CI
@@ -102,6 +108,7 @@ export default defineConfig({
         : "yarn dev --watch --healthPort 28342",
       cwd: "../jobrunner",
       port: 28342,
+      env: serverEnv.parsed!,
       reuseExistingServer: !process.env.CI,
       stdout: "pipe",
       stderr: "pipe",

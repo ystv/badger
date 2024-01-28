@@ -1,8 +1,8 @@
 "use client";
 
-import type { User } from "@/lib/auth/types";
-import { createContext, useEffect } from "react";
+import { createContext, useContext, useEffect } from "react";
 import * as Sentry from "@sentry/nextjs";
+import { User } from "@bowser/prisma/types";
 
 const UserContext = createContext<User | null>(null);
 
@@ -15,8 +15,7 @@ export function UserProvider(props: {
     if (user && Sentry.getCurrentHub().getClient()) {
       Sentry.setUser({
         id: user.id,
-        username: user.server_name ?? user.its_name ?? user.email,
-        email: user.email,
+        email: user.email ?? undefined,
       });
     }
   }, [props.value]);
@@ -25,4 +24,8 @@ export function UserProvider(props: {
       {props.children}
     </UserContext.Provider>
   );
+}
+
+export function useCurrentUser() {
+  return useContext(UserContext);
 }

@@ -5,9 +5,10 @@ import { StringFieldUpdateOperationsInputSchema } from "./StringFieldUpdateOpera
 import { NullableStringFieldUpdateOperationsInputSchema } from "./NullableStringFieldUpdateOperationsInputSchema";
 import { MediaStateSchema } from "./MediaStateSchema";
 import { EnumMediaStateFieldUpdateOperationsInputSchema } from "./EnumMediaStateFieldUpdateOperationsInputSchema";
-import { NullableIntFieldUpdateOperationsInputSchema } from "./NullableIntFieldUpdateOperationsInputSchema";
+import { RundownItemUncheckedUpdateManyWithoutMediaNestedInputSchema } from "./RundownItemUncheckedUpdateManyWithoutMediaNestedInputSchema";
+import { ContinuityItemUncheckedUpdateManyWithoutMediaNestedInputSchema } from "./ContinuityItemUncheckedUpdateManyWithoutMediaNestedInputSchema";
 import { ProcessMediaJobUncheckedUpdateManyWithoutMediaNestedInputSchema } from "./ProcessMediaJobUncheckedUpdateManyWithoutMediaNestedInputSchema";
-import { AssetUncheckedUpdateOneWithoutMediaNestedInputSchema } from "./AssetUncheckedUpdateOneWithoutMediaNestedInputSchema";
+import { AssetUncheckedUpdateManyWithoutMediaNestedInputSchema } from "./AssetUncheckedUpdateManyWithoutMediaNestedInputSchema";
 
 export const MediaUncheckedUpdateWithoutTasksInputSchema: z.ZodType<Prisma.MediaUncheckedUpdateWithoutTasksInput> =
   z
@@ -49,27 +50,21 @@ export const MediaUncheckedUpdateWithoutTasksInputSchema: z.ZodType<Prisma.Media
           z.lazy(() => EnumMediaStateFieldUpdateOperationsInputSchema),
         ])
         .optional(),
-      rundownItemID: z
-        .union([
-          z.number().int(),
-          z.lazy(() => NullableIntFieldUpdateOperationsInputSchema),
-        ])
-        .optional()
-        .nullable(),
-      continuityItemID: z
-        .union([
-          z.number().int(),
-          z.lazy(() => NullableIntFieldUpdateOperationsInputSchema),
-        ])
-        .optional()
-        .nullable(),
+      rundownItems: z
+        .lazy(() => RundownItemUncheckedUpdateManyWithoutMediaNestedInputSchema)
+        .optional(),
+      continuityItems: z
+        .lazy(
+          () => ContinuityItemUncheckedUpdateManyWithoutMediaNestedInputSchema,
+        )
+        .optional(),
       process_jobs: z
         .lazy(
           () => ProcessMediaJobUncheckedUpdateManyWithoutMediaNestedInputSchema,
         )
         .optional(),
-      asset: z
-        .lazy(() => AssetUncheckedUpdateOneWithoutMediaNestedInputSchema)
+      assets: z
+        .lazy(() => AssetUncheckedUpdateManyWithoutMediaNestedInputSchema)
         .optional(),
     })
     .strict();

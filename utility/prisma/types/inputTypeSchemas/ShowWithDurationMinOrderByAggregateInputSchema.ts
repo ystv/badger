@@ -11,6 +11,8 @@ export const ShowWithDurationMinOrderByAggregateInputSchema: z.ZodType<Prisma.Sh
       durationSeconds: z.lazy(() => SortOrderSchema).optional(),
       end: z.lazy(() => SortOrderSchema).optional(),
       version: z.lazy(() => SortOrderSchema).optional(),
+      ytStreamID: z.lazy(() => SortOrderSchema).optional(),
+      ytBroadcastID: z.lazy(() => SortOrderSchema).optional(),
     })
     .strict();
 

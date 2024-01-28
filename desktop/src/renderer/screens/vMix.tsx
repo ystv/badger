@@ -10,7 +10,7 @@ import {
 } from "@bowser/prisma/utilityTypes";
 import { z } from "zod";
 import { VMIX_NAMES } from "../../common/constants";
-import { ListInput } from "../../main/vmixTypes";
+import { ListInput } from "../../main/vmix/vmixTypes";
 import invariant from "../../common/invariant";
 import { Alert } from "@bowser/components/alert";
 import { Progress } from "@bowser/components/progress";
@@ -81,9 +81,11 @@ export function VMixConnection() {
 
 type ItemState =
   | "no-media"
+  | "archived"
   | "media-processing"
   | "no-local"
   | "downloading"
+  | "download-error"
   | "ready"
   | "loaded";
 
@@ -136,6 +138,13 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
             _state: "no-media",
           };
         }
+        // Special-case archived
+        if (item.media.state === "Archived") {
+          return {
+            ...item,
+            _state: "archived",
+          };
+        }
         if (item.media.state !== "Ready") {
           return {
             ...item,
@@ -150,11 +159,33 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
             (x) => x.mediaID === item.media!.id,
           );
           if (dl) {
-            return {
-              ...item,
-              _state: "downloading",
-              _downloadProgress: dl.progressPercent,
-            };
+            switch (dl.status) {
+              case "downloading":
+                return {
+                  ...item,
+                  _state: "downloading",
+                  _downloadProgress: dl.progressPercent,
+                };
+              case "pending":
+                return {
+                  ...item,
+                  _state: "downloading",
+                  _downloadProgress: 0,
+                };
+              case "error":
+                return {
+                  ...item,
+                  _state: "download-error",
+                };
+              case "done":
+                // This should advance into "ready" as soon as the localMedia query
+                // updates, but for now it'll get stuck as no-local, which is undesirable.
+                return {
+                  ...item,
+                  _state: "downloading",
+                  _downloadProgress: 100,
+                };
+            }
           }
           return {
             ...item,
@@ -179,14 +210,6 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
     vtsListState?.items,
   ]);
 
-  const doDownloadAll = useCallback(() => {
-    for (const item of items) {
-      if (item._state === "no-local" && item.media) {
-        doDownload.mutate({ id: item.media.id, name: item.media.name });
-      }
-    }
-  }, [doDownload, items]);
-
   return (
     <>
       <h2 className="text-xl font-light">VTs</h2>
@@ -206,10 +229,23 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
                     No media uploaded
                   </Badge>
                 )}
+                {item._state === "archived" && (
+                  <Badge variant="dark" className="w-full">
+                    Archived on server
+                  </Badge>
+                )}
                 {item._state === "downloading" && (
                   <Progress value={item._downloadProgress} className="w-16" />
                 )}
-                {item._state === "no-local" && (
+                {item._state === "download-error" && (
+                  <>
+                    <Badge variant="danger" className="w-full">
+                      Download error!
+                    </Badge>
+                  </>
+                )}
+                {(item._state === "no-local" ||
+                  item._state === "download-error") && (
                   <Button
                     color="primary"
                     className="w-full"
@@ -224,7 +260,7 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
                       );
                     }}
                   >
-                    Download
+                    {item._state === "no-local" ? "Download" : "Retry"}
                   </Button>
                 )}
                 {item._state === "ready" && (
@@ -251,7 +287,7 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
                   items.some((x) => x._state === "ready") ? "primary" : "ghost"
                 }
               >
-                Load All
+                Load All <span className="sr-only">VTs</span>
               </Button>
             </TableCell>
           </TableRow>
@@ -284,6 +320,10 @@ function RundownAssets(props: {
   useInvalidateQueryOnIPCEvent(
     getQueryKey(ipc.assets.getSettings),
     "assetsSettingsChange",
+  );
+  useInvalidateQueryOnIPCEvent(
+    getQueryKey(ipc.media.getLocalMedia),
+    "localMediaStateChange",
   );
   const doDownload = ipc.media.downloadMedia.useMutation({
     async onSuccess() {
@@ -457,7 +497,7 @@ function RundownAssets(props: {
                   });
                 }}
               >
-                Load All
+                Load All <span className="sr-only">Assets</span>
               </Button>
             </TableCell>
           </TableRow>
@@ -483,7 +523,7 @@ export default function VMixScreen(props: {
   const connectionState = ipc.vmix.getConnectionState.useQuery();
 
   if (connectionState.isLoading) {
-    return <div>Please wait...</div>;
+    return <div>Please wait, getting vMix connection state...</div>;
   }
   if (connectionState.isError) {
     return (

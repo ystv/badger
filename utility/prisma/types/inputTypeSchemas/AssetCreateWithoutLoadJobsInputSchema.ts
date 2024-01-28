@@ -1,7 +1,7 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
 import { AssetTypeSchema } from "./AssetTypeSchema";
-import { MediaCreateNestedOneWithoutAssetInputSchema } from "./MediaCreateNestedOneWithoutAssetInputSchema";
+import { MediaCreateNestedOneWithoutAssetsInputSchema } from "./MediaCreateNestedOneWithoutAssetsInputSchema";
 import { RundownCreateNestedOneWithoutAssetsInputSchema } from "./RundownCreateNestedOneWithoutAssetsInputSchema";
 
 export const AssetCreateWithoutLoadJobsInputSchema: z.ZodType<Prisma.AssetCreateWithoutLoadJobsInput> =
@@ -9,7 +9,7 @@ export const AssetCreateWithoutLoadJobsInputSchema: z.ZodType<Prisma.AssetCreate
     .object({
       name: z.string(),
       type: z.lazy(() => AssetTypeSchema),
-      media: z.lazy(() => MediaCreateNestedOneWithoutAssetInputSchema),
+      media: z.lazy(() => MediaCreateNestedOneWithoutAssetsInputSchema),
       rundown: z.lazy(() => RundownCreateNestedOneWithoutAssetsInputSchema),
     })
     .strict();
