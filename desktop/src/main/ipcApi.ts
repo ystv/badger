@@ -26,7 +26,7 @@ import { obsRouter } from "./obs/ipc";
 import { mediaRouter } from "./media/ipc";
 import { proc, r } from "./base/ipcRouter";
 import {
-  DEV_overrideSupportedIntegrations,
+  DEV_overrideEnabledIntegrations,
   getIntegrationStates,
 } from "./base/integrations";
 
@@ -131,7 +131,7 @@ export const appRouter = r({
             message: "Dev tools not enabled",
           });
         }
-        DEV_overrideSupportedIntegrations(input as Integration[]);
+        DEV_overrideEnabledIntegrations(input as Integration[]);
       }),
   }),
   media: mediaRouter,

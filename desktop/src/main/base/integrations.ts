@@ -9,10 +9,14 @@ export const supportedIntegrations = new Set<Integration>(
   process.platform === "win32" ? ["vmix", "obs", "ontime"] : ["obs", "ontime"],
 );
 
-export function DEV_overrideSupportedIntegrations(integrations: Integration[]) {
+export function DEV_overrideEnabledIntegrations(integrations: Integration[]) {
   supportedIntegrations.clear();
   for (const integration of integrations) {
     supportedIntegrations.add(integration);
+    enabledIntegrations.add(integration);
+    if (!activeIntegrations.has(integration)) {
+      integrationManagers.get(integration)?.startIfNotStarted();
+    }
   }
   IPCEvents.send("integrationsStateChange", getIntegrationStates());
 }
