@@ -3175,10 +3175,40 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@prisma/engines-version@npm:5.8.1-1.78caf6feeaed953168c64e15a249c3e9a033ebe2":
+  version: 5.8.1-1.78caf6feeaed953168c64e15a249c3e9a033ebe2
+  resolution: "@prisma/engines-version@npm:5.8.1-1.78caf6feeaed953168c64e15a249c3e9a033ebe2"
+  checksum: 5396b8ba8ad9e556d070b64be35e86a0bf7dd5edd7a35ca59246f28710a6e54e85ca8793d2db168bb3c4129717bbd0fcab5118ba12af802697d7857c9d7e2e83
+  languageName: node
+  linkType: hard
+
 "@prisma/engines@npm:5.5.2":
   version: 5.5.2
   resolution: "@prisma/engines@npm:5.5.2"
   checksum: 45c74bd3db7ae3c6544e0d5303d7750a59b2fbc6cd9b33898ef3680fdbcfdb112a3058c2dfda03b0605156b8051624c2b85de8ccad25b7d859043ecf51a7cac3
+  languageName: node
+  linkType: hard
+
+"@prisma/engines@npm:5.8.1":
+  version: 5.8.1
+  resolution: "@prisma/engines@npm:5.8.1"
+  dependencies:
+    "@prisma/debug": 5.8.1
+    "@prisma/engines-version": 5.8.1-1.78caf6feeaed953168c64e15a249c3e9a033ebe2
+    "@prisma/fetch-engine": 5.8.1
+    "@prisma/get-platform": 5.8.1
+  checksum: 2d09404fee1037e7487463541becedce7e68d327d560996a12a9c8ff8be5928df3cf75c577a2818809e4f4d044ada9cb965faf9aa147a193567c0a86ee0f8562
+  languageName: node
+  linkType: hard
+
+"@prisma/fetch-engine@npm:5.8.1":
+  version: 5.8.1
+  resolution: "@prisma/fetch-engine@npm:5.8.1"
+  dependencies:
+    "@prisma/debug": 5.8.1
+    "@prisma/engines-version": 5.8.1-1.78caf6feeaed953168c64e15a249c3e9a033ebe2
+    "@prisma/get-platform": 5.8.1
+  checksum: 317fab36255b18d5a8c08fad3a99a1fb97a6a842e0afd10f6c248e8847241dfd38beb49b4b8a0661905a9c8157d6bb7e59ce12edb77949ac0f16a80057662946
   languageName: node
   linkType: hard
 
@@ -3188,6 +3218,15 @@ __metadata:
   dependencies:
     "@prisma/debug": 5.8.1
   checksum: 320cea2b71923cf2304b2af99e5c828ff72c89dc5ad7bf8246ea427c990a553f829ee1548132b06a2f209654207ed1742e7d2b44952019459ab0fa84c217f35c
+  languageName: node
+  linkType: hard
+
+"@prisma/get-platform@npm:5.8.1":
+  version: 5.8.1
+  resolution: "@prisma/get-platform@npm:5.8.1"
+  dependencies:
+    "@prisma/debug": 5.8.1
+  checksum: 7c24c91094e80dc50aa678d46438aada98f393e8503c476268d6b924bcd234e901a4453fc2d29544fd5a13ac1a20661638c050f7f909bd5e7c79ac559f77c346
   languageName: node
   linkType: hard
 
@@ -6949,6 +6988,7 @@ __metadata:
     "@hello-pangea/dnd": ^16.3.0
     "@hookform/resolvers": ^3.1.1
     "@playwright/test": ^1.37.0
+    "@prisma/client": latest
     "@prisma/nextjs-monorepo-workaround-plugin": toniopelo/prisma-nextjs-monorepo-workaround-plugin
     "@sentry/nextjs": latest
     "@sentry/utils": ^7.69.0
@@ -6989,6 +7029,7 @@ __metadata:
     postcss: ^8.4.27
     prettier: ^3.0.3
     prettier-plugin-tailwindcss: ^0.5.9
+    prisma: latest
     react: 18.3.0-canary-8c8ee9ee6-20231026
     react-day-picker: ^8.8.0
     react-dom: 18.3.0-canary-8c8ee9ee6-20231026
@@ -14430,6 +14471,17 @@ __metadata:
   bin:
     prisma: build/index.js
   checksum: 0f728d5953f8acb136708021da909ae9b22068bd19952378b545520ce6ce4e43f38db53fc3002866ff44dd0372b19460cc7b8c8558664492b26de6687da8680b
+  languageName: node
+  linkType: hard
+
+"prisma@npm:latest":
+  version: 5.8.1
+  resolution: "prisma@npm:5.8.1"
+  dependencies:
+    "@prisma/engines": 5.8.1
+  bin:
+    prisma: build/index.js
+  checksum: bf99066f7c9b3a3229a121036be7be267a5eccebbb6192a458390003c65014e23d9a925d14405290aaaf8f123eb12534912d4b94e48507495462607f8f49b8c8
   languageName: node
   linkType: hard
 
