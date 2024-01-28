@@ -60,6 +60,7 @@ export class IntegrationManager<
   private _logger: Logger;
   private _instance: T | null = null;
   private _startRetryTimer: NodeJS.Timeout | null = null;
+  private _readyPromise: Promise<void> | null = null;
 
   private static START_RETRY_INTERVAL = 5000;
 
@@ -96,6 +97,10 @@ export class IntegrationManager<
     }
     this._logger.debug("Starting");
     enabledIntegrations.add(this._type);
+    let resolve: () => void;
+    this._readyPromise = new Promise((rs) => {
+      resolve = rs;
+    });
     try {
       this._instance = await this._factory(
         settings,
@@ -115,6 +120,7 @@ export class IntegrationManager<
       }
       return;
     }
+    resolve!();
     activeIntegrations.add(this._type);
     await this._saveSettings(settings);
     IPCEvents.send("integrationsStateChange", getIntegrationStates());
@@ -124,6 +130,7 @@ export class IntegrationManager<
     this._logger.info("Deactivated: " + inspect(reason));
     activeIntegrations.delete(this._type);
     this._instance = null;
+    this._readyPromise = Promise.reject("Deactivated");
     IPCEvents.send("integrationsStateChange", getIntegrationStates());
   }
 
@@ -136,6 +143,7 @@ export class IntegrationManager<
         this._logger.error("Failed to close integration", e);
       }
       this._instance = null;
+      this._readyPromise = Promise.reject("Closed");
       activeIntegrations.delete(this._type);
       if (this._startRetryTimer) {
         clearTimeout(this._startRetryTimer);
@@ -152,5 +160,9 @@ export class IntegrationManager<
 
   public get maybeInstance() {
     return this._instance;
+  }
+
+  public get ready() {
+    return this._readyPromise;
   }
 }
