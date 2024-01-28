@@ -6984,7 +6984,6 @@ __metadata:
     jest: ^29.7.0
     jsdom: ^22.1.0
     lodash: ^4.17.21
-    lucide-react: ^0.316.0
     next: ^14.1.0
     pg: ^8.11.3
     postcss: ^8.4.27
@@ -12632,15 +12631,6 @@ __metadata:
   version: 7.18.3
   resolution: "lru-cache@npm:7.18.3"
   checksum: e550d772384709deea3f141af34b6d4fa392e2e418c1498c078de0ee63670f1f46f5eee746e8ef7e69e1c895af0d4224e62ee33e66a543a14763b0f2e74c1356
-  languageName: node
-  linkType: hard
-
-"lucide-react@npm:^0.316.0":
-  version: 0.316.0
-  resolution: "lucide-react@npm:0.316.0"
-  peerDependencies:
-    react: ^16.5.1 || ^17.0.0 || ^18.0.0
-  checksum: c067491483d2310faff4a8b324223a9c5443fb231c43c65482d85ef39018f29847495064e0b23f8c2a5efa1ae96bb5ffe0d73e32ff869068a3f6a4c8068558ab
   languageName: node
   linkType: hard
 
