@@ -16,6 +16,7 @@ export function DEV_overrideEnabledIntegrations(integrations: Integration[]) {
     enabledIntegrations.add(integration);
     if (!activeIntegrations.has(integration)) {
       integrationManagers.get(integration)?.startIfNotStarted();
+      activeIntegrations.add(integration);
     }
   }
   IPCEvents.send("integrationsStateChange", getIntegrationStates());
