@@ -20,6 +20,7 @@ export const test = base.extend<{
         ...process.env,
         NODE_ENV: "test",
         E2E_TEST: "true",
+        LOG_LEVEL: testInfo.retry > 0 ? "trace" : "debug",
         ...appEnv,
       },
     });

@@ -22,6 +22,7 @@ export const test = base.extend<{
         E2E_TEST: "true",
         __USE_MOCK_SERVER_API: "true",
         __USE_MOCK_VMIX: "true",
+        LOG_LEVEL: testInfo.retry > 0 ? "trace" : "debug",
       },
     });
 
