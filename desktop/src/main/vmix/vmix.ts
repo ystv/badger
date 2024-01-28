@@ -68,6 +68,10 @@ export default class VMixConnection {
     attributeNamePrefix: "@_",
     allowBooleanAttributes: true,
   });
+
+  private closeCallbacks: Set<() => void> = new Set();
+  private errorCallbacks: Set<(err: Error) => void> = new Set();
+
   private constructor(
     // This is only used for display purposes, the actual connection is established in `connect()`,
     // before this constructor is called.
@@ -92,9 +96,9 @@ export default class VMixConnection {
     });
     const vmix = new VMixConnection(host, port);
     vmix.sock = sock;
-    sock.on("data", vmix.onData.bind(vmix));
-    sock.on("close", vmix.onClose.bind(vmix));
-    sock.on("error", vmix.onError.bind(vmix));
+    sock.on("data", vmix._onData.bind(vmix));
+    sock.on("close", vmix._onClose.bind(vmix));
+    sock.on("error", vmix._onError.bind(vmix));
     return vmix;
   }
 
@@ -135,11 +139,11 @@ export default class VMixConnection {
 
   // Function reference: https://www.vmix.com/help26/ShortcutFunctionReference.html
   private async doFunction(fn: string, params: Record<string, string>) {
-    return this.send("FUNCTION", fn, qs.stringify(params));
+    return this._send("FUNCTION", fn, qs.stringify(params));
   }
 
   public async getFullStateRaw(): Promise<unknown> {
-    const [_, result] = await this.send("XML");
+    const [_, result] = await this._send("XML");
     return this.xmlParser.parse(result);
   }
 
@@ -250,7 +254,17 @@ export default class VMixConnection {
     this.sock.end();
   }
 
-  private async send(command: VMixCommand, ...args: string[]) {
+  public onClose(cb: () => void) {
+    this.closeCallbacks.add(cb);
+    return () => this.closeCallbacks.delete(cb);
+  }
+
+  public onError(cb: (err: Error) => void) {
+    this.errorCallbacks.add(cb);
+    return () => this.errorCallbacks.delete(cb);
+  }
+
+  private async _send(command: VMixCommand, ...args: string[]) {
     const req: ReqQueueItem = {
       command,
       args,
@@ -264,7 +278,7 @@ export default class VMixConnection {
       req.reject = reject;
     });
     this.requestQueue.push(req);
-    await this.doNextRequest();
+    await this._doNextRequest();
     return reply;
   }
 
@@ -287,7 +301,7 @@ export default class VMixConnection {
   // TODO: With that in mind, this could be simplified even further - instead of a
   // replyAwaiting map, we could just have a single boolean flag indicating whether
   // a request is in flight.
-  private async doNextRequest() {
+  private async _doNextRequest() {
     const req = this.requestQueue[0];
     if (!req) {
       return;
@@ -309,7 +323,7 @@ export default class VMixConnection {
     });
   }
 
-  private onData(data: Buffer) {
+  private _onData(data: Buffer) {
     this.buffer += data.toString();
     // Replies will be in one of the following forms:
     //
@@ -336,14 +350,14 @@ export default class VMixConnection {
       reply?.resolve([rest.join(" "), ""]);
       this.replyAwaiting.delete(command as VMixCommand);
       this.buffer = "";
-      process.nextTick(this.doNextRequest.bind(this));
+      process.nextTick(this._doNextRequest.bind(this));
       return;
     }
     if (status === "ER") {
       reply?.reject(new Error(rest.join(" ")));
       this.replyAwaiting.delete(command as VMixCommand);
       this.buffer = "";
-      process.nextTick(this.doNextRequest.bind(this));
+      process.nextTick(this._doNextRequest.bind(this));
       return;
     }
     // This is a binary response and "status" is actually its length
@@ -360,20 +374,21 @@ export default class VMixConnection {
     );
     reply?.resolve([rest.join(" "), payload.trim()]);
     this.replyAwaiting.delete(command as VMixCommand);
-    process.nextTick(this.doNextRequest.bind(this));
+    process.nextTick(this._doNextRequest.bind(this));
     this.buffer = "";
   }
 
-  private onClose() {
+  private _onClose() {
     this.replyAwaiting.forEach((req) => req.reject(new Error("Socket closed")));
     this.replyAwaiting.clear();
     this.requestQueue.forEach((req) => req.reject(new Error("Socket closed")));
     this.requestQueue = [];
-    this.onError(new Error("Socket closed"));
+    this.closeCallbacks.forEach((cb) => cb());
   }
 
-  private onError(err: Error) {
+  private _onError(err: Error) {
     logger.error("VMix connection error", err);
+    this.errorCallbacks.forEach((cb) => cb(err));
   }
 }
 
@@ -384,9 +399,8 @@ export const VMixIntegration = new IntegrationManager(
       return getMockVMix();
     }
     const vc = await VMixConnection.connect(settings.host, settings.port);
-    //FIXME
-    vc["sock"].on("close", notifyClosed);
-    vc["sock"].on("error", notifyClosed);
+    vc.onClose(notifyClosed);
+    vc.onError(notifyClosed);
     return vc;
   },
   getVMixSettings,

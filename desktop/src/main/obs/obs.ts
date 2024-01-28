@@ -1,6 +1,7 @@
 import OBSWebSocket, {
   OBSRequestTypes,
   OBSResponseTypes,
+  OBSWebSocketError,
 } from "obs-websocket-js";
 import { OBSSettings, getOBSSettings, saveOBSSettings } from "../base/settings";
 import { getLogger } from "../base/logging";
@@ -278,6 +279,10 @@ export default class OBSConnection {
     await this.obs.disconnect();
   }
 
+  public onClosed(cb: (reason: OBSWebSocketError) => void) {
+    this.obs.on("ConnectionClosed", cb);
+  }
+
   private async _call<K extends keyof OBSRequestTypes>(
     req: K,
     requestData?: OBSRequestTypes[K],
@@ -305,8 +310,7 @@ export const OBSIntegration = new IntegrationManager<
       settings.port,
     );
     await conn.ping();
-    // FIXME
-    conn["obs"].on("ConnectionClosed", (reason) => {
+    conn.onClosed((reason) => {
       notifyClosed(reason);
     });
     return conn;
