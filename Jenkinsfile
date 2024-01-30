@@ -99,8 +99,8 @@ pipeline {
 
         stage('Deploy to production') {
             when {
-                // Only build tags that look like v1.2.3 with no suffix (eg v1.2.3-beta.1 won't be built)
-                tag(pattern: /^v\d+\.\d+\.\d+$/, comparator: "REGEXP")
+                // Only build tags that look like v1.2.3
+                tag(pattern: /^v\d+\.\d+\.\d+/, comparator: "REGEXP")
             }
             steps {
                 build job: 'Deploy Nomad Job', parameters: [
