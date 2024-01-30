@@ -5,7 +5,7 @@
     "allowImportingTsExtensions": true,
     "downlevelIteration": true,
     "paths": {
-      "@/*": ["../server/*"]
-    }
-  }
+      "@/*": ["../server/*"],
+    },
+  },
 }

@@ -14,8 +14,8 @@ const sentryRelease =
 const nextConfig = {
   output: "standalone",
   experimental: {
-    serverActions: true,
     instrumentationHook: true,
+    serverComponentsExternalPackages: ["@aws-sdk/s3-request-presigner"],
   },
   transpilePackages: ["@bowser/prisma"],
   webpack: (config, { isServer }) => {

@@ -102,7 +102,7 @@ export async function directlyCreateTestMedia(
   // We need to access server's env vars, as desktop doesn't have the S3 ones.
   const { parsed: env, error } = dotenvFlow.load(
     dotenvFlow
-      .listDotenvFiles(path.resolve(__dirname + "../../../../server"))
+      .listFiles(path.resolve(__dirname + "../../../../server"))
       .filter((x) => existsSync(x)),
   );
   if (!env) {
