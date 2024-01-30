@@ -53,7 +53,10 @@ const CompleteMediaModel = ExtendedMediaModel.extend({
 
 export const appRouter = router({
   ping: publicProcedure.query(() => {
-    return "pong";
+    return {
+      ping: "pong",
+      version: process.env.NEXT_PUBLIC_VERSION!,
+    };
   }),
   shows: router({
     listUpcoming: publicProcedure

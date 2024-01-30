@@ -33,7 +33,10 @@ export const test = base.extend<{
 
     await app.evaluate(
       (_, testTime) => {
-        __MOCK_SERVER_API__.mock("query", "ping", "pong");
+        __MOCK_SERVER_API__.mock("query", "ping", {
+          ping: "pong",
+          version: global.__APP_VERSION__,
+        });
         __MOCK_SERVER_API__.mock("query", "shows.listUpcoming", [
           {
             id: 1,

@@ -34,12 +34,29 @@ const logger = logging.getLogger("ipcApi");
 const rendererLogger = logging.getLogger("renderer");
 
 export const appRouter = r({
-  serverConnectionStatus: proc.query(async () => {
-    return (
-      serverApiClient !== null &&
-      (await serverApiClient.ping.query()) === "pong"
-    );
-  }),
+  serverConnectionStatus: proc
+    .output(
+      z.object({
+        ok: z.boolean(),
+        warnings: z
+          .object({
+            versionSkew: z.boolean().optional(),
+          })
+          .optional(),
+      }),
+    )
+    .query(async () => {
+      if (serverApiClient === null) {
+        return { ok: false };
+      }
+      const pingRes = await serverApiClient.ping.query();
+      return {
+        ok: pingRes.ping === "pong",
+        warnings: {
+          versionSkew: pingRes.version !== global.__APP_VERSION__,
+        },
+      };
+    }),
   log: proc
     .input(
       z.object({
