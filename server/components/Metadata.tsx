@@ -136,6 +136,14 @@ function MetaValue(props: {
   );
 }
 
+function MediaMetaValue(props: {
+  field: MetadataField;
+  meta: Metadata | null;
+  value: Media | null;
+}) {
+  return null; // FIXME
+}
+
 function tempFieldsReducer(
   state: MetadataWithFieldAndMedia[],
   action:
@@ -194,51 +202,67 @@ export function MetadataFields(props: {
     <div className="space-y-2 my-8">
       {props.metadata
         .filter((x) => x.field.default)
-        .map((meta) => (
+        .map((meta) =>
+          meta.field.type === "Media" ? (
+            <MediaMetaValue meta={meta} field={meta.field} value={meta.media} />
+          ) : (
+            <MetaValue
+              key={meta.id}
+              field={meta.field}
+              value={meta}
+              saveChanges={(val) => props.setValue(meta.id, val)}
+            />
+          ),
+        )}
+      {emptyDefaultFields.map((field) =>
+        field.type === "Media" ? (
+          <MediaMetaValue meta={null} field={field} value={null} />
+        ) : (
           <MetaValue
-            key={meta.id}
-            field={meta.field}
-            value={meta}
-            saveChanges={(val) => props.setValue(meta.id, val)}
-          />
-        ))}
-      {emptyDefaultFields.map((field) => (
-        <MetaValue
-          key={field.id}
-          field={field}
-          value={null}
-          saveChanges={(val) => props.createMeta(field.id, val)}
-          slim
-        />
-      ))}
-      {props.metadata
-        .filter((x) => !x.field.default)
-        .map((meta) => (
-          <MetaValue
-            key={meta.id}
-            field={meta.field}
-            value={meta}
-            saveChanges={(val) => props.setValue(meta.id, val)}
+            key={field.id}
+            field={field}
+            value={null}
+            saveChanges={(val) => props.createMeta(field.id, val)}
             slim
           />
-        ))}
-      {tempFields.map((field) => (
-        <MetaValue
-          key={field.id}
-          field={field.field}
-          value={field}
-          saveChanges={async (val) => {
-            const r = await props.createMeta(field.field.id, val);
-            if (r.ok) {
-              setTempFields({ type: "remove", id: field.id });
-            }
-            return r;
-          }}
-          onCancel={() => setTempFields({ type: "remove", id: field.id })}
-          initialTouched
-          slim
-        />
-      ))}
+        ),
+      )}
+      {props.metadata
+        .filter((x) => !x.field.default)
+        .map((meta) =>
+          meta.field.type === "Media" ? (
+            <MediaMetaValue meta={meta} field={meta.field} value={meta.media} />
+          ) : (
+            <MetaValue
+              key={meta.id}
+              field={meta.field}
+              value={meta}
+              saveChanges={(val) => props.setValue(meta.id, val)}
+              slim
+            />
+          ),
+        )}
+      {tempFields.map((meta) =>
+        meta.field.type === "Media" ? (
+          <MediaMetaValue meta={meta} field={meta.field} value={null} />
+        ) : (
+          <MetaValue
+            key={meta.id}
+            field={meta.field}
+            value={meta}
+            saveChanges={async (val) => {
+              const r = await props.createMeta(meta.field.id, val);
+              if (r.ok) {
+                setTempFields({ type: "remove", id: meta.id });
+              }
+              return r;
+            }}
+            onCancel={() => setTempFields({ type: "remove", id: meta.id })}
+            initialTouched
+            slim
+          />
+        ),
+      )}
       {emptyNonDefaultFields.length > 0 && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

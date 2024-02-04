@@ -4,6 +4,8 @@ import {
   MediaProcessingTask,
   MediaProcessingTaskState,
   MediaState,
+  Metadata,
+  MetadataField,
   RundownItem,
 } from "@bowser/prisma/client";
 import {
@@ -34,6 +36,11 @@ export interface CompleteRundownItem extends RundownItem {
 }
 
 export interface CompleteContinuityItem extends ContinuityItem {
+  media: CompleteMedia | null;
+}
+
+export interface MediaMetadata extends Metadata {
+  field: MetadataField;
   media: CompleteMedia | null;
 }
 
@@ -186,13 +193,15 @@ export function ItemMediaStateAndUploadDialog({
   pastShowsPromise,
   retryProcessing,
   reprocess,
+  acceptTypes,
 }: {
-  item: CompleteContinuityItem | CompleteRundownItem;
+  item: CompleteContinuityItem | CompleteRundownItem | MediaMetadata;
   onUploadComplete: (url: string, fileName: string) => Promise<unknown>;
   onExistingSelected: (id: number) => Promise<unknown>;
   pastShowsPromise: Promise<PastShowsMedia>;
   retryProcessing: (mediaID: number) => Promise<unknown>;
   reprocess: (mediaID: number) => Promise<unknown>;
+  acceptTypes?: string[];
 }) {
   let base;
   const [isUploadOpen, setIsUploadOpen] = useState(false);
@@ -216,18 +225,27 @@ export function ItemMediaStateAndUploadDialog({
       />
     );
   }
+  const accept = Object.fromEntries(
+    (acceptTypes ?? ["video/*"]).map((type) => [type, []]),
+  );
   return (
     <>
       {base}
       <MediaSelectOrUploadDialog
-        containerType={"type" in item ? "rundownItem" : "continuityItem"}
+        containerType={
+          "field" in item
+            ? "metadata"
+            : "type" in item
+              ? "rundownItem"
+              : "continuityItem"
+        }
         isOpen={isUploadOpen}
         setOpen={setIsUploadOpen}
         onUploadComplete={onUploadComplete}
         onExistingSelected={onExistingSelected}
         pastShowsPromise={pastShowsPromise}
-        title={`Select media for ${item.name}`}
-        acceptMedia={{ "video/*": [] }}
+        title={`Select media for ${"field" in item ? item.field.name : item.name}`}
+        acceptMedia={accept}
       />
     </>
   );

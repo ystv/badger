@@ -17,6 +17,10 @@ generator zod {
   addSelectType    = false
 }
 
+generator json {
+  provider = "prisma-json-types-generator"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -199,7 +203,8 @@ model Metadata {
   id      Int  @id @default(autoincrement())
   /// The metadata value. The type depends on the field value type:
   /// Text, LongText, URL: String
-  /// Media: empty object (the value is stored in the media field)
+  /// Media: object - see the type definition
+  /// [MetadataValue]
   value   Json
   fieldId Int
 
