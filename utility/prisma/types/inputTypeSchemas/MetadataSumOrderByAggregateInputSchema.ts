@@ -9,6 +9,7 @@ export const MetadataSumOrderByAggregateInputSchema: z.ZodType<Prisma.MetadataSu
       fieldId: z.lazy(() => SortOrderSchema).optional(),
       showId: z.lazy(() => SortOrderSchema).optional(),
       rundownId: z.lazy(() => SortOrderSchema).optional(),
+      mediaId: z.lazy(() => SortOrderSchema).optional(),
     })
     .strict();
 

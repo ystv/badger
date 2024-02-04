@@ -73,6 +73,7 @@ export default async function ShowPage(props: { params: { show_id: string } }) {
       metadata: {
         include: {
           field: true,
+          media: true,
         },
         orderBy: {
           fieldId: "asc",

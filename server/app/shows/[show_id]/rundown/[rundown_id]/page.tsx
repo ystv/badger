@@ -108,6 +108,7 @@ async function RundownMetadata(props: { showID: number; rundownID: number }) {
       },
       include: {
         field: true,
+        media: true,
       },
       orderBy: {
         fieldId: "asc",

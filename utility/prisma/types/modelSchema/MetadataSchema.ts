@@ -11,6 +11,7 @@ export const MetadataSchema = z.object({
   fieldId: z.number().int(),
   showId: z.number().int().nullable(),
   rundownId: z.number().int().nullable(),
+  mediaId: z.number().int().nullable(),
 });
 
 export type Metadata = z.infer<typeof MetadataSchema>;

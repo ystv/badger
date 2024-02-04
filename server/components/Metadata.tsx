@@ -22,9 +22,11 @@ import {
 } from "@bowser/components/dropdown-menu";
 import { twMerge } from "tailwind-merge";
 import { expectNever } from "ts-expect";
+import { Media } from "@bowser/prisma/types";
 
-export interface MetadataWithField extends Metadata {
+export interface MetadataWithFieldAndMedia extends Metadata {
   field: MetadataField;
+  media: Media | null;
   _temporary?: boolean;
 }
 
@@ -48,12 +50,10 @@ function MetaValue(props: {
         );
       }
       break;
+    case "Media":
+      invariant(false, "MetaValue does not support Media metadata");
     default:
-      invariant(
-        false,
-        // @ts-expect-error if the type of `type` is ever not `never` we've forgotten a case in the switch
-        `Unknown metadata field type ${props.field.type.slice()}`,
-      );
+      expectNever(props.field.type);
   }
 
   // This isn't a Rules-of-Hooks violation because the invariants should never be false
@@ -137,11 +137,11 @@ function MetaValue(props: {
 }
 
 function tempFieldsReducer(
-  state: MetadataWithField[],
+  state: MetadataWithFieldAndMedia[],
   action:
     | { type: "add"; fieldType: MetadataField }
     | { type: "remove"; id: number },
-): MetadataWithField[] {
+): MetadataWithFieldAndMedia[] {
   switch (action.type) {
     case "add":
       return [
@@ -154,6 +154,8 @@ function tempFieldsReducer(
           id: Math.random(),
           _temporary: true,
           value: "",
+          mediaId: null,
+          media: null,
         },
       ];
     case "remove":
@@ -165,7 +167,7 @@ function tempFieldsReducer(
 }
 
 export function MetadataFields(props: {
-  metadata: MetadataWithField[];
+  metadata: MetadataWithFieldAndMedia[];
   fields: MetadataField[];
   setValue: (
     metaID: number,

@@ -10,6 +10,7 @@ export const MetadataUncheckedCreateWithoutFieldInputSchema: z.ZodType<Prisma.Me
       value: z.union([z.lazy(() => JsonNullValueInputSchema), InputJsonValue]),
       showId: z.number().int().optional().nullable(),
       rundownId: z.number().int().optional().nullable(),
+      mediaId: z.number().int().optional().nullable(),
     })
     .strict();
 

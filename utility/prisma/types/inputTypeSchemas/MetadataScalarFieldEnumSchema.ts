@@ -6,6 +6,7 @@ export const MetadataScalarFieldEnumSchema = z.enum([
   "fieldId",
   "showId",
   "rundownId",
+  "mediaId",
 ]);
 
 export default MetadataScalarFieldEnumSchema;

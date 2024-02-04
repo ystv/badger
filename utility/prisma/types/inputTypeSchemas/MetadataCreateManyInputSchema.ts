@@ -11,6 +11,7 @@ export const MetadataCreateManyInputSchema: z.ZodType<Prisma.MetadataCreateManyI
       fieldId: z.number().int(),
       showId: z.number().int().optional().nullable(),
       rundownId: z.number().int().optional().nullable(),
+      mediaId: z.number().int().optional().nullable(),
     })
     .strict();
 
