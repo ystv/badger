@@ -219,6 +219,7 @@ function SelectMediaContainer(props: {
       showCandidates: showCandidates,
       metaField: props.metaField,
       containerType: props.containerType,
+      shouldSelectRundown: false,
     } satisfies MediaContainerPickState);
 
   useEffect(() => {
@@ -228,7 +229,7 @@ function SelectMediaContainer(props: {
   });
 
   invariant(
-    shouldSelectRundown && show,
+    !shouldSelectRundown || show,
     "shouldSelectRundown true but no show",
   );
   return (
