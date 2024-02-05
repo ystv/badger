@@ -43,7 +43,7 @@ export async function fileToDataTransfer(
 
 let apiClient: CreateTRPCProxyClient<AppRouter>;
 
-function getAPIClient() {
+export function getAPIClient() {
   if (!apiClient) {
     apiClient = createTRPCProxyClient<AppRouter>({
       transformer: SuperJSON,

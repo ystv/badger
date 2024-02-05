@@ -106,6 +106,7 @@ function MetaValue(props: {
                   setValue((props.value?.value as string) ?? "");
                   setTouched(false);
                 }}
+                data-testid="MetaValue.cancel"
               >
                 <IoCloseSharp />
               </Button>
@@ -125,6 +126,7 @@ function MetaValue(props: {
                 });
               }}
               disabled={isPending}
+              data-testid="MetaValue.save"
             >
               <IoCheckmarkSharp />
             </Button>
