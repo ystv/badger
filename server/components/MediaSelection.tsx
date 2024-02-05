@@ -263,7 +263,7 @@ function SelectMediaContainer(props: {
             <SelectValue>{rundown?.name ?? "Select rundown"}</SelectValue>
           </SelectTrigger>
           <SelectContent>
-            {show.rundowns.map((rundown) => (
+            {show!.rundowns.map((rundown) => (
               <SelectItem key={rundown.id} value={rundown.id.toString(10)}>
                 {rundown.name}
               </SelectItem>
