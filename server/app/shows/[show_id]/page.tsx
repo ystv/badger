@@ -38,10 +38,22 @@ const pastShowsPromise = cache(
                 media: true,
               },
             },
+            metadata: {
+              include: {
+                field: true,
+                media: true,
+              },
+            },
           },
         },
         continuityItems: {
           include: {
+            media: true,
+          },
+        },
+        metadata: {
+          include: {
+            field: true,
             media: true,
           },
         },

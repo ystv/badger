@@ -204,7 +204,12 @@ export function MetadataFields(props: {
         .filter((x) => x.field.default)
         .map((meta) =>
           meta.field.type === "Media" ? (
-            <MediaMetaValue meta={meta} field={meta.field} value={meta.media} />
+            <MediaMetaValue
+              key={meta.id}
+              meta={meta}
+              field={meta.field}
+              value={meta.media}
+            />
           ) : (
             <MetaValue
               key={meta.id}
@@ -216,7 +221,12 @@ export function MetadataFields(props: {
         )}
       {emptyDefaultFields.map((field) =>
         field.type === "Media" ? (
-          <MediaMetaValue meta={null} field={field} value={null} />
+          <MediaMetaValue
+            key={field.id}
+            meta={null}
+            field={field}
+            value={null}
+          />
         ) : (
           <MetaValue
             key={field.id}
@@ -231,7 +241,12 @@ export function MetadataFields(props: {
         .filter((x) => !x.field.default)
         .map((meta) =>
           meta.field.type === "Media" ? (
-            <MediaMetaValue meta={meta} field={meta.field} value={meta.media} />
+            <MediaMetaValue
+              key={meta.id}
+              meta={meta}
+              field={meta.field}
+              value={meta.media}
+            />
           ) : (
             <MetaValue
               key={meta.id}
@@ -244,7 +259,12 @@ export function MetadataFields(props: {
         )}
       {tempFields.map((meta) =>
         meta.field.type === "Media" ? (
-          <MediaMetaValue meta={meta} field={meta.field} value={null} />
+          <MediaMetaValue
+            key={meta.id}
+            meta={meta}
+            field={meta.field}
+            value={null}
+          />
         ) : (
           <MetaValue
             key={meta.id}
