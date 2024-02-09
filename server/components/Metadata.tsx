@@ -22,12 +22,25 @@ import {
 } from "@bowser/components/dropdown-menu";
 import { twMerge } from "tailwind-merge";
 import { expectNever } from "ts-expect";
-import { Media } from "@bowser/prisma/types";
+import {
+  CompleteMedia,
+  ItemMediaStateAndUploadDialog,
+  MediaMetadata,
+} from "./MediaState";
 
 export interface MetadataWithFieldAndMedia extends Metadata {
   field: MetadataField;
-  media: Media | null;
+  media: CompleteMedia | null;
   _temporary?: boolean;
+}
+
+export interface MediaMetaUploadValue {
+  uploadUrl: string;
+  fileName: string;
+}
+
+export interface MediaMetaSelectValue {
+  mediaId: number;
 }
 
 function MetaValue(props: {
@@ -138,12 +151,38 @@ function MetaValue(props: {
   );
 }
 
-function MediaMetaValue(props: {
+function MediaMetaValue({
+  field,
+  meta,
+  value,
+  onUploadComplete,
+  onExistingSelected,
+}: {
   field: MetadataField;
   meta: Metadata | null;
-  value: Media | null;
+  value: CompleteMedia | null;
+  onUploadComplete: (url: string, fileName: string) => Promise<unknown>;
+  onExistingSelected: (id: number) => Promise<unknown>;
 }) {
-  return null; // FIXME
+  const id = useId();
+  return (
+    <div>
+      <label htmlFor={id}>
+        <strong>{field.name}</strong>
+      </label>
+      <div>
+        <ItemMediaStateAndUploadDialog
+          item={{
+            field,
+            media: value,
+          }}
+          onUploadComplete={onUploadComplete}
+          onExistingSelected={onExistingSelected}
+          pastShowsPromise={Promise.reject("NO")} //FIXME
+        />
+      </div>
+    </div>
+  );
 }
 
 function tempFieldsReducer(
@@ -181,11 +220,11 @@ export function MetadataFields(props: {
   fields: MetadataField[];
   setValue: (
     metaID: number,
-    val: Prisma.InputJsonValue,
+    val: Prisma.InputJsonValue | MediaMetaUploadValue | MediaMetaSelectValue,
   ) => Promise<FormResponse>;
   createMeta: (
     fieldID: number,
-    val: Prisma.InputJsonValue,
+    val: Prisma.InputJsonValue | MediaMetaUploadValue | MediaMetaSelectValue,
   ) => Promise<FormResponse>;
 }) {
   const emptyFields = useMemo(
@@ -211,6 +250,12 @@ export function MetadataFields(props: {
               meta={meta}
               field={meta.field}
               value={meta.media}
+              onUploadComplete={(url, fileName) =>
+                props.setValue(meta.id, { uploadUrl: url, fileName })
+              }
+              onExistingSelected={(id) =>
+                props.setValue(meta.id, { mediaId: id })
+              }
             />
           ) : (
             <MetaValue
@@ -228,6 +273,12 @@ export function MetadataFields(props: {
             meta={null}
             field={field}
             value={null}
+            onUploadComplete={(url, fileName) =>
+              props.createMeta(field.id, { uploadUrl: url, fileName })
+            }
+            onExistingSelected={(id) =>
+              props.createMeta(field.id, { mediaId: id })
+            }
           />
         ) : (
           <MetaValue
@@ -248,6 +299,12 @@ export function MetadataFields(props: {
               meta={meta}
               field={meta.field}
               value={meta.media}
+              onUploadComplete={(url, fileName) =>
+                props.setValue(meta.id, { uploadUrl: url, fileName })
+              }
+              onExistingSelected={(id) =>
+                props.setValue(meta.id, { mediaId: id })
+              }
             />
           ) : (
             <MetaValue
@@ -266,6 +323,23 @@ export function MetadataFields(props: {
             meta={meta}
             field={meta.field}
             value={null}
+            onUploadComplete={async (url, fileName) => {
+              const r = await props.createMeta(meta.field.id, {
+                uploadUrl: url,
+                fileName,
+              });
+              if (r.ok) {
+                setTempFields({ type: "remove", id: meta.id });
+              }
+              return r;
+            }}
+            onExistingSelected={async (id) => {
+              const r = await props.createMeta(meta.field.id, { mediaId: id });
+              if (r.ok) {
+                setTempFields({ type: "remove", id: meta.id });
+              }
+              return r;
+            }}
           />
         ) : (
           <MetaValue

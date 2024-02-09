@@ -195,12 +195,15 @@ export function ItemMediaStateAndUploadDialog({
   reprocess,
   acceptTypes,
 }: {
-  item: CompleteContinuityItem | CompleteRundownItem | MediaMetadata;
+  item:
+    | CompleteContinuityItem
+    | CompleteRundownItem
+    | { field: MetadataField; media: CompleteMedia | null };
   onUploadComplete: (url: string, fileName: string) => Promise<unknown>;
   onExistingSelected: (id: number) => Promise<unknown>;
   pastShowsPromise: Promise<PastShowsMedia>;
-  retryProcessing: (mediaID: number) => Promise<unknown>;
-  reprocess: (mediaID: number) => Promise<unknown>;
+  retryProcessing?: (mediaID: number) => Promise<unknown>;
+  reprocess?: (mediaID: number) => Promise<unknown>;
   acceptTypes?: string[];
 }) {
   let base;
@@ -220,8 +223,14 @@ export function ItemMediaStateAndUploadDialog({
       <MediaProcessingState
         media={item.media}
         doReplace={() => setIsUploadOpen(true)}
-        doRetry={() => retryProcessing(item.media!.id)}
-        doReprocess={() => reprocess(item.media!.id)}
+        doRetry={
+          retryProcessing
+            ? () => retryProcessing(item.media!.id)
+            : Promise.resolve
+        }
+        doReprocess={
+          reprocess ? () => reprocess(item.media!.id) : Promise.resolve
+        }
       />
     );
   }

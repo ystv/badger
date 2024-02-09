@@ -7,6 +7,12 @@ import { InputJsonValue } from "../inputTypeSchemas/InputJsonValue";
 
 export const MetadataSchema = z.object({
   id: z.number().int(),
+  /**
+   * The metadata value. The type depends on the field value type:
+   * Text, LongText, URL: String
+   * Media: object - see the type definition
+   * [MetadataValue]
+   */
   value: InputJsonValue,
   fieldId: z.number().int(),
   showId: z.number().int().nullable(),

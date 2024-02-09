@@ -84,7 +84,11 @@ export default async function ShowPage(props: { params: { show_id: string } }) {
       metadata: {
         include: {
           field: true,
-          media: true,
+          media: {
+            include: {
+              tasks: true,
+            },
+          },
         },
         orderBy: {
           fieldId: "asc",
@@ -128,19 +132,19 @@ export default async function ShowPage(props: { params: { show_id: string } }) {
           </Button>
         </PermissionGate>
       </FlagGate>
-      <MetadataFields
-        metadata={show.metadata}
-        fields={metaFields}
-        createMeta={async (fieldID, val) => {
-          "use server";
-          return addMeta(show.id, fieldID, val);
-        }}
-        setValue={async (metaID, val) => {
-          "use server";
-          return setMetaValue(show.id, metaID, val);
-        }}
-      />
       <TusEndpointProvider value={getTusEndpoint()}>
+        <MetadataFields
+          metadata={show.metadata}
+          fields={metaFields}
+          createMeta={async (fieldID, val) => {
+            "use server";
+            return addMeta(show.id, fieldID, val);
+          }}
+          setValue={async (metaID, val) => {
+            "use server";
+            return setMetaValue(show.id, metaID, val);
+          }}
+        />
         <ShowItemsList
           show={show}
           items={items}

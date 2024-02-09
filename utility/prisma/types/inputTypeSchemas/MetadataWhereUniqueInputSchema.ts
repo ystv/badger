@@ -1,6 +1,7 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
-import { MetadataFieldIdShowIdRundownIdCompoundUniqueInputSchema } from "./MetadataFieldIdShowIdRundownIdCompoundUniqueInputSchema";
+import { MetadataFieldIdShowIdCompoundUniqueInputSchema } from "./MetadataFieldIdShowIdCompoundUniqueInputSchema";
+import { MetadataFieldIdRundownIdCompoundUniqueInputSchema } from "./MetadataFieldIdRundownIdCompoundUniqueInputSchema";
 import { MetadataWhereInputSchema } from "./MetadataWhereInputSchema";
 import { JsonFilterSchema } from "./JsonFilterSchema";
 import { IntFilterSchema } from "./IntFilterSchema";
@@ -19,16 +20,44 @@ export const MetadataWhereUniqueInputSchema: z.ZodType<Prisma.MetadataWhereUniqu
     .union([
       z.object({
         id: z.number(),
-        fieldId_showId_rundownId: z.lazy(
-          () => MetadataFieldIdShowIdRundownIdCompoundUniqueInputSchema,
+        fieldId_showId: z.lazy(
+          () => MetadataFieldIdShowIdCompoundUniqueInputSchema,
+        ),
+        fieldId_rundownId: z.lazy(
+          () => MetadataFieldIdRundownIdCompoundUniqueInputSchema,
+        ),
+      }),
+      z.object({
+        id: z.number(),
+        fieldId_showId: z.lazy(
+          () => MetadataFieldIdShowIdCompoundUniqueInputSchema,
+        ),
+      }),
+      z.object({
+        id: z.number(),
+        fieldId_rundownId: z.lazy(
+          () => MetadataFieldIdRundownIdCompoundUniqueInputSchema,
         ),
       }),
       z.object({
         id: z.number(),
       }),
       z.object({
-        fieldId_showId_rundownId: z.lazy(
-          () => MetadataFieldIdShowIdRundownIdCompoundUniqueInputSchema,
+        fieldId_showId: z.lazy(
+          () => MetadataFieldIdShowIdCompoundUniqueInputSchema,
+        ),
+        fieldId_rundownId: z.lazy(
+          () => MetadataFieldIdRundownIdCompoundUniqueInputSchema,
+        ),
+      }),
+      z.object({
+        fieldId_showId: z.lazy(
+          () => MetadataFieldIdShowIdCompoundUniqueInputSchema,
+        ),
+      }),
+      z.object({
+        fieldId_rundownId: z.lazy(
+          () => MetadataFieldIdRundownIdCompoundUniqueInputSchema,
         ),
       }),
     ])
@@ -36,8 +65,11 @@ export const MetadataWhereUniqueInputSchema: z.ZodType<Prisma.MetadataWhereUniqu
       z
         .object({
           id: z.number().optional(),
-          fieldId_showId_rundownId: z
-            .lazy(() => MetadataFieldIdShowIdRundownIdCompoundUniqueInputSchema)
+          fieldId_showId: z
+            .lazy(() => MetadataFieldIdShowIdCompoundUniqueInputSchema)
+            .optional(),
+          fieldId_rundownId: z
+            .lazy(() => MetadataFieldIdRundownIdCompoundUniqueInputSchema)
             .optional(),
           AND: z
             .union([

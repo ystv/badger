@@ -218,7 +218,8 @@ model Metadata {
 
   media Media? @relation(fields: [mediaId], references: [id], onDelete: Cascade)
 
-  @@unique([fieldId, showId, rundownId])
+  @@unique([fieldId, showId])
+  @@unique([fieldId, rundownId])
   @@index([showId])
   @@index([rundownId])
   @@map("metadata")
