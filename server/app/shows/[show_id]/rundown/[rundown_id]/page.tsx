@@ -120,7 +120,11 @@ async function RundownMetadata(props: { showID: number; rundownID: number }) {
       },
       include: {
         field: true,
-        media: true,
+        media: {
+          include: {
+            tasks: true,
+          },
+        },
       },
       orderBy: {
         fieldId: "asc",

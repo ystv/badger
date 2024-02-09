@@ -352,58 +352,60 @@ export async function setMetaValue(
     });
     invariant(meta, "Invalid metadata ID");
     switch (meta.field.type) {
-      case "Media": {
-        invariant(
-          typeof newValue === "object" && newValue !== null,
-          "invalid media meta object",
-        );
-        if (isMediaMetaSelectValue(newValue)) {
-          await $db.metadata.update({
-            where: {
-              id: metaID,
-            },
-            data: {
-              media: {
-                connect: {
-                  id: newValue.mediaId,
+      case "Media":
+        {
+          invariant(
+            typeof newValue === "object" && newValue !== null,
+            "invalid media meta object",
+          );
+          if (isMediaMetaSelectValue(newValue)) {
+            await $db.metadata.update({
+              where: {
+                id: metaID,
+              },
+              data: {
+                media: {
+                  connect: {
+                    id: newValue.mediaId,
+                  },
                 },
               },
-            },
-          });
-        } else if (isMediaMetaUploadValue(newValue)) {
-          await $db.metadata.update({
-            where: {
-              id: metaID,
-            },
-            data: {
-              media: {
-                create: {
-                  name: newValue.fileName,
-                  durationSeconds: 0,
-                  rawPath: "",
-                  process_jobs: {
-                    create: {
-                      sourceType: MediaFileSourceType.Tus,
-                      source: newValue.uploadUrl.replace(
-                        // Strip off the Tus endpoint prefix so the source is just the ID
-                        new RegExp(
-                          `^${escapeRegExp(process.env.TUS_ENDPOINT!)}/?`,
+            });
+          } else if (isMediaMetaUploadValue(newValue)) {
+            await $db.metadata.update({
+              where: {
+                id: metaID,
+              },
+              data: {
+                media: {
+                  create: {
+                    name: newValue.fileName,
+                    durationSeconds: 0,
+                    rawPath: "",
+                    process_jobs: {
+                      create: {
+                        sourceType: MediaFileSourceType.Tus,
+                        source: newValue.uploadUrl.replace(
+                          // Strip off the Tus endpoint prefix so the source is just the ID
+                          new RegExp(
+                            `^${escapeRegExp(process.env.TUS_ENDPOINT!)}/?`,
+                          ),
+                          "",
                         ),
-                        "",
-                      ),
-                      base_job: {
-                        create: {},
+                        base_job: {
+                          create: {},
+                        },
                       },
                     },
                   },
                 },
               },
-            },
-          });
-        } else {
-          invariant(false, "invalid media meta value");
+            });
+          } else {
+            invariant(false, "invalid media meta value");
+          }
         }
-      }
+        break;
       default:
         await $db.metadata.update({
           where: {
@@ -436,70 +438,72 @@ export async function addMeta(
     });
     invariant(field, "Invalid metadata field ID");
     switch (field.type) {
-      case "Media": {
-        if (isMediaMetaSelectValue(newValue)) {
-          await $db.metadata.create({
-            data: {
-              field: {
-                connect: {
-                  id: fieldID,
+      case "Media":
+        {
+          if (isMediaMetaSelectValue(newValue)) {
+            await $db.metadata.create({
+              data: {
+                field: {
+                  connect: {
+                    id: fieldID,
+                  },
+                },
+                show: {
+                  connect: {
+                    id: showID,
+                  },
+                },
+                value: {},
+                media: {
+                  connect: {
+                    id: newValue.mediaId,
+                  },
                 },
               },
-              show: {
-                connect: {
-                  id: showID,
+            });
+          } else if (isMediaMetaUploadValue(newValue)) {
+            await $db.metadata.create({
+              data: {
+                field: {
+                  connect: {
+                    id: fieldID,
+                  },
                 },
-              },
-              value: {},
-              media: {
-                connect: {
-                  id: newValue.mediaId,
+                show: {
+                  connect: {
+                    id: showID,
+                  },
                 },
-              },
-            },
-          });
-        } else if (isMediaMetaUploadValue(newValue)) {
-          await $db.metadata.create({
-            data: {
-              field: {
-                connect: {
-                  id: fieldID,
-                },
-              },
-              show: {
-                connect: {
-                  id: showID,
-                },
-              },
-              value: {},
-              media: {
-                create: {
-                  name: newValue.fileName,
-                  durationSeconds: 0,
-                  rawPath: "",
-                  process_jobs: {
-                    create: {
-                      sourceType: MediaFileSourceType.Tus,
-                      source: newValue.uploadUrl.replace(
-                        // Strip off the Tus endpoint prefix so the source is just the ID
-                        new RegExp(
-                          `^${escapeRegExp(process.env.TUS_ENDPOINT!)}/?`,
+                value: {},
+                media: {
+                  create: {
+                    name: newValue.fileName,
+                    durationSeconds: 0,
+                    rawPath: "",
+                    process_jobs: {
+                      create: {
+                        sourceType: MediaFileSourceType.Tus,
+                        source: newValue.uploadUrl.replace(
+                          // Strip off the Tus endpoint prefix so the source is just the ID
+                          new RegExp(
+                            `^${escapeRegExp(process.env.TUS_ENDPOINT!)}/?`,
+                          ),
+                          "",
                         ),
-                        "",
-                      ),
-                      base_job: {
-                        create: {},
+                        base_job: {
+                          create: {},
+                        },
                       },
                     },
                   },
                 },
               },
-            },
-          });
-        } else {
-          invariant(false, "invalid media meta value");
+            });
+          } else {
+            invariant(false, "invalid media meta value");
+          }
         }
-      }
+        break;
       default:
         await $db.metadata.create({
           data: {
