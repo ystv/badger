@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { youtube_v3 } from "googleapis";
 import { z } from "zod";
-import ky from "ky";
+import fetch from "node-fetch";
 import { createStreamsPayloadSchema } from "./schema";
 import { FormResponse } from "@/components/Form";
 import { checkSession, requirePermission } from "@/lib/auth";
@@ -188,7 +188,7 @@ export async function doCreateStreams(
         },
       });
       if (item.thumbnail) {
-        const thumbRes = await ky.get(item.thumbnail);
+        const thumbRes = await fetch(item.thumbnail);
         invariant(thumbRes.body, "no body in thumbnail response");
         await yt.thumbnails.set({
           videoId: broadcast.data.id!,
