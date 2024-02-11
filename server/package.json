@@ -52,6 +52,7 @@
     "googleapis": "^128.0.0",
     "lodash": "^4.17.21",
     "next": "^14.1.0",
+    "node-fetch": "^3.3.2",
     "prisma": "latest",
     "react": "18.3.0-canary-8c8ee9ee6-20231026",
     "react-day-picker": "^8.8.0",

@@ -3,6 +3,7 @@ import { z } from "zod";
 export const SettingKeySchema = z.enum([
   "TitleMetadataID",
   "DescriptionMetadataID",
+  "ThumbnailMetadataID",
   "DefaultResolution",
   "DefaultFrameRate",
   "DefaultIngestionType",

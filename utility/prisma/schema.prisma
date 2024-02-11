@@ -229,6 +229,7 @@ model Metadata {
 enum SettingKey {
   TitleMetadataID
   DescriptionMetadataID
+  ThumbnailMetadataID
   DefaultResolution
   DefaultFrameRate
   DefaultIngestionType
