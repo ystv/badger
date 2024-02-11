@@ -9,9 +9,10 @@ import { DummyTestAuth } from "@/lib/auth/dummyTest";
 import { YSTVAuth } from "@/lib/auth/ystv";
 import invariant from "@/lib/invariant";
 import { SignInResult, doSignIn } from "@/lib/auth";
+import { useDummyTestAuth } from "@bowser/feature-flags";
 
 function determineProvider() {
-  if (process.env.USE_DUMMY_TEST_AUTH === "true") {
+  if (useDummyTestAuth) {
     invariant(
       process.env.NODE_ENV !== "production" || process.env.E2E_TEST === "true",
       "Cannot enable dummy test auth in production",

@@ -100,7 +100,11 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
       stdout: "pipe",
       stderr: "pipe",
-      env: serverEnv.parsed!,
+      env: {
+        ...serverEnv.parsed!,
+        NODE_ENV: "test",
+        E2E_TEST: "true",
+      },
     },
     {
       command: process.env.CI

@@ -98,7 +98,6 @@ export async function doSignIn(
   claims.exp = iat + 60 * 60 * 24 * 7;
   const token = await makeJWT(claims);
   const { cookies } = await import("next/headers");
-  console.log("Setting cookie", token, user.id, user.email ?? undefined);
   cookies().set(cookieName, token, {
     maxAge: 60 * 60 * 24 * 7,
   });
