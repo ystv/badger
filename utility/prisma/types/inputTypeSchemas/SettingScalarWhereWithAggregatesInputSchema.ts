@@ -1,8 +1,6 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
 import { IntWithAggregatesFilterSchema } from "./IntWithAggregatesFilterSchema";
-import { EnumSettingsCategoryWithAggregatesFilterSchema } from "./EnumSettingsCategoryWithAggregatesFilterSchema";
-import { SettingsCategorySchema } from "./SettingsCategorySchema";
 import { EnumSettingKeyWithAggregatesFilterSchema } from "./EnumSettingKeyWithAggregatesFilterSchema";
 import { SettingKeySchema } from "./SettingKeySchema";
 import { JsonWithAggregatesFilterSchema } from "./JsonWithAggregatesFilterSchema";
@@ -28,12 +26,6 @@ export const SettingScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.Setti
         .optional(),
       id: z
         .union([z.lazy(() => IntWithAggregatesFilterSchema), z.number()])
-        .optional(),
-      category: z
-        .union([
-          z.lazy(() => EnumSettingsCategoryWithAggregatesFilterSchema),
-          z.lazy(() => SettingsCategorySchema),
-        ])
         .optional(),
       key: z
         .union([

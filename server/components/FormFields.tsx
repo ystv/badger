@@ -317,6 +317,9 @@ export function SelectField<TObj>(props: {
 }) {
   const { name, label, options, getOptionValue, renderOption, nullable } =
     props;
+  const controller = useController({
+    name,
+  });
   return (
     <Field
       name={name}
@@ -328,9 +331,17 @@ export function SelectField<TObj>(props: {
           : identity,
       }}
     >
-      {nullable && <option value="">None</option>}
+      {nullable && (
+        <option value="" selected={controller.field.value === ""}>
+          None
+        </option>
+      )}
       {options.map((opt) => (
-        <option key={getOptionValue(opt)} value={getOptionValue(opt)}>
+        <option
+          key={getOptionValue(opt)}
+          value={getOptionValue(opt)}
+          selected={controller.field.value === getOptionValue(opt)}
+        >
           {renderOption(opt)}
         </option>
       ))}

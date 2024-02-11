@@ -6,7 +6,6 @@ export const SettingMaxOrderByAggregateInputSchema: z.ZodType<Prisma.SettingMaxO
   z
     .object({
       id: z.lazy(() => SortOrderSchema).optional(),
-      category: z.lazy(() => SortOrderSchema).optional(),
       key: z.lazy(() => SortOrderSchema).optional(),
     })
     .strict();

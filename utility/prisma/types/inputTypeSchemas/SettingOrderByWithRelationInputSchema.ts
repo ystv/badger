@@ -6,7 +6,6 @@ export const SettingOrderByWithRelationInputSchema: z.ZodType<Prisma.SettingOrde
   z
     .object({
       id: z.lazy(() => SortOrderSchema).optional(),
-      category: z.lazy(() => SortOrderSchema).optional(),
       key: z.lazy(() => SortOrderSchema).optional(),
       value: z.lazy(() => SortOrderSchema).optional(),
     })

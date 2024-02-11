@@ -6,7 +6,6 @@ export const SettingCountOrderByAggregateInputSchema: z.ZodType<Prisma.SettingCo
   z
     .object({
       id: z.lazy(() => SortOrderSchema).optional(),
-      category: z.lazy(() => SortOrderSchema).optional(),
       key: z.lazy(() => SortOrderSchema).optional(),
       value: z.lazy(() => SortOrderSchema).optional(),
     })
