@@ -143,11 +143,7 @@ export async function createMedia(
 }
 
 export const test = base.extend<{ showPage: Page }>({
-  showPage: async ({ page, request }, use) => {
-    await request.post(
-      "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB",
-    );
-
+  showPage: async ({ page }, use) => {
     // await page.goto("/enableDebugMode?value=false");
 
     await createShow(page, "Test Show");
@@ -157,4 +153,10 @@ export const test = base.extend<{ showPage: Page }>({
     //   "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB"
     // );
   },
+});
+
+test.beforeEach(async ({ request }) => {
+  await request.post(
+    "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB",
+  );
 });
