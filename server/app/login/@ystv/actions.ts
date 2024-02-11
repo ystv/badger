@@ -8,7 +8,7 @@ import { InvalidCredentials } from "@/lib/auth/types";
 import { DummyTestAuth } from "@/lib/auth/dummyTest";
 import { YSTVAuth } from "@/lib/auth/ystv";
 import invariant from "@/lib/invariant";
-import { doSignIn } from "@/lib/auth";
+import { SignInResult, doSignIn } from "@/lib/auth";
 
 function determineProvider() {
   if (process.env.USE_DUMMY_TEST_AUTH === "true") {
@@ -35,7 +35,19 @@ export async function handleSignIn(
 ): Promise<FormResponse> {
   try {
     const creds = await provider.checkCredentials(data.username, data.password);
-    await doSignIn(provider.id, creds);
+    const loginResult = await doSignIn(provider.id, creds);
+    switch (loginResult) {
+      case SignInResult.Success:
+        break;
+      case SignInResult.CreatedInactive:
+      case SignInResult.Inactive:
+        return {
+          ok: false,
+          errors: {
+            root: "Your account is not yet active. Please contact the Computing Team.",
+          },
+        };
+    }
     if (data.return) {
       if (data.return.startsWith("/")) {
         const url = new URL(data.return, process.env.PUBLIC_URL);

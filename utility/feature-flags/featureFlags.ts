@@ -116,3 +116,9 @@ export const disablePermissionsChecks = flag(
   "DISABLE_PERMISSIONS_CHECKS",
   e2e,
 );
+
+export const autoActivateAllUsers = flag(
+  "Auto-activate All Users",
+  "AUTO_ACTIVATE_ALL_USERS",
+  e2e,
+);

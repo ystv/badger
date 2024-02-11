@@ -6,6 +6,7 @@ import { Permission } from "@bowser/prisma/client";
 import { db } from "../db";
 import { User, UserSchema } from "@bowser/prisma/types";
 import {
+  autoActivateAllUsers,
   disablePermissionsChecks,
   enableUserManagement,
 } from "@bowser/feature-flags";
@@ -35,9 +36,9 @@ export async function doSignIn(
     const autoActivateDomains = new Set(
       process.env.USER_AUTO_CREATE_DOMAINS?.split(", "),
     );
-    const shouldAutoActivate = autoActivateDomains.has(
-      credentials.domain ?? "NEVER",
-    );
+    const shouldAutoActivate =
+      autoActivateAllUsers ||
+      autoActivateDomains.has(credentials.domain ?? "NEVER");
     let didExist;
     [user, didExist] = await db.$transaction(async ($db) => {
       const user = await $db.user.findFirst({
@@ -97,6 +98,7 @@ export async function doSignIn(
   claims.exp = iat + 60 * 60 * 24 * 7;
   const token = await makeJWT(claims);
   const { cookies } = await import("next/headers");
+  console.log("Setting cookie", token, user.id, user.email ?? undefined);
   cookies().set(cookieName, token, {
     maxAge: 60 * 60 * 24 * 7,
   });

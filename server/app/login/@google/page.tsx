@@ -1,8 +1,8 @@
-import { cookies } from "next/headers";
 import { GoogleLoginButton } from "./GoogleLoginButton";
 import { Alert } from "@bowser/components/alert";
 import { SignInResult } from "@/lib/auth";
 import invariant from "@/lib/invariant";
+import { enableGoogleLogin } from "@bowser/feature-flags";
 
 function commaJoin(parts: string[]): string {
   if (parts.length === 0) {
@@ -17,6 +17,9 @@ function commaJoin(parts: string[]): string {
 export default async function GoogleLogin(props: {
   searchParams: { return?: string; status?: string };
 }) {
+  if (!enableGoogleLogin) {
+    return null;
+  }
   invariant(
     process.env.GOOGLE_CLIENT_ID,
     "Google sign in enabled but GOOGLE_CLIENT_ID not set",
