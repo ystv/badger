@@ -116,3 +116,15 @@ export const disablePermissionsChecks = flag(
   "DISABLE_PERMISSIONS_CHECKS",
   e2e,
 );
+
+export const useDummyTestAuth = flag(
+  "Use Dummy Test Auth",
+  "USE_DUMMY_TEST_AUTH",
+  e2e,
+);
+
+export const autoActivateAllUsers = flag(
+  "Auto-activate All Users",
+  "AUTO_ACTIVATE_ALL_USERS",
+  e2e,
+);

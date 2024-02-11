@@ -18,6 +18,7 @@ export async function POST() {
     "media",
     "users",
     "metadata",
+    "metadata_fields",
     "base_jobs",
     "settings",
   ]) {

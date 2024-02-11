@@ -18,6 +18,10 @@ import { escapeRegExp } from "lodash";
 
 import { dispatchJobForJobrunner } from "@/lib/jobs";
 import invariant from "@/lib/invariant";
+import type {
+  MediaMetaSelectValue,
+  MediaMetaUploadValue,
+} from "@/components/Metadata";
 
 export async function revalidateIfChanged(showID: number, version: number) {
   const show = await db.show.findUnique({
@@ -320,22 +324,102 @@ export async function reorderShowItems(
   return { ok: true };
 }
 
+function isMediaMetaSelectValue(
+  value: Prisma.InputJsonValue | MediaMetaSelectValue | MediaMetaUploadValue,
+): value is MediaMetaSelectValue {
+  return typeof value === "object" && value !== null && "mediaId" in value;
+}
+
+function isMediaMetaUploadValue(
+  value: Prisma.InputJsonValue | MediaMetaUploadValue | MediaMetaSelectValue,
+): value is MediaMetaUploadValue {
+  return typeof value === "object" && value !== null && "uploadUrl" in value;
+}
+
 export async function setMetaValue(
   showID: number,
   metaID: number,
-  newValue: Prisma.InputJsonValue,
+  newValue: Prisma.InputJsonValue | MediaMetaUploadValue | MediaMetaSelectValue,
 ): Promise<FormResponse> {
-  await db.metadata.update({
-    where: {
-      field: {
-        target: MetadataTargetType.Show,
+  await db.$transaction(async ($db) => {
+    const meta = await $db.metadata.findUnique({
+      where: {
+        id: metaID,
       },
-      showId: showID,
-      id: metaID,
-    },
-    data: {
-      value: newValue,
-    },
+      include: {
+        field: true,
+      },
+    });
+    invariant(meta, "Invalid metadata ID");
+    switch (meta.field.type) {
+      case "Media":
+        {
+          invariant(
+            typeof newValue === "object" && newValue !== null,
+            "invalid media meta object",
+          );
+          if (isMediaMetaSelectValue(newValue)) {
+            await $db.metadata.update({
+              where: {
+                id: metaID,
+              },
+              data: {
+                media: {
+                  connect: {
+                    id: newValue.mediaId,
+                  },
+                },
+              },
+            });
+          } else if (isMediaMetaUploadValue(newValue)) {
+            await $db.metadata.update({
+              where: {
+                id: metaID,
+              },
+              data: {
+                media: {
+                  create: {
+                    name: newValue.fileName,
+                    durationSeconds: 0,
+                    rawPath: "",
+                    process_jobs: {
+                      create: {
+                        sourceType: MediaFileSourceType.Tus,
+                        source: newValue.uploadUrl.replace(
+                          // Strip off the Tus endpoint prefix so the source is just the ID
+                          new RegExp(
+                            `^${escapeRegExp(process.env.TUS_ENDPOINT!)}/?`,
+                          ),
+                          "",
+                        ),
+                        base_job: {
+                          create: {},
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            });
+          } else {
+            invariant(false, "invalid media meta value");
+          }
+        }
+        break;
+      default:
+        await $db.metadata.update({
+          where: {
+            field: {
+              target: MetadataTargetType.Show,
+            },
+            showId: showID,
+            id: metaID,
+          },
+          data: {
+            value: newValue as Prisma.InputJsonValue,
+          },
+        });
+    }
   });
   revalidatePath(`/shows/${showID}`);
   return { ok: true };
@@ -344,14 +428,91 @@ export async function setMetaValue(
 export async function addMeta(
   showID: number,
   fieldID: number,
-  newValue: Prisma.InputJsonValue,
+  newValue: Prisma.InputJsonValue | MediaMetaUploadValue | MediaMetaSelectValue,
 ): Promise<FormResponse> {
-  await db.metadata.create({
-    data: {
-      fieldId: fieldID,
-      showId: showID,
-      value: newValue,
-    },
+  await db.$transaction(async ($db) => {
+    const field = await $db.metadataField.findUnique({
+      where: {
+        id: fieldID,
+      },
+    });
+    invariant(field, "Invalid metadata field ID");
+    switch (field.type) {
+      case "Media":
+        {
+          if (isMediaMetaSelectValue(newValue)) {
+            await $db.metadata.create({
+              data: {
+                field: {
+                  connect: {
+                    id: fieldID,
+                  },
+                },
+                show: {
+                  connect: {
+                    id: showID,
+                  },
+                },
+                value: {},
+                media: {
+                  connect: {
+                    id: newValue.mediaId,
+                  },
+                },
+              },
+            });
+          } else if (isMediaMetaUploadValue(newValue)) {
+            await $db.metadata.create({
+              data: {
+                field: {
+                  connect: {
+                    id: fieldID,
+                  },
+                },
+                show: {
+                  connect: {
+                    id: showID,
+                  },
+                },
+                value: {},
+                media: {
+                  create: {
+                    name: newValue.fileName,
+                    durationSeconds: 0,
+                    rawPath: "",
+                    process_jobs: {
+                      create: {
+                        sourceType: MediaFileSourceType.Tus,
+                        source: newValue.uploadUrl.replace(
+                          // Strip off the Tus endpoint prefix so the source is just the ID
+                          new RegExp(
+                            `^${escapeRegExp(process.env.TUS_ENDPOINT!)}/?`,
+                          ),
+                          "",
+                        ),
+                        base_job: {
+                          create: {},
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            });
+          } else {
+            invariant(false, "invalid media meta value");
+          }
+        }
+        break;
+      default:
+        await $db.metadata.create({
+          data: {
+            fieldId: fieldID,
+            showId: showID,
+            value: newValue as Prisma.InputJsonValue,
+          },
+        });
+    }
   });
   revalidatePath(`/shows/${showID}`);
   return { ok: true };

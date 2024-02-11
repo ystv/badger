@@ -18,6 +18,7 @@ import {
   ShowSchema,
   ShowUpdateInputSchema,
   MediaUpdateInputSchema,
+  MetadataFieldCreateInputSchema,
 } from "@bowser/prisma/types";
 import invariant from "@/lib/invariant";
 import { dispatchJobForJobrunner } from "@/lib/jobs";
@@ -398,6 +399,18 @@ export const appRouter = router({
             },
           },
         });
+      }),
+  }),
+  metaFields: router({
+    put: e2eProcedure
+      .input(z.array(MetadataFieldCreateInputSchema))
+      .mutation(async ({ input }) => {
+        await db.$transaction([
+          db.metadataField.deleteMany({}),
+          db.metadataField.createMany({
+            data: input,
+          }),
+        ]);
       }),
   }),
 });

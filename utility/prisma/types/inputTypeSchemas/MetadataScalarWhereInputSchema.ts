@@ -34,6 +34,10 @@ export const MetadataScalarWhereInputSchema: z.ZodType<Prisma.MetadataScalarWher
         .union([z.lazy(() => IntNullableFilterSchema), z.number()])
         .optional()
         .nullable(),
+      mediaId: z
+        .union([z.lazy(() => IntNullableFilterSchema), z.number()])
+        .optional()
+        .nullable(),
     })
     .strict();
 

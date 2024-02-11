@@ -12,12 +12,14 @@ import {
   SelectValue,
 } from "@bowser/components/select";
 import { Media } from "@bowser/prisma/types";
+import "@bowser/prisma/jsonTypes";
 import { DialogBody } from "next/dist/client/components/react-dev-overlay/internal/components/Dialog";
 import {
-  Fragment,
   Suspense,
   use,
+  useEffect,
   useMemo,
+  useReducer,
   useRef,
   useState,
   useTransition,
@@ -31,23 +33,40 @@ import {
   TableCell,
   TableRow,
 } from "@bowser/components/table";
+import {
+  MetadataField,
+  MetadataTargetType,
+  Rundown,
+  Show,
+} from "@bowser/prisma/client";
+import invariant from "@/lib/invariant";
+import { expectNever } from "ts-expect";
 
 export type PastShowsMedia = Array<{
   id: number;
   name: string;
   start: Date;
-  rundowns: Array<{
-    id: number;
-    name: string;
-    items: Array<{
-      id: number;
-      name: string;
-      media: Media | null;
-    }>;
-    assets: Array<{
-      media: Media | null;
-    }>;
+  metadata: Array<{
+    value: PrismaJson.MetadataValue | null;
+    field: MetadataField;
+    media: Media | null;
   }>;
+  rundowns: Array<
+    Rundown & {
+      items: Array<{
+        id: number;
+        name: string;
+        media: Media | null;
+      }>;
+      assets: Array<{
+        media: Media | null;
+      }>;
+      metadata: Array<{
+        value: PrismaJson.MetadataValue | null;
+        field: MetadataField;
+      }>;
+    }
+  >;
   continuityItems: Array<{
     id: number;
     name: string;
@@ -55,12 +74,113 @@ export type PastShowsMedia = Array<{
   }>;
 }>;
 
-function PastShowMediaSelection(props: {
-  // We pass a promise in here, not the original data, because this component
-  // might never be rendered, and we don't want to waste time fetching data
+interface MediaContainerPickState {
+  // input
+  showCandidates: PastShowsMedia;
+  metaField?: MetadataField;
+  containerType: "rundownItem" | "continuityItem" | "asset" | "metadata";
+
+  // output
+  complete: boolean;
+  show: PastShowsMedia[0] | null;
+  rundown: Rundown | null;
+  shouldSelectRundown?: boolean;
+  media?: Media[] | null;
+}
+
+function mediaContainerPickReducer(
+  state: MediaContainerPickState,
+  action:
+    | {
+        type: "chooseShow";
+        showID: number;
+      }
+    | {
+        type: "chooseRundown";
+        rundownID: number;
+      },
+): MediaContainerPickState {
+  switch (action.type) {
+    case "chooseShow": {
+      const show = state.showCandidates.find((x) => x.id === action.showID);
+      invariant(show, "invalid showID passed to mediaContainerPickReducer");
+      let shouldSelectRundown = true;
+      switch (state.containerType) {
+        case "continuityItem":
+          shouldSelectRundown = false;
+          break;
+        case "metadata":
+          shouldSelectRundown =
+            state.metaField!.target === "Rundown" ||
+            state.metaField!.target === "ShowOrRundown";
+          break;
+      }
+      let media: Media[] | null = null;
+      if (!shouldSelectRundown) {
+        // we're done, just need to find the list of media
+        switch (state.containerType) {
+          case "continuityItem":
+            media = show.continuityItems
+              .flatMap((x) => x.media)
+              .filter(Boolean) as Media[];
+            break;
+          case "metadata":
+            invariant(
+              state.metaField!.target === "Show",
+              "invalid metadata target",
+            );
+            media = show.metadata
+              .filter((m) => m.field.type === "Media" && m.value !== null)
+              .map((m) => m.media)
+              .filter(Boolean) as Media[];
+            break;
+          default:
+            invariant(
+              false,
+              `invalid state: not showSelectRundown for a container ${state.containerType}`,
+            );
+        }
+      }
+      invariant(
+        shouldSelectRundown || media,
+        "invalid state: not shouldSelectRundown but no media",
+      );
+      return {
+        ...state,
+        show,
+        shouldSelectRundown,
+        complete: !shouldSelectRundown,
+        media,
+      };
+    }
+    case "chooseRundown": {
+      const rundown = state.show!.rundowns.find(
+        (x) => x.id === action.rundownID,
+      );
+      invariant(
+        rundown,
+        "invalid rundownID passed to mediaContainerPickReducer",
+      );
+      const media = rundown.items
+        .map((i) => i.media)
+        .filter(Boolean) as Media[];
+      return {
+        ...state,
+        rundown,
+        media,
+        complete: true,
+      };
+    }
+    default:
+      return state;
+  }
+}
+
+function SelectMediaContainer(props: {
   pastShowsPromise: Promise<PastShowsMedia>;
-  onMediaSelect: (id: number) => unknown;
-  containerType: "rundownItem" | "continuityItem" | "asset";
+  containerType: "rundownItem" | "continuityItem" | "asset" | "metadata";
+  metaField?: MetadataField;
+  onSelect: (mediaCandidates: Media[]) => unknown;
 }) {
   const data = use(props.pastShowsPromise);
   const showCandidates = useMemo(() => {
@@ -71,28 +191,65 @@ function PastShowMediaSelection(props: {
         return data.filter((x) => x.continuityItems.length > 0);
       case "asset":
         return data.filter((x) => x.rundowns.some((r) => r.assets.length > 0));
+      case "metadata":
+        invariant(
+          props.metaField,
+          "SelectMediaContainer: containerType is metadata but no metaField passed",
+        );
+        let targets;
+        switch (props.metaField.target) {
+          case "Show":
+          case "ShowOrRundown":
+            targets = data;
+            break;
+          case "Rundown":
+            targets = [] as PastShowsMedia;
+            break;
+          default:
+            expectNever(props.metaField.target);
+        }
+        return targets.filter((x) =>
+          x.metadata.some(
+            (m) =>
+              m.field.id === props.metaField!.id &&
+              m.value !== null &&
+              m.field.type === "Media",
+          ),
+        );
     }
-  }, [props.containerType, data]);
-  const [selectedShowID, setSelectedShowID] = useState(-1);
-  const selectedShow =
-    selectedShowID > -1
-      ? showCandidates.find((x) => x.id === selectedShowID)
-      : null;
-  const [selectedRundownID, setSelectedRundownID] = useState(-1);
-  const selectedRundown =
-    selectedShow && selectedRundownID > -1
-      ? selectedShow.rundowns.find((x) => x.id === selectedRundownID)
-      : null;
+  }, [props.containerType, props.metaField, data]);
+  const [{ show, rundown, shouldSelectRundown, complete, media }, dispatch] =
+    useReducer(mediaContainerPickReducer, {
+      complete: false,
+      show: null,
+      rundown: null,
+      showCandidates: showCandidates,
+      metaField: props.metaField,
+      containerType: props.containerType,
+      shouldSelectRundown: false,
+    } satisfies MediaContainerPickState);
 
+  useEffect(() => {
+    if (complete) {
+      props.onSelect(media!);
+    }
+  });
+
+  invariant(
+    !shouldSelectRundown || show,
+    "shouldSelectRundown true but no show",
+  );
   return (
-    <div>
+    <>
       <Select
-        value={selectedShowID.toString(10)}
-        onValueChange={(v) => setSelectedShowID(parseInt(v, 10))}
+        value={show?.id?.toString(10)}
+        onValueChange={(v) =>
+          dispatch({ type: "chooseShow", showID: parseInt(v, 10) })
+        }
         data-testid="PastShowMediaSelection.selectShow"
       >
         <SelectTrigger>
-          <SelectValue>{selectedShow?.name ?? "Select show"}</SelectValue>
+          <SelectValue>{show?.name ?? "Select show"}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           {showCandidates.map((show) => (
@@ -102,108 +259,71 @@ function PastShowMediaSelection(props: {
           ))}
         </SelectContent>
       </Select>
-      {selectedShow && (
-        <div>
-          {props.containerType !== "continuityItem" && (
-            <Select
-              value={selectedRundownID.toString(10)}
-              onValueChange={(v) => setSelectedRundownID(parseInt(v, 10))}
-            >
-              <SelectTrigger>
-                <SelectValue>
-                  {selectedRundown?.name ?? "Select rundown"}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {selectedShow.rundowns.map((rundown) => (
-                  <SelectItem key={rundown.id} value={rundown.id.toString(10)}>
-                    {rundown.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-          {selectedRundown && (
-            <>
-              {props.containerType === "rundownItem" && (
-                <Table>
-                  <TableBody>
-                    {selectedRundown.items
-                      .filter((x) => x.media)
-                      .map((item) => (
-                        <TableRow key={item.id}>
-                          <TableCell>{item.name}</TableCell>
-                          <TableCell>
-                            <Button
-                              key={item.id}
-                              color="default"
-                              onClick={() =>
-                                props.onMediaSelect(item.media!.id)
-                              }
-                            >
-                              Use
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-              )}
-              {props.containerType === "asset" && (
-                <Table>
-                  <TableBody>
-                    {selectedRundown.assets
-                      .filter((x) => x.media)
-                      .map((item) => (
-                        <TableRow key={item.media!.id}>
-                          <TableCell>{item.media!.name}</TableCell>
-                          <TableCell>
-                            <Button
-                              key={item.media!.id}
-                              color="default"
-                              onClick={() =>
-                                props.onMediaSelect(item.media!.id)
-                              }
-                            >
-                              Use
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-              )}
-            </>
-          )}
-          {props.containerType === "continuityItem" &&
-            selectedShow.continuityItems.filter((x) => x.media).length > 0 && (
-              <>
-                <h4>Continuity</h4>
-                <Table>
-                  <TableBody>
-                    {selectedShow.continuityItems
-                      .filter((x) => x.media)
-                      .map((item) => (
-                        <TableRow key={item.media!.id}>
-                          <TableCell>{item.media!.name}</TableCell>
-                          <TableCell>
-                            <Button
-                              key={item.id}
-                              color="default"
-                              onClick={() =>
-                                props.onMediaSelect(item.media!.id)
-                              }
-                            >
-                              Use
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-              </>
-            )}
-        </div>
+      {shouldSelectRundown && (
+        <Select
+          value={rundown?.id?.toString(10)}
+          onValueChange={(v) =>
+            dispatch({ type: "chooseRundown", rundownID: parseInt(v, 10) })
+          }
+        >
+          <SelectTrigger>
+            <SelectValue>{rundown?.name ?? "Select rundown"}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {show!.rundowns.map((rundown) => (
+              <SelectItem key={rundown.id} value={rundown.id.toString(10)}>
+                {rundown.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+    </>
+  );
+}
+
+function PastShowMediaSelection(props: {
+  // We pass a promise in here, not the original data, because this component
+  // might never be rendered, and we don't want to waste time fetching data
+  pastShowsPromise: Promise<PastShowsMedia>;
+  onMediaSelect: (id: number) => unknown;
+  containerType: "rundownItem" | "continuityItem" | "asset" | "metadata";
+  metaField?: MetadataField;
+}) {
+  invariant(
+    props.containerType !== "metadata" || props.metaField,
+    "PastShowMediaSelection: containerType is metadata but no metaField passed",
+  );
+
+  const [media, setMedia] = useState<Media[] | null>(null);
+
+  return (
+    <div>
+      <SelectMediaContainer
+        containerType={props.containerType}
+        metaField={props.metaField}
+        pastShowsPromise={props.pastShowsPromise}
+        onSelect={setMedia}
+      />
+      {media !== null && (
+        <Table>
+          <TableBody>
+            {media.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell>{item.name}</TableCell>
+                <TableCell>
+                  <Button
+                    key={item.id}
+                    color="default"
+                    onClick={() => props.onMediaSelect(item.id)}
+                  >
+                    Use
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       )}
     </div>
   );
@@ -215,7 +335,8 @@ export function MediaSelectOrUploadDialog(props: {
   title: string;
   onUploadComplete: (url: string, fileName: string) => Promise<unknown>;
   onExistingSelected: (id: number) => Promise<unknown>;
-  containerType: "rundownItem" | "continuityItem" | "asset";
+  containerType: "rundownItem" | "continuityItem" | "asset" | "metadata";
+  metaFieldContainer?: MetadataField;
   pastShowsPromise: Promise<PastShowsMedia>;
   acceptMedia: Record<string, string[]>;
 }) {
@@ -268,6 +389,7 @@ export function MediaSelectOrUploadDialog(props: {
               <PastShowMediaSelection
                 pastShowsPromise={props.pastShowsPromise}
                 containerType={props.containerType}
+                metaField={props.metaFieldContainer}
                 onMediaSelect={(v) =>
                   startTransition(async () => {
                     await props.onExistingSelected(v);

@@ -9,6 +9,7 @@ import { RundownItemUncheckedUpdateManyWithoutMediaNestedInputSchema } from "./R
 import { ContinuityItemUncheckedUpdateManyWithoutMediaNestedInputSchema } from "./ContinuityItemUncheckedUpdateManyWithoutMediaNestedInputSchema";
 import { ProcessMediaJobUncheckedUpdateManyWithoutMediaNestedInputSchema } from "./ProcessMediaJobUncheckedUpdateManyWithoutMediaNestedInputSchema";
 import { AssetUncheckedUpdateManyWithoutMediaNestedInputSchema } from "./AssetUncheckedUpdateManyWithoutMediaNestedInputSchema";
+import { MetadataUncheckedUpdateManyWithoutMediaNestedInputSchema } from "./MetadataUncheckedUpdateManyWithoutMediaNestedInputSchema";
 
 export const MediaUncheckedUpdateWithoutTasksInputSchema: z.ZodType<Prisma.MediaUncheckedUpdateWithoutTasksInput> =
   z
@@ -65,6 +66,9 @@ export const MediaUncheckedUpdateWithoutTasksInputSchema: z.ZodType<Prisma.Media
         .optional(),
       assets: z
         .lazy(() => AssetUncheckedUpdateManyWithoutMediaNestedInputSchema)
+        .optional(),
+      metadata: z
+        .lazy(() => MetadataUncheckedUpdateManyWithoutMediaNestedInputSchema)
         .optional(),
     })
     .strict();

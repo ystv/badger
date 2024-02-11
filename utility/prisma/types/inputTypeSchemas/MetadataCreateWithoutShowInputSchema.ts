@@ -4,6 +4,7 @@ import { JsonNullValueInputSchema } from "./JsonNullValueInputSchema";
 import { InputJsonValue } from "./InputJsonValue";
 import { MetadataFieldCreateNestedOneWithoutValuesInputSchema } from "./MetadataFieldCreateNestedOneWithoutValuesInputSchema";
 import { RundownCreateNestedOneWithoutMetadataInputSchema } from "./RundownCreateNestedOneWithoutMetadataInputSchema";
+import { MediaCreateNestedOneWithoutMetadataInputSchema } from "./MediaCreateNestedOneWithoutMetadataInputSchema";
 
 export const MetadataCreateWithoutShowInputSchema: z.ZodType<Prisma.MetadataCreateWithoutShowInput> =
   z
@@ -12,6 +13,9 @@ export const MetadataCreateWithoutShowInputSchema: z.ZodType<Prisma.MetadataCrea
       field: z.lazy(() => MetadataFieldCreateNestedOneWithoutValuesInputSchema),
       rundown: z
         .lazy(() => RundownCreateNestedOneWithoutMetadataInputSchema)
+        .optional(),
+      media: z
+        .lazy(() => MediaCreateNestedOneWithoutMetadataInputSchema)
         .optional(),
     })
     .strict();

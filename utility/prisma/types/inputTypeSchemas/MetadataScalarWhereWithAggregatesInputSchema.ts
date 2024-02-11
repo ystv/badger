@@ -44,6 +44,13 @@ export const MetadataScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.Meta
         ])
         .optional()
         .nullable(),
+      mediaId: z
+        .union([
+          z.lazy(() => IntNullableWithAggregatesFilterSchema),
+          z.number(),
+        ])
+        .optional()
+        .nullable(),
     })
     .strict();
 

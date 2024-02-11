@@ -182,7 +182,6 @@ export function DatePickerField(props: {
                     "HH:mm",
                     v ?? new Date(),
                   );
-                  console.log("New time", newTime);
                   controller.field.onChange(newTime);
                 }}
               />
