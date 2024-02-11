@@ -1,4 +1,4 @@
-import test from "@playwright/test";
+import { test, expect } from "./lib";
 
 test.beforeEach(async ({ request }) => {
   await request.post(
@@ -6,8 +6,7 @@ test.beforeEach(async ({ request }) => {
   );
 });
 
-test.skip("Settings page works", async ({ page }) => {
-  //FIXME
+test("Settings page works", async ({ page }) => {
   await page.goto("/settings");
 
   await page.getByLabel("Default Description").fill("Test");

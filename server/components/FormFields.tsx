@@ -11,6 +11,7 @@ import {
 import { FieldPath } from "react-hook-form/dist/types/path";
 import classNames from "classnames";
 import {
+  ChangeEvent,
   ForwardedRef,
   ReactNode,
   forwardRef,
@@ -329,18 +330,16 @@ export function SelectField<TObj>(props: {
           ? (v: TObj) => (v === "" ? null : v)
           : identity,
       }}
+      value={getOptionValue(controller.field.value)}
+      onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+        controller.field.onChange(
+          options.find((o) => getOptionValue(o) === e.target.value) ?? null,
+        );
+      }}
     >
-      {nullable && (
-        <option value="" selected={controller.field.value === ""}>
-          None
-        </option>
-      )}
+      {nullable && <option value="">None</option>}
       {options.map((opt) => (
-        <option
-          key={getOptionValue(opt)}
-          value={getOptionValue(opt)}
-          selected={controller.field.value === getOptionValue(opt)}
-        >
+        <option key={getOptionValue(opt)} value={getOptionValue(opt)}>
           {renderOption(opt)}
         </option>
       ))}
