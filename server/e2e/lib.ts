@@ -161,3 +161,5 @@ test.beforeEach(async ({ request }) => {
     "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB",
   );
 });
+
+export { expect } from "@playwright/test";

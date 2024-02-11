@@ -1,8 +1,6 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
 import { IntFilterSchema } from "./IntFilterSchema";
-import { EnumSettingsCategoryFilterSchema } from "./EnumSettingsCategoryFilterSchema";
-import { SettingsCategorySchema } from "./SettingsCategorySchema";
 import { EnumSettingKeyFilterSchema } from "./EnumSettingKeyFilterSchema";
 import { SettingKeySchema } from "./SettingKeySchema";
 import { JsonFilterSchema } from "./JsonFilterSchema";
@@ -26,12 +24,6 @@ export const SettingWhereInputSchema: z.ZodType<Prisma.SettingWhereInput> = z
       ])
       .optional(),
     id: z.union([z.lazy(() => IntFilterSchema), z.number()]).optional(),
-    category: z
-      .union([
-        z.lazy(() => EnumSettingsCategoryFilterSchema),
-        z.lazy(() => SettingsCategorySchema),
-      ])
-      .optional(),
     key: z
       .union([
         z.lazy(() => EnumSettingKeyFilterSchema),

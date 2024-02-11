@@ -11,6 +11,7 @@ import {
 import { FieldPath } from "react-hook-form/dist/types/path";
 import classNames from "classnames";
 import {
+  ChangeEvent,
   ForwardedRef,
   ReactNode,
   forwardRef,
@@ -316,6 +317,9 @@ export function SelectField<TObj>(props: {
 }) {
   const { name, label, options, getOptionValue, renderOption, nullable } =
     props;
+  const controller = useController({
+    name,
+  });
   return (
     <Field
       name={name}
@@ -325,6 +329,12 @@ export function SelectField<TObj>(props: {
         setValueAs: props.nullable
           ? (v: TObj) => (v === "" ? null : v)
           : identity,
+      }}
+      value={getOptionValue(controller.field.value)}
+      onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+        controller.field.onChange(
+          options.find((o) => getOptionValue(o) === e.target.value) ?? null,
+        );
       }}
     >
       {nullable && <option value="">None</option>}

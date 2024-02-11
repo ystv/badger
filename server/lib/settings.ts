@@ -1,39 +1,54 @@
-import { SettingKey, SettingsCategory } from "@bowser/prisma/client";
-import { JsonValue } from "@bowser/prisma/client/runtime/library";
-import { db } from "./db";
+import { SettingKey } from "@bowser/prisma/client";
+import { z } from "zod";
 
-interface SettingsTypes
-  extends Record<SettingsCategory, Record<SettingKey, JsonValue>> {
-  [SettingsCategory.YouTube]: {
-    [SettingKey.TitleMetadataID]: number;
-    [SettingKey.DescriptionMetadataID]: number;
-  };
-}
+export const SettingsCategoriesSchema = z.enum(["YouTube"]);
+export type SettingsCategory = z.infer<typeof SettingsCategoriesSchema>;
 
-const SETTINGS_DEFAULT_VALUES: Record<
-  SettingsCategory,
-  Partial<Record<SettingKey, JsonValue>>
-> = {
-  YouTube: {},
+export const SettingsCategories: Record<SettingsCategory, SettingKey[]> = {
+  YouTube: [
+    SettingKey.TitleMetadataID,
+    SettingKey.DescriptionMetadataID,
+    SettingKey.DefaultDescription,
+    SettingKey.DefaultResolution,
+    SettingKey.DefaultIngestionType,
+    SettingKey.DefaultFrameRate,
+  ],
 };
 
-export async function getSetting<
-  C extends SettingsCategory,
-  K extends SettingKey,
->(category: C, key: K): Promise<SettingsTypes[C][K] | undefined> {
-  const value = await db.setting.findUnique({
-    where: {
-      category_key: {
-        category,
-        key,
-      },
-    },
-  });
-  if (value) {
-    return value.value as SettingsTypes[C][K];
-  }
+export const SettingsTypesSchema = z.object({
+  [SettingKey.TitleMetadataID]: z.coerce.number(),
+  [SettingKey.DescriptionMetadataID]: z.coerce.number(),
+  [SettingKey.DefaultDescription]: z.string(),
+  [SettingKey.DefaultResolution]: z.enum([
+    "240p",
+    "360p",
+    "480p",
+    "720p",
+    "1080p",
+    "1440p",
+    "2160p",
+  ]),
+  [SettingKey.DefaultIngestionType]: z.enum(["rtmp", "dash"]),
+  [SettingKey.DefaultFrameRate]: z.enum(["30fps", "60fps"]),
+});
 
-  return SETTINGS_DEFAULT_VALUES[category][key] as
-    | SettingsTypes[C][K]
-    | undefined;
-}
+export type SettingsTypes = z.infer<typeof SettingsTypesSchema>;
+
+export const SettingsNames: Record<SettingKey, string> = {
+  [SettingKey.TitleMetadataID]: "Title Metadata ID",
+  [SettingKey.DescriptionMetadataID]: "Description Metadata ID",
+  [SettingKey.DefaultDescription]: "Default Description",
+  [SettingKey.DefaultResolution]: "Default Resolution",
+  [SettingKey.DefaultIngestionType]: "Default Ingestion Type",
+  [SettingKey.DefaultFrameRate]: "Default Frame Rate",
+};
+
+export const SETTINGS_DEFAULT_VALUES: {
+  [K in keyof SettingsTypes]?: SettingsTypes[K];
+} = {
+  [SettingKey.DefaultFrameRate]: "30fps",
+  [SettingKey.DefaultResolution]: "1080p",
+  [SettingKey.TitleMetadataID]: 0,
+  [SettingKey.DescriptionMetadataID]: 0,
+  [SettingKey.DefaultDescription]: "",
+};

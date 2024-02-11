@@ -1,11 +1,7 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
-import { SettingCategoryKeyCompoundUniqueInputSchema } from "./SettingCategoryKeyCompoundUniqueInputSchema";
-import { SettingWhereInputSchema } from "./SettingWhereInputSchema";
-import { EnumSettingsCategoryFilterSchema } from "./EnumSettingsCategoryFilterSchema";
-import { SettingsCategorySchema } from "./SettingsCategorySchema";
-import { EnumSettingKeyFilterSchema } from "./EnumSettingKeyFilterSchema";
 import { SettingKeySchema } from "./SettingKeySchema";
+import { SettingWhereInputSchema } from "./SettingWhereInputSchema";
 import { JsonFilterSchema } from "./JsonFilterSchema";
 
 export const SettingWhereUniqueInputSchema: z.ZodType<Prisma.SettingWhereUniqueInput> =
@@ -13,22 +9,20 @@ export const SettingWhereUniqueInputSchema: z.ZodType<Prisma.SettingWhereUniqueI
     .union([
       z.object({
         id: z.number(),
-        category_key: z.lazy(() => SettingCategoryKeyCompoundUniqueInputSchema),
+        key: z.lazy(() => SettingKeySchema),
       }),
       z.object({
         id: z.number(),
       }),
       z.object({
-        category_key: z.lazy(() => SettingCategoryKeyCompoundUniqueInputSchema),
+        key: z.lazy(() => SettingKeySchema),
       }),
     ])
     .and(
       z
         .object({
           id: z.number().optional(),
-          category_key: z
-            .lazy(() => SettingCategoryKeyCompoundUniqueInputSchema)
-            .optional(),
+          key: z.lazy(() => SettingKeySchema).optional(),
           AND: z
             .union([
               z.lazy(() => SettingWhereInputSchema),
@@ -43,18 +37,6 @@ export const SettingWhereUniqueInputSchema: z.ZodType<Prisma.SettingWhereUniqueI
             .union([
               z.lazy(() => SettingWhereInputSchema),
               z.lazy(() => SettingWhereInputSchema).array(),
-            ])
-            .optional(),
-          category: z
-            .union([
-              z.lazy(() => EnumSettingsCategoryFilterSchema),
-              z.lazy(() => SettingsCategorySchema),
-            ])
-            .optional(),
-          key: z
-            .union([
-              z.lazy(() => EnumSettingKeyFilterSchema),
-              z.lazy(() => SettingKeySchema),
             ])
             .optional(),
           value: z.lazy(() => JsonFilterSchema).optional(),

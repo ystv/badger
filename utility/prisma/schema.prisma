@@ -58,6 +58,7 @@ enum Permission {
   ManageShows
   ArchiveMedia
   ManageYouTubeStreams
+  ManageSystemSettings
   SUDO
 }
 
@@ -225,22 +226,21 @@ model Metadata {
   @@map("metadata")
 }
 
-enum SettingsCategory {
-  YouTube
-}
-
 enum SettingKey {
   TitleMetadataID
   DescriptionMetadataID
+  DefaultResolution
+  DefaultFrameRate
+  DefaultIngestionType
+  DefaultDescription
 }
 
 model Setting {
   id       Int              @id @default(autoincrement())
-  category SettingsCategory
   key      SettingKey
   value    Json
 
-  @@unique([category, key])
+  @@unique([key])
   @@map("settings")
 }
 

@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { enableYoutube } from "@bowser/feature-flags";
 import { notFound, redirect } from "next/navigation";
 import CreateYTStreamsForm from "./form";
-import { getSetting } from "@/lib/settings";
+import { getSetting } from "@/lib/settingsValues";
 import { ConnectionTarget } from "@bowser/prisma/client";
 import { checkSession, requirePermission } from "@/lib/auth";
 
@@ -57,8 +57,8 @@ export default async function ShowYouTubePage(props: {
   }
 
   const [titleFieldID, descFieldID] = await Promise.all([
-    getSetting("YouTube", "TitleMetadataID"),
-    getSetting("YouTube", "DescriptionMetadataID"),
+    getSetting("TitleMetadataID"),
+    getSetting("DescriptionMetadataID"),
   ]);
 
   return (

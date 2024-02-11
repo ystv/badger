@@ -1,8 +1,6 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
 import { IntFieldUpdateOperationsInputSchema } from "./IntFieldUpdateOperationsInputSchema";
-import { SettingsCategorySchema } from "./SettingsCategorySchema";
-import { EnumSettingsCategoryFieldUpdateOperationsInputSchema } from "./EnumSettingsCategoryFieldUpdateOperationsInputSchema";
 import { SettingKeySchema } from "./SettingKeySchema";
 import { EnumSettingKeyFieldUpdateOperationsInputSchema } from "./EnumSettingKeyFieldUpdateOperationsInputSchema";
 import { JsonNullValueInputSchema } from "./JsonNullValueInputSchema";
@@ -15,12 +13,6 @@ export const SettingUncheckedUpdateInputSchema: z.ZodType<Prisma.SettingUnchecke
         .union([
           z.number().int(),
           z.lazy(() => IntFieldUpdateOperationsInputSchema),
-        ])
-        .optional(),
-      category: z
-        .union([
-          z.lazy(() => SettingsCategorySchema),
-          z.lazy(() => EnumSettingsCategoryFieldUpdateOperationsInputSchema),
         ])
         .optional(),
       key: z

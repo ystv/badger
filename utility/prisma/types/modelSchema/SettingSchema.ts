@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { InputJsonValue } from "../inputTypeSchemas/InputJsonValue";
-import { SettingsCategorySchema } from "../inputTypeSchemas/SettingsCategorySchema";
 import { SettingKeySchema } from "../inputTypeSchemas/SettingKeySchema";
 
 /////////////////////////////////////////
@@ -8,7 +7,6 @@ import { SettingKeySchema } from "../inputTypeSchemas/SettingKeySchema";
 /////////////////////////////////////////
 
 export const SettingSchema = z.object({
-  category: SettingsCategorySchema,
   key: SettingKeySchema,
   id: z.number().int(),
   value: InputJsonValue,

@@ -17,7 +17,8 @@ function AuthError(props: { error: Unauthorized | Forbidden }) {
           Return to Bowser
         </Link>
       </p>
-      {process.env.NODE_ENV === "development" && (
+      {(process.env.NODE_ENV === "development" ||
+        process.env.E2E_TEST === "true") && (
         <Button onClick={() => DEV_promoteSelf()}>
           Development only: promote yourself to SUDO
         </Button>
