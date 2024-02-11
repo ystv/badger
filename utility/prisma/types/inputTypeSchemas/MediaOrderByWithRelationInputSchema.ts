@@ -7,6 +7,7 @@ import { ContinuityItemOrderByRelationAggregateInputSchema } from "./ContinuityI
 import { MediaProcessingTaskOrderByRelationAggregateInputSchema } from "./MediaProcessingTaskOrderByRelationAggregateInputSchema";
 import { ProcessMediaJobOrderByRelationAggregateInputSchema } from "./ProcessMediaJobOrderByRelationAggregateInputSchema";
 import { AssetOrderByRelationAggregateInputSchema } from "./AssetOrderByRelationAggregateInputSchema";
+import { MetadataOrderByRelationAggregateInputSchema } from "./MetadataOrderByRelationAggregateInputSchema";
 
 export const MediaOrderByWithRelationInputSchema: z.ZodType<Prisma.MediaOrderByWithRelationInput> =
   z
@@ -35,6 +36,9 @@ export const MediaOrderByWithRelationInputSchema: z.ZodType<Prisma.MediaOrderByW
         .lazy(() => ProcessMediaJobOrderByRelationAggregateInputSchema)
         .optional(),
       assets: z.lazy(() => AssetOrderByRelationAggregateInputSchema).optional(),
+      metadata: z
+        .lazy(() => MetadataOrderByRelationAggregateInputSchema)
+        .optional(),
     })
     .strict();
 

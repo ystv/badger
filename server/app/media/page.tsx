@@ -31,6 +31,17 @@ export default async function MediaPage() {
           show: true,
         },
       },
+      metadata: {
+        include: {
+          field: true,
+          show: true,
+          rundown: {
+            include: {
+              show: true,
+            },
+          },
+        },
+      },
     },
   });
   const files = await listMediaFiles();

@@ -6,11 +6,10 @@ import { TusEndpointProvider } from "@/components/MediaUpload";
 import { getTusEndpoint } from "@/lib/tus";
 import { DateTime } from "@/components/DateTIme";
 import { MetadataFields } from "@/components/Metadata";
-import { MetadataTargetType, Permission } from "@bowser/prisma/client";
+import { MetadataTargetType } from "@bowser/prisma/client";
 import { addMeta, revalidateIfChanged, setMetaValue } from "./actions";
 import { cache } from "react";
 import { PastShowsMedia } from "@/components/MediaSelection";
-import { requirePermission } from "@/lib/auth";
 import { FlagGate } from "@/components/FeatureFlags";
 import { PermissionGate } from "@/components/PermissionGate";
 import Button from "@bowser/components/button";
@@ -39,10 +38,22 @@ const pastShowsPromise = cache(
                 media: true,
               },
             },
+            metadata: {
+              include: {
+                field: true,
+                media: true,
+              },
+            },
           },
         },
         continuityItems: {
           include: {
+            media: true,
+          },
+        },
+        metadata: {
+          include: {
+            field: true,
             media: true,
           },
         },
@@ -73,6 +84,11 @@ export default async function ShowPage(props: { params: { show_id: string } }) {
       metadata: {
         include: {
           field: true,
+          media: {
+            include: {
+              tasks: true,
+            },
+          },
         },
         orderBy: {
           fieldId: "asc",
@@ -116,19 +132,20 @@ export default async function ShowPage(props: { params: { show_id: string } }) {
           </Button>
         </PermissionGate>
       </FlagGate>
-      <MetadataFields
-        metadata={show.metadata}
-        fields={metaFields}
-        createMeta={async (fieldID, val) => {
-          "use server";
-          return addMeta(show.id, fieldID, val);
-        }}
-        setValue={async (metaID, val) => {
-          "use server";
-          return setMetaValue(show.id, metaID, val);
-        }}
-      />
       <TusEndpointProvider value={getTusEndpoint()}>
+        <MetadataFields
+          metadata={show.metadata}
+          fields={metaFields}
+          createMeta={async (fieldID, val) => {
+            "use server";
+            return addMeta(show.id, fieldID, val);
+          }}
+          setValue={async (metaID, val) => {
+            "use server";
+            return setMetaValue(show.id, metaID, val);
+          }}
+          pastShowsPromise={pastShowsPromise()}
+        />
         <ShowItemsList
           show={show}
           items={items}

@@ -6,8 +6,7 @@ export const MetadataTargetTypeSchema = z.enum([
   "ShowOrRundown",
 ]);
 
-export type MetadataTargetTypeType = `${z.infer<
-  typeof MetadataTargetTypeSchema
->}`;
+export type MetadataTargetTypeType =
+  `${z.infer<typeof MetadataTargetTypeSchema>}`;
 
 export default MetadataTargetTypeSchema;

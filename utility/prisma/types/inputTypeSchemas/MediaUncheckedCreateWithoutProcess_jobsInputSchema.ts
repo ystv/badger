@@ -5,6 +5,7 @@ import { RundownItemUncheckedCreateNestedManyWithoutMediaInputSchema } from "./R
 import { ContinuityItemUncheckedCreateNestedManyWithoutMediaInputSchema } from "./ContinuityItemUncheckedCreateNestedManyWithoutMediaInputSchema";
 import { MediaProcessingTaskUncheckedCreateNestedManyWithoutMediaInputSchema } from "./MediaProcessingTaskUncheckedCreateNestedManyWithoutMediaInputSchema";
 import { AssetUncheckedCreateNestedManyWithoutMediaInputSchema } from "./AssetUncheckedCreateNestedManyWithoutMediaInputSchema";
+import { MetadataUncheckedCreateNestedManyWithoutMediaInputSchema } from "./MetadataUncheckedCreateNestedManyWithoutMediaInputSchema";
 
 export const MediaUncheckedCreateWithoutProcess_jobsInputSchema: z.ZodType<Prisma.MediaUncheckedCreateWithoutProcess_jobsInput> =
   z
@@ -31,6 +32,9 @@ export const MediaUncheckedCreateWithoutProcess_jobsInputSchema: z.ZodType<Prism
         .optional(),
       assets: z
         .lazy(() => AssetUncheckedCreateNestedManyWithoutMediaInputSchema)
+        .optional(),
+      metadata: z
+        .lazy(() => MetadataUncheckedCreateNestedManyWithoutMediaInputSchema)
         .optional(),
     })
     .strict();

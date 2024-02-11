@@ -35,10 +35,22 @@ const pastShowsPromise = cache(
                 media: true,
               },
             },
+            metadata: {
+              include: {
+                field: true,
+                media: true,
+              },
+            },
           },
         },
         continuityItems: {
           include: {
+            media: true,
+          },
+        },
+        metadata: {
+          include: {
+            field: true,
             media: true,
           },
         },
@@ -108,6 +120,11 @@ async function RundownMetadata(props: { showID: number; rundownID: number }) {
       },
       include: {
         field: true,
+        media: {
+          include: {
+            tasks: true,
+          },
+        },
       },
       orderBy: {
         fieldId: "asc",
@@ -126,6 +143,7 @@ async function RundownMetadata(props: { showID: number; rundownID: number }) {
         "use server";
         return setMetaValue(props.rundownID, props.rundownID, metaID, val);
       }}
+      pastShowsPromise={pastShowsPromise()}
     />
   );
 }

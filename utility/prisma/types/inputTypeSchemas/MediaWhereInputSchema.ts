@@ -10,6 +10,7 @@ import { ContinuityItemListRelationFilterSchema } from "./ContinuityItemListRela
 import { MediaProcessingTaskListRelationFilterSchema } from "./MediaProcessingTaskListRelationFilterSchema";
 import { ProcessMediaJobListRelationFilterSchema } from "./ProcessMediaJobListRelationFilterSchema";
 import { AssetListRelationFilterSchema } from "./AssetListRelationFilterSchema";
+import { MetadataListRelationFilterSchema } from "./MetadataListRelationFilterSchema";
 
 export const MediaWhereInputSchema: z.ZodType<Prisma.MediaWhereInput> = z
   .object({
@@ -54,6 +55,7 @@ export const MediaWhereInputSchema: z.ZodType<Prisma.MediaWhereInput> = z
       .lazy(() => ProcessMediaJobListRelationFilterSchema)
       .optional(),
     assets: z.lazy(() => AssetListRelationFilterSchema).optional(),
+    metadata: z.lazy(() => MetadataListRelationFilterSchema).optional(),
   })
   .strict();
 

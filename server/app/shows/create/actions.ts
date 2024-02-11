@@ -14,7 +14,6 @@ export async function create(
 ): Promise<FormResponse> {
   "use server";
   const result = schema.safeParse(data);
-  console.log(result);
   if (!result.success) {
     return zodErrorResponse(result.error);
   }

@@ -5,6 +5,7 @@ import { ContinuityItemFindManyArgsSchema } from "../outputTypeSchemas/Continuit
 import { MediaProcessingTaskFindManyArgsSchema } from "../outputTypeSchemas/MediaProcessingTaskFindManyArgsSchema";
 import { ProcessMediaJobFindManyArgsSchema } from "../outputTypeSchemas/ProcessMediaJobFindManyArgsSchema";
 import { AssetFindManyArgsSchema } from "../outputTypeSchemas/AssetFindManyArgsSchema";
+import { MetadataFindManyArgsSchema } from "../outputTypeSchemas/MetadataFindManyArgsSchema";
 import { MediaCountOutputTypeArgsSchema } from "../outputTypeSchemas/MediaCountOutputTypeArgsSchema";
 
 export const MediaSelectSchema: z.ZodType<Prisma.MediaSelect> = z
@@ -29,6 +30,9 @@ export const MediaSelectSchema: z.ZodType<Prisma.MediaSelect> = z
       .optional(),
     assets: z
       .union([z.boolean(), z.lazy(() => AssetFindManyArgsSchema)])
+      .optional(),
+    metadata: z
+      .union([z.boolean(), z.lazy(() => MetadataFindManyArgsSchema)])
       .optional(),
     _count: z
       .union([z.boolean(), z.lazy(() => MediaCountOutputTypeArgsSchema)])

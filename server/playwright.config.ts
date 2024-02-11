@@ -39,6 +39,13 @@ export default defineConfig({
     timezoneId: "Europe/London",
   },
 
+  expect: {
+    // Raise the expect timeout on dev - sometimes the page is just
+    // taking a while to compile
+    timeout: process.env.CI ? 15_000 : 60_000,
+  },
+  timeout: process.env.CI ? 30_000 : 60_000,
+
   /* Configure projects for major browsers */
   projects: [
     { name: "setup", testMatch: /.*\.setup\.ts/ },
@@ -100,7 +107,11 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
       stdout: "pipe",
       stderr: "pipe",
-      env: serverEnv.parsed!,
+      env: {
+        ...serverEnv.parsed!,
+        NODE_ENV: "test",
+        E2E_TEST: "true",
+      },
     },
     {
       command: process.env.CI
