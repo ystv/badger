@@ -27,6 +27,7 @@ import {
   ItemMediaStateAndUploadDialog,
   MediaMetadata,
 } from "./MediaState";
+import { PastShowsMedia } from "./MediaSelection";
 
 export interface MetadataWithFieldAndMedia extends Metadata {
   field: MetadataField;
@@ -157,12 +158,14 @@ function MediaMetaValue({
   value,
   onUploadComplete,
   onExistingSelected,
+  pastShowsPromise,
 }: {
   field: MetadataField;
   meta: Metadata | null;
   value: CompleteMedia | null;
   onUploadComplete: (url: string, fileName: string) => Promise<unknown>;
   onExistingSelected: (id: number) => Promise<unknown>;
+  pastShowsPromise: Promise<PastShowsMedia>;
 }) {
   const id = useId();
   return (
@@ -178,7 +181,7 @@ function MediaMetaValue({
           }}
           onUploadComplete={onUploadComplete}
           onExistingSelected={onExistingSelected}
-          pastShowsPromise={Promise.reject("NO")} //FIXME
+          pastShowsPromise={pastShowsPromise}
         />
       </div>
     </div>
@@ -226,6 +229,7 @@ export function MetadataFields(props: {
     fieldID: number,
     val: Prisma.InputJsonValue | MediaMetaUploadValue | MediaMetaSelectValue,
   ) => Promise<FormResponse>;
+  pastShowsPromise: Promise<PastShowsMedia>;
 }) {
   const emptyFields = useMemo(
     () =>
@@ -256,6 +260,7 @@ export function MetadataFields(props: {
               onExistingSelected={(id) =>
                 props.setValue(meta.id, { mediaId: id })
               }
+              pastShowsPromise={props.pastShowsPromise}
             />
           ) : (
             <MetaValue
@@ -279,6 +284,7 @@ export function MetadataFields(props: {
             onExistingSelected={(id) =>
               props.createMeta(field.id, { mediaId: id })
             }
+            pastShowsPromise={props.pastShowsPromise}
           />
         ) : (
           <MetaValue
@@ -305,6 +311,7 @@ export function MetadataFields(props: {
               onExistingSelected={(id) =>
                 props.setValue(meta.id, { mediaId: id })
               }
+              pastShowsPromise={props.pastShowsPromise}
             />
           ) : (
             <MetaValue
@@ -340,6 +347,7 @@ export function MetadataFields(props: {
               }
               return r;
             }}
+            pastShowsPromise={props.pastShowsPromise}
           />
         ) : (
           <MetaValue

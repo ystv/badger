@@ -143,6 +143,7 @@ async function RundownMetadata(props: { showID: number; rundownID: number }) {
         "use server";
         return setMetaValue(props.rundownID, props.rundownID, metaID, val);
       }}
+      pastShowsPromise={pastShowsPromise()}
     />
   );
 }

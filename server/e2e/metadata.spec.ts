@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test";
-import { test, getAPIClient, fileToDataTransfer } from "./lib";
+import { test, getAPIClient, fileToDataTransfer, createShow } from "./lib";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
@@ -78,5 +78,52 @@ test("Media metadata", async ({ showPage: page }) => {
 
   // Check it stays there and gets properly saved
   await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("button", { name: "Good to go!" })).toBeVisible();
+});
+
+test("Media metadata reuse", async ({ showPage: page }) => {
+  test.slow();
+  const testFile = readFileSync(
+    path.join(__dirname, "testdata", "smpte_bars_15s.mp4"),
+  );
+
+  // Upload the media to a show in the past
+  await createShow(page, "Test 2", "past");
+  await page.getByRole("button", { name: "Add extra show details " }).click();
+  await page.getByRole("menuitem", { name: "Media" }).click();
+  await page
+    .getByRole("button", { name: "Media Missing ", exact: true })
+    .click();
+  await page.getByText("Upload file").click();
+  await expect(
+    page.getByText("Drop files here, or click to select"),
+  ).toBeInViewport();
+  await page
+    .getByText("Drop files here, or click to select")
+    .dispatchEvent("drop", {
+      dataTransfer: await fileToDataTransfer(
+        page,
+        testFile,
+        "smpte_bars_15s.mp4",
+        "video/mp4",
+      ),
+    });
+  await expect(page.getByRole("button", { name: "Good to go!" })).toBeVisible({
+    timeout: 30_000,
+  });
+
+  // Now go back to the initial test show
+  await page.goto("/");
+  await page.getByText("View/Edit").click();
+  await page.getByRole("button", { name: "Add extra show details " }).click();
+  await page.getByRole("menuitem", { name: "Media" }).click();
+  await page
+    .getByRole("button", { name: "Media Missing ", exact: true })
+    .click();
+  await page.getByText("Use media from previous show").click();
+
+  await page.getByText("Select show").click();
+  await page.getByRole("option").first().click();
+  await page.getByRole("button", { name: "Use" }).click();
   await expect(page.getByRole("button", { name: "Good to go!" })).toBeVisible();
 });

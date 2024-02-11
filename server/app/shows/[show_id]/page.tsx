@@ -144,6 +144,7 @@ export default async function ShowPage(props: { params: { show_id: string } }) {
             "use server";
             return setMetaValue(show.id, metaID, val);
           }}
+          pastShowsPromise={pastShowsPromise()}
         />
         <ShowItemsList
           show={show}

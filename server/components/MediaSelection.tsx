@@ -194,7 +194,7 @@ function SelectMediaContainer(props: {
       case "metadata":
         invariant(
           props.metaField,
-          "containerType is metadata but no metaField passed",
+          "SelectMediaContainer: containerType is metadata but no metaField passed",
         );
         let targets;
         switch (props.metaField.target) {
@@ -208,9 +208,16 @@ function SelectMediaContainer(props: {
           default:
             expectNever(props.metaField.target);
         }
-        return targets;
+        return targets.filter((x) =>
+          x.metadata.some(
+            (m) =>
+              m.field.id === props.metaField!.id &&
+              m.value !== null &&
+              m.field.type === "Media",
+          ),
+        );
     }
-  }, [props.containerType, data]);
+  }, [props.containerType, props.metaField, data]);
   const [{ show, rundown, shouldSelectRundown, complete, media }, dispatch] =
     useReducer(mediaContainerPickReducer, {
       complete: false,
@@ -283,6 +290,11 @@ function PastShowMediaSelection(props: {
   containerType: "rundownItem" | "continuityItem" | "asset" | "metadata";
   metaField?: MetadataField;
 }) {
+  invariant(
+    props.containerType !== "metadata" || props.metaField,
+    "PastShowMediaSelection: containerType is metadata but no metaField passed",
+  );
+
   const [media, setMedia] = useState<Media[] | null>(null);
 
   return (
@@ -324,6 +336,7 @@ export function MediaSelectOrUploadDialog(props: {
   onUploadComplete: (url: string, fileName: string) => Promise<unknown>;
   onExistingSelected: (id: number) => Promise<unknown>;
   containerType: "rundownItem" | "continuityItem" | "asset" | "metadata";
+  metaFieldContainer?: MetadataField;
   pastShowsPromise: Promise<PastShowsMedia>;
   acceptMedia: Record<string, string[]>;
 }) {
@@ -376,6 +389,7 @@ export function MediaSelectOrUploadDialog(props: {
               <PastShowMediaSelection
                 pastShowsPromise={props.pastShowsPromise}
                 containerType={props.containerType}
+                metaField={props.metaFieldContainer}
                 onMediaSelect={(v) =>
                   startTransition(async () => {
                     await props.onExistingSelected(v);

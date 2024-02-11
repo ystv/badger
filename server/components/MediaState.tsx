@@ -248,6 +248,7 @@ export function ItemMediaStateAndUploadDialog({
               ? "rundownItem"
               : "continuityItem"
         }
+        metaFieldContainer={"field" in item ? item.field : undefined}
         isOpen={isUploadOpen}
         setOpen={setIsUploadOpen}
         onUploadComplete={onUploadComplete}
