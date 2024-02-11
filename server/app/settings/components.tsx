@@ -67,9 +67,9 @@ export function SettingsField(props: { field: SettingKey }) {
         />
       );
     default:
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       invariant(
         false,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         `Unsupported type ${(type._def as any).typeName} for setting ${props.field}`,
       );
   }
