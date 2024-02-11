@@ -57,8 +57,8 @@ export default async function ShowYouTubePage(props: {
   }
 
   const [titleFieldID, descFieldID] = await Promise.all([
-    getSetting("YouTube", "TitleMetadataID"),
-    getSetting("YouTube", "DescriptionMetadataID"),
+    getSetting("TitleMetadataID"),
+    getSetting("DescriptionMetadataID"),
   ]);
 
   return (
