@@ -55,7 +55,9 @@ test("Media metadata", async ({ showPage: page }) => {
   );
   await page.getByRole("button", { name: "Add extra show details " }).click();
   await page.getByRole("menuitem", { name: "Media" }).click();
-  await page.getByRole("button", { name: "Upload", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Media Missing ", exact: true })
+    .click();
   await page.getByText("Upload file").click();
   await expect(
     page.getByText("Drop files here, or click to select"),
@@ -73,4 +75,8 @@ test("Media metadata", async ({ showPage: page }) => {
   await expect(page.getByRole("button", { name: "Good to go!" })).toBeVisible({
     timeout: 30_000,
   });
+
+  // Check it stays there and gets properly saved
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("button", { name: "Good to go!" })).toBeVisible();
 });

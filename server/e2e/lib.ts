@@ -85,7 +85,8 @@ export async function createShow(
   await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "Create" }).click();
   await expect(page.getByRole("heading", { name: name })).toBeVisible({
-    timeout: 10_000,
+    // Compiling the show page can take some time on local dev
+    timeout: process.env.CI ? 5_000 : 30_000,
   });
 }
 
