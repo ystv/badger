@@ -11,7 +11,7 @@ export const createStreamsPayloadSchema = z.object({
       start: z.date(),
       end: z.date(),
       visibility: z.enum(["public", "unlisted", "private"]),
-      // thumbnail: z.string(),
+      thumbnail: z.string().optional(),
       rundownID: z.number().optional(),
       continuityItemID: z.number().optional(),
       isShowBroadcast: z.boolean().optional(),

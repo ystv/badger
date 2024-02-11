@@ -23,6 +23,7 @@ import { RundownItem } from "@bowser/prisma/client";
 import { z } from "zod";
 import { identity } from "lodash";
 import { twMerge } from "tailwind-merge";
+import Image from "next/image";
 
 interface MetaValueWithField extends Metadata {
   field: MetadataField;
@@ -42,6 +43,7 @@ export interface YTStreamsShowData extends Show {
 function StreamItem(props: {
   namePrefix: string;
   name: string;
+  thumb?: string;
   broadcastID?: string;
 }) {
   const enabled = useController({
@@ -60,6 +62,18 @@ function StreamItem(props: {
       {enabled.field.value && (
         <>
           <Field name={props.namePrefix + ".title"} label="Title" />
+          <div className="my-2">
+            <strong>Thumbnail</strong>
+            {props.thumb ? (
+              <Image
+                height={100}
+                src={props.thumb}
+                alt={`Thumbnail for '${props.name}'`}
+              />
+            ) : (
+              `No thumbnail set for '${props.name}'`
+            )}
+          </div>
           <Field
             name={props.namePrefix + ".description"}
             label="Description"
@@ -100,6 +114,11 @@ export default function CreateYTStreamsForm(props: {
   show: YTStreamsShowData;
   titleFieldID?: number;
   descFieldID?: number;
+  thumbnailURLs: {
+    show?: string;
+    continuityItems: Record<number, string>;
+    rundowns: Record<number, string>;
+  };
 }) {
   const items = [...props.show.rundowns, ...props.show.continuityItems].sort(
     (a, b) => a.order - b.order,
@@ -118,6 +137,7 @@ export default function CreateYTStreamsForm(props: {
   let idx = 0;
 
   for (const item of items) {
+    const isRundown = "items" in item;
     const durationSeconds =
       "durationSeconds" in item
         ? item.durationSeconds
@@ -144,12 +164,18 @@ export default function CreateYTStreamsForm(props: {
       description = "";
     }
 
+    let thumbnail;
+    if (isRundown) {
+      thumbnail = props.thumbnailURLs.rundowns[item.id];
+    }
+
     initialValues.items!.push({
       enabled: !("durationSeconds" in item) || !!item.ytBroadcastID, // it's a rundown or it already exists
       title,
       description,
       start: new Date(time),
       end: new Date(time + durationSeconds * 1000),
+      thumbnail,
       visibility: "public",
       rundownID: "durationSeconds" in item ? item.id : undefined,
       continuityItemID: "durationSeconds" in item ? undefined : item.id,
@@ -162,6 +188,7 @@ export default function CreateYTStreamsForm(props: {
           idx + 1 /* all will be shifted down one at the unshift() below */
         }]`}
         broadcastID={item.ytBroadcastID ?? undefined}
+        thumb={thumbnail}
       />,
     );
     idx++;
@@ -200,9 +227,15 @@ export default function CreateYTStreamsForm(props: {
     enabled: true,
     visibility: "public",
     isShowBroadcast: true,
+    thumbnail: props.thumbnailURLs.show,
   });
   itemFields.unshift(
-    <StreamItem key={-1} name={"Main Stream"} namePrefix={`items[0]`} />,
+    <StreamItem
+      key={-1}
+      name={"Main Stream"}
+      namePrefix={`items[0]`}
+      thumb={props.thumbnailURLs.show}
+    />,
   );
 
   return (

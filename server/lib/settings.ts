@@ -8,6 +8,7 @@ export const SettingsCategories: Record<SettingsCategory, SettingKey[]> = {
   YouTube: [
     SettingKey.TitleMetadataID,
     SettingKey.DescriptionMetadataID,
+    SettingKey.ThumbnailMetadataID,
     SettingKey.DefaultDescription,
     SettingKey.DefaultResolution,
     SettingKey.DefaultIngestionType,
@@ -18,6 +19,7 @@ export const SettingsCategories: Record<SettingsCategory, SettingKey[]> = {
 export const SettingsTypesSchema = z.object({
   [SettingKey.TitleMetadataID]: z.coerce.number(),
   [SettingKey.DescriptionMetadataID]: z.coerce.number(),
+  [SettingKey.ThumbnailMetadataID]: z.coerce.number(),
   [SettingKey.DefaultDescription]: z.string(),
   [SettingKey.DefaultResolution]: z.enum([
     "240p",
@@ -37,6 +39,7 @@ export type SettingsTypes = z.infer<typeof SettingsTypesSchema>;
 export const SettingsNames: Record<SettingKey, string> = {
   [SettingKey.TitleMetadataID]: "Title Metadata ID",
   [SettingKey.DescriptionMetadataID]: "Description Metadata ID",
+  [SettingKey.ThumbnailMetadataID]: "Thumbnail Metadata ID",
   [SettingKey.DefaultDescription]: "Default Description",
   [SettingKey.DefaultResolution]: "Default Resolution",
   [SettingKey.DefaultIngestionType]: "Default Ingestion Type",
@@ -50,5 +53,6 @@ export const SETTINGS_DEFAULT_VALUES: {
   [SettingKey.DefaultResolution]: "1080p",
   [SettingKey.TitleMetadataID]: 0,
   [SettingKey.DescriptionMetadataID]: 0,
+  [SettingKey.ThumbnailMetadataID]: 0,
   [SettingKey.DefaultDescription]: "",
 };

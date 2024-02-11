@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { youtube_v3 } from "googleapis";
 import { z } from "zod";
+import ky from "ky";
 import { createStreamsPayloadSchema } from "./schema";
 import { FormResponse } from "@/components/Form";
 import { checkSession, requirePermission } from "@/lib/auth";
@@ -186,14 +187,17 @@ export async function doCreateStreams(
           },
         },
       });
-      // TODO[BOW-132]: Set thumbnail
-      // await yt.thumbnails.set({
-      //   videoId: broadcast.data.id!,
-      //   media: {
-      //     mimeType: "image/jpeg",
-      //     body: item.thumbnail,
-      //   }
-      // });
+      if (item.thumbnail) {
+        const thumbRes = await ky.get(item.thumbnail);
+        invariant(thumbRes.body, "no body in thumbnail response");
+        await yt.thumbnails.set({
+          videoId: broadcast.data.id!,
+          requestBody: {
+            mimeType: thumbRes.headers.get("content-type")!,
+            body: thumbRes.body,
+          },
+        });
+      }
       await yt.liveBroadcasts.bind({
         id: broadcast.data.id!,
         part: ["id"],

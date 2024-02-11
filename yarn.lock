@@ -7065,6 +7065,7 @@ __metadata:
     googleapis: ^128.0.0
     jest: ^29.7.0
     jsdom: ^22.1.0
+    ky: ^1.2.0
     lodash: ^4.17.21
     next: ^14.1.0
     pg: ^8.11.3
@@ -12195,6 +12196,13 @@ __metadata:
   version: 3.0.3
   resolution: "kleur@npm:3.0.3"
   checksum: df82cd1e172f957bae9c536286265a5cdbd5eeca487cb0a3b2a7b41ef959fc61f8e7c0e9aeea9c114ccf2c166b6a8dd45a46fd619c1c569d210ecd2765ad5169
+  languageName: node
+  linkType: hard
+
+"ky@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "ky@npm:1.2.0"
+  checksum: 10d436364d3e49e0c702adf90dfd0494812ba12853dfc4c1552a13150d769dfe0af339cd105f1076861f35ce1fb242e875858a2adb4fce62de0a5b5c7e9739fa
   languageName: node
   linkType: hard
 
