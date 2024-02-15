@@ -41,7 +41,7 @@ integrate("shows", () => {
       await expect(api.shows.listUpcoming()).resolves.toEqual([]);
     });
 
-    it("returns shows that have started but not finished [BOW-112]", async () => {
+    it("returns shows that have started but not finished [BDGR-112]", async () => {
       await db.show.create({
         data: {
           name: "Test Show",

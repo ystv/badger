@@ -164,7 +164,7 @@ export async function checkSession(req?: NextRequest) {
     });
   }
   if (!user.isActive) {
-    // TODO[BOW-108]: This doesn't check it from the database, meaning that if the user is deactivated
+    // TODO[BDGR-108]: This doesn't check it from the database, meaning that if the user is deactivated
     //  while signed in, they can still access the site until their session expires.
     return null;
   }

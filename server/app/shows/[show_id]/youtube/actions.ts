@@ -186,7 +186,7 @@ export async function doCreateStreams(
           },
         },
       });
-      // TODO[BOW-132]: Set thumbnail
+      // TODO[BDGR-132]: Set thumbnail
       // await yt.thumbnails.set({
       //   videoId: broadcast.data.id!,
       //   media: {

@@ -144,7 +144,7 @@ This not only serves as a safeguard, but also means you can use the "auto-merge"
 
 If a test fails on your PR, fix it.
 We rely on a broad test suite to ensure that Badger remains functional.
-In some cases the E2E tests can "flake", or fail for seemingly no reason - in this case it's acceptable to re-run the test to see if it'll pass on the second run, but please file a [Linear](https://linear.app/ystv/team/BOW) ticket, with the Playwright test trace (downloadable from the Artifacts section on the GitHub Actions summary), to remind us to track down the cause of the flake and fix it.
+In some cases the E2E tests can "flake", or fail for seemingly no reason - in this case it's acceptable to re-run the test to see if it'll pass on the second run, but please file a [Linear](https://linear.app/ystv/team/BDGR) ticket, with the Playwright test trace (downloadable from the Artifacts section on the GitHub Actions summary), to remind us to track down the cause of the flake and fix it.
 Playwright's [trace](https://playwright.dev/docs/trace-viewer-intro) feature is very useful for tracking down the cause of a failure.
 
 As an absolute last resort, if the test keeps failing and you're _sure_ that the failure is unrelated to your code, @markspolakovs and @dan-wade42 can override the merge requirements - though please still file a ticket.
@@ -153,7 +153,7 @@ As an absolute last resort, if the test keeps failing and you're _sure_ that the
 
 We use Prettier to automatically format code. If CI fails because of formatting, just run `yarn prettify`.
 
-TODO comments are allowed, but must be associated with a Linear ticket prior to merging your pull request (e.g. `// TODO [BOW-123]: Fix this`).
+TODO comments are allowed, but must be associated with a Linear ticket prior to merging your pull request (e.g. `// TODO [BDGR-123]: Fix this`).
 It's a good idea to wait until just before merging before you file the ticket, so you don't end up adding TODOs that you later remove.
 CI will remind you if you leave any.
 

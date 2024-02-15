@@ -223,7 +223,7 @@ jobs:
         working-directory: ./desktop
         env:
           PLAYWRIGHT_HTML_REPORT: ${{ github.workspace }}/desktop/playwright-report
-          BOWSER_LOGS_PATH: ${{ runner.temp }}/logs
+          BADGER_LOGS_PATH: ${{ runner.temp }}/logs
 
       - uses: actions/upload-artifact@v3
         if: always()
@@ -302,7 +302,7 @@ jobs:
         working-directory: ./desktop
         env:
           PLAYWRIGHT_HTML_REPORT: ${{ github.workspace }}/desktop/playwright-report
-          BOWSER_LOGS_PATH: ${{ runner.temp }}/logs
+          BADGER_LOGS_PATH: ${{ runner.temp }}/logs
 
       - uses: actions/upload-artifact@v3
         if: always()

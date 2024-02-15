@@ -5,7 +5,7 @@ import path from "path";
 import fs from "fs";
 
 const logsPath =
-  process.env.BOWSER_LOGS_PATH ?? path.join(app.getPath("userData"), "logs");
+  process.env.BADGER_LOGS_PATH ?? path.join(app.getPath("userData"), "logs");
 fs.mkdirSync(logsPath, { recursive: true });
 const logStream = fs.createWriteStream(path.join(logsPath, "main.log"), {
   flags: "a",

@@ -81,7 +81,7 @@ const createWindow = async () => {
   }
 
   // Open the DevTools.
-  if (process.env.BOWSER_OPEN_DEVTOOLS === "true") {
+  if (process.env.BADGER_OPEN_DEVTOOLS === "true") {
     mainWindow.webContents.openDevTools();
   }
 
