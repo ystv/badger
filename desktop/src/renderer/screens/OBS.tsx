@@ -1,31 +1,31 @@
 import { ipc, useInvalidateQueryOnIPCEvent } from "../ipc";
 import { useForm } from "react-hook-form";
-import { Button } from "@bowser/components/button";
+import { Button } from "@badger/components/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Alert } from "@bowser/components/alert";
-import { Progress } from "@bowser/components/progress";
-import { Badge } from "@bowser/components/badge";
+import { Alert } from "@badger/components/alert";
+import { Progress } from "@badger/components/progress";
+import { Badge } from "@badger/components/badge";
 import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogFooter,
-} from "@bowser/components/alert-dialog";
+} from "@badger/components/alert-dialog";
 import {
   Table,
   TableBody,
   TableRow,
   TableCell,
-} from "@bowser/components/table";
+} from "@badger/components/table";
 
-import { CompleteContinuityItemModel } from "@bowser/prisma/utilityTypes";
+import { CompleteContinuityItemModel } from "@badger/prisma/utilityTypes";
 import { z } from "zod";
 import invariant from "../../common/invariant";
-import { Label } from "@bowser/components/label";
-import { Input } from "@bowser/components/input";
+import { Label } from "@badger/components/label";
+import { Input } from "@badger/components/input";
 
 export function OBSSettings() {
   const queryClient = useQueryClient();
@@ -390,7 +390,7 @@ export default function OBSScreen() {
   if (connectionState.error) {
     return (
       <div>
-        <h2>Something went wrong inside Bowser</h2>
+        <h2>Something went wrong inside Badger</h2>
         <pre>{JSON.stringify(connectionState.error, null, 2)}</pre>
       </div>
     );
@@ -399,7 +399,7 @@ export default function OBSScreen() {
     return (
       <Alert variant="warning">
         Not connected to OBS. Please ensure that OBS is open and check the
-        Bowser settings.
+        Badger settings.
       </Alert>
     );
   }

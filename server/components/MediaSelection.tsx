@@ -3,16 +3,16 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@bowser/components/dialog";
+} from "@badger/components/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@bowser/components/select";
-import { Media } from "@bowser/prisma/types";
-import "@bowser/prisma/jsonTypes";
+} from "@badger/components/select";
+import { Media } from "@badger/prisma/types";
+import "@badger/prisma/jsonTypes";
 import { DialogBody } from "next/dist/client/components/react-dev-overlay/internal/components/Dialog";
 import {
   Suspense,
@@ -25,20 +25,20 @@ import {
   useTransition,
 } from "react";
 import { MediaUploader, MediaUploaderHandle } from "./MediaUpload";
-import Button from "@bowser/components/button";
+import Button from "@badger/components/button";
 import { format } from "date-fns";
 import {
   Table,
   TableBody,
   TableCell,
   TableRow,
-} from "@bowser/components/table";
+} from "@badger/components/table";
 import {
   MetadataField,
   MetadataTargetType,
   Rundown,
   Show,
-} from "@bowser/prisma/client";
+} from "@badger/prisma/client";
 import invariant from "@/lib/invariant";
 import { expectNever } from "ts-expect";
 

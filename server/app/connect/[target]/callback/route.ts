@@ -1,7 +1,7 @@
 import { checkSession } from "@/lib/auth";
 import { saveTokens } from "@/lib/connections";
 import invariant from "@/lib/invariant";
-import { ConnectionTargetSchema } from "@bowser/prisma/types";
+import { ConnectionTargetSchema } from "@badger/prisma/types";
 import { OAuth2Client } from "google-auth-library";
 import { NextRequest, NextResponse } from "next/server";
 

@@ -2,7 +2,7 @@ import electronSettings from "electron-settings";
 import { safeStorage } from "./safeStorage";
 import { z } from "zod";
 import * as fsp from "fs/promises";
-import { AssetTypeSchema } from "@bowser/prisma/types";
+import { AssetTypeSchema } from "@badger/prisma/types";
 import { IPCEvents } from "../ipcEventBus";
 import { ipcMain } from "electron";
 import logging from "./logging";

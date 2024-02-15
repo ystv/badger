@@ -1,5 +1,5 @@
 {
-  "name": "@bowser/components",
+  "name": "@badger/components",
   "private": true,
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.0.4",

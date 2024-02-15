@@ -9,7 +9,7 @@ import { DummyTestAuth } from "@/lib/auth/dummyTest";
 import { YSTVAuth } from "@/lib/auth/ystv";
 import invariant from "@/lib/invariant";
 import { SignInResult, doSignIn } from "@/lib/auth";
-import { useDummyTestAuth } from "@bowser/feature-flags";
+import { useDummyTestAuth } from "@badger/feature-flags";
 
 function determineProvider() {
   if (useDummyTestAuth) {

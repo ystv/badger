@@ -36,7 +36,7 @@ Sentry.init({
 
   tracePropagationTargets: [
     "http://localhost:3000",
-    "https://bowser.dev.ystv.co.uk",
-    "https://bowser.ystv.co.uk",
+    "https://badger.dev.ystv.co.uk",
+    "https://badger.ystv.co.uk",
   ],
 });

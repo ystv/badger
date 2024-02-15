@@ -152,7 +152,7 @@ if (data.dontMakePR) {
 
   const pr = await octo.rest.pulls.create({
     owner: "ystv",
-    repo: "bowser",
+    repo: "badger",
     title: `Bump version to ${newV}`,
     base: "main",
     head: `release-${newV}`,
@@ -160,7 +160,7 @@ if (data.dontMakePR) {
   const prNumber = pr.data.number;
   await octo.rest.issues.addLabels({
     owner: "ystv",
-    repo: "bowser",
+    repo: "badger",
     issue_number: prNumber,
     labels: ["release"],
   });
@@ -168,7 +168,7 @@ if (data.dontMakePR) {
   console.log(
     chalk.green(
       `Opened PR ${chalk.underline(
-        `https://github.com/ystv/bowser/pull/${prNumber}`,
+        `https://github.com/ystv/badger/pull/${prNumber}`,
       )}. Enabling auto-merge...`,
     ),
   );
@@ -197,7 +197,7 @@ if (data.dontMakePR) {
     const state = (
       await octo.rest.pulls.get({
         owner: "ystv",
-        repo: "bowser",
+        repo: "badger",
         pull_number: prNumber,
       })
     ).data;
@@ -224,7 +224,7 @@ await run(`git push origin v${newV}`);
 
 const release = await octo.rest.repos.createRelease({
   owner: "ystv",
-  repo: "bowser",
+  repo: "badger",
   tag_name: `v${newV}`,
   name: `v${newV}`,
   prerelease: data.prerelease,
@@ -239,7 +239,7 @@ console.log(
 console.log(chalk.blue("Running desktop build workflow..."));
 await octo.rest.actions.createWorkflowDispatch({
   owner: "ystv",
-  repo: "bowser",
+  repo: "badger",
   workflow_id: "desktop-build.yml",
   ref: `v${newV}`,
   inputs: {
@@ -252,7 +252,7 @@ let runId;
 for (let attempt = 0; attempt < 120; attempt++) {
   const runs = await octo.rest.actions.listWorkflowRuns({
     owner: "ystv",
-    repo: "bowser",
+    repo: "badger",
     workflow_id: "desktop-build.yml",
   });
   runId = runs.data.workflow_runs.find(
@@ -273,7 +273,7 @@ if (!runId) {
 }
 console.log(
   `Follow along at ${chalk.underline(
-    `https://github.com/ystv/bowser/actions/runs/${runId}`,
+    `https://github.com/ystv/badger/actions/runs/${runId}`,
   )}`,
 );
 await run(`gh run watch ${runId}`);
@@ -307,14 +307,14 @@ if (!ready) {
 console.log(chalk.blue("Finalising release..."));
 await octo.rest.repos.updateRelease({
   owner: "ystv",
-  repo: "bowser",
+  repo: "badger",
   release_id: release.data.id,
   draft: false,
 });
 console.log(chalk.green("Release published!"));
 console.log(
   chalk.bgGreenBright(
-    "Congratulations on another successful Bowser release! 🎉",
+    "Congratulations on another successful Badger release! 🎉",
   ),
 );
 console.log(

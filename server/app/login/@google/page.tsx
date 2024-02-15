@@ -1,8 +1,8 @@
 import { GoogleLoginButton } from "./GoogleLoginButton";
-import { Alert } from "@bowser/components/alert";
+import { Alert } from "@badger/components/alert";
 import { SignInResult } from "@/lib/auth";
 import invariant from "@/lib/invariant";
-import { enableGoogleLogin } from "@bowser/feature-flags";
+import { enableGoogleLogin } from "@badger/feature-flags";
 
 function commaJoin(parts: string[]): string {
   if (parts.length === 0) {

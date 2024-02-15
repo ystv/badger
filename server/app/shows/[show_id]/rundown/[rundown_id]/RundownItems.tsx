@@ -5,7 +5,7 @@ import {
   MediaProcessingTask,
   Rundown,
   RundownItem,
-} from "@bowser/prisma/client";
+} from "@badger/prisma/client";
 import {
   DragDropContext,
   Draggable,
@@ -38,14 +38,14 @@ import {
   useRef,
   useTransition,
 } from "react";
-import Button from "@bowser/components/button";
+import Button from "@badger/components/button";
 import { useRouter } from "next/navigation";
 import { ItemMediaStateAndUploadDialog } from "@/components/MediaState";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@bowser/components/popover";
+} from "@badger/components/popover";
 import {
   Table,
   TableBody,
@@ -54,7 +54,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@bowser/components/table";
+} from "@badger/components/table";
 import { formatDurationMS } from "@/lib/time";
 import { PastShowsMedia } from "@/components/MediaSelection";
 

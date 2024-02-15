@@ -31,8 +31,8 @@ import {
   reprocessMedia,
   retryProcessingMedia,
 } from "./actions";
-import { Show } from "@bowser/prisma/client";
-import Button from "@bowser/components/button";
+import { Show } from "@badger/prisma/client";
+import Button from "@badger/components/button";
 import Image from "next/image";
 import { add } from "date-fns";
 import Link from "next/link";
@@ -40,12 +40,12 @@ import Form from "@/components/Form";
 import { editContinuityItemSchema } from "./schema";
 import { DurationField, Field, HiddenField } from "@/components/FormFields";
 import { ItemMediaStateAndUploadDialog } from "@/components/MediaState";
-import { Input } from "@bowser/components/input";
+import { Input } from "@badger/components/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@bowser/components/popover";
+} from "@badger/components/popover";
 import {
   Table,
   TableBody,
@@ -54,7 +54,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@bowser/components/table";
+} from "@badger/components/table";
 import { formatDurationMS } from "@/lib/time";
 import { DateTime } from "@/components/DateTIme";
 import { z } from "zod";

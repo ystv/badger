@@ -1,4 +1,4 @@
-import { integrate } from "@bowser/testing";
+import { integrate } from "@badger/testing";
 import { appRouter } from "../_router";
 import { db } from "@/lib/db";
 import { add, sub } from "date-fns";

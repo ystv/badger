@@ -23,11 +23,11 @@ export async function getMediaPath(): Promise<string> {
   }
   switch (os.platform()) {
     case "win32":
-      return "C:\\bowser_media";
+      return "C:\\badger_media";
     case "darwin":
-      return `${os.userInfo().homedir}/Movies/Bowser Media`;
+      return `${os.userInfo().homedir}/Movies/Badger Media`;
     case "linux":
-      return `${os.userInfo().homedir}/Videos/Bowser Media`;
+      return `${os.userInfo().homedir}/Videos/Badger Media`;
     default:
       throw new Error("Unsupported platform");
   }

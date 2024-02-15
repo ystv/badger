@@ -12,7 +12,7 @@ import { tryCreateVMixConnection } from "./vmix/vmix";
 import Icon from "../icon/png/64x64.png";
 import { tryCreateOntimeConnection } from "./ontime/ontime";
 import * as Sentry from "@sentry/electron/main";
-import { logFlagState } from "@bowser/feature-flags";
+import { logFlagState } from "@badger/feature-flags";
 import { getLogger } from "./base/logging";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -30,7 +30,7 @@ console.error = logger.error;
 /* eslint-enable no-console */
 
 logger.info(
-  `Bowser Desktop v${global.__APP_VERSION__} (${global.__GIT_COMMIT__}) starting up.`,
+  `Badger Desktop v${global.__APP_VERSION__} (${global.__GIT_COMMIT__}) starting up.`,
 );
 logFlagState(true);
 

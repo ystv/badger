@@ -19,18 +19,18 @@ import {
   useMemo,
   useState,
 } from "react";
-import Button from "@bowser/components/button";
+import Button from "@badger/components/button";
 import { identity } from "lodash";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@bowser/components/popover";
-import { cn } from "@bowser/components/utils";
+} from "@badger/components/popover";
+import { cn } from "@badger/components/utils";
 import { IoCalendarSharp } from "react-icons/io5";
 import { format, parse } from "date-fns";
-import { Calendar } from "@bowser/components/calendar";
-import { Input } from "@bowser/components/input";
+import { Calendar } from "@badger/components/calendar";
+import { Input } from "@badger/components/input";
 import { DebugOnly } from "./DebugMode";
 
 interface FieldBaseProps<

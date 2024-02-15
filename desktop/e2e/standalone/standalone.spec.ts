@@ -1,4 +1,4 @@
-import { Show } from "@bowser/prisma/client";
+import { Show } from "@badger/prisma/client";
 import {
   test as base,
   _electron as electron,

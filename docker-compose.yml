@@ -1,12 +1,11 @@
-version: '3.8'
+version: "3.8"
 services:
-
   postgres:
     image: postgres:15-alpine
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: bowser_test
+      POSTGRES_DB: badger_test
     ports:
       - "5432:5432"
     volumes:
@@ -16,19 +15,19 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-  
+
   minio:
     image: quay.io/minio/minio:latest
     ports:
-      - '9000:9000'
-      - '9090:9090'
+      - "9000:9000"
+      - "9090:9090"
     volumes:
       - minio_data:/data
     environment:
       MINIO_ROOT_USER: root
       MINIO_ROOT_PASSWORD: rootroot
-    command: ['server', '/data', '--console-address', ':9090']
-  
+    command: ["server", "/data", "--console-address", ":9090"]
+
   minio_init:
     image: quay.io/minio/minio:latest
     depends_on:
@@ -37,27 +36,33 @@ services:
       /bin/sh -c "
         chmod +x /opt/bin/mc;
         mc alias set docker http://minio:9000 root rootroot;
-        mc mb docker/bowser;
+        mc mb docker/badger;
         mc mb docker/uploads;
         exit 0
       "
-  
+
   tusd:
     image: tusproject/tusd:latest
     depends_on:
       - minio
     ports:
-      - '1080:1080'
+      - "1080:1080"
     environment:
       AWS_ACCESS_KEY_ID: root
       AWS_SECRET_ACCESS_KEY: rootroot
       AWS_REGION: us-east-1
-    command: ['-s3-bucket=uploads', '-s3-endpoint=http://minio:9000', '-s3-object-prefix=/uploads', '-port=1080']
+    command:
+      [
+        "-s3-bucket=uploads",
+        "-s3-endpoint=http://minio:9000",
+        "-s3-object-prefix=/uploads",
+        "-port=1080",
+      ]
 
   ontime:
     image: getontime/ontime:v2.3.9
     ports:
-      - '4001:4001'
+      - "4001:4001"
     volumes:
       - ontime_data:/server/preloaded-db
 

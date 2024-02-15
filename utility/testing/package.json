@@ -1,5 +1,5 @@
 {
-  "name": "@bowser/testing",
+  "name": "@badger/testing",
   "private": true,
   "type": "module",
   "devDependencies": {

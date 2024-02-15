@@ -1,4 +1,4 @@
-import { ConnectionTarget } from "@bowser/prisma/client";
+import { ConnectionTarget } from "@badger/prisma/client";
 import { db } from "./db";
 import { cookies } from "next/headers";
 import { OAuth2Client } from "google-auth-library";

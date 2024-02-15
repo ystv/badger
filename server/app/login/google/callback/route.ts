@@ -1,6 +1,6 @@
 import { SignInResult, doSignIn } from "@/lib/auth";
 import { verifyToken } from "@/lib/auth/google";
-import { enableGoogleLogin } from "@bowser/feature-flags";
+import { enableGoogleLogin } from "@badger/feature-flags";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const res = await doSignIn("google", creds);
   switch (res) {
     case SignInResult.Success: {
-      const retURL = cookies().get("bowser_auth_return")?.value;
+      const retURL = cookies().get("badger_auth_return")?.value;
       if (retURL && typeof retURL === "string") {
         if (retURL.startsWith("/")) {
           const url = new URL(retURL, process.env.PUBLIC_URL);

@@ -85,13 +85,13 @@ jobs:
   test-integration-server-jobrunner:
     runs-on: ubuntu-latest
     env:
-      DATABASE_URL: postgres://root:postgres@localhost:5432/bowser_test
+      DATABASE_URL: postgres://root:postgres@localhost:5432/badger_test
       TUS_ENDPOINT: "http://localhost:1080/files"
       S3_ENDPOINT: "http://localhost:9000"
       AWS_ACCESS_KEY_ID: root
       AWS_SECRET_ACCESS_KEY: rootroot
       AWS_REGION: us-east-1
-      STORAGE_BUCKET: bowser
+      STORAGE_BUCKET: badger
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 18.x
@@ -123,7 +123,7 @@ jobs:
     env:
       NODE_ENV: test
       E2E_TEST: "true"
-      DATABASE_URL: postgres://root:postgres@localhost:5432/bowser_test
+      DATABASE_URL: postgres://root:postgres@localhost:5432/badger_test
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 18.x
@@ -242,7 +242,7 @@ jobs:
     env:
       NODE_ENV: test
       E2E_TEST: "true"
-      DATABASE_URL: postgres://root:postgres@localhost:5432/bowser_test
+      DATABASE_URL: postgres://root:postgres@localhost:5432/badger_test
       PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
     steps:
       - uses: actions/checkout@v3

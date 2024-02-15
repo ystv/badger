@@ -4,7 +4,7 @@ import { Forbidden, Unauthorized } from "@/lib/auth/errors";
 import Link from "next/link";
 import { useEffect } from "react";
 import * as Sentry from "@sentry/nextjs";
-import Button from "@bowser/components/button";
+import Button from "@badger/components/button";
 import { DEV_promoteSelf } from "./actions";
 
 function AuthError(props: { error: Unauthorized | Forbidden }) {
@@ -14,7 +14,7 @@ function AuthError(props: { error: Unauthorized | Forbidden }) {
       <p className="my-4">{props.error.message}</p>
       <p>
         <Link href="/" className="underline">
-          Return to Bowser
+          Return to Badger
         </Link>
       </p>
       {(process.env.NODE_ENV === "development" ||

@@ -2,7 +2,7 @@ import dotenv from "dotenv-flow";
 import { parseArgs } from "node:util";
 import * as fs from "node:fs";
 import { createServer } from "node:http";
-import { JobState, PrismaClient } from "@bowser/prisma/client";
+import { JobState, PrismaClient } from "@badger/prisma/client";
 import * as os from "os";
 import AbstractJob from "./jobs/base.js";
 import logging, { LogLevelNames } from "loglevel";
@@ -11,7 +11,7 @@ import ProcessMediaJob from "./jobs/ProcessMediaJob.js";
 import { LoadAssetJob } from "./jobs/LoadAssetJob.js";
 import DummyTestJob from "./jobs/DummyTestJob.js";
 import * as Sentry from "@sentry/node";
-import { logFlagState } from "@bowser/feature-flags";
+import { logFlagState } from "@badger/feature-flags";
 
 // Set in the esbuild command line
 declare const global: {

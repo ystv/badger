@@ -1,6 +1,6 @@
-# Bowser - Media management for YSTV Live
+# Badger - Media management for YSTV Live
 
-Bowser is a tool aimed at making YSTV Live setup easier by automating the process of setting up VT and continuity media
+Badger is a tool aimed at making YSTV Live setup easier by automating the process of setting up VT and continuity media
 files.
 
 **Features:**
@@ -12,7 +12,7 @@ files.
 
 ## Architecture
 
-Bowser is made up of three components:
+Badger is made up of three components:
 
 - `server`, a [Next.js](https://nextjs.org/) app (using the [App Directory](https://nextjs.org/docs/getting-started/react-essentials)) which handles the web interface and API
 - `jobrunner`, a standalone [Node.js](https://nodejs.org/en/) service which handles the media processing
@@ -35,10 +35,10 @@ There are also some extra packages, currently our [shadcn/ui](https://ui.shadcn.
 In terms of imports,
 
 - `desktop` imports some types from `server`, namely tRPC definitions
-  - Note that only type imports are allowed, to avoid bundling server code into the desktop build. ESLint will warn you if you try to import anything else. (Importing from `@bowser/prisma` is fine.)
+  - Note that only type imports are allowed, to avoid bundling server code into the desktop build. ESLint will warn you if you try to import anything else. (Importing from `@badger/prisma` is fine.)
 - `jobrunner` is entirely separate from `server`
-- Desktop and Server use `@bowser/prisma` (our UI components library, found in `utility/components`)
-- All three import `@bowser/prisma` (the Prisma client, found in `utility/prisma`)
+- Desktop and Server use `@badger/prisma` (our UI components library, found in `utility/components`)
+- All three import `@badger/prisma` (the Prisma client, found in `utility/prisma`)
 
 In terms of communication,
 
@@ -63,8 +63,8 @@ Clone the repo and install the dependencies:
 
 ```sh
 # Make sure you have a SSH key set up with GitHub (see https://docs.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh)
-$ git clone git@github.com:ystv/bowser.git
-$ cd bowser
+$ git clone git@github.com:ystv/badger.git
+$ cd badger
 $ yarn
 ```
 
@@ -96,7 +96,7 @@ Linear has a handy button in the top-right (or press <kbd>Control</kbd><kbd>Shif
 ### Libraries
 
 We use [Prisma](https://www.prisma.io/) as our database client.
-Note that our Prisma client lives in a utility package (`@bowser/prisma`, found in [utility/prisma](./utility/prisma)), which means that you need to run `yarn prisma:generate` rather than the usual `yarn prisma generate` after making changes to the schema.
+Note that our Prisma client lives in a utility package (`@badger/prisma`, found in [utility/prisma](./utility/prisma)), which means that you need to run `yarn prisma:generate` rather than the usual `yarn prisma generate` after making changes to the schema.
 Similarly, when making a new migration, use `yarn prisma:migrateDev` rather than `yarn prisma migrate dev`.
 (Why in a utility package? Because we use [zod-prisma-types](https://github.com/chrishoermann/zod-prisma-types) to generate [Zod](https://github.com/colinhacks/zod) type definitions from the Prisma models, which are also used by Desktop.)
 
@@ -108,7 +108,7 @@ shadcn is unique in that, rather than it being a library that you install, you c
 This means that we can easily customise it to our needs, and it's also easier to debug.
 shadcn internally uses [Tailwind CSS](https://tailwindcss.com/) and [Radix UI](https://www.radix-ui.com/).
 
-Note that our components live in a utility package (`@bowser/components`, found in [utility/components](./utility/components)), which confuses the shadcn CLI, so you may need to add new components by hand.
+Note that our components live in a utility package (`@badger/components`, found in [utility/components](./utility/components)), which confuses the shadcn CLI, so you may need to add new components by hand.
 When you do this, you'll probably also need to change the `@/lib/utils` import to `./utils`.
 
 ### Testing
@@ -143,7 +143,7 @@ GitHub is configured to not allow merging a pull request untill all tests (inclu
 This not only serves as a safeguard, but also means you can use the "auto-merge" button to automatically merge the PR once all tests have passed.
 
 If a test fails on your PR, fix it.
-We rely on a broad test suite to ensure that Bowser remains functional.
+We rely on a broad test suite to ensure that Badger remains functional.
 In some cases the E2E tests can "flake", or fail for seemingly no reason - in this case it's acceptable to re-run the test to see if it'll pass on the second run, but please file a [Linear](https://linear.app/ystv/team/BOW) ticket, with the Playwright test trace (downloadable from the Artifacts section on the GitHub Actions summary), to remind us to track down the cause of the flake and fix it.
 Playwright's [trace](https://playwright.dev/docs/trace-viewer-intro) feature is very useful for tracking down the cause of a failure.
 
@@ -162,19 +162,19 @@ CI will not let you merge if you leave any in.
 
 ## Deployment
 
-At YSTV, Bowser Server and Jobrunner are deployed to the [Nomad cluster](https://github.com/ystv/nomad).
+At YSTV, Badger Server and Jobrunner are deployed to the [Nomad cluster](https://github.com/ystv/nomad).
 This is done automatically by Jenkins.
 
 Note that, if you need to deploy database migrations, this will need to be done manually:
 
 1. Deploy a build containing the new migrations
-2. Find the `bowser-dev` or `bowser-prod` job in the [Nomad UI](https://nomad.comp.ystv.co.uk/)
+2. Find the `badger-dev` or `badger-prod` job in the [Nomad UI](https://nomad.comp.ystv.co.uk/)
 3. Click "Exec" and open a shell in the `server` task
 4. Run `npx prisma migrate deploy --schema=./utility/prisma/schema.prisma`
 
 ### Releasing
 
-We have two "environments" of Bowser in production, `dev` (https://bowser.dev.ystv.co.uk) and `prod` (https://bowser.ystv.co.uk).
+We have two "environments" of Badger in production, `dev` (https://badger.dev.ystv.co.uk) and `prod` (https://badger.ystv.co.uk).
 They have separate databases and file stores from each other, so you can use `dev` for testing while people carry on using `prod` for shows.
 
 All code merged into the `main` branch is automatically deployed to `dev` by Jenkins.

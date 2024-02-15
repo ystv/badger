@@ -1,5 +1,5 @@
 {
-  "name": "bowser-jobrunner",
+  "name": "badger-jobrunner",
   "version": "1.0.0-beta.6",
   "packageManager": "yarn@3.6.1",
   "devDependencies": {
@@ -29,9 +29,9 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.474.0",
     "@aws-sdk/lib-storage": "^3.428.0",
-    "@bowser/feature-flags": "workspace:*",
-    "@bowser/prisma": "workspace:*",
-    "@bowser/testing": "workspace:*",
+    "@badger/feature-flags": "workspace:*",
+    "@badger/prisma": "workspace:*",
+    "@badger/testing": "workspace:*",
     "@googleapis/drive": "^8.0.0",
     "@sentry/node": "^7.64.0",
     "@types/dotenv-flow": "^3.2.0",

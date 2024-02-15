@@ -8,7 +8,7 @@ import { FormResponse } from "@/components/Form";
 import { checkSession, requirePermission } from "@/lib/auth";
 import { cookies } from "next/headers";
 import { OAuth2Client } from "google-auth-library";
-import { ConnectionTarget } from "@bowser/prisma/client";
+import { ConnectionTarget } from "@badger/prisma/client";
 import { redirect } from "next/navigation";
 import invariant from "@/lib/invariant";
 import {

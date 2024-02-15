@@ -2,7 +2,7 @@ import pg from "pg";
 import { createHash } from "node:crypto";
 import { exec as execRaw } from "node:child_process";
 import { promisify } from "node:util";
-import { PrismaClient } from "@bowser/prisma/client/index.js";
+import { PrismaClient } from "@badger/prisma/client/index.js";
 
 /*
  * his file sets up and tears down a PostgreSQL database for each Jest test using Prisma.
@@ -40,7 +40,7 @@ jest.mock("@/lib/db", () => {
       db = new PrismaClient({
         datasources: {
           db: {
-            url: `postgresql://root:postgres@localhost:5432/bowser_test_${hash}`,
+            url: `postgresql://root:postgres@localhost:5432/badger_test_${hash}`,
           },
         },
       });
@@ -59,15 +59,15 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   const hash = getTestHash();
-  await client.query(`DROP DATABASE IF EXISTS bowser_test_${hash}`);
-  await client.query(`CREATE DATABASE bowser_test_${hash}`);
+  await client.query(`DROP DATABASE IF EXISTS badger_test_${hash}`);
+  await client.query(`CREATE DATABASE badger_test_${hash}`);
   await exec(`yarn prisma:migrateProd`, {
     env: {
       ...process.env,
-      DATABASE_URL: `postgresql://root:postgres@localhost:5432/bowser_test_${hash}`,
+      DATABASE_URL: `postgresql://root:postgres@localhost:5432/badger_test_${hash}`,
     },
   });
-  dbs.push(`bowser_test_${hash}`);
+  dbs.push(`badger_test_${hash}`);
 });
 
 afterEach(async () => {
@@ -77,7 +77,7 @@ afterEach(async () => {
     await db.$disconnect();
     dbInstances.delete(hash);
   }
-  await client.query(`DROP DATABASE bowser_test_${hash}`);
+  await client.query(`DROP DATABASE badger_test_${hash}`);
 });
 
 afterAll(async () => {

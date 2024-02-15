@@ -16,7 +16,7 @@ import {
   Rundown,
   RundownItem,
   Show,
-} from "@bowser/prisma/types";
+} from "@badger/prisma/types";
 import { isAfter } from "date-fns";
 import { DateTime } from "@/components/DateTIme";
 import {
@@ -26,9 +26,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@bowser/components/table";
-import { Checkbox } from "@bowser/components/checkbox";
-import Button from "@bowser/components/button";
+} from "@badger/components/table";
+import { Checkbox } from "@badger/components/checkbox";
+import Button from "@badger/components/button";
 import { useState, useTransition } from "react";
 import {
   AlertDialog,
@@ -39,7 +39,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@bowser/components/alert-dialog";
+} from "@badger/components/alert-dialog";
 import { archiveMedia, deletMedia } from "./actions";
 import {
   IoChevronDownSharp,
@@ -48,7 +48,7 @@ import {
   IoFilterSharp,
 } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
-import { Metadata } from "@bowser/prisma/client";
+import { Metadata } from "@badger/prisma/client";
 
 interface ExtendedRundownItem extends RundownItem {
   rundown: Rundown & {

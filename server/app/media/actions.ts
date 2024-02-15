@@ -3,7 +3,7 @@
 import { requirePermission } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { bulkDelete } from "@/lib/s3";
-import { MediaState, Permission } from "@bowser/prisma/client";
+import { MediaState, Permission } from "@badger/prisma/client";
 import { revalidatePath } from "next/cache";
 
 export async function archiveMedia(ids: number[]) {

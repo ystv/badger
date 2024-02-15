@@ -1,5 +1,5 @@
 import { ipc, useInvalidateQueryOnIPCEvent } from "../ipc";
-import { Button } from "@bowser/components/button";
+import { Button } from "@badger/components/button";
 import { useCallback, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
@@ -7,22 +7,22 @@ import {
   CompleteAssetSchema,
   CompleteRundownItemSchema,
   CompleteRundownModel,
-} from "@bowser/prisma/utilityTypes";
+} from "@badger/prisma/utilityTypes";
 import { z } from "zod";
 import { VMIX_NAMES } from "../../common/constants";
 import { ListInput } from "../../main/vmix/vmixTypes";
 import invariant from "../../common/invariant";
-import { Alert } from "@bowser/components/alert";
-import { Progress } from "@bowser/components/progress";
+import { Alert } from "@badger/components/alert";
+import { Progress } from "@badger/components/progress";
 import {
   Table,
   TableBody,
   TableCell,
   TableRow,
-} from "@bowser/components/table";
-import { Badge } from "@bowser/components/badge";
-import { Label } from "@bowser/components/label";
-import { Input } from "@bowser/components/input";
+} from "@badger/components/table";
+import { Badge } from "@badger/components/badge";
+import { Label } from "@badger/components/label";
+import { Input } from "@badger/components/input";
 
 export function VMixConnection() {
   const [state] = ipc.vmix.getConnectionState.useSuspenseQuery();
@@ -528,7 +528,7 @@ export default function VMixScreen(props: {
   if (connectionState.isError) {
     return (
       <div>
-        <h2>Something went wrong inside Bowser</h2>
+        <h2>Something went wrong inside Badger</h2>
         <pre>{JSON.stringify(connectionState.error, null, 2)}</pre>
       </div>
     );

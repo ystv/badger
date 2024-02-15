@@ -2,7 +2,7 @@
 
 import { ReactNode, useMemo } from "react";
 import { useCurrentUser } from "./CurrentUser";
-import { Permission } from "@bowser/prisma/client";
+import { Permission } from "@badger/prisma/client";
 import { useFeatureFlag } from "./FeatureFlags";
 
 export function PermissionGate(props: {

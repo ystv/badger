@@ -1,6 +1,6 @@
 import { ReactNode, useCallback, useEffect, useState } from "react";
 import { ipc } from "./ipc";
-import Button from "@bowser/components/button";
+import Button from "@badger/components/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import invariant from "../common/invariant";
@@ -8,7 +8,7 @@ import invariant from "../common/invariant";
 function ServerConnectForm() {
   const queryClient = useQueryClient();
   const [addrEntry, setAddrEntry] = useState(
-    import.meta.env.DEV ? "http://localhost:3000" : "https://bowser.ystv.co.uk",
+    import.meta.env.DEV ? "http://localhost:3000" : "https://badger.ystv.co.uk",
   );
   const [password, setPassword] = useState("");
   const doConnect = ipc.connectToServer.useMutation();
@@ -137,7 +137,7 @@ export default function ConnectAndSelectShowGate(props: {
   return (
     <div className="absolute bg-primary-4 w-full h-full m-0 p-0">
       <div className="w-144 h-24 m-auto p-8">
-        <h1 className="text-5xl text-light">Bowser</h1>
+        <h1 className="text-5xl text-light">🦡 Badger</h1>
         {connState.data.warnings?.versionSkew && (
           <div className="block bg-warning-4 text-light p-1 rounded">
             <strong>Server/Desktop version skew detected!</strong> Some features

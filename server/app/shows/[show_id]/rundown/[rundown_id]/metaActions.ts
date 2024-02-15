@@ -11,7 +11,7 @@ import {
   MediaFileSourceType,
   MetadataTargetType,
   type Prisma,
-} from "@bowser/prisma/client";
+} from "@badger/prisma/client";
 import { escapeRegExp } from "lodash";
 import { revalidatePath } from "next/cache";
 

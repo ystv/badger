@@ -1,11 +1,11 @@
 "use client";
 
 import invariant from "@/lib/invariant";
-import Button from "@bowser/components/button";
-import { Input } from "@bowser/components/input";
-import { Textarea } from "@bowser/components/textarea";
-import { Prisma } from "@bowser/prisma/client";
-import { Metadata, MetadataField } from "@bowser/prisma/client";
+import Button from "@badger/components/button";
+import { Input } from "@badger/components/input";
+import { Textarea } from "@badger/components/textarea";
+import { Prisma } from "@badger/prisma/client";
+import { Metadata, MetadataField } from "@badger/prisma/client";
 import { useId, useMemo, useReducer, useState, useTransition } from "react";
 import { FormResponse } from "./Form";
 import {
@@ -19,7 +19,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@bowser/components/dropdown-menu";
+} from "@badger/components/dropdown-menu";
 import { twMerge } from "tailwind-merge";
 import { expectNever } from "ts-expect";
 import {

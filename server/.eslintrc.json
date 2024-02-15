@@ -7,7 +7,7 @@
       {
         "patterns": [
           {
-            "group": ["bowser-desktop/"]
+            "group": ["badger-desktop/"]
           }
         ]
       }

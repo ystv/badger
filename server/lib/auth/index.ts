@@ -2,14 +2,14 @@ import { makeJWT, parseAndVerifyJWT } from "@/lib/auth/jwt";
 import { NextRequest } from "next/server";
 import { redirect } from "next/navigation";
 import * as Sentry from "@sentry/nextjs";
-import { Permission } from "@bowser/prisma/client";
+import { Permission } from "@badger/prisma/client";
 import { db } from "../db";
-import { User, UserSchema } from "@bowser/prisma/types";
+import { User, UserSchema } from "@badger/prisma/types";
 import {
   autoActivateAllUsers,
   disablePermissionsChecks,
   enableUserManagement,
-} from "@bowser/feature-flags";
+} from "@badger/feature-flags";
 import { BasicUserInfo } from "./types";
 import { Forbidden, Unauthorized } from "./errors";
 
@@ -25,7 +25,7 @@ export enum SignInResult {
   Inactive = "inactive",
 }
 
-const cookieName = "bowser_session";
+const cookieName = "badger_session";
 
 export async function doSignIn(
   provider: string,

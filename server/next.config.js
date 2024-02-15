@@ -8,7 +8,7 @@ const gitCommit =
   process.env.GIT_REV ??
   execFileSync("/usr/bin/git", ["rev-parse", "HEAD"]).toString().trim();
 const sentryRelease =
-  "bowser-server@" + packageJSON.version + "-" + gitCommit.slice(0, 7);
+  "badger-server@" + packageJSON.version + "-" + gitCommit.slice(0, 7);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -17,7 +17,7 @@ const nextConfig = {
     instrumentationHook: true,
     serverComponentsExternalPackages: ["@aws-sdk/s3-request-presigner"],
   },
-  transpilePackages: ["@bowser/prisma"],
+  transpilePackages: ["@badger/prisma"],
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.plugins = [...config.plugins, new PrismaPlugin()];
@@ -42,7 +42,7 @@ module.exports = withSentryConfig(
     silent: true,
 
     org: "ystv",
-    project: "bowser-server",
+    project: "badger-server",
     authToken: process.env.SENTRY_AUTH_TOKEN,
     release: sentryRelease,
   },

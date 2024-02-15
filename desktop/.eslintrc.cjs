@@ -26,21 +26,21 @@ module.exports = {
       {
         patterns: [
           {
-            group: [`bowser-server/app(?!/api)`],
+            group: [`badger-server/app(?!/api)`],
           },
           {
-            group: [`bowser-server/app`],
+            group: [`badger-server/app`],
             message: "You probably wanted 'import type'.",
             allowTypeImports: true,
           },
           {
-            group: [`bowser-server/lib/db`],
-            message: "You probably wanted '@bowser/prisma'.",
+            group: [`badger-server/lib/db`],
+            message: "You probably wanted '@badger/prisma'.",
           },
           {
             group: ["@"],
             message:
-              "Next's @-prefixed imports won't work. Import from bowser-server instead.",
+              "Next's @-prefixed imports won't work. Import from badger-server instead.",
           },
           {
             group: ["^electron"],

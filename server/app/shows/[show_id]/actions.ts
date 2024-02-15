@@ -13,7 +13,7 @@ import {
   MediaState,
   MetadataTargetType,
   Prisma,
-} from "@bowser/prisma/client";
+} from "@badger/prisma/client";
 import { escapeRegExp } from "lodash";
 
 import { dispatchJobForJobrunner } from "@/lib/jobs";

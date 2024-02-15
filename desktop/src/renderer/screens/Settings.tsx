@@ -3,17 +3,17 @@ import { ipc } from "../ipc";
 import { getQueryKey } from "@trpc/react-query";
 import { OBSSettings } from "./OBS";
 import OBSDevToolsScreen from "./OBSDevTools";
-import { Switch } from "@bowser/components/switch";
-import { Label } from "@bowser/components/label";
+import { Switch } from "@badger/components/switch";
+import { Label } from "@badger/components/label";
 import {
   Tabs,
   TabsList,
   TabsTrigger,
   TabsContent,
-} from "@bowser/components/tabs";
+} from "@badger/components/tabs";
 import { VMixConnection } from "./vMix";
 import { OntimeSettings } from "./Ontime";
-import Button from "@bowser/components/button";
+import Button from "@badger/components/button";
 import { MediaSettings } from "./MediaSettings";
 import {
   Select,
@@ -21,7 +21,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@bowser/components/select";
+} from "@badger/components/select";
 import { LogLevelNames } from "loglevel";
 
 export function Settings() {
@@ -227,7 +227,7 @@ export function Settings() {
         </TabsContent>
       )}
       <TabsContent value="about">
-        <h2 className="text-xl">Bowser</h2>
+        <h2 className="text-xl">Badger</h2>
         <p>
           Version <code>{global.__APP_VERSION__}</code>, built on{" "}
           {new Date(global.__BUILD_TIME__).toLocaleString()} from{" "}

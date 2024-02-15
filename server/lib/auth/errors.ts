@@ -1,4 +1,4 @@
-import { Permission } from "@bowser/prisma/client";
+import { Permission } from "@badger/prisma/client";
 
 export class Forbidden extends Error {
   constructor(require: Permission) {
