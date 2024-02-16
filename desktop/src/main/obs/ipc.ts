@@ -23,7 +23,7 @@ export const obsRouter = r({
       }),
     )
     .query(async () => {
-      // TODO[BOW-136]: don't use the connection for this
+      // TODO[BDGR-136]: don't use the connection for this
       if (obsConnection === null) {
         return { connected: false };
       }

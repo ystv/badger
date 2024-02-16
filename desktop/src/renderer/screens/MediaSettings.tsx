@@ -1,4 +1,4 @@
-import Button from "@bowser/components/button";
+import Button from "@badger/components/button";
 import { ipc } from "../ipc";
 import {
   Table,
@@ -7,16 +7,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@bowser/components/table";
+} from "@badger/components/table";
 import { useMemo } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@bowser/components/dropdown-menu";
+} from "@badger/components/dropdown-menu";
 import { IoChevronDownSharp } from "react-icons/io5";
-import { Badge } from "@bowser/components/badge";
+import { Badge } from "@badger/components/badge";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 

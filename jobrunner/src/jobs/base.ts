@@ -1,4 +1,4 @@
-import { PrismaClient } from "@bowser/prisma/client";
+import { PrismaClient } from "@badger/prisma/client";
 import { Logger, default as logging } from "loglevel";
 import { S3Client } from "@aws-sdk/client-s3";
 import { drive, drive_v3 } from "@googleapis/drive";
@@ -26,7 +26,7 @@ export default abstract class AbstractJob<TParams = unknown> {
       version: "v3",
     });
 
-    const dir = path.join(os.tmpdir(), "bowser-jobrunner-" + Date.now());
+    const dir = path.join(os.tmpdir(), "badger-jobrunner-" + Date.now());
     fs.mkdirSync(dir, { recursive: true });
     this.temporaryDir = dir;
   }

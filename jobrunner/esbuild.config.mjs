@@ -12,7 +12,7 @@ const gitCommit =
   execFileSync("/usr/bin/git", ["rev-parse", "HEAD"]).toString().trim();
 
 const sentryRelease =
-  "bowser-jobrunner@" + packageJSON.version + "-" + gitCommit.slice(0, 7);
+  "badger-jobrunner@" + packageJSON.version + "-" + gitCommit.slice(0, 7);
 
 await esbuild.build({
   bundle: true,
@@ -30,7 +30,7 @@ await esbuild.build({
   plugins: [
     sentryEsbuildPlugin({
       org: "ystv",
-      project: "bowser-jobrunner",
+      project: "badger-jobrunner",
       authToken: process.env.SENTRY_AUTH_TOKEN,
       release: {
         name: sentryRelease,

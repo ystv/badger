@@ -6,7 +6,7 @@ import {
 import { z } from "zod";
 import { callProcedure, TRPCError } from "@trpc/server";
 import { selectedShow, setSelectedShow } from "./base/selectedShow";
-import { CompleteShowModel } from "@bowser/prisma/utilityTypes";
+import { CompleteShowModel } from "@badger/prisma/utilityTypes";
 import { Integration } from "../common/types";
 import {
   assetsSettingsSchema,
@@ -18,7 +18,7 @@ import {
 import { IPCEvents } from "./ipcEventBus";
 import { ipcMain } from "electron";
 import logging, { logLevel, setLogLevel } from "./base/logging";
-import { ShowSchema } from "@bowser/prisma/types";
+import { ShowSchema } from "@badger/prisma/types";
 import { inspect } from "node:util";
 import { ontimeRouter } from "./ontime/ipc";
 import { vmixRouter } from "./vmix/ipc";

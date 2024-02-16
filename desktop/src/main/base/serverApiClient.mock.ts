@@ -6,7 +6,7 @@ import {
   OperationResultEnvelope,
   loggerLink,
 } from "@trpc/client";
-import type { AppRouter } from "bowser-server/app/api/_router";
+import type { AppRouter } from "badger-server/app/api/_router";
 import { observable } from "@trpc/server/observable";
 import SuperJSON from "superjson";
 

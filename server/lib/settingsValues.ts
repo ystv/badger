@@ -5,7 +5,7 @@ import {
   SettingsTypes,
   SettingsTypesSchema,
 } from "./settings";
-import { SettingKey } from "@bowser/prisma/client";
+import { SettingKey } from "@badger/prisma/client";
 import { cache } from "react";
 
 export const getAllSettings = cache(async function _getAllSettings(): Promise<

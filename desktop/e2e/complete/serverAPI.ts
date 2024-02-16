@@ -1,5 +1,5 @@
 import { fetch } from "undici";
-import type { AppRouter } from "bowser-server/app/api/_router";
+import type { AppRouter } from "badger-server/app/api/_router";
 import { createTRPCProxyClient, httpBatchLink } from "@trpc/client";
 import SuperJSON from "superjson";
 import { expect } from "@playwright/test";

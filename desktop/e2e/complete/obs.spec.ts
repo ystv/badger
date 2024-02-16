@@ -4,7 +4,7 @@ import { test } from "./desktopE2EUtils";
 import * as os from "node:os";
 import * as fsp from "node:fs/promises";
 import * as path from "node:path";
-import MockOBSWebSocket from "@bowser/testing/MockOBSWebSocket";
+import MockOBSWebSocket from "@badger/testing/MockOBSWebSocket";
 import { expect } from "@playwright/test";
 
 let testShow: CompleteShowType;
@@ -110,7 +110,7 @@ test("download continuity media and load into OBS", async ({
     const [createInputData, respondCreateInput] =
       await obs.waitForRequest("CreateInput");
     expect(createInputData.sceneName).toBe("0 - Test Continuity [#1]");
-    expect(createInputData.inputName).toBe("Bowser Media 1");
+    expect(createInputData.inputName).toBe("Badger Media 1");
     await respondCreateInput({
       success: true,
       code: 100,
@@ -150,7 +150,7 @@ test("download continuity media and load into OBS", async ({
       data: {
         sceneItems: [
           {
-            sourceName: "Bowser Media 1",
+            sourceName: "Badger Media 1",
           },
         ],
       },

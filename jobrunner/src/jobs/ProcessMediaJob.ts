@@ -9,7 +9,7 @@ import {
   Rundown,
   RundownItem,
   Show,
-} from "@bowser/prisma/client";
+} from "@badger/prisma/client";
 import * as child_process from "node:child_process";
 import * as util from "node:util";
 import {
@@ -20,7 +20,7 @@ import {
 import {
   enableQualityControl,
   failUploadOnQualityControlFail,
-} from "@bowser/feature-flags";
+} from "@badger/feature-flags";
 import { MediaJobCommon } from "./MediaJobCommon.js";
 
 const TARGET_LOUDNESS_LUFS = -14;

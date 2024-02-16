@@ -23,11 +23,11 @@ export async function getMediaPath(): Promise<string> {
   }
   switch (os.platform()) {
     case "win32":
-      return "C:\\bowser_media";
+      return "C:\\badger_media";
     case "darwin":
-      return `${os.userInfo().homedir}/Movies/Bowser Media`;
+      return `${os.userInfo().homedir}/Movies/Badger Media`;
     case "linux":
-      return `${os.userInfo().homedir}/Videos/Bowser Media`;
+      return `${os.userInfo().homedir}/Videos/Badger Media`;
     default:
       throw new Error("Unsupported platform");
   }
@@ -155,7 +155,7 @@ export function getDownloadStatus() {
 }
 
 export async function deleteMedia(mediaID: number) {
-  // TODO [BOW-67]: This won't handle orphans - media that is not present in the settings,
+  // TODO [BDGR-67]: This won't handle orphans - media that is not present in the settings,
   //  but is still present on disk. We can find them by the file name (they'll have
   //  the [#123] suffix). We should somewhere, perhaps on startup, check for orphans
   //  and either re-link them in the settings (if they map to an existing media object

@@ -5,7 +5,7 @@ import {
   ExtendedMediaModel,
   CompleteRundownModel,
   CompleteShowModel,
-} from "@bowser/prisma/utilityTypes";
+} from "@badger/prisma/utilityTypes";
 import { getPresignedURL } from "@/lib/s3";
 import {
   ContinuityItemSchema,
@@ -19,7 +19,7 @@ import {
   ShowUpdateInputSchema,
   MediaUpdateInputSchema,
   MetadataFieldCreateInputSchema,
-} from "@bowser/prisma/types";
+} from "@badger/prisma/types";
 import invariant from "@/lib/invariant";
 import { dispatchJobForJobrunner } from "@/lib/jobs";
 

@@ -1,7 +1,7 @@
-import { MediaFileSourceType, MediaState } from "@bowser/prisma/client";
+import { MediaFileSourceType, MediaState } from "@badger/prisma/client";
 import { it, beforeEach, expect } from "vitest";
 import { db, doOneJob } from "../index.js";
-import { integrate } from "@bowser/testing";
+import { integrate } from "@badger/testing";
 import * as fs from "fs";
 import * as fsp from "fs/promises";
 import got from "got";

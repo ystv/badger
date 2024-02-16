@@ -1,4 +1,4 @@
-import { integrate } from "@bowser/testing";
+import { integrate } from "@badger/testing";
 import { appRouter } from "../_router";
 import { db } from "@/lib/db";
 import { add, sub } from "date-fns";
@@ -41,7 +41,7 @@ integrate("shows", () => {
       await expect(api.shows.listUpcoming()).resolves.toEqual([]);
     });
 
-    it("returns shows that have started but not finished [BOW-112]", async () => {
+    it("returns shows that have started but not finished [BDGR-112]", async () => {
       await db.show.create({
         data: {
           name: "Test Show",

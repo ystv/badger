@@ -80,7 +80,7 @@ describe("addOrReplaceMediaAsScene", () => {
           "sources": [
             {
               "inputKind": "ffmpeg_source",
-              "inputName": "Bowser Media 1",
+              "inputName": "Badger Media 1",
               "sceneItemId": 1,
             },
           ],
@@ -95,7 +95,7 @@ describe("addOrReplaceMediaAsScene", () => {
       sources: [
         {
           inputKind: "ffmpeg_source",
-          inputName: "Bowser Media 1",
+          inputName: "Badger Media 1",
           sceneItemId: 1,
         },
       ],
@@ -128,7 +128,7 @@ describe("addOrReplaceMediaAsScene", () => {
       sources: [
         {
           inputKind: "ffmpeg_source",
-          inputName: "Bowser Media 999",
+          inputName: "Badger Media 999",
           sceneItemId: 1,
         },
       ],
@@ -139,11 +139,11 @@ describe("addOrReplaceMediaAsScene", () => {
         "done": false,
         "promptReplace": "replace",
         "warnings": [
-          "Scene 1 - Test Continuity [#1] has a pre-existing Bowser source for a different media file.",
+          "Scene 1 - Test Continuity [#1] has a pre-existing Badger source for a different media file.",
         ],
       }
     `);
-    expect(mobs.scenes[0].sources[0].inputName).toBe("Bowser Media 999");
+    expect(mobs.scenes[0].sources[0].inputName).toBe("Badger Media 999");
 
     const res2 = await addOrReplaceMediaAsScene(testMedia, "replace");
     expect(res2).toEqual({
@@ -151,16 +151,16 @@ describe("addOrReplaceMediaAsScene", () => {
       warnings: [],
     });
     expect(mobs.scenes).toMatchSnapshot();
-    expect(mobs.scenes[0].sources[0].inputName).toBe("Bowser Media 1");
+    expect(mobs.scenes[0].sources[0].inputName).toBe("Badger Media 1");
   });
 
-  test("non-Bowser sources present", async () => {
+  test("non-Badger sources present", async () => {
     mobs.scenes.push({
       name: "1 - Test Continuity [#1]",
       sources: [
         {
           inputKind: "ffmpeg_source",
-          inputName: "Bowser Media 999",
+          inputName: "Badger Media 999",
           sceneItemId: 1,
         },
         {
@@ -176,7 +176,7 @@ describe("addOrReplaceMediaAsScene", () => {
         "done": false,
         "promptReplace": "force",
         "warnings": [
-          "Scene 1 - Test Continuity [#1] has non-Bowser sources in it. Cowardly refusing to overwrite.",
+          "Scene 1 - Test Continuity [#1] has non-Badger sources in it. Cowardly refusing to overwrite.",
         ],
       }
     `);

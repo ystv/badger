@@ -4,7 +4,7 @@ import {
   makeGoogleOauthClient,
 } from "@/lib/connections";
 import invariant from "@/lib/invariant";
-import { ConnectionTargetSchema } from "@bowser/prisma/types";
+import { ConnectionTargetSchema } from "@badger/prisma/types";
 import { NextRequest, NextResponse } from "next/server";
 import { expectNever } from "ts-expect";
 

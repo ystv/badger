@@ -7,14 +7,14 @@ const gitCommit =
   process.env.GIT_REV ??
   execFileSync("git", ["rev-parse", "HEAD"]).toString().trim();
 const sentryRelease =
-  "bowser-desktop@" + packageJSON.version + "-" + gitCommit.slice(0, 7);
+  "badger-desktop@" + packageJSON.version + "-" + gitCommit.slice(0, 7);
 
 // https://vitejs.dev/config
 export default defineConfig({
   plugins: [
     sentryVitePlugin({
       org: "ystv",
-      project: "bowser-desktop",
+      project: "badger-desktop",
       authToken: process.env.SENTRY_AUTH_TOKEN,
       release: {
         name: sentryRelease,

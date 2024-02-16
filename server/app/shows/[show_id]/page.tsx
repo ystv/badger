@@ -6,13 +6,13 @@ import { TusEndpointProvider } from "@/components/MediaUpload";
 import { getTusEndpoint } from "@/lib/tus";
 import { DateTime } from "@/components/DateTIme";
 import { MetadataFields } from "@/components/Metadata";
-import { MetadataTargetType } from "@bowser/prisma/client";
+import { MetadataTargetType } from "@badger/prisma/client";
 import { addMeta, revalidateIfChanged, setMetaValue } from "./actions";
 import { cache } from "react";
 import { PastShowsMedia } from "@/components/MediaSelection";
 import { FlagGate } from "@/components/FeatureFlags";
 import { PermissionGate } from "@/components/PermissionGate";
-import Button from "@bowser/components/button";
+import Button from "@badger/components/button";
 import Link from "next/link";
 import { Poll } from "../../../components/Poll";
 

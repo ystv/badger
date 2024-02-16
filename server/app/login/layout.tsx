@@ -1,4 +1,4 @@
-import { enableGoogleLogin } from "@bowser/feature-flags";
+import { enableGoogleLogin } from "@badger/feature-flags";
 import { ReactNode } from "react";
 
 export default function LoginPage(props: {

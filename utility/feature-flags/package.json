@@ -1,5 +1,5 @@
 {
-  "name": "@bowser/feature-flags",
+  "name": "@badger/feature-flags",
   "private": true,
   "main": "./featureFlags.ts"
 }

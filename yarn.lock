@@ -1169,25 +1169,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@bcoe/v8-coverage@npm:^0.2.3":
-  version: 0.2.3
-  resolution: "@bcoe/v8-coverage@npm:0.2.3"
-  checksum: 850f9305536d0f2bd13e9e0881cb5f02e4f93fad1189f7b2d4bebf694e3206924eadee1068130d43c11b750efcc9405f88a8e42ef098b6d75239c0f047de1a27
-  languageName: node
-  linkType: hard
-
-"@bitdisaster/exe-icon-extractor@npm:^1.0.10":
-  version: 1.0.10
-  resolution: "@bitdisaster/exe-icon-extractor@npm:1.0.10"
-  dependencies:
-    node-gyp: latest
-  checksum: 1b699e7d8df008593a72a4d1caf23959c3757d552937268ef042e4197990c21555add979cf240d284949c5b6a8c2a8fde1261cc472e9c17cc78eb2c17a6c86b0
-  languageName: node
-  linkType: hard
-
-"@bowser/components@workspace:*, @bowser/components@workspace:utility/components":
+"@badger/components@workspace:*, @badger/components@workspace:utility/components":
   version: 0.0.0-use.local
-  resolution: "@bowser/components@workspace:utility/components"
+  resolution: "@badger/components@workspace:utility/components"
   dependencies:
     "@radix-ui/react-alert-dialog": ^1.0.4
     "@radix-ui/react-checkbox": ^1.0.4
@@ -1213,15 +1197,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@bowser/feature-flags@workspace:*, @bowser/feature-flags@workspace:utility/feature-flags":
+"@badger/feature-flags@workspace:*, @badger/feature-flags@workspace:utility/feature-flags":
   version: 0.0.0-use.local
-  resolution: "@bowser/feature-flags@workspace:utility/feature-flags"
+  resolution: "@badger/feature-flags@workspace:utility/feature-flags"
   languageName: unknown
   linkType: soft
 
-"@bowser/prisma@workspace:*, @bowser/prisma@workspace:utility/prisma":
+"@badger/prisma@workspace:*, @badger/prisma@workspace:utility/prisma":
   version: 0.0.0-use.local
-  resolution: "@bowser/prisma@workspace:utility/prisma"
+  resolution: "@badger/prisma@workspace:utility/prisma"
   dependencies:
     "@prisma/client": latest
     dotenv-cli: ^7.2.1
@@ -1231,9 +1215,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@bowser/testing@workspace:*, @bowser/testing@workspace:utility/testing":
+"@badger/testing@workspace:*, @badger/testing@workspace:utility/testing":
   version: 0.0.0-use.local
-  resolution: "@bowser/testing@workspace:utility/testing"
+  resolution: "@badger/testing@workspace:utility/testing"
   dependencies:
     "@jest/globals": ^29.7.0
     "@msgpack/msgpack": ^3.0.0-beta2
@@ -1252,6 +1236,22 @@ __metadata:
     ws: ^8.13.0
   languageName: unknown
   linkType: soft
+
+"@bcoe/v8-coverage@npm:^0.2.3":
+  version: 0.2.3
+  resolution: "@bcoe/v8-coverage@npm:0.2.3"
+  checksum: 850f9305536d0f2bd13e9e0881cb5f02e4f93fad1189f7b2d4bebf694e3206924eadee1068130d43c11b750efcc9405f88a8e42ef098b6d75239c0f047de1a27
+  languageName: node
+  linkType: hard
+
+"@bitdisaster/exe-icon-extractor@npm:^1.0.10":
+  version: 1.0.10
+  resolution: "@bitdisaster/exe-icon-extractor@npm:1.0.10"
+  dependencies:
+    node-gyp: latest
+  checksum: 1b699e7d8df008593a72a4d1caf23959c3757d552937268ef042e4197990c21555add979cf240d284949c5b6a8c2a8fde1261cc472e9c17cc78eb2c17a6c86b0
+  languageName: node
+  linkType: hard
 
 "@cspotcode/source-map-support@npm:^0.8.0":
   version: 0.8.1
@@ -6786,6 +6786,230 @@ __metadata:
   languageName: node
   linkType: hard
 
+"badger-desktop@workspace:desktop":
+  version: 0.0.0-use.local
+  resolution: "badger-desktop@workspace:desktop"
+  dependencies:
+    "@aws-sdk/client-s3": ^3.474.0
+    "@badger/components": "workspace:*"
+    "@badger/feature-flags": "workspace:*"
+    "@badger/prisma": "workspace:*"
+    "@badger/testing": "workspace:*"
+    "@electron-forge/cli": ^6.4.2
+    "@electron-forge/maker-deb": ^6.4.2
+    "@electron-forge/maker-rpm": ^6.4.2
+    "@electron-forge/maker-squirrel": ^6.4.2
+    "@electron-forge/maker-wix": ^6.4.2
+    "@electron-forge/maker-zip": ^6.4.2
+    "@electron-forge/plugin-auto-unpack-natives": ^6.4.2
+    "@electron-forge/plugin-vite": ^6.4.2
+    "@electron-forge/publisher-github": ^6.4.2
+    "@headlessui/tailwindcss": ^0.1.3
+    "@playwright/test": ^1.37.0
+    "@radix-ui/react-alert-dialog": ^1.0.4
+    "@radix-ui/react-dropdown-menu": ^2.0.5
+    "@sentry/electron": ^4.10.0
+    "@sentry/react": ^7.64.0
+    "@sentry/vite-plugin": ^2.7.0
+    "@tailwindcss/forms": ^0.5.4
+    "@tanstack/react-query": ^4.32.6
+    "@trpc/client": ^10.38.1
+    "@trpc/react-query": ^10.35.0
+    "@trpc/server": ^10.35.0
+    "@tsconfig/vite-react": ^2.0.0
+    "@types/eslint": ^8.44.0
+    "@types/progress-stream": ^2.0.2
+    "@types/qs": ^6.9.9
+    "@types/react": ^18.2.33
+    "@types/react-dom": ^18.2.14
+    "@types/uuid": ^9.0.2
+    "@types/which": ^3.0.0
+    "@typescript-eslint/eslint-plugin": ^6.1.0
+    "@typescript-eslint/parser": ^6.1.0
+    "@vitest/coverage-v8": ^0.33.0
+    autoprefixer: ^10.4.14
+    badger-server: "workspace:*"
+    bufferutil: ^4.0.7
+    classnames: ^2.3.2
+    client-only: ^0.0.1
+    date-fns: ^2.30.0
+    electron: 26.2.4
+    electron-log: ^4.4.8
+    electron-settings: ^4.0.2
+    electron-squirrel-startup: ^1.0.0
+    electron-trpc: ^0.5.2
+    electron-wix-msi: ^5.0.0
+    eslint: ^8.45.0
+    eslint-plugin-react: latest
+    eslint-plugin-react-hooks: ^4.6.0
+    fast-xml-parser: ^4.2.7
+    got: ^13.0.0
+    jest-mock-extended: ^3.0.5
+    loglevel: ^1.8.1
+    loglevel-plugin-prefix: ^0.8.4
+    obs-websocket-js: ^5.0.3
+    p-event: ^6.0.0
+    postcss: ^8.4.27
+    prettier: ^3.0.3
+    prettier-plugin-tailwindcss: ^0.5.9
+    qs: ^6.11.2
+    react: ^18.2.0
+    react-dom: ^18.2.0
+    react-hook-form: ^7.45.2
+    react-icons: ^4.10.1
+    react-popper: ^2.3.0
+    rxjs: ^7.8.1
+    strong-mock: ^8.0.1
+    superjson: ^1.13.1
+    tailwindcss: ^3.3.3
+    typescript: ^5.1.6
+    undici: ^5.27.2
+    utf-8-validate: ^6.0.3
+    uuid: ^9.0.0
+    vite: ^4.4.6
+    vite-plugin-commonjs: ^0.10.0
+    vitest: ^0.33.0
+    wget-improved: ^3.4.0
+    which: ^4.0.0
+    ws: ^8.13.0
+    zod: ^3.21.4
+  languageName: unknown
+  linkType: soft
+
+"badger-jobrunner@workspace:jobrunner":
+  version: 0.0.0-use.local
+  resolution: "badger-jobrunner@workspace:jobrunner"
+  dependencies:
+    "@aws-sdk/client-s3": ^3.474.0
+    "@aws-sdk/lib-storage": ^3.428.0
+    "@badger/feature-flags": "workspace:*"
+    "@badger/prisma": "workspace:*"
+    "@badger/testing": "workspace:*"
+    "@googleapis/drive": ^8.0.0
+    "@sentry/esbuild-plugin": ^2.7.0
+    "@sentry/node": ^7.64.0
+    "@tsconfig/node18": ^18.2.0
+    "@types/dotenv-flow": ^3.2.0
+    "@types/lodash": ^4.14.199
+    "@typescript-eslint/eslint-plugin": latest
+    "@typescript-eslint/parser": latest
+    dotenv: ^16.3.1
+    dotenv-flow: ^3.2.0
+    easydl: ^1.1.1
+    esbuild: ^0.18.16
+    eslint: latest
+    glob: ^10.3.3
+    got: ^13.0.0
+    lodash: ^4.17.21
+    loglevel: ^1.8.1
+    loglevel-plugin-prefix: ^0.8.4
+    p-event: ^6.0.0
+    prettier: ^3.0.3
+    s3-readstream: ^2.0.1
+    ts-expect: ^1.3.0
+    tsx: ^3.12.7
+    typescript: ^5.1.6
+    vitest: ^0.34.3
+  languageName: unknown
+  linkType: soft
+
+"badger-root-workspace@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "badger-root-workspace@workspace:."
+  dependencies:
+    chalk: ^5.3.0
+    danger: ^11.2.8
+    husky: ^8.0.3
+    inquirer: ^9.2.10
+    lint-staged: ^14.0.1
+    octokit: ^3.1.0
+    prettier: ^3.0.3
+    semver: ^7.5.4
+    undici: ^5.27.2
+  languageName: unknown
+  linkType: soft
+
+"badger-server@workspace:*, badger-server@workspace:server":
+  version: 0.0.0-use.local
+  resolution: "badger-server@workspace:server"
+  dependencies:
+    "@aws-sdk/client-s3": ^3.474.0
+    "@aws-sdk/s3-request-presigner": ^3.474.0
+    "@aws-sdk/signature-v4-crt": ^3.370.0
+    "@badger/components": "workspace:*"
+    "@badger/feature-flags": "workspace:*"
+    "@badger/prisma": "workspace:*"
+    "@badger/testing": "workspace:*"
+    "@hello-pangea/dnd": ^16.3.0
+    "@hookform/resolvers": ^3.1.1
+    "@playwright/test": ^1.37.0
+    "@prisma/client": latest
+    "@prisma/nextjs-monorepo-workaround-plugin": toniopelo/prisma-nextjs-monorepo-workaround-plugin
+    "@sentry/nextjs": latest
+    "@sentry/utils": ^7.69.0
+    "@tailwindcss/forms": ^0.5.4
+    "@tanstack/react-table": ^8.10.7
+    "@trpc/client": ^10.44.1
+    "@trpc/server": ^10.34.0
+    "@types/debug": ^4.1.12
+    "@types/jest": ^29.5.9
+    "@types/lodash": ^4.14.196
+    "@types/node": 20.4.2
+    "@types/react": ^18.2.33
+    "@types/react-datepicker": ^4.15.0
+    "@types/react-dom": ^18.2.14
+    "@types/shelljs": ^0.8.12
+    "@typescript-eslint/eslint-plugin": latest
+    "@typescript-eslint/parser": latest
+    "@vitejs/plugin-react": ^4.0.3
+    autoprefixer: ^10.4.14
+    class-variance-authority: ^0.7.0
+    classnames: ^2.3.2
+    client-only: ^0.0.1
+    clsx: ^2.1.0
+    date-fns: ^2.30.0
+    debug: ^4.3.4
+    dotenv-cli: ^7.2.1
+    dotenv-flow: ^3.2.0
+    eslint: 8.45.0
+    eslint-config-next: ^14.1.0
+    eslint-plugin-react: latest
+    google-auth-library: ^9.2.0
+    googleapis: ^128.0.0
+    jest: ^29.7.0
+    jsdom: ^22.1.0
+    lodash: ^4.17.21
+    next: ^14.1.0
+    pg: ^8.11.3
+    postcss: ^8.4.27
+    prettier: ^3.0.3
+    prettier-plugin-tailwindcss: ^0.5.9
+    prisma: latest
+    react: 18.3.0-canary-8c8ee9ee6-20231026
+    react-day-picker: ^8.8.0
+    react-dom: 18.3.0-canary-8c8ee9ee6-20231026
+    react-dropzone: ^14.2.3
+    react-hook-form: ^7.45.2
+    react-icons: ^4.10.1
+    server-only: ^0.0.1
+    shelljs: ^0.8.5
+    superjson: ^1.13.1
+    tailwind-merge: ^2.2.1
+    tailwindcss: ^3.3.3
+    tailwindcss-animate: ^1.0.7
+    ts-expect: ^1.3.0
+    ts-node: ^10.9.1
+    tsx: ^3.12.7
+    tus-js-client: ^3.1.0
+    typescript: 5.1.6
+    undici: ^5.27.2
+    vitest: ^0.33.0
+    zod: ^3.21.4
+    zod-error: ^1.5.0
+    zod-form-data: ^2.0.1
+  languageName: unknown
+  linkType: soft
+
 "balanced-match@npm:^1.0.0":
   version: 1.0.2
   resolution: "balanced-match@npm:1.0.2"
@@ -6872,230 +7096,6 @@ __metadata:
   checksum: c5eef1bbea12cef1f1405e7306e7d24860568b0f7ac5eeab706a86762b3fc65ef6d1c641c8a166e4db90f412fc5c948fc5ce8008a8cd3d28c7212ef9c3482bda
   languageName: node
   linkType: hard
-
-"bowser-desktop@workspace:desktop":
-  version: 0.0.0-use.local
-  resolution: "bowser-desktop@workspace:desktop"
-  dependencies:
-    "@aws-sdk/client-s3": ^3.474.0
-    "@bowser/components": "workspace:*"
-    "@bowser/feature-flags": "workspace:*"
-    "@bowser/prisma": "workspace:*"
-    "@bowser/testing": "workspace:*"
-    "@electron-forge/cli": ^6.4.2
-    "@electron-forge/maker-deb": ^6.4.2
-    "@electron-forge/maker-rpm": ^6.4.2
-    "@electron-forge/maker-squirrel": ^6.4.2
-    "@electron-forge/maker-wix": ^6.4.2
-    "@electron-forge/maker-zip": ^6.4.2
-    "@electron-forge/plugin-auto-unpack-natives": ^6.4.2
-    "@electron-forge/plugin-vite": ^6.4.2
-    "@electron-forge/publisher-github": ^6.4.2
-    "@headlessui/tailwindcss": ^0.1.3
-    "@playwright/test": ^1.37.0
-    "@radix-ui/react-alert-dialog": ^1.0.4
-    "@radix-ui/react-dropdown-menu": ^2.0.5
-    "@sentry/electron": ^4.10.0
-    "@sentry/react": ^7.64.0
-    "@sentry/vite-plugin": ^2.7.0
-    "@tailwindcss/forms": ^0.5.4
-    "@tanstack/react-query": ^4.32.6
-    "@trpc/client": ^10.38.1
-    "@trpc/react-query": ^10.35.0
-    "@trpc/server": ^10.35.0
-    "@tsconfig/vite-react": ^2.0.0
-    "@types/eslint": ^8.44.0
-    "@types/progress-stream": ^2.0.2
-    "@types/qs": ^6.9.9
-    "@types/react": ^18.2.33
-    "@types/react-dom": ^18.2.14
-    "@types/uuid": ^9.0.2
-    "@types/which": ^3.0.0
-    "@typescript-eslint/eslint-plugin": ^6.1.0
-    "@typescript-eslint/parser": ^6.1.0
-    "@vitest/coverage-v8": ^0.33.0
-    autoprefixer: ^10.4.14
-    bowser-server: "workspace:*"
-    bufferutil: ^4.0.7
-    classnames: ^2.3.2
-    client-only: ^0.0.1
-    date-fns: ^2.30.0
-    electron: 26.2.4
-    electron-log: ^4.4.8
-    electron-settings: ^4.0.2
-    electron-squirrel-startup: ^1.0.0
-    electron-trpc: ^0.5.2
-    electron-wix-msi: ^5.0.0
-    eslint: ^8.45.0
-    eslint-plugin-react: latest
-    eslint-plugin-react-hooks: ^4.6.0
-    fast-xml-parser: ^4.2.7
-    got: ^13.0.0
-    jest-mock-extended: ^3.0.5
-    loglevel: ^1.8.1
-    loglevel-plugin-prefix: ^0.8.4
-    obs-websocket-js: ^5.0.3
-    p-event: ^6.0.0
-    postcss: ^8.4.27
-    prettier: ^3.0.3
-    prettier-plugin-tailwindcss: ^0.5.9
-    qs: ^6.11.2
-    react: ^18.2.0
-    react-dom: ^18.2.0
-    react-hook-form: ^7.45.2
-    react-icons: ^4.10.1
-    react-popper: ^2.3.0
-    rxjs: ^7.8.1
-    strong-mock: ^8.0.1
-    superjson: ^1.13.1
-    tailwindcss: ^3.3.3
-    typescript: ^5.1.6
-    undici: ^5.27.2
-    utf-8-validate: ^6.0.3
-    uuid: ^9.0.0
-    vite: ^4.4.6
-    vite-plugin-commonjs: ^0.10.0
-    vitest: ^0.33.0
-    wget-improved: ^3.4.0
-    which: ^4.0.0
-    ws: ^8.13.0
-    zod: ^3.21.4
-  languageName: unknown
-  linkType: soft
-
-"bowser-jobrunner@workspace:jobrunner":
-  version: 0.0.0-use.local
-  resolution: "bowser-jobrunner@workspace:jobrunner"
-  dependencies:
-    "@aws-sdk/client-s3": ^3.474.0
-    "@aws-sdk/lib-storage": ^3.428.0
-    "@bowser/feature-flags": "workspace:*"
-    "@bowser/prisma": "workspace:*"
-    "@bowser/testing": "workspace:*"
-    "@googleapis/drive": ^8.0.0
-    "@sentry/esbuild-plugin": ^2.7.0
-    "@sentry/node": ^7.64.0
-    "@tsconfig/node18": ^18.2.0
-    "@types/dotenv-flow": ^3.2.0
-    "@types/lodash": ^4.14.199
-    "@typescript-eslint/eslint-plugin": latest
-    "@typescript-eslint/parser": latest
-    dotenv: ^16.3.1
-    dotenv-flow: ^3.2.0
-    easydl: ^1.1.1
-    esbuild: ^0.18.16
-    eslint: latest
-    glob: ^10.3.3
-    got: ^13.0.0
-    lodash: ^4.17.21
-    loglevel: ^1.8.1
-    loglevel-plugin-prefix: ^0.8.4
-    p-event: ^6.0.0
-    prettier: ^3.0.3
-    s3-readstream: ^2.0.1
-    ts-expect: ^1.3.0
-    tsx: ^3.12.7
-    typescript: ^5.1.6
-    vitest: ^0.34.3
-  languageName: unknown
-  linkType: soft
-
-"bowser-root-workspace@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "bowser-root-workspace@workspace:."
-  dependencies:
-    chalk: ^5.3.0
-    danger: ^11.2.8
-    husky: ^8.0.3
-    inquirer: ^9.2.10
-    lint-staged: ^14.0.1
-    octokit: ^3.1.0
-    prettier: ^3.0.3
-    semver: ^7.5.4
-    undici: ^5.27.2
-  languageName: unknown
-  linkType: soft
-
-"bowser-server@workspace:*, bowser-server@workspace:server":
-  version: 0.0.0-use.local
-  resolution: "bowser-server@workspace:server"
-  dependencies:
-    "@aws-sdk/client-s3": ^3.474.0
-    "@aws-sdk/s3-request-presigner": ^3.474.0
-    "@aws-sdk/signature-v4-crt": ^3.370.0
-    "@bowser/components": "workspace:*"
-    "@bowser/feature-flags": "workspace:*"
-    "@bowser/prisma": "workspace:*"
-    "@bowser/testing": "workspace:*"
-    "@hello-pangea/dnd": ^16.3.0
-    "@hookform/resolvers": ^3.1.1
-    "@playwright/test": ^1.37.0
-    "@prisma/client": latest
-    "@prisma/nextjs-monorepo-workaround-plugin": toniopelo/prisma-nextjs-monorepo-workaround-plugin
-    "@sentry/nextjs": latest
-    "@sentry/utils": ^7.69.0
-    "@tailwindcss/forms": ^0.5.4
-    "@tanstack/react-table": ^8.10.7
-    "@trpc/client": ^10.44.1
-    "@trpc/server": ^10.34.0
-    "@types/debug": ^4.1.12
-    "@types/jest": ^29.5.9
-    "@types/lodash": ^4.14.196
-    "@types/node": 20.4.2
-    "@types/react": ^18.2.33
-    "@types/react-datepicker": ^4.15.0
-    "@types/react-dom": ^18.2.14
-    "@types/shelljs": ^0.8.12
-    "@typescript-eslint/eslint-plugin": latest
-    "@typescript-eslint/parser": latest
-    "@vitejs/plugin-react": ^4.0.3
-    autoprefixer: ^10.4.14
-    class-variance-authority: ^0.7.0
-    classnames: ^2.3.2
-    client-only: ^0.0.1
-    clsx: ^2.1.0
-    date-fns: ^2.30.0
-    debug: ^4.3.4
-    dotenv-cli: ^7.2.1
-    dotenv-flow: ^3.2.0
-    eslint: 8.45.0
-    eslint-config-next: ^14.1.0
-    eslint-plugin-react: latest
-    google-auth-library: ^9.2.0
-    googleapis: ^128.0.0
-    jest: ^29.7.0
-    jsdom: ^22.1.0
-    lodash: ^4.17.21
-    next: ^14.1.0
-    pg: ^8.11.3
-    postcss: ^8.4.27
-    prettier: ^3.0.3
-    prettier-plugin-tailwindcss: ^0.5.9
-    prisma: latest
-    react: 18.3.0-canary-8c8ee9ee6-20231026
-    react-day-picker: ^8.8.0
-    react-dom: 18.3.0-canary-8c8ee9ee6-20231026
-    react-dropzone: ^14.2.3
-    react-hook-form: ^7.45.2
-    react-icons: ^4.10.1
-    server-only: ^0.0.1
-    shelljs: ^0.8.5
-    superjson: ^1.13.1
-    tailwind-merge: ^2.2.1
-    tailwindcss: ^3.3.3
-    tailwindcss-animate: ^1.0.7
-    ts-expect: ^1.3.0
-    ts-node: ^10.9.1
-    tsx: ^3.12.7
-    tus-js-client: ^3.1.0
-    typescript: 5.1.6
-    undici: ^5.27.2
-    vitest: ^0.33.0
-    zod: ^3.21.4
-    zod-error: ^1.5.0
-    zod-form-data: ^2.0.1
-  languageName: unknown
-  linkType: soft
 
 "bowser@npm:^2.11.0":
   version: 2.11.0
@@ -9809,9 +9809,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"flora-colossus@patch:flora-colossus@npm%3A2.0.0#./.yarn/patches/flora-colossus-npm-2.0.0-277653bd57.patch::locator=bowser-root-workspace%40workspace%3A.":
+"flora-colossus@patch:flora-colossus@npm%3A2.0.0#./.yarn/patches/flora-colossus-npm-2.0.0-277653bd57.patch::locator=badger-root-workspace%40workspace%3A.":
   version: 2.0.0
-  resolution: "flora-colossus@patch:flora-colossus@npm%3A2.0.0#./.yarn/patches/flora-colossus-npm-2.0.0-277653bd57.patch::version=2.0.0&hash=8597ad&locator=bowser-root-workspace%40workspace%3A."
+  resolution: "flora-colossus@patch:flora-colossus@npm%3A2.0.0#./.yarn/patches/flora-colossus-npm-2.0.0-277653bd57.patch::version=2.0.0&hash=8597ad&locator=badger-root-workspace%40workspace%3A."
   dependencies:
     debug: ^4.3.4
     fs-extra: ^10.1.0

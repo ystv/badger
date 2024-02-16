@@ -1,4 +1,4 @@
-import { SettingKey } from "@bowser/prisma/client";
+import { SettingKey } from "@badger/prisma/client";
 import { z } from "zod";
 
 export const SettingsCategoriesSchema = z.enum(["YouTube"]);

@@ -1,7 +1,7 @@
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { NextRequest } from "next/server";
 import { appRouter } from "@/app/api/_router";
-import { PrismaClientKnownRequestError } from "@bowser/prisma/client/runtime/library";
+import { PrismaClientKnownRequestError } from "@badger/prisma/client/runtime/library";
 import { TRPCError } from "@trpc/server";
 
 const handler: (req: NextRequest) => Promise<Response> = (req) => {

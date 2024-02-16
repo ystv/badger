@@ -25,7 +25,7 @@ export async function listMediaFiles() {
     await client.send(
       new ListObjectsV2Command({
         Bucket: process.env.STORAGE_BUCKET,
-        // In https://github.com/ystv/bowser/pull/154 we changed the item prefix, so we
+        // In https://github.com/ystv/badger/pull/154 we changed the item prefix, so we
         // can't rely on prefix filtering.
       }),
     )

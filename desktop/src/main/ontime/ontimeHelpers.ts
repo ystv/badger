@@ -5,7 +5,7 @@ import { set } from "lodash/fp";
 import type {
   CompleteRundownType,
   CompleteContinuityItemModel,
-} from "@bowser/prisma/utilityTypes";
+} from "@badger/prisma/utilityTypes";
 
 function dateToTimeMs(date: Date) {
   return (

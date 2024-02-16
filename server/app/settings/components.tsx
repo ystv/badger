@@ -10,7 +10,7 @@ import {
   SettingsTypes,
   SettingsTypesSchema,
 } from "@/lib/settings";
-import { SettingKey } from "@bowser/prisma/client";
+import { SettingKey } from "@badger/prisma/client";
 import { identity } from "lodash";
 import { ZodFirstPartyTypeKind } from "zod";
 import { updateSettings } from "./actions";

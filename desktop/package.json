@@ -1,6 +1,6 @@
 {
-  "name": "bowser-desktop",
-  "productName": "Bowser Desktop",
+  "name": "badger-desktop",
+  "productName": "Badger Desktop",
   "version": "1.0.0-beta.6",
   "description": "My Electron application description",
   "main": ".vite/build/main.js",
@@ -25,7 +25,7 @@
   "license": "MIT",
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.474.0",
-    "@bowser/testing": "workspace:*",
+    "@badger/testing": "workspace:*",
     "@electron-forge/cli": "^6.4.2",
     "@electron-forge/maker-deb": "^6.4.2",
     "@electron-forge/maker-rpm": "^6.4.2",
@@ -62,10 +62,10 @@
     "vitest": "^0.33.0"
   },
   "dependencies": {
-    "@bowser/components": "workspace:*",
-    "@bowser/feature-flags": "workspace:*",
-    "@bowser/prisma": "workspace:*",
-    "@bowser/testing": "workspace:*",
+    "@badger/components": "workspace:*",
+    "@badger/feature-flags": "workspace:*",
+    "@badger/prisma": "workspace:*",
+    "@badger/testing": "workspace:*",
     "@radix-ui/react-alert-dialog": "^1.0.4",
     "@radix-ui/react-dropdown-menu": "^2.0.5",
     "@sentry/electron": "^4.10.0",
@@ -81,7 +81,7 @@
     "@types/react-dom": "^18.2.14",
     "@types/uuid": "^9.0.2",
     "@types/which": "^3.0.0",
-    "bowser-server": "workspace:*",
+    "badger-server": "workspace:*",
     "bufferutil": "^4.0.7",
     "classnames": "^2.3.2",
     "client-only": "^0.0.1",

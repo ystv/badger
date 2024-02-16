@@ -1,7 +1,7 @@
 import {
   LoadAssetJob as LoadAssetJobType,
   MediaState,
-} from "@bowser/prisma/client";
+} from "@badger/prisma/client";
 import { MediaJobCommon } from "./MediaJobCommon.js";
 
 export class LoadAssetJob extends MediaJobCommon {

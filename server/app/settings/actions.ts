@@ -9,7 +9,7 @@ import {
   SettingsTypes,
   SettingsTypesSchema,
 } from "@/lib/settings";
-import { SettingKey } from "@bowser/prisma/client";
+import { SettingKey } from "@badger/prisma/client";
 import { revalidatePath } from "next/cache";
 
 export async function updateSettings(vals: unknown): Promise<FormResponse> {

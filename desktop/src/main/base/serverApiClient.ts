@@ -5,7 +5,7 @@ import {
   httpLink,
   loggerLink,
 } from "@trpc/client";
-import type { AppRouter } from "bowser-server/app/api/_router";
+import type { AppRouter } from "badger-server/app/api/_router";
 import superjson from "superjson";
 import { getServerSettings, saveServerSettings } from "./settings";
 import logging from "./logging";

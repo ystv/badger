@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { reorderShowItems } from "./actions";
-import { integrate } from "@bowser/testing";
-import { ContinuityItem, Rundown, Show } from "@bowser/prisma/client";
+import { integrate } from "@badger/testing";
+import { ContinuityItem, Rundown, Show } from "@badger/prisma/client";
 
 jest.mock("server-only", () => ({}));
 jest.mock("next/cache", () => ({ revalidatePath: () => {} }));

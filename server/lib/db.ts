@@ -1,4 +1,4 @@
-import { PrismaClient } from "@bowser/prisma/client";
+import { PrismaClient } from "@badger/prisma/client";
 import invariant from "@/lib/invariant";
 import { PHASE_PRODUCTION_BUILD } from "next/constants";
 import makeDebug from "debug";

@@ -1,7 +1,7 @@
 import invariant from "../../common/invariant";
 import { getVMixConnection } from "./vmix";
 import { InputType, ListInput } from "./vmixTypes";
-import type { Asset, Media } from "@bowser/prisma/client";
+import type { Asset, Media } from "@badger/prisma/client";
 import { getAssetsSettings, getLocalMediaSettings } from "../base/settings";
 import { VMIX_NAMES } from "../../common/constants";
 

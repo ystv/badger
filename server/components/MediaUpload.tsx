@@ -115,7 +115,7 @@ export const MediaUploader = forwardRef<
           {error}
         </div>
       )}
-      {/* TODO [BOW-8]: Google Drive picker */}
+      {/* TODO [BDGR-8]: Google Drive picker */}
       <div
         {...getRootProps()}
         className="p-8 m-1 rounded-md bg-mid-light text-dark w-64 h-24"

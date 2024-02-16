@@ -5,8 +5,8 @@ module.exports = {
       process.platform === "win32"
         ? "win/icon"
         : process.platform === "darwin"
-        ? "mac/icon"
-        : "png/64x64.png"
+          ? "mac/icon"
+          : "png/64x64.png"
     }`,
     prune: true,
   },
@@ -46,7 +46,7 @@ module.exports = {
       config: {
         repository: {
           owner: "ystv",
-          name: "bowser",
+          name: "badger",
         },
         prerelease: true,
       },

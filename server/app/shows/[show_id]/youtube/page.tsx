@@ -1,9 +1,9 @@
 import { db } from "@/lib/db";
-import { enableYoutube } from "@bowser/feature-flags";
+import { enableYoutube } from "@badger/feature-flags";
 import { notFound, redirect } from "next/navigation";
 import CreateYTStreamsForm from "./form";
 import { getSetting } from "@/lib/settingsValues";
-import { ConnectionTarget } from "@bowser/prisma/client";
+import { ConnectionTarget } from "@badger/prisma/client";
 import { checkSession, requirePermission } from "@/lib/auth";
 
 export default async function ShowYouTubePage(props: {

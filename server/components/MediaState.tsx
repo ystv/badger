@@ -7,7 +7,7 @@ import {
   Metadata,
   MetadataField,
   RundownItem,
-} from "@bowser/prisma/client";
+} from "@badger/prisma/client";
 import {
   IoAlertCircle,
   IoCheckmarkCircle,
@@ -19,12 +19,12 @@ import Image from "next/image";
 import Spinner from "@/app/_assets/spinner.svg";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
-import Button from "@bowser/components/button";
+import Button from "@badger/components/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@bowser/components/popover";
+} from "@badger/components/popover";
 import { MediaSelectOrUploadDialog, PastShowsMedia } from "./MediaSelection";
 
 export interface CompleteMedia extends Media {
