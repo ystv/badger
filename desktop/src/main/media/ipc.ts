@@ -162,7 +162,9 @@ export const mediaRouter = r({
     }
     if (enabledIntegrations.has("obs")) {
       for (const item of show.continuityItems) {
-        downloadMedia(item.media.id, item.media.name);
+        if (item.media?.state === "Ready") {
+          downloadMedia(item.media.id, item.media.name);
+        }
       }
     }
   }),
