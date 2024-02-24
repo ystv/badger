@@ -5,19 +5,19 @@ import {
   DialogContent,
   DialogHeader,
   DialogTrigger,
-} from "@bowser/components/dialog";
+} from "@badger/components/dialog";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@bowser/components/popover";
+} from "@badger/components/popover";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@bowser/components/dropdown-menu";
-import { Button } from "@bowser/components/button";
+} from "@badger/components/dropdown-menu";
+import { Button } from "@badger/components/button";
 import {
   IoAlertSharp,
   IoCaretDownOutline,
@@ -36,7 +36,7 @@ import {
   TableBody,
   TableCell,
   TableRow,
-} from "@bowser/components/table";
+} from "@badger/components/table";
 import { OntimePush } from "./screens/Ontime";
 import { getQueryKey } from "@trpc/react-query";
 

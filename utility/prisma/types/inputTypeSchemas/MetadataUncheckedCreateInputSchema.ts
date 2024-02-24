@@ -11,6 +11,7 @@ export const MetadataUncheckedCreateInputSchema: z.ZodType<Prisma.MetadataUnchec
       fieldId: z.number().int(),
       showId: z.number().int().optional().nullable(),
       rundownId: z.number().int().optional().nullable(),
+      mediaId: z.number().int().optional().nullable(),
     })
     .strict();
 

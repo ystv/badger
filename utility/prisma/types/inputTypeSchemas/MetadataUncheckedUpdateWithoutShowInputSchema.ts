@@ -30,6 +30,13 @@ export const MetadataUncheckedUpdateWithoutShowInputSchema: z.ZodType<Prisma.Met
         ])
         .optional()
         .nullable(),
+      mediaId: z
+        .union([
+          z.number().int(),
+          z.lazy(() => NullableIntFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
     })
     .strict();
 

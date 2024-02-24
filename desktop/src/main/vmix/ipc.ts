@@ -3,7 +3,7 @@ import { proc, r } from "../base/ipcRouter";
 import { getLogger } from "../base/logging";
 import invariant from "../../common/invariant";
 import { serverAPI } from "../base/serverApiClient";
-import { PartialMediaModel } from "@bowser/prisma/utilityTypes";
+import { PartialMediaModel } from "@badger/prisma/utilityTypes";
 import { getLocalMediaSettings } from "../base/settings";
 import { TRPCError } from "@trpc/server";
 import { loadAssets, reconcileList } from "./vmixHelpers";

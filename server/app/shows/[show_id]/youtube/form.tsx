@@ -7,7 +7,7 @@ import type {
   MetadataField,
   Rundown,
   Show,
-} from "@bowser/prisma/client";
+} from "@badger/prisma/client";
 import { createStreamsPayloadSchema } from "./schema";
 import { doCreateStreams } from "./actions";
 import { DeepPartial, useController } from "react-hook-form";
@@ -19,7 +19,7 @@ import {
   SelectField,
 } from "@/components/FormFields";
 import { ReactNode } from "react";
-import { RundownItem } from "@bowser/prisma/client";
+import { RundownItem } from "@badger/prisma/client";
 import { z } from "zod";
 import { identity } from "lodash";
 import { twMerge } from "tailwind-merge";

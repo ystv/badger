@@ -26,6 +26,12 @@ export const MetadataOrderByWithAggregationInputSchema: z.ZodType<Prisma.Metadat
           z.lazy(() => SortOrderInputSchema),
         ])
         .optional(),
+      mediaId: z
+        .union([
+          z.lazy(() => SortOrderSchema),
+          z.lazy(() => SortOrderInputSchema),
+        ])
+        .optional(),
       _count: z.lazy(() => MetadataCountOrderByAggregateInputSchema).optional(),
       _avg: z.lazy(() => MetadataAvgOrderByAggregateInputSchema).optional(),
       _max: z.lazy(() => MetadataMaxOrderByAggregateInputSchema).optional(),

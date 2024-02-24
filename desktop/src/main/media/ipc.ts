@@ -58,7 +58,7 @@ export const mediaRouter = r({
             try {
               stat = await fsp.stat(item.path);
             } catch (e) {
-              // This is an orphan. TODO [BOW-67]: we don't currently handle them
+              // This is an orphan. TODO [BDGR-67]: we don't currently handle them
               return;
             }
             // prettier-ignore
@@ -162,12 +162,7 @@ export const mediaRouter = r({
     }
     if (enabledIntegrations.has("obs")) {
       for (const item of show.continuityItems) {
-        if (
-          item.media?.state === "Ready" &&
-          !state.some((x) => x.mediaID === item.media?.id)
-        ) {
-          downloadMedia(item.media.id, item.media.name);
-        }
+        downloadMedia(item.media.id, item.media.name);
       }
     }
   }),

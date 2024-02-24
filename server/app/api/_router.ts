@@ -5,7 +5,7 @@ import {
   ExtendedMediaModel,
   CompleteRundownModel,
   CompleteShowModel,
-} from "@bowser/prisma/utilityTypes";
+} from "@badger/prisma/utilityTypes";
 import { getPresignedURL } from "@/lib/s3";
 import {
   ContinuityItemSchema,
@@ -18,7 +18,8 @@ import {
   ShowSchema,
   ShowUpdateInputSchema,
   MediaUpdateInputSchema,
-} from "@bowser/prisma/types";
+  MetadataFieldCreateInputSchema,
+} from "@badger/prisma/types";
 import invariant from "@/lib/invariant";
 import { dispatchJobForJobrunner } from "@/lib/jobs";
 
@@ -53,7 +54,10 @@ const CompleteMediaModel = ExtendedMediaModel.extend({
 
 export const appRouter = router({
   ping: publicProcedure.query(() => {
-    return "pong";
+    return {
+      ping: "pong",
+      version: process.env.NEXT_PUBLIC_VERSION!,
+    };
   }),
   shows: router({
     listUpcoming: publicProcedure
@@ -395,6 +399,18 @@ export const appRouter = router({
             },
           },
         });
+      }),
+  }),
+  metaFields: router({
+    put: e2eProcedure
+      .input(z.array(MetadataFieldCreateInputSchema))
+      .mutation(async ({ input }) => {
+        await db.$transaction([
+          db.metadataField.deleteMany({}),
+          db.metadataField.createMany({
+            data: input,
+          }),
+        ]);
       }),
   }),
 });

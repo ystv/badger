@@ -9,6 +9,8 @@ import { ShowNullableRelationFilterSchema } from "./ShowNullableRelationFilterSc
 import { ShowWhereInputSchema } from "./ShowWhereInputSchema";
 import { RundownNullableRelationFilterSchema } from "./RundownNullableRelationFilterSchema";
 import { RundownWhereInputSchema } from "./RundownWhereInputSchema";
+import { MediaNullableRelationFilterSchema } from "./MediaNullableRelationFilterSchema";
+import { MediaWhereInputSchema } from "./MediaWhereInputSchema";
 
 export const MetadataWhereInputSchema: z.ZodType<Prisma.MetadataWhereInput> = z
   .object({
@@ -39,6 +41,10 @@ export const MetadataWhereInputSchema: z.ZodType<Prisma.MetadataWhereInput> = z
       .union([z.lazy(() => IntNullableFilterSchema), z.number()])
       .optional()
       .nullable(),
+    mediaId: z
+      .union([z.lazy(() => IntNullableFilterSchema), z.number()])
+      .optional()
+      .nullable(),
     field: z
       .union([
         z.lazy(() => MetadataFieldRelationFilterSchema),
@@ -56,6 +62,13 @@ export const MetadataWhereInputSchema: z.ZodType<Prisma.MetadataWhereInput> = z
       .union([
         z.lazy(() => RundownNullableRelationFilterSchema),
         z.lazy(() => RundownWhereInputSchema),
+      ])
+      .optional()
+      .nullable(),
+    media: z
+      .union([
+        z.lazy(() => MediaNullableRelationFilterSchema),
+        z.lazy(() => MediaWhereInputSchema),
       ])
       .optional()
       .nullable(),

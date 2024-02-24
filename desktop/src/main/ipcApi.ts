@@ -6,7 +6,7 @@ import {
 import { z } from "zod";
 import { callProcedure, TRPCError } from "@trpc/server";
 import { selectedShow, setSelectedShow } from "./base/selectedShow";
-import { CompleteShowModel } from "@bowser/prisma/utilityTypes";
+import { CompleteShowModel } from "@badger/prisma/utilityTypes";
 import { Integration, IntegrationState } from "../common/types";
 import {
   assetsSettingsSchema,
@@ -18,8 +18,7 @@ import {
 import { IPCEvents } from "./ipcEventBus";
 import { ipcMain } from "electron";
 import logging, { logLevel, setLogLevel } from "./base/logging";
-import { ShowSchema } from "@bowser/prisma/types";
-import { inspect } from "node:util";
+import { ShowSchema } from "@badger/prisma/types";
 import { ontimeRouter } from "./ontime/ipc";
 import { vmixRouter } from "./vmix/ipc";
 import { obsRouter } from "./obs/ipc";
@@ -34,12 +33,29 @@ const logger = logging.getLogger("ipcApi");
 const rendererLogger = logging.getLogger("renderer");
 
 export const appRouter = r({
-  serverConnectionStatus: proc.query(async () => {
-    return (
-      serverApiClient !== null &&
-      (await serverApiClient.ping.query()) === "pong"
-    );
-  }),
+  serverConnectionStatus: proc
+    .output(
+      z.object({
+        ok: z.boolean(),
+        warnings: z
+          .object({
+            versionSkew: z.boolean().optional(),
+          })
+          .optional(),
+      }),
+    )
+    .query(async () => {
+      if (serverApiClient === null) {
+        return { ok: false };
+      }
+      const pingRes = await serverApiClient.ping.query();
+      return {
+        ok: pingRes.ping === "pong",
+        warnings: {
+          versionSkew: pingRes.version !== global.__APP_VERSION__,
+        },
+      };
+    }),
   log: proc
     .input(
       z.object({

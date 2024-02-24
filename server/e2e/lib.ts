@@ -43,7 +43,7 @@ export async function fileToDataTransfer(
 
 let apiClient: CreateTRPCProxyClient<AppRouter>;
 
-function getAPIClient() {
+export function getAPIClient() {
   if (!apiClient) {
     apiClient = createTRPCProxyClient<AppRouter>({
       transformer: SuperJSON,
@@ -85,7 +85,8 @@ export async function createShow(
   await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "Create" }).click();
   await expect(page.getByRole("heading", { name: name })).toBeVisible({
-    timeout: 10_000,
+    // Compiling the show page can take some time on local dev
+    timeout: process.env.CI ? 5_000 : 30_000,
   });
 }
 
@@ -143,11 +144,7 @@ export async function createMedia(
 }
 
 export const test = base.extend<{ showPage: Page }>({
-  showPage: async ({ page, request }, use) => {
-    await request.post(
-      "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB",
-    );
-
+  showPage: async ({ page }, use) => {
     // await page.goto("/enableDebugMode?value=false");
 
     await createShow(page, "Test Show");
@@ -158,3 +155,11 @@ export const test = base.extend<{ showPage: Page }>({
     // );
   },
 });
+
+test.beforeEach(async ({ request }) => {
+  await request.post(
+    "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB",
+  );
+});
+
+export { expect } from "@playwright/test";

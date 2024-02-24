@@ -1,6 +1,6 @@
 import { message, danger, fail, warn } from "danger";
 
-const issueKeyRe = /(BOW-\d+)/g;
+const issueKeyRe = /(BDGR-\d+)/g;
 
 async function findAddedAndRemovedTodoIssues() {
   const removed = new Set<string>();
@@ -91,7 +91,7 @@ if (danger.github.pr) {
     )
   ) {
     warn(
-      "No Linear ticket found. Please include one in either the pull request title (e.g. `[BOW-123] Fix something`), the description (`Fixes BOW-123.`), or the branch name (`bow-123-fix-something`).",
+      "No Linear ticket found. Please include one in either the pull request title (e.g. `[BDGR-123] Fix something`), the description (`Fixes BDGR-123.`), or the branch name (`bow-123-fix-something`).",
     );
   }
 

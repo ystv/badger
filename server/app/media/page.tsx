@@ -1,5 +1,5 @@
 import { requirePermission } from "@/lib/auth";
-import { Permission } from "@bowser/prisma/client";
+import { Permission } from "@badger/prisma/client";
 import { ExtendedMedia, MediaTable } from "./mediaTable";
 import { db } from "@/lib/db";
 import { listMediaFiles } from "@/lib/s3";
@@ -29,6 +29,17 @@ export default async function MediaPage() {
       continuityItems: {
         include: {
           show: true,
+        },
+      },
+      metadata: {
+        include: {
+          field: true,
+          show: true,
+          rundown: {
+            include: {
+              show: true,
+            },
+          },
         },
       },
     },

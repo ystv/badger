@@ -9,6 +9,7 @@ import { RundownItemUpdateManyWithoutMediaNestedInputSchema } from "./RundownIte
 import { ContinuityItemUpdateManyWithoutMediaNestedInputSchema } from "./ContinuityItemUpdateManyWithoutMediaNestedInputSchema";
 import { MediaProcessingTaskUpdateManyWithoutMediaNestedInputSchema } from "./MediaProcessingTaskUpdateManyWithoutMediaNestedInputSchema";
 import { AssetUpdateManyWithoutMediaNestedInputSchema } from "./AssetUpdateManyWithoutMediaNestedInputSchema";
+import { MetadataUpdateManyWithoutMediaNestedInputSchema } from "./MetadataUpdateManyWithoutMediaNestedInputSchema";
 
 export const MediaUpdateWithoutProcess_jobsInputSchema: z.ZodType<Prisma.MediaUpdateWithoutProcess_jobsInput> =
   z
@@ -55,6 +56,9 @@ export const MediaUpdateWithoutProcess_jobsInputSchema: z.ZodType<Prisma.MediaUp
         .optional(),
       assets: z
         .lazy(() => AssetUpdateManyWithoutMediaNestedInputSchema)
+        .optional(),
+      metadata: z
+        .lazy(() => MetadataUpdateManyWithoutMediaNestedInputSchema)
         .optional(),
     })
     .strict();

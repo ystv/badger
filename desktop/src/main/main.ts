@@ -9,7 +9,7 @@ import isSquirrel from "electron-squirrel-startup";
 import { selectedShow } from "./base/selectedShow";
 import Icon from "../icon/png/64x64.png";
 import * as Sentry from "@sentry/electron/main";
-import { logFlagState } from "@bowser/feature-flags";
+import { logFlagState } from "@badger/feature-flags";
 import { getLogger } from "./base/logging";
 import { OBSIntegration } from "./obs/obs";
 import { VMixIntegration } from "./vmix/vmix";
@@ -30,7 +30,7 @@ console.error = logger.error;
 /* eslint-enable no-console */
 
 logger.info(
-  `Bowser Desktop v${global.__APP_VERSION__} (${global.__GIT_COMMIT__}) starting up.`,
+  `Badger Desktop v${global.__APP_VERSION__} (${global.__GIT_COMMIT__}) starting up.`,
 );
 logFlagState(true);
 
@@ -81,7 +81,7 @@ const createWindow = async () => {
   }
 
   // Open the DevTools.
-  if (process.env.BOWSER_OPEN_DEVTOOLS === "true") {
+  if (process.env.BADGER_OPEN_DEVTOOLS === "true") {
     mainWindow.webContents.openDevTools();
   }
 

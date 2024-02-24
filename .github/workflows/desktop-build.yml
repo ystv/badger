@@ -50,7 +50,7 @@ jobs:
         with:
           file: ./desktop/package.json
           field: productName
-          value: "Bowser Desktop (DEV)"
+          value: "Badger Desktop (DEV)"
 
       - name: Set path for candle and light
         run: echo "C:\Program Files (x86)\WiX Toolset v3.11\bin" >> $GITHUB_PATH

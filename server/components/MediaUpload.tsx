@@ -1,5 +1,6 @@
 "use client";
 
+import invariant from "@/lib/invariant";
 import {
   createContext,
   forwardRef,
@@ -53,6 +54,7 @@ export const MediaUploader = forwardRef<
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const endpoint = useTusEndpoint();
+  invariant(endpoint.length > 0, "no tus endpoint");
   const uploadRef = useRef<tus.Upload | null>(null);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     disabled: props.disabled || isUploading,
@@ -113,7 +115,7 @@ export const MediaUploader = forwardRef<
           {error}
         </div>
       )}
-      {/* TODO [BOW-8]: Google Drive picker */}
+      {/* TODO [BDGR-8]: Google Drive picker */}
       <div
         {...getRootProps()}
         className="p-8 m-1 rounded-md bg-mid-light text-dark w-64 h-24"

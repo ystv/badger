@@ -11,6 +11,7 @@ import {
 import { FieldPath } from "react-hook-form/dist/types/path";
 import classNames from "classnames";
 import {
+  ChangeEvent,
   ForwardedRef,
   ReactNode,
   forwardRef,
@@ -18,18 +19,18 @@ import {
   useMemo,
   useState,
 } from "react";
-import Button from "@bowser/components/button";
+import Button from "@badger/components/button";
 import { identity } from "lodash";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@bowser/components/popover";
-import { cn } from "@bowser/components/utils";
+} from "@badger/components/popover";
+import { cn } from "@badger/components/utils";
 import { IoCalendarSharp } from "react-icons/io5";
 import { format, parse } from "date-fns";
-import { Calendar } from "@bowser/components/calendar";
-import { Input } from "@bowser/components/input";
+import { Calendar } from "@badger/components/calendar";
+import { Input } from "@badger/components/input";
 import { DebugOnly } from "./DebugMode";
 
 interface FieldBaseProps<
@@ -182,7 +183,6 @@ export function DatePickerField(props: {
                     "HH:mm",
                     v ?? new Date(),
                   );
-                  console.log("New time", newTime);
                   controller.field.onChange(newTime);
                 }}
               />
@@ -317,6 +317,9 @@ export function SelectField<TObj>(props: {
 }) {
   const { name, label, options, getOptionValue, renderOption, nullable } =
     props;
+  const controller = useController({
+    name,
+  });
   return (
     <Field
       name={name}
@@ -326,6 +329,12 @@ export function SelectField<TObj>(props: {
         setValueAs: props.nullable
           ? (v: TObj) => (v === "" ? null : v)
           : identity,
+      }}
+      value={getOptionValue(controller.field.value)}
+      onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+        controller.field.onChange(
+          options.find((o) => getOptionValue(o) === e.target.value) ?? null,
+        );
       }}
     >
       {nullable && <option value="">None</option>}

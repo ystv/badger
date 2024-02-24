@@ -1,7 +1,5 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
-import { SettingsCategorySchema } from "./SettingsCategorySchema";
-import { EnumSettingsCategoryFieldUpdateOperationsInputSchema } from "./EnumSettingsCategoryFieldUpdateOperationsInputSchema";
 import { SettingKeySchema } from "./SettingKeySchema";
 import { EnumSettingKeyFieldUpdateOperationsInputSchema } from "./EnumSettingKeyFieldUpdateOperationsInputSchema";
 import { JsonNullValueInputSchema } from "./JsonNullValueInputSchema";
@@ -10,12 +8,6 @@ import { InputJsonValue } from "./InputJsonValue";
 export const SettingUpdateManyMutationInputSchema: z.ZodType<Prisma.SettingUpdateManyMutationInput> =
   z
     .object({
-      category: z
-        .union([
-          z.lazy(() => SettingsCategorySchema),
-          z.lazy(() => EnumSettingsCategoryFieldUpdateOperationsInputSchema),
-        ])
-        .optional(),
       key: z
         .union([
           z.lazy(() => SettingKeySchema),

@@ -17,7 +17,7 @@ import React, {
 import classNames from "classnames";
 import { FieldPath } from "react-hook-form/dist/types/path";
 import { DebugOnly } from "@/components/DebugMode";
-import Button from "@bowser/components/button";
+import Button from "@badger/components/button";
 import { isRedirectError } from "next/dist/client/components/redirect";
 import { UseFormReturn } from "react-hook-form/dist/types/form";
 
@@ -97,7 +97,6 @@ export default function Form<
           //  Instead, we should probably use the FormData object React gives us (though we'll have to figure out how
           //  to make it play nice with hook-form).
           res = await action(form.getValues());
-          console.log("Form response", res);
         } catch (e) {
           console.warn("Form error", e);
           if (e instanceof Error && isRedirectError(e)) {

@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect } from "react";
 import * as Sentry from "@sentry/nextjs";
-import { User } from "@bowser/prisma/types";
+import { User } from "@badger/prisma/types";
 
 const UserContext = createContext<User | null>(null);
 

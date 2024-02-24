@@ -17,6 +17,10 @@ generator zod {
   addSelectType    = false
 }
 
+generator json {
+  provider = "prisma-json-types-generator"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -54,6 +58,7 @@ enum Permission {
   ManageShows
   ArchiveMedia
   ManageYouTubeStreams
+  ManageSystemSettings
   SUDO
 }
 
@@ -82,7 +87,7 @@ model Show {
   /// This is used by Desktop to watch for changes.
   version Int @default(0)
 
-  ytStreamID String?
+  ytStreamID    String?
   ytBroadcastID String?
 
   rundowns        Rundown[]
@@ -103,7 +108,7 @@ view ShowWithDuration {
   /// This is used by Desktop to watch for changes.
   version Int @default(0)
 
-  ytStreamID String?
+  ytStreamID    String?
   ytBroadcastID String?
 
   @@map("shows_with_duration")
@@ -152,12 +157,12 @@ model RundownItem {
 }
 
 model ContinuityItem {
-  id              Int    @id @default(autoincrement())
+  id              Int     @id @default(autoincrement())
   name            String
   order           Int
   showId          Int
   durationSeconds Int
-  ytBroadcastID String?
+  ytBroadcastID   String?
 
   media   Media? @relation(fields: [mediaId], references: [id], onDelete: SetNull)
   mediaId Int?
@@ -179,6 +184,7 @@ enum MetadataValueType {
   Text
   LongText
   URL
+  Media
 }
 
 model MetadataField {
@@ -196,38 +202,45 @@ model MetadataField {
 
 model Metadata {
   id      Int  @id @default(autoincrement())
+  /// The metadata value. The type depends on the field value type:
+  /// Text, LongText, URL: String
+  /// Media: object - see the type definition
+  /// [MetadataValue]
   value   Json
   fieldId Int
 
   showId    Int?
   rundownId Int?
+  mediaId   Int?
 
   field   MetadataField @relation(fields: [fieldId], references: [id], onDelete: Cascade)
   show    Show?         @relation(fields: [showId], references: [id], onDelete: Cascade)
   rundown Rundown?      @relation(fields: [rundownId], references: [id], onDelete: Cascade)
 
-  @@unique([fieldId, showId, rundownId])
+  media Media? @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@unique([fieldId, showId])
+  @@unique([fieldId, rundownId])
   @@index([showId])
   @@index([rundownId])
   @@map("metadata")
 }
 
-enum SettingsCategory {
-  YouTube
-}
-
 enum SettingKey {
   TitleMetadataID
   DescriptionMetadataID
+  DefaultResolution
+  DefaultFrameRate
+  DefaultIngestionType
+  DefaultDescription
 }
 
 model Setting {
   id       Int              @id @default(autoincrement())
-  category SettingsCategory
   key      SettingKey
   value    Json
 
-  @@unique([category, key])
+  @@unique([key])
   @@map("settings")
 }
 
@@ -279,6 +292,7 @@ model Media {
   tasks           MediaProcessingTask[]
   process_jobs    ProcessMediaJob[]
   assets          Asset[]
+  metadata        Metadata[]
 
   @@map("media")
 }

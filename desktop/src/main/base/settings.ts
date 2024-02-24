@@ -2,7 +2,7 @@ import electronSettings from "electron-settings";
 import { safeStorage } from "./safeStorage";
 import { z } from "zod";
 import * as fsp from "fs/promises";
-import { AssetTypeSchema } from "@bowser/prisma/types";
+import { AssetTypeSchema } from "@badger/prisma/types";
 import { IPCEvents } from "../ipcEventBus";
 import { ipcMain } from "electron";
 import logging from "./logging";
@@ -169,7 +169,7 @@ export async function validateLocalMediaState() {
       localMediaState = localMediaState.filter((v) => v !== info);
     }
   }
-  // TODO[BOW-67]: What should we do about files that exist in the local media folder but aren't in the settings?
+  // TODO[BDGR-67]: What should we do about files that exist in the local media folder but aren't in the settings?
   //  Two cases - either they match our naming convention, in which case we can probably assume they're
   //  supposed to be there, or they don't - but we shouldn't delete them, to avoid data loss.
   await settings.set("localMedia", localMediaState);

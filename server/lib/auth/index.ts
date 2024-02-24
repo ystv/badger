@@ -2,13 +2,14 @@ import { makeJWT, parseAndVerifyJWT } from "@/lib/auth/jwt";
 import { NextRequest } from "next/server";
 import { redirect } from "next/navigation";
 import * as Sentry from "@sentry/nextjs";
-import { Permission } from "@bowser/prisma/client";
+import { Permission } from "@badger/prisma/client";
 import { db } from "../db";
-import { User, UserSchema } from "@bowser/prisma/types";
+import { User, UserSchema } from "@badger/prisma/types";
 import {
+  autoActivateAllUsers,
   disablePermissionsChecks,
   enableUserManagement,
-} from "@bowser/feature-flags";
+} from "@badger/feature-flags";
 import { BasicUserInfo } from "./types";
 import { Forbidden, Unauthorized } from "./errors";
 
@@ -24,7 +25,7 @@ export enum SignInResult {
   Inactive = "inactive",
 }
 
-const cookieName = "bowser_session";
+const cookieName = "badger_session";
 
 export async function doSignIn(
   provider: string,
@@ -35,9 +36,9 @@ export async function doSignIn(
     const autoActivateDomains = new Set(
       process.env.USER_AUTO_CREATE_DOMAINS?.split(", "),
     );
-    const shouldAutoActivate = autoActivateDomains.has(
-      credentials.domain ?? "NEVER",
-    );
+    const shouldAutoActivate =
+      autoActivateAllUsers ||
+      autoActivateDomains.has(credentials.domain ?? "NEVER");
     let didExist;
     [user, didExist] = await db.$transaction(async ($db) => {
       const user = await $db.user.findFirst({
@@ -163,7 +164,7 @@ export async function checkSession(req?: NextRequest) {
     });
   }
   if (!user.isActive) {
-    // TODO[BOW-108]: This doesn't check it from the database, meaning that if the user is deactivated
+    // TODO[BDGR-108]: This doesn't check it from the database, meaning that if the user is deactivated
     //  while signed in, they can still access the site until their session expires.
     return null;
   }

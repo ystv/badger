@@ -12,10 +12,11 @@ import {
   Asset,
   ContinuityItem,
   Media,
+  MetadataField,
   Rundown,
   RundownItem,
   Show,
-} from "@bowser/prisma/types";
+} from "@badger/prisma/types";
 import { isAfter } from "date-fns";
 import { DateTime } from "@/components/DateTIme";
 import {
@@ -25,9 +26,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@bowser/components/table";
-import { Checkbox } from "@bowser/components/checkbox";
-import Button from "@bowser/components/button";
+} from "@badger/components/table";
+import { Checkbox } from "@badger/components/checkbox";
+import Button from "@badger/components/button";
 import { useState, useTransition } from "react";
 import {
   AlertDialog,
@@ -38,7 +39,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@bowser/components/alert-dialog";
+} from "@badger/components/alert-dialog";
 import { archiveMedia, deletMedia } from "./actions";
 import {
   IoChevronDownSharp,
@@ -47,6 +48,7 @@ import {
   IoFilterSharp,
 } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
+import { Metadata } from "@badger/prisma/client";
 
 interface ExtendedRundownItem extends RundownItem {
   rundown: Rundown & {
@@ -64,9 +66,20 @@ interface ExtendedContinuityItem extends ContinuityItem {
   show: Show;
 }
 
+interface ExtendedMetadata extends Metadata {
+  field: MetadataField;
+  show: Show | null;
+  rundown:
+    | (Rundown & {
+        show: Show;
+      })
+    | null;
+}
+
 export interface ExtendedMedia extends Media {
   rundownItems: ExtendedRundownItem[];
   continuityItems: ExtendedContinuityItem[];
+  metadata: ExtendedMetadata[];
   assets: ExtendedAsset[];
   rawSize?: number;
   processedSize?: number;
@@ -116,7 +129,9 @@ const columns = [
     cell: (info) => (info.getValue() ? formatBytes(info.getValue()!) : "n/a"),
   }),
   columnHelper.accessor(
-    (row) => [row.rundownItems, row.continuityItems, row.assets].flat().length,
+    (row) =>
+      [row.rundownItems, row.continuityItems, row.assets, row.metadata].flat()
+        .length,
     {
       header: "Uses",
     },
@@ -127,8 +142,11 @@ const columns = [
         ...row.rundownItems.map((x) => x.rundown.show),
         ...row.assets.map((x) => x.rundown.show),
         ...row.continuityItems.map((x) => x.show),
+        ...row.metadata
+          .flatMap((x) => [x.show, x.rundown?.show])
+          .filter(Boolean),
       ]
-        .map((x) => x.start)
+        .map((x) => x!.start)
         .reduce((a, b) => (isAfter(a, b) ? a : b), new Date(0)),
     {
       id: "lastUsed",

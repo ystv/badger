@@ -1,5 +1,5 @@
 {
-  "name": "bowser-server",
+  "name": "badger-server",
   "version": "1.0.0-beta.6",
   "private": true,
   "scripts": {
@@ -20,10 +20,10 @@
     "@aws-sdk/client-s3": "^3.474.0",
     "@aws-sdk/s3-request-presigner": "^3.474.0",
     "@aws-sdk/signature-v4-crt": "^3.370.0",
-    "@bowser/components": "workspace:*",
-    "@bowser/feature-flags": "workspace:*",
-    "@bowser/prisma": "workspace:*",
-    "@bowser/testing": "workspace:*",
+    "@badger/components": "workspace:*",
+    "@badger/feature-flags": "workspace:*",
+    "@badger/prisma": "workspace:*",
+    "@badger/testing": "workspace:*",
     "@hello-pangea/dnd": "^16.3.0",
     "@hookform/resolvers": "^3.1.1",
     "@prisma/client": "latest",

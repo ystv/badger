@@ -6,7 +6,6 @@ export const SettingMinOrderByAggregateInputSchema: z.ZodType<Prisma.SettingMinO
   z
     .object({
       id: z.lazy(() => SortOrderSchema).optional(),
-      category: z.lazy(() => SortOrderSchema).optional(),
       key: z.lazy(() => SortOrderSchema).optional(),
     })
     .strict();

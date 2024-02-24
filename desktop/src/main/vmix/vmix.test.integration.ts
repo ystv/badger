@@ -1,6 +1,6 @@
 import { beforeAll, expect, test, vi } from "vitest";
 import VMixConnection from "./vmix";
-import { integrate } from "@bowser/testing";
+import { integrate } from "@badger/testing";
 
 vi.mock("../base/settings", () => ({
   getVMixSettings: () =>

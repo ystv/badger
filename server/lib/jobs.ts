@@ -1,6 +1,6 @@
 import { dispatchParameterizedJob } from "@/lib/nomad";
 import invariant from "@/lib/invariant";
-import { enableNomadJobQueue } from "@bowser/feature-flags";
+import { enableNomadJobQueue } from "@badger/feature-flags";
 import { db } from "@/lib/db";
 
 export async function dispatchJobForJobrunner(baseJobID: number) {

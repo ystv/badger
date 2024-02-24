@@ -1,6 +1,6 @@
 import { ReactNode, useCallback, useEffect, useState } from "react";
 import { ipc } from "./ipc";
-import Button from "@bowser/components/button";
+import Button from "@badger/components/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import invariant from "../common/invariant";
@@ -8,7 +8,7 @@ import invariant from "../common/invariant";
 function ServerConnectForm() {
   const queryClient = useQueryClient();
   const [addrEntry, setAddrEntry] = useState(
-    import.meta.env.DEV ? "http://localhost:3000" : "https://bowser.ystv.co.uk",
+    import.meta.env.DEV ? "http://localhost:3000" : "https://badger.ystv.co.uk",
   );
   const [password, setPassword] = useState("");
   const doConnect = ipc.connectToServer.useMutation();
@@ -113,11 +113,22 @@ export default function ConnectAndSelectShowGate(props: {
     };
   }, [queryClient]);
 
+  if (connState.error) {
+    return (
+      <div>
+        <h2 className="text-2xl">Error (checking serverConnectionStatus)</h2>
+        <div className="block bg-danger-4 text-light p-1 rounded">
+          {connState.error.message}
+        </div>
+        <pre>{JSON.stringify(connState.error, null, 2)}</pre>
+      </div>
+    );
+  }
   if (connState.isLoading || selectedShow.isLoading) {
     return <div>Please wait, getting selected show...</div>;
   }
   if (
-    connState.data === true &&
+    connState.data.ok === true &&
     typeof selectedShow.data === "object" &&
     selectedShow.data !== null
   ) {
@@ -126,9 +137,16 @@ export default function ConnectAndSelectShowGate(props: {
   return (
     <div className="absolute bg-primary-4 w-full h-full m-0 p-0">
       <div className="w-144 h-24 m-auto p-8">
-        <h1 className="text-5xl text-light">Bowser</h1>
+        <h1 className="text-5xl text-light">🦡 Badger</h1>
+        {connState.data.warnings?.versionSkew && (
+          <div className="block bg-warning-4 text-light p-1 rounded">
+            <strong>Server/Desktop version skew detected!</strong> Some features
+            may not work correctly, if at all. Check the Desktop logs for more
+            details.
+          </div>
+        )}
         <div className="m-2 p-4 bg-light text-dark rounded">
-          {connState.data !== true ? (
+          {connState.data.ok !== true ? (
             <ServerConnectForm />
           ) : (
             <>

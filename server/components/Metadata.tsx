@@ -1,11 +1,11 @@
 "use client";
 
 import invariant from "@/lib/invariant";
-import Button from "@bowser/components/button";
-import { Input } from "@bowser/components/input";
-import { Textarea } from "@bowser/components/textarea";
-import { Prisma } from "@bowser/prisma/client";
-import { Metadata, MetadataField } from "@bowser/prisma/client";
+import Button from "@badger/components/button";
+import { Input } from "@badger/components/input";
+import { Textarea } from "@badger/components/textarea";
+import { Prisma } from "@badger/prisma/client";
+import { Metadata, MetadataField } from "@badger/prisma/client";
 import { useId, useMemo, useReducer, useState, useTransition } from "react";
 import { FormResponse } from "./Form";
 import {
@@ -19,13 +19,29 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@bowser/components/dropdown-menu";
+} from "@badger/components/dropdown-menu";
 import { twMerge } from "tailwind-merge";
 import { expectNever } from "ts-expect";
+import {
+  CompleteMedia,
+  ItemMediaStateAndUploadDialog,
+  MediaMetadata,
+} from "./MediaState";
+import { PastShowsMedia } from "./MediaSelection";
 
-export interface MetadataWithField extends Metadata {
+export interface MetadataWithFieldAndMedia extends Metadata {
   field: MetadataField;
+  media: CompleteMedia | null;
   _temporary?: boolean;
+}
+
+export interface MediaMetaUploadValue {
+  uploadUrl: string;
+  fileName: string;
+}
+
+export interface MediaMetaSelectValue {
+  mediaId: number;
 }
 
 function MetaValue(props: {
@@ -48,12 +64,10 @@ function MetaValue(props: {
         );
       }
       break;
+    case "Media":
+      invariant(false, "MetaValue does not support Media metadata");
     default:
-      invariant(
-        false,
-        // @ts-expect-error if the type of `type` is ever not `never` we've forgotten a case in the switch
-        `Unknown metadata field type ${props.field.type.slice()}`,
-      );
+      expectNever(props.field.type);
   }
 
   // This isn't a Rules-of-Hooks violation because the invariants should never be false
@@ -106,6 +120,7 @@ function MetaValue(props: {
                   setValue((props.value?.value as string) ?? "");
                   setTouched(false);
                 }}
+                data-testid="MetaValue.cancel"
               >
                 <IoCloseSharp />
               </Button>
@@ -125,6 +140,7 @@ function MetaValue(props: {
                 });
               }}
               disabled={isPending}
+              data-testid="MetaValue.save"
             >
               <IoCheckmarkSharp />
             </Button>
@@ -136,12 +152,48 @@ function MetaValue(props: {
   );
 }
 
+function MediaMetaValue({
+  field,
+  meta,
+  value,
+  onUploadComplete,
+  onExistingSelected,
+  pastShowsPromise,
+}: {
+  field: MetadataField;
+  meta: Metadata | null;
+  value: CompleteMedia | null;
+  onUploadComplete: (url: string, fileName: string) => Promise<unknown>;
+  onExistingSelected: (id: number) => Promise<unknown>;
+  pastShowsPromise: Promise<PastShowsMedia>;
+}) {
+  const id = useId();
+  return (
+    <div>
+      <label htmlFor={id}>
+        <strong>{field.name}</strong>
+      </label>
+      <div>
+        <ItemMediaStateAndUploadDialog
+          item={{
+            field,
+            media: value,
+          }}
+          onUploadComplete={onUploadComplete}
+          onExistingSelected={onExistingSelected}
+          pastShowsPromise={pastShowsPromise}
+        />
+      </div>
+    </div>
+  );
+}
+
 function tempFieldsReducer(
-  state: MetadataWithField[],
+  state: MetadataWithFieldAndMedia[],
   action:
     | { type: "add"; fieldType: MetadataField }
     | { type: "remove"; id: number },
-): MetadataWithField[] {
+): MetadataWithFieldAndMedia[] {
   switch (action.type) {
     case "add":
       return [
@@ -154,6 +206,8 @@ function tempFieldsReducer(
           id: Math.random(),
           _temporary: true,
           value: "",
+          mediaId: null,
+          media: null,
         },
       ];
     case "remove":
@@ -165,16 +219,17 @@ function tempFieldsReducer(
 }
 
 export function MetadataFields(props: {
-  metadata: MetadataWithField[];
+  metadata: MetadataWithFieldAndMedia[];
   fields: MetadataField[];
   setValue: (
     metaID: number,
-    val: Prisma.InputJsonValue,
+    val: Prisma.InputJsonValue | MediaMetaUploadValue | MediaMetaSelectValue,
   ) => Promise<FormResponse>;
   createMeta: (
     fieldID: number,
-    val: Prisma.InputJsonValue,
+    val: Prisma.InputJsonValue | MediaMetaUploadValue | MediaMetaSelectValue,
   ) => Promise<FormResponse>;
+  pastShowsPromise: Promise<PastShowsMedia>;
 }) {
   const emptyFields = useMemo(
     () =>
@@ -192,51 +247,126 @@ export function MetadataFields(props: {
     <div className="space-y-2 my-8">
       {props.metadata
         .filter((x) => x.field.default)
-        .map((meta) => (
-          <MetaValue
-            key={meta.id}
-            field={meta.field}
-            value={meta}
-            saveChanges={(val) => props.setValue(meta.id, val)}
+        .map((meta) =>
+          meta.field.type === "Media" ? (
+            <MediaMetaValue
+              key={meta.id}
+              meta={meta}
+              field={meta.field}
+              value={meta.media}
+              onUploadComplete={(url, fileName) =>
+                props.setValue(meta.id, { uploadUrl: url, fileName })
+              }
+              onExistingSelected={(id) =>
+                props.setValue(meta.id, { mediaId: id })
+              }
+              pastShowsPromise={props.pastShowsPromise}
+            />
+          ) : (
+            <MetaValue
+              key={meta.id}
+              field={meta.field}
+              value={meta}
+              saveChanges={(val) => props.setValue(meta.id, val)}
+            />
+          ),
+        )}
+      {emptyDefaultFields.map((field) =>
+        field.type === "Media" ? (
+          <MediaMetaValue
+            key={field.id}
+            meta={null}
+            field={field}
+            value={null}
+            onUploadComplete={(url, fileName) =>
+              props.createMeta(field.id, { uploadUrl: url, fileName })
+            }
+            onExistingSelected={(id) =>
+              props.createMeta(field.id, { mediaId: id })
+            }
+            pastShowsPromise={props.pastShowsPromise}
           />
-        ))}
-      {emptyDefaultFields.map((field) => (
-        <MetaValue
-          key={field.id}
-          field={field}
-          value={null}
-          saveChanges={(val) => props.createMeta(field.id, val)}
-          slim
-        />
-      ))}
-      {props.metadata
-        .filter((x) => !x.field.default)
-        .map((meta) => (
+        ) : (
           <MetaValue
-            key={meta.id}
-            field={meta.field}
-            value={meta}
-            saveChanges={(val) => props.setValue(meta.id, val)}
+            key={field.id}
+            field={field}
+            value={null}
+            saveChanges={(val) => props.createMeta(field.id, val)}
             slim
           />
-        ))}
-      {tempFields.map((field) => (
-        <MetaValue
-          key={field.id}
-          field={field.field}
-          value={field}
-          saveChanges={async (val) => {
-            const r = await props.createMeta(field.field.id, val);
-            if (r.ok) {
-              setTempFields({ type: "remove", id: field.id });
-            }
-            return r;
-          }}
-          onCancel={() => setTempFields({ type: "remove", id: field.id })}
-          initialTouched
-          slim
-        />
-      ))}
+        ),
+      )}
+      {props.metadata
+        .filter((x) => !x.field.default)
+        .map((meta) =>
+          meta.field.type === "Media" ? (
+            <MediaMetaValue
+              key={meta.id}
+              meta={meta}
+              field={meta.field}
+              value={meta.media}
+              onUploadComplete={(url, fileName) =>
+                props.setValue(meta.id, { uploadUrl: url, fileName })
+              }
+              onExistingSelected={(id) =>
+                props.setValue(meta.id, { mediaId: id })
+              }
+              pastShowsPromise={props.pastShowsPromise}
+            />
+          ) : (
+            <MetaValue
+              key={meta.id}
+              field={meta.field}
+              value={meta}
+              saveChanges={(val) => props.setValue(meta.id, val)}
+              slim
+            />
+          ),
+        )}
+      {tempFields.map((meta) =>
+        meta.field.type === "Media" ? (
+          <MediaMetaValue
+            key={meta.id}
+            meta={meta}
+            field={meta.field}
+            value={null}
+            onUploadComplete={async (url, fileName) => {
+              const r = await props.createMeta(meta.field.id, {
+                uploadUrl: url,
+                fileName,
+              });
+              if (r.ok) {
+                setTempFields({ type: "remove", id: meta.id });
+              }
+              return r;
+            }}
+            onExistingSelected={async (id) => {
+              const r = await props.createMeta(meta.field.id, { mediaId: id });
+              if (r.ok) {
+                setTempFields({ type: "remove", id: meta.id });
+              }
+              return r;
+            }}
+            pastShowsPromise={props.pastShowsPromise}
+          />
+        ) : (
+          <MetaValue
+            key={meta.id}
+            field={meta.field}
+            value={meta}
+            saveChanges={async (val) => {
+              const r = await props.createMeta(meta.field.id, val);
+              if (r.ok) {
+                setTempFields({ type: "remove", id: meta.id });
+              }
+              return r;
+            }}
+            onCancel={() => setTempFields({ type: "remove", id: meta.id })}
+            initialTouched
+            slim
+          />
+        ),
+      )}
       {emptyNonDefaultFields.length > 0 && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

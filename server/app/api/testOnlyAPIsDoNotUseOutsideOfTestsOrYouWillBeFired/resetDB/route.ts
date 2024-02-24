@@ -18,7 +18,9 @@ export async function POST() {
     "media",
     "users",
     "metadata",
+    "metadata_fields",
     "base_jobs",
+    "settings",
   ]) {
     await db.$executeRawUnsafe(
       `TRUNCATE TABLE "${table}" RESTART IDENTITY CASCADE;`,

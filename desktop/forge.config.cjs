@@ -46,7 +46,7 @@ module.exports = {
       config: {
         repository: {
           owner: "ystv",
-          name: "bowser",
+          name: "badger",
         },
         prerelease: true,
       },

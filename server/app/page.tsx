@@ -1,14 +1,14 @@
 import { db } from "@/lib/db";
-import { Permission, type Prisma } from "@bowser/prisma/client";
+import { Permission, type Prisma } from "@badger/prisma/client";
 import { Pagination } from "@/components/Pagination";
 import Link from "next/link";
-import Button from "@bowser/components/button";
+import Button from "@badger/components/button";
 import {
   Table,
   TableBody,
   TableCell,
   TableRow,
-} from "@bowser/components/table";
+} from "@badger/components/table";
 import { DateTime } from "@/components/DateTIme";
 import { PermissionGate } from "@/components/PermissionGate";
 

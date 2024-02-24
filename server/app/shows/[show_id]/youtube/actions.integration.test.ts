@@ -1,8 +1,8 @@
 import { db } from "@/lib/db";
 import { doCreateStreams } from "./actions";
-import { integrate } from "@bowser/testing";
+import { integrate } from "@badger/testing";
 import { youtube_v3 } from "googleapis";
-import { ContinuityItem, Rundown, Show } from "@bowser/prisma/client";
+import { ContinuityItem, Rundown, Show } from "@badger/prisma/client";
 import { OAuth2Client } from "google-auth-library";
 
 jest.mock("server-only", () => ({}));

@@ -9,6 +9,7 @@ export const MediaCountOutputTypeSelectSchema: z.ZodType<Prisma.MediaCountOutput
       tasks: z.boolean().optional(),
       process_jobs: z.boolean().optional(),
       assets: z.boolean().optional(),
+      metadata: z.boolean().optional(),
     })
     .strict();
 

@@ -4,7 +4,7 @@ import {
   MediaFileSourceType,
   ProcessMediaJob,
   Rundown,
-} from "@bowser/prisma/client";
+} from "@badger/prisma/client";
 import AbstractJob from "./base";
 import * as path from "node:path";
 import * as fs from "node:fs";

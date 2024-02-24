@@ -6,8 +6,8 @@ import Link from "next/link";
 import { TusEndpointProvider } from "@/components/MediaUpload";
 import { getTusEndpoint } from "@/lib/tus";
 import { Suspense, cache } from "react";
-import { Button } from "@bowser/components/button";
-import { MetadataTargetType } from "@bowser/prisma/client";
+import { Button } from "@badger/components/button";
+import { MetadataTargetType } from "@badger/prisma/client";
 import { MetadataFields } from "@/components/Metadata";
 import { addMeta, setMetaValue } from "./metaActions";
 import { PastShowsMedia } from "@/components/MediaSelection";
@@ -35,10 +35,22 @@ const pastShowsPromise = cache(
                 media: true,
               },
             },
+            metadata: {
+              include: {
+                field: true,
+                media: true,
+              },
+            },
           },
         },
         continuityItems: {
           include: {
+            media: true,
+          },
+        },
+        metadata: {
+          include: {
+            field: true,
             media: true,
           },
         },
@@ -108,6 +120,11 @@ async function RundownMetadata(props: { showID: number; rundownID: number }) {
       },
       include: {
         field: true,
+        media: {
+          include: {
+            tasks: true,
+          },
+        },
       },
       orderBy: {
         fieldId: "asc",
@@ -126,6 +143,7 @@ async function RundownMetadata(props: { showID: number; rundownID: number }) {
         "use server";
         return setMetaValue(props.rundownID, props.rundownID, metaID, val);
       }}
+      pastShowsPromise={pastShowsPromise()}
     />
   );
 }

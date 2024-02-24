@@ -1,10 +1,10 @@
 "use client";
 
-import { Asset, AssetTypeSchema, Rundown } from "@bowser/prisma/types";
+import { Asset, AssetTypeSchema, Rundown } from "@badger/prisma/types";
 import React, { useEffect, useRef, useState, useTransition } from "react";
-import { AssetTypeType } from "@bowser/prisma/types/inputTypeSchemas/AssetTypeSchema";
+import { AssetTypeType } from "@badger/prisma/types/inputTypeSchemas/AssetTypeSchema";
 import classNames from "classnames";
-import Button from "@bowser/components/button";
+import Button from "@badger/components/button";
 import {
   IoAddCircleSharp,
   IoImageSharp,
@@ -19,15 +19,15 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@bowser/components/dialog";
+} from "@badger/components/dialog";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@bowser/components/popover";
+} from "@badger/components/popover";
 import Spinner from "@/app/_assets/spinner.svg";
 import Image from "next/image";
-import { Media, MediaState } from "@bowser/prisma/client";
+import { Media, MediaState } from "@badger/prisma/client";
 import {
   createAssetFromExistingMedia,
   processAssetUpload,

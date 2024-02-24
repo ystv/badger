@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext } from "react";
-import type * as FlagsType from "@bowser/feature-flags";
+import type * as FlagsType from "@badger/feature-flags";
 
 const featureFlagsCtx = createContext<Record<string, boolean>>({});
 

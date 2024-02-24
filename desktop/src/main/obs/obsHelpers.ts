@@ -6,7 +6,7 @@ import {
 } from "./obs";
 import { getLocalMediaSettings, LocalMediaType } from "../base/settings";
 import invariant from "../../common/invariant";
-import type { Media, ContinuityItem } from "@bowser/prisma/client";
+import type { Media, ContinuityItem } from "@badger/prisma/client";
 import { getLogger } from "../base/logging";
 import { selectedShow } from "../base/selectedShow";
 
@@ -20,7 +20,7 @@ export type MediaType = Media & {
   continuityItems: ContinuityItem[];
 };
 
-const MEDIA_SOURCE_PREFIX = "Bowser Media ";
+const MEDIA_SOURCE_PREFIX = "Badger Media ";
 export const CONTINUITY_SCENE_NAME_REGEXP = /^\d+ - .+? \[#(\d+)]$/;
 
 /**
@@ -29,7 +29,7 @@ export const CONTINUITY_SCENE_NAME_REGEXP = /^\d+ - .+? \[#(\d+)]$/;
  * @param info the media to add
  * @param replaceMode how to handle OBS scenes that already exist:
  *   "none": do not replace existing sources
- *   "replace": replace pre-existing Bowser scenes, but not scenes containing other sources
+ *   "replace": replace pre-existing Badger scenes, but not scenes containing other sources
  *   "force": replace the contents of the scene no matter what
  * @return
  *   done: true if the media was added to the scene
@@ -113,7 +113,7 @@ export async function addOrReplaceMediaAsScene(
     const settings =
       await OBSIntegration.instance.getSourceSettings(mediaSourceName);
     if (!castMediaSourceSettings(settings)) {
-      // Should never happen unless the user manually creates a different source, or there's a Bowser version incompatibility.
+      // Should never happen unless the user manually creates a different source, or there's a Badger version incompatibility.
       if (replaceMode === "force") {
         warn("Existing source is not a media source. Forcing replacement.");
         await OBSIntegration.instance.removeSceneItem(
@@ -164,14 +164,14 @@ export async function addOrReplaceMediaAsScene(
       };
     }
   }
-  // If the scene is non-empty, but has only one other source, and it's a Bowser source, we can replace it if the user permits it.
+  // If the scene is non-empty, but has only one other source, and it's a Badger source, we can replace it if the user permits it.
   if (
     items.length === 1 &&
     items[0].sourceName.startsWith(MEDIA_SOURCE_PREFIX)
   ) {
     if (replaceMode === "replace" || replaceMode === "force") {
       logger.debug(
-        "addMediaAsScene: existing scene has one Bowser source with mismatching ID. Replacing.",
+        "addMediaAsScene: existing scene has one Badger source with mismatching ID. Replacing.",
       );
       await OBSIntegration.instance.removeSceneItem(
         sceneTitle,
@@ -186,17 +186,17 @@ export async function addOrReplaceMediaAsScene(
       return { warnings, done: true };
     } else {
       warn(
-        `Scene ${sceneTitle} has a pre-existing Bowser source for a different media file.`,
+        `Scene ${sceneTitle} has a pre-existing Badger source for a different media file.`,
       );
       return { warnings, done: false, promptReplace: "replace" };
     }
   }
-  // The scene has non-Bowser sources in it.
+  // The scene has non-Badger sources in it.
   if (replaceMode === "force") {
     // If the user has chosen to force replacement, we can just remove all the other sources and override the path for ours.
     // Note that we don't remove ours due to a potential race condition when removing and adding the same source.
     logger.debug(
-      "addMediaAsScene: existing scene has non-Bowser sources. Replacing as the replaceMode is 'force'.",
+      "addMediaAsScene: existing scene has non-Badger sources. Replacing as the replaceMode is 'force'.",
     );
     let oursPresent = false;
     for (const item of items) {
@@ -227,7 +227,7 @@ export async function addOrReplaceMediaAsScene(
   } else {
     // Bail.
     warn(
-      `Scene ${sceneTitle} has non-Bowser sources in it. Cowardly refusing to overwrite.`,
+      `Scene ${sceneTitle} has non-Badger sources in it. Cowardly refusing to overwrite.`,
     );
     return { warnings, done: false, promptReplace: "force" };
   }

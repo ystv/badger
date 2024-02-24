@@ -5,7 +5,7 @@ import {
   httpLink,
   loggerLink,
 } from "@trpc/client";
-import type { AppRouter } from "bowser-server/app/api/_router";
+import type { AppRouter } from "badger-server/app/api/_router";
 import superjson from "superjson";
 import { getServerSettings, saveServerSettings } from "./settings";
 import logging from "./logging";
@@ -48,7 +48,12 @@ async function newAPIClient(endpoint: string, password: string) {
     ],
     transformer: superjson,
   });
-  await client.ping.query();
+  const pingResponse = await client.ping.query();
+  if (pingResponse.version !== global.__APP_VERSION__) {
+    logger.warn(
+      `Warning: version skew detected: server is running ${pingResponse.version}, but client is running ${global.__APP_VERSION__}`,
+    );
+  }
   return client;
 }
 

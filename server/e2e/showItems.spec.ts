@@ -246,7 +246,7 @@ test("media/assets for long rundowns", async ({ showPage }) => {
     .getByRole("button", { name: "Upload new asset" })
     .scrollIntoViewIfNeeded();
   await showPage.getByRole("button", { name: "Upload new asset" }).click();
-  // assert it isn't off-screen (BOW-89)
+  // assert it isn't off-screen (BDGR-89)
   await expect(showPage.getByRole("combobox")).toBeInViewport();
   await showPage.getByRole("combobox").selectOption("Graphic");
   await showPage.getByText("Upload file").click();
@@ -264,7 +264,7 @@ test("media/assets for long rundowns", async ({ showPage }) => {
   await req;
 });
 
-test("asset upload failure (BOW-54)", async ({ showPage }) => {
+test("asset upload failure (BDGR-54)", async ({ showPage }) => {
   const testFile = readFileSync(
     path.join(__dirname, "testdata", "smpte_bars_15s.mp4"),
   );
