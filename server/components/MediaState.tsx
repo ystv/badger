@@ -183,7 +183,11 @@ function MediaProcessingState({
           </Button>
           {media.state === MediaState.Ready ||
             (media.state === MediaState.ReadyWithWarnings && (
-              <Link href={`/media/download/${media.id}`} target="_blank">
+              <Link
+                href={`/media/download/${media.id}`}
+                target="_blank"
+                className="text-sm"
+              >
                 Download
               </Link>
             ))}
