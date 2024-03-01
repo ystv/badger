@@ -7,7 +7,7 @@ import { DateTimeFieldUpdateOperationsInputSchema } from "./DateTimeFieldUpdateO
 import { NullableDateTimeFieldUpdateOperationsInputSchema } from "./NullableDateTimeFieldUpdateOperationsInputSchema";
 import { ProcessMediaJobUpdateOneWithoutBase_jobNestedInputSchema } from "./ProcessMediaJobUpdateOneWithoutBase_jobNestedInputSchema";
 import { LoadAssetJobUpdateOneWithoutBase_jobNestedInputSchema } from "./LoadAssetJobUpdateOneWithoutBase_jobNestedInputSchema";
-import { DummyTestJobUpdateManyWithoutBase_jobNestedInputSchema } from "./DummyTestJobUpdateManyWithoutBase_jobNestedInputSchema";
+import { DummyTestJobUpdateOneWithoutBase_jobNestedInputSchema } from "./DummyTestJobUpdateOneWithoutBase_jobNestedInputSchema";
 
 export const BaseJobUpdateInputSchema: z.ZodType<Prisma.BaseJobUpdateInput> = z
   .object({
@@ -65,7 +65,7 @@ export const BaseJobUpdateInputSchema: z.ZodType<Prisma.BaseJobUpdateInput> = z
       .lazy(() => LoadAssetJobUpdateOneWithoutBase_jobNestedInputSchema)
       .optional(),
     DummyTestJob: z
-      .lazy(() => DummyTestJobUpdateManyWithoutBase_jobNestedInputSchema)
+      .lazy(() => DummyTestJobUpdateOneWithoutBase_jobNestedInputSchema)
       .optional(),
   })
   .strict();
