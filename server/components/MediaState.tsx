@@ -26,6 +26,7 @@ import {
   PopoverTrigger,
 } from "@badger/components/popover";
 import { MediaSelectOrUploadDialog, PastShowsMedia } from "./MediaSelection";
+import Link from "next/link";
 
 export interface CompleteMedia extends Media {
   tasks: MediaProcessingTask[];
@@ -180,6 +181,12 @@ function MediaProcessingState({
           >
             Replace
           </Button>
+          {media.state === MediaState.Ready ||
+            (media.state === MediaState.ReadyWithWarnings && (
+              <Link href={`/media/download/${media.id}`} target="_blank">
+                Download
+              </Link>
+            ))}
         </div>
       </PopoverContent>
     </Popover>
