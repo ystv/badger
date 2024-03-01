@@ -4,7 +4,7 @@ import { SortOrderSchema } from "./SortOrderSchema";
 import { SortOrderInputSchema } from "./SortOrderInputSchema";
 import { ProcessMediaJobOrderByWithRelationInputSchema } from "./ProcessMediaJobOrderByWithRelationInputSchema";
 import { LoadAssetJobOrderByWithRelationInputSchema } from "./LoadAssetJobOrderByWithRelationInputSchema";
-import { DummyTestJobOrderByRelationAggregateInputSchema } from "./DummyTestJobOrderByRelationAggregateInputSchema";
+import { DummyTestJobOrderByWithRelationInputSchema } from "./DummyTestJobOrderByWithRelationInputSchema";
 
 export const BaseJobOrderByWithRelationInputSchema: z.ZodType<Prisma.BaseJobOrderByWithRelationInput> =
   z
@@ -49,7 +49,7 @@ export const BaseJobOrderByWithRelationInputSchema: z.ZodType<Prisma.BaseJobOrde
         .lazy(() => LoadAssetJobOrderByWithRelationInputSchema)
         .optional(),
       DummyTestJob: z
-        .lazy(() => DummyTestJobOrderByRelationAggregateInputSchema)
+        .lazy(() => DummyTestJobOrderByWithRelationInputSchema)
         .optional(),
     })
     .strict();

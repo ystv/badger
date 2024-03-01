@@ -1,13 +1,13 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
-import { DummyTestJobWhereUniqueInputSchema } from "./DummyTestJobWhereUniqueInputSchema";
+import { DummyTestJobWhereInputSchema } from "./DummyTestJobWhereInputSchema";
 import { DummyTestJobUpdateWithoutBase_jobInputSchema } from "./DummyTestJobUpdateWithoutBase_jobInputSchema";
 import { DummyTestJobUncheckedUpdateWithoutBase_jobInputSchema } from "./DummyTestJobUncheckedUpdateWithoutBase_jobInputSchema";
 
-export const DummyTestJobUpdateWithWhereUniqueWithoutBase_jobInputSchema: z.ZodType<Prisma.DummyTestJobUpdateWithWhereUniqueWithoutBase_jobInput> =
+export const DummyTestJobUpdateToOneWithWhereWithoutBase_jobInputSchema: z.ZodType<Prisma.DummyTestJobUpdateToOneWithWhereWithoutBase_jobInput> =
   z
     .object({
-      where: z.lazy(() => DummyTestJobWhereUniqueInputSchema),
+      where: z.lazy(() => DummyTestJobWhereInputSchema).optional(),
       data: z.union([
         z.lazy(() => DummyTestJobUpdateWithoutBase_jobInputSchema),
         z.lazy(() => DummyTestJobUncheckedUpdateWithoutBase_jobInputSchema),
@@ -15,4 +15,4 @@ export const DummyTestJobUpdateWithWhereUniqueWithoutBase_jobInputSchema: z.ZodT
     })
     .strict();
 
-export default DummyTestJobUpdateWithWhereUniqueWithoutBase_jobInputSchema;
+export default DummyTestJobUpdateToOneWithWhereWithoutBase_jobInputSchema;

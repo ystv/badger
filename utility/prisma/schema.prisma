@@ -59,6 +59,7 @@ enum Permission {
   ArchiveMedia
   ManageYouTubeStreams
   ManageSystemSettings
+  ManageJobs
   SUDO
 }
 
@@ -236,9 +237,9 @@ enum SettingKey {
 }
 
 model Setting {
-  id       Int              @id @default(autoincrement())
-  key      SettingKey
-  value    Json
+  id    Int        @id @default(autoincrement())
+  key   SettingKey
+  value Json
 
   @@unique([key])
   @@map("settings")
@@ -340,7 +341,7 @@ model BaseJob {
 
   ProcessMediaJob ProcessMediaJob?
   LoadAssetJob    LoadAssetJob?
-  DummyTestJob    DummyTestJob[]
+  DummyTestJob    DummyTestJob?
 
   @@map("base_jobs")
 }
@@ -383,7 +384,7 @@ model LoadAssetJob {
 model DummyTestJob {
   id        Int     @id @default(autoincrement())
   base_job  BaseJob @relation(fields: [baseJobId], references: [id])
-  baseJobId Int
+  baseJobId Int     @unique
 
   @@map("dummy_test_jobs")
 }

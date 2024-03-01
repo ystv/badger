@@ -7,6 +7,7 @@ export const PermissionSchema = z.enum([
   "ArchiveMedia",
   "ManageYouTubeStreams",
   "ManageSystemSettings",
+  "ManageJobs",
   "SUDO",
 ]);
 
