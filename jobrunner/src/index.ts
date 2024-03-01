@@ -70,6 +70,15 @@ async function doJob(jobID: number) {
     },
   });
 
+  await db.baseJob.update({
+    where: {
+      id: jobID,
+    },
+    data: {
+      startedAt: new Date(),
+    },
+  });
+
   let handler: AbstractJob;
   let payload;
   if (nextJob.ProcessMediaJob) {

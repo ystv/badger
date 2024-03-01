@@ -10,7 +10,8 @@ import { ProcessMediaJobNullableRelationFilterSchema } from "./ProcessMediaJobNu
 import { ProcessMediaJobWhereInputSchema } from "./ProcessMediaJobWhereInputSchema";
 import { LoadAssetJobNullableRelationFilterSchema } from "./LoadAssetJobNullableRelationFilterSchema";
 import { LoadAssetJobWhereInputSchema } from "./LoadAssetJobWhereInputSchema";
-import { DummyTestJobListRelationFilterSchema } from "./DummyTestJobListRelationFilterSchema";
+import { DummyTestJobNullableRelationFilterSchema } from "./DummyTestJobNullableRelationFilterSchema";
+import { DummyTestJobWhereInputSchema } from "./DummyTestJobWhereInputSchema";
 
 export const BaseJobWhereInputSchema: z.ZodType<Prisma.BaseJobWhereInput> = z
   .object({
@@ -74,7 +75,13 @@ export const BaseJobWhereInputSchema: z.ZodType<Prisma.BaseJobWhereInput> = z
       ])
       .optional()
       .nullable(),
-    DummyTestJob: z.lazy(() => DummyTestJobListRelationFilterSchema).optional(),
+    DummyTestJob: z
+      .union([
+        z.lazy(() => DummyTestJobNullableRelationFilterSchema),
+        z.lazy(() => DummyTestJobWhereInputSchema),
+      ])
+      .optional()
+      .nullable(),
   })
   .strict();
 

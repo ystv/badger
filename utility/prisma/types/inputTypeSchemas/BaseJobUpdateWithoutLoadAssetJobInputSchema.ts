@@ -6,7 +6,7 @@ import { EnumJobStateFieldUpdateOperationsInputSchema } from "./EnumJobStateFiel
 import { DateTimeFieldUpdateOperationsInputSchema } from "./DateTimeFieldUpdateOperationsInputSchema";
 import { NullableDateTimeFieldUpdateOperationsInputSchema } from "./NullableDateTimeFieldUpdateOperationsInputSchema";
 import { ProcessMediaJobUpdateOneWithoutBase_jobNestedInputSchema } from "./ProcessMediaJobUpdateOneWithoutBase_jobNestedInputSchema";
-import { DummyTestJobUpdateManyWithoutBase_jobNestedInputSchema } from "./DummyTestJobUpdateManyWithoutBase_jobNestedInputSchema";
+import { DummyTestJobUpdateOneWithoutBase_jobNestedInputSchema } from "./DummyTestJobUpdateOneWithoutBase_jobNestedInputSchema";
 
 export const BaseJobUpdateWithoutLoadAssetJobInputSchema: z.ZodType<Prisma.BaseJobUpdateWithoutLoadAssetJobInput> =
   z
@@ -62,7 +62,7 @@ export const BaseJobUpdateWithoutLoadAssetJobInputSchema: z.ZodType<Prisma.BaseJ
         .lazy(() => ProcessMediaJobUpdateOneWithoutBase_jobNestedInputSchema)
         .optional(),
       DummyTestJob: z
-        .lazy(() => DummyTestJobUpdateManyWithoutBase_jobNestedInputSchema)
+        .lazy(() => DummyTestJobUpdateOneWithoutBase_jobNestedInputSchema)
         .optional(),
     })
     .strict();

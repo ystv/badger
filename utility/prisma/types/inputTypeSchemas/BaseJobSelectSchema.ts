@@ -2,8 +2,7 @@ import { z } from "zod";
 import type { Prisma } from "../../client";
 import { ProcessMediaJobArgsSchema } from "../outputTypeSchemas/ProcessMediaJobArgsSchema";
 import { LoadAssetJobArgsSchema } from "../outputTypeSchemas/LoadAssetJobArgsSchema";
-import { DummyTestJobFindManyArgsSchema } from "../outputTypeSchemas/DummyTestJobFindManyArgsSchema";
-import { BaseJobCountOutputTypeArgsSchema } from "../outputTypeSchemas/BaseJobCountOutputTypeArgsSchema";
+import { DummyTestJobArgsSchema } from "../outputTypeSchemas/DummyTestJobArgsSchema";
 
 export const BaseJobSelectSchema: z.ZodType<Prisma.BaseJobSelect> = z
   .object({
@@ -22,10 +21,7 @@ export const BaseJobSelectSchema: z.ZodType<Prisma.BaseJobSelect> = z
       .union([z.boolean(), z.lazy(() => LoadAssetJobArgsSchema)])
       .optional(),
     DummyTestJob: z
-      .union([z.boolean(), z.lazy(() => DummyTestJobFindManyArgsSchema)])
-      .optional(),
-    _count: z
-      .union([z.boolean(), z.lazy(() => BaseJobCountOutputTypeArgsSchema)])
+      .union([z.boolean(), z.lazy(() => DummyTestJobArgsSchema)])
       .optional(),
   })
   .strict();

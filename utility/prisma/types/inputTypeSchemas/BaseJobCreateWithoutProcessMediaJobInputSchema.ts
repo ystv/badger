@@ -2,7 +2,7 @@ import type { Prisma } from "../../client";
 import { z } from "zod";
 import { JobStateSchema } from "./JobStateSchema";
 import { LoadAssetJobCreateNestedOneWithoutBase_jobInputSchema } from "./LoadAssetJobCreateNestedOneWithoutBase_jobInputSchema";
-import { DummyTestJobCreateNestedManyWithoutBase_jobInputSchema } from "./DummyTestJobCreateNestedManyWithoutBase_jobInputSchema";
+import { DummyTestJobCreateNestedOneWithoutBase_jobInputSchema } from "./DummyTestJobCreateNestedOneWithoutBase_jobInputSchema";
 
 export const BaseJobCreateWithoutProcessMediaJobInputSchema: z.ZodType<Prisma.BaseJobCreateWithoutProcessMediaJobInput> =
   z
@@ -18,7 +18,7 @@ export const BaseJobCreateWithoutProcessMediaJobInputSchema: z.ZodType<Prisma.Ba
         .lazy(() => LoadAssetJobCreateNestedOneWithoutBase_jobInputSchema)
         .optional(),
       DummyTestJob: z
-        .lazy(() => DummyTestJobCreateNestedManyWithoutBase_jobInputSchema)
+        .lazy(() => DummyTestJobCreateNestedOneWithoutBase_jobInputSchema)
         .optional(),
     })
     .strict();
