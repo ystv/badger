@@ -181,16 +181,16 @@ function MediaProcessingState({
           >
             Replace
           </Button>
-          {media.state === MediaState.Ready ||
-            (media.state === MediaState.ReadyWithWarnings && (
-              <Link
-                href={`/media/download/${media.id}`}
-                target="_blank"
-                className="text-sm"
-              >
-                Download
-              </Link>
-            ))}
+          {(media.state === MediaState.Ready ||
+            media.state === MediaState.ReadyWithWarnings) && (
+            <Link
+              href={`/media/download/${media.id}`}
+              target="_blank"
+              className="text-sm"
+            >
+              Download
+            </Link>
+          )}
         </div>
       </PopoverContent>
     </Popover>
