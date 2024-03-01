@@ -7,7 +7,7 @@ import { z } from "zod";
 import { callProcedure, TRPCError } from "@trpc/server";
 import { selectedShow, setSelectedShow } from "./base/selectedShow";
 import { CompleteShowModel } from "@badger/prisma/utilityTypes";
-import { Integration } from "../common/types";
+import { Integration, IntegrationState } from "../common/types";
 import {
   assetsSettingsSchema,
   devToolsConfigSchema,
@@ -19,15 +19,14 @@ import { IPCEvents } from "./ipcEventBus";
 import { ipcMain } from "electron";
 import logging, { logLevel, setLogLevel } from "./base/logging";
 import { ShowSchema } from "@badger/prisma/types";
-import { inspect } from "node:util";
 import { ontimeRouter } from "./ontime/ipc";
 import { vmixRouter } from "./vmix/ipc";
 import { obsRouter } from "./obs/ipc";
 import { mediaRouter } from "./media/ipc";
 import { proc, r } from "./base/ipcRouter";
 import {
-  DEV_overrideSupportedIntegrations,
-  supportedIntegrations,
+  DEV_overrideEnabledIntegrations,
+  getIntegrationStates,
 } from "./base/integrations";
 
 const logger = logging.getLogger("ipcApi");
@@ -83,9 +82,6 @@ export const appRouter = r({
     return await serverAPI().shows.listUpcoming.query();
   }),
   getSelectedShow: proc.output(CompleteShowModel.nullable()).query(() => {
-    logger.debug(
-      `getSelectedShow called, current value is ${inspect(selectedShow.value)}`,
-    );
     return selectedShow.value;
   }),
   setSelectedShow: proc
@@ -96,8 +92,10 @@ export const appRouter = r({
       await setSelectedShow(data);
       return data;
     }),
-  supportedIntegrations: proc.output(z.array(Integration)).query(() => {
-    return supportedIntegrations;
+  integrations: r({
+    status: proc.output(z.record(Integration, IntegrationState)).query(() => {
+      return getIntegrationStates();
+    }),
   }),
   getLogLevel: proc
     .output(z.enum(["trace", "debug", "info", "warn", "error"]))
@@ -149,7 +147,7 @@ export const appRouter = r({
             message: "Dev tools not enabled",
           });
         }
-        DEV_overrideSupportedIntegrations(input as Integration[]);
+        DEV_overrideEnabledIntegrations(input as Integration[]);
       }),
   }),
   media: mediaRouter,

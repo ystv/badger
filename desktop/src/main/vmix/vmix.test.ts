@@ -21,6 +21,15 @@ vi.mock("net", () => ({
     return sock;
   },
 }));
+vi.mock("../base/settings", () => ({
+  getVMixSettings: () =>
+    Promise.resolve({
+      host: "localhost",
+      port: 8099,
+    }),
+  saveVMixSettings: () => {},
+}));
+vi.mock("../ipcEventBus");
 
 const nextTick = () => new Promise((resolve) => process.nextTick(resolve));
 
@@ -33,8 +42,8 @@ describe("VMixConnection", () => {
   });
   describe("send/receive", () => {
     test("request and response", async () => {
-      // vmix["send"] lets us access vmix.send even though it's private
-      const res = vmix["send"]("FUNCTION", "test");
+      // vmix["_send"] lets us access vmix.send even though it's private
+      const res = vmix["_send"]("FUNCTION", "test");
       expect(sock.write).toHaveBeenCalledWith(
         "FUNCTION test\r\n",
         "utf-8",
@@ -44,7 +53,7 @@ describe("VMixConnection", () => {
       expect(res).resolves.toEqual(["test", ""]);
     });
     test("no-arg request", async () => {
-      vmix["send"]("XML");
+      vmix["_send"]("XML");
       expect(sock.write).toHaveBeenCalledWith(
         "XML\r\n",
         "utf-8",
@@ -52,24 +61,24 @@ describe("VMixConnection", () => {
       );
     });
     test("binary response", async () => {
-      const res = vmix["send"]("FUNCTION", "test");
+      const res = vmix["_send"]("FUNCTION", "test");
       sock.emit("data", "FUNCTION 5\r\nhello");
       expect(res).resolves.toEqual(["", "hello"]);
     });
     test("binary response across multiple chunks", async () => {
-      const res = vmix["send"]("FUNCTION", "test");
+      const res = vmix["_send"]("FUNCTION", "test");
       sock.emit("data", "FUNCTION 5\r\n");
       sock.emit("data", "hello");
       expect(res).resolves.toEqual(["", "hello"]);
     });
     test("response split across chunks", async () => {
-      const res = vmix["send"]("FUNCTION", "test");
+      const res = vmix["_send"]("FUNCTION", "test");
       sock.emit("data", "FUNCTION");
       sock.emit("data", " OK\r\n");
       expect(res).resolves.toEqual(["", ""]);
     });
     test("message and binary", async () => {
-      const res = vmix["send"]("FUNCTION", "test");
+      const res = vmix["_send"]("FUNCTION", "test");
       sock.emit(
         "data",
         "FUNCTION 28 This is a message in addition to the binary data\r\n" +
@@ -81,13 +90,13 @@ describe("VMixConnection", () => {
       ]);
     });
     test("error handling", async () => {
-      const res = vmix["send"]("FUNCTION", "test");
+      const res = vmix["_send"]("FUNCTION", "test");
       sock.emit("data", "FUNCTION ER test\r\n");
       expect(res).rejects.toThrow("test");
     });
     test("two requests", async () => {
-      const r1 = vmix["send"]("FUNCTION", "test1");
-      const r2 = vmix["send"]("FUNCTION", "test2");
+      const r1 = vmix["_send"]("FUNCTION", "test1");
+      const r2 = vmix["_send"]("FUNCTION", "test2");
       await nextTick();
       expect(sock.write).toHaveBeenCalledWith(
         "FUNCTION test1\r\n",

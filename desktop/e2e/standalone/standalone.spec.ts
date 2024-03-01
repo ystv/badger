@@ -22,6 +22,7 @@ export const test = base.extend<{
         E2E_TEST: "true",
         __USE_MOCK_SERVER_API: "true",
         __USE_MOCK_VMIX: "true",
+        LOG_LEVEL: testInfo.retry > 0 ? "trace" : "debug",
       },
     });
 
@@ -112,6 +113,9 @@ test("scrolling for a show with lots of rundown items", async ({
         "ontime",
         "vmix",
       ]);
+      __MOCK_SERVER_API__.mock("query", "integrations.status", {
+        obs: "enabled",
+      });
       __MOCK_SERVER_API__.mock("query", "shows.getVersion", { version: 1 });
       __MOCK_SERVER_API__.mock("query", "shows.get", {
         id: 1,
