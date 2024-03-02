@@ -9,9 +9,7 @@ import { selectedShow, setSelectedShow } from "./base/selectedShow";
 import { CompleteShowModel } from "@badger/prisma/utilityTypes";
 import { Integration } from "../common/types";
 import {
-  assetsSettingsSchema,
   devToolsConfigSchema,
-  getAssetsSettings,
   getDevToolsConfig,
   saveDevToolsConfig,
 } from "./base/settings";
@@ -155,11 +153,6 @@ export const appRouter = r({
   media: mediaRouter,
   obs: obsRouter,
   vmix: vmixRouter,
-  assets: r({
-    getSettings: proc
-      .output(assetsSettingsSchema)
-      .query(() => getAssetsSettings()),
-  }),
   ontime: ontimeRouter,
 });
 export type AppRouter = typeof appRouter;

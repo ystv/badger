@@ -256,19 +256,11 @@ enum MediaState {
   @@map("media_state")
 }
 
-enum AssetType {
-  Still
-  Graphic
-  SoundEffect
-  Music
-
-  @@map("asset_type")
-}
-
 model Asset {
-  id   Int       @id @default(autoincrement())
-  name String
-  type AssetType
+  id       Int    @id @default(autoincrement())
+  name     String
+  category String
+  order    Int
 
   media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
 
@@ -277,6 +269,8 @@ model Asset {
   loadJobs  LoadAssetJob[]
   mediaId   Int
 
+  // Do not be tempted to include a @@unique on the order!
+  // See https://github.com/prisma/prisma/issues/13115 and https://github.com/prisma/prisma/issues/8807
   @@map("assets")
 }
 

@@ -97,25 +97,32 @@ export const vmixRouter = r({
     }),
   loadAssets: proc
     .input(
-      z.object({
-        rundownID: z.number(),
-        assetIDs: z.array(z.number()),
-      }),
+      z.union([
+        z.object({
+          rundownID: z.number(),
+          assetID: z.number(),
+        }),
+        z.object({
+          rundownID: z.number(),
+          category: z.string(),
+          loadType: z.enum(["direct", "list"]),
+        }),
+      ]),
     )
     .mutation(async ({ input }) => {
       const rundown = await serverAPI().rundowns.get.query({
         id: input.rundownID,
       });
       invariant(rundown, "Rundown not found");
-      const assets = rundown.assets.filter((x) =>
-        input.assetIDs.includes(x.id),
-      );
-      if (assets.length !== input.assetIDs.length) {
-        throw new TRPCError({
-          code: "PRECONDITION_FAILED",
-          message: "Not all assets are in the rundown",
-        });
+      if ("category" in input) {
+        const assets = rundown.assets.filter(
+          (x) => x.category === input.category,
+        );
+        await loadAssets(assets, input.loadType, input.category);
+      } else {
+        const asset = rundown.assets.find((x) => x.id === input.assetID);
+        invariant(asset, "Asset not found");
+        await loadAssets([asset], "direct", asset.category);
       }
-      await loadAssets(assets);
     }),
 });

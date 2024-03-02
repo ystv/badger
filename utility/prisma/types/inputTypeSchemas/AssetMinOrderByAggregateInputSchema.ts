@@ -7,7 +7,8 @@ export const AssetMinOrderByAggregateInputSchema: z.ZodType<Prisma.AssetMinOrder
     .object({
       id: z.lazy(() => SortOrderSchema).optional(),
       name: z.lazy(() => SortOrderSchema).optional(),
-      type: z.lazy(() => SortOrderSchema).optional(),
+      category: z.lazy(() => SortOrderSchema).optional(),
+      order: z.lazy(() => SortOrderSchema).optional(),
       rundownId: z.lazy(() => SortOrderSchema).optional(),
       mediaId: z.lazy(() => SortOrderSchema).optional(),
     })

@@ -2,8 +2,6 @@ import electronSettings from "electron-settings";
 import { safeStorage } from "./safeStorage";
 import { z } from "zod";
 import * as fsp from "fs/promises";
-import { AssetTypeSchema } from "@badger/prisma/types";
-import { IPCEvents } from "../ipcEventBus";
 import { ipcMain } from "electron";
 import logging from "./logging";
 
@@ -182,35 +180,6 @@ export async function updateLocalMediaState(
     newLocalMediaState.push(val);
   }
   await settings.set("localMedia", newLocalMediaState);
-}
-
-export const assetsSettingsSchema = z.object({
-  loadTypes: z.record(AssetTypeSchema, z.enum(["list", "direct"])),
-});
-const defaultAssetsSettings: z.infer<typeof assetsSettingsSchema> = {
-  loadTypes: {
-    Still: "list",
-    Graphic: "direct",
-    Music: "list",
-    SoundEffect: "direct",
-  },
-};
-
-export async function getAssetsSettings(): Promise<
-  z.infer<typeof assetsSettingsSchema>
-> {
-  const settingsData = await settings.get("assets");
-  if (settingsData === undefined) {
-    return defaultAssetsSettings;
-  }
-  return assetsSettingsSchema.parse(settingsData);
-}
-
-export async function saveAssetsSettings(
-  val: z.infer<typeof assetsSettingsSchema>,
-): Promise<void> {
-  await settings.set("assets", val);
-  IPCEvents.send("assetsSettingsChange");
 }
 
 export const devToolsConfigSchema = z.object({

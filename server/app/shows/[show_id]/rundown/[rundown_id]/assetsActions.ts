@@ -1,9 +1,5 @@
 "use server";
 
-import {
-  AssetTypeSchema,
-  AssetTypeType,
-} from "@badger/prisma/types/inputTypeSchemas/AssetTypeSchema";
 import { FormResponse } from "@/components/Form";
 import { db } from "@/lib/db";
 import { escapeRegExp } from "lodash";
@@ -13,7 +9,7 @@ import { dispatchJobForJobrunner } from "@/lib/jobs";
 
 export async function processAssetUpload(
   rundownID: number,
-  type: AssetTypeType,
+  category: string,
   fileName: string,
   uploadURL: string,
 ): Promise<FormResponse> {
@@ -22,68 +18,78 @@ export async function processAssetUpload(
     throw new Error("Invalid upload URL");
   }
 
-  type = AssetTypeSchema.parse(type);
-
-  const rundown = await db.rundown.findUniqueOrThrow({
-    where: {
-      id: rundownID,
-    },
-  });
-
-  const res = await db.asset.create({
-    data: {
-      name: fileName,
-      type,
-      rundown: {
-        connect: rundown,
+  const [asset, rundown] = await db.$transaction(async ($db) => {
+    const rundown = await $db.rundown.findUniqueOrThrow({
+      where: {
+        id: rundownID,
       },
-      media: {
-        create: {
-          name: fileName,
-          rawPath: "",
-          durationSeconds: 0,
+    });
+
+    const nextOrder =
+      (await $db.asset.count({
+        where: {
+          rundownId: rundownID,
+          category,
         },
-      },
-      loadJobs: {
-        create: {
-          sourceType: "Tus",
-          source: uploadURL.replace(
-            new RegExp(`^${escapeRegExp(process.env.TUS_ENDPOINT!)}/?`),
-            "",
-          ),
-          base_job: {
-            create: {},
+      })) + 1;
+
+    const res = await $db.asset.create({
+      data: {
+        name: fileName,
+        category,
+        order: nextOrder,
+        rundown: {
+          connect: rundown,
+        },
+        media: {
+          create: {
+            name: fileName,
+            rawPath: "",
+            durationSeconds: 0,
+          },
+        },
+        loadJobs: {
+          create: {
+            sourceType: "Tus",
+            source: uploadURL.replace(
+              new RegExp(`^${escapeRegExp(process.env.TUS_ENDPOINT!)}/?`),
+              "",
+            ),
+            base_job: {
+              create: {},
+            },
           },
         },
       },
-    },
-    include: {
-      loadJobs: true,
-    },
-  });
-  await db.rundown.update({
-    where: {
-      id: rundownID,
-    },
-    data: {
-      show: {
-        update: {
-          version: {
-            increment: 1,
+      include: {
+        loadJobs: true,
+      },
+    });
+    await $db.rundown.update({
+      where: {
+        id: rundownID,
+      },
+      data: {
+        show: {
+          update: {
+            version: {
+              increment: 1,
+            },
           },
         },
       },
-    },
+    });
+    return [res, rundown];
   });
 
-  await dispatchJobForJobrunner(res.loadJobs[0].base_job_id);
+  await dispatchJobForJobrunner(asset.loadJobs[0].base_job_id);
   revalidatePath(`/shows/${rundown.showId}/rundown/${rundown.id}`);
   return { ok: true };
 }
 
 export async function createAssetFromExistingMedia(
   rundownID: number,
-  type: AssetTypeType,
+  category: string,
   mediaID: number,
 ) {
   await db.$transaction(async ($db) => {
@@ -92,10 +98,18 @@ export async function createAssetFromExistingMedia(
         id: mediaID,
       },
     });
+    const nextOrder =
+      (await $db.asset.count({
+        where: {
+          rundownId: rundownID,
+          category,
+        },
+      })) + 1;
     await $db.asset.create({
       data: {
         name: media.name,
-        type,
+        category,
+        order: nextOrder,
         media: {
           connect: {
             id: mediaID,

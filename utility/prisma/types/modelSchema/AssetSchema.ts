@@ -1,18 +1,18 @@
-import { z } from 'zod';
-import { AssetTypeSchema } from '../inputTypeSchemas/AssetTypeSchema'
+import { z } from "zod";
 
 /////////////////////////////////////////
 // ASSET SCHEMA
 /////////////////////////////////////////
 
 export const AssetSchema = z.object({
-  type: AssetTypeSchema,
   id: z.number().int(),
   name: z.string(),
+  category: z.string(),
+  order: z.number().int(),
   rundownId: z.number().int(),
   mediaId: z.number().int(),
-})
+});
 
-export type Asset = z.infer<typeof AssetSchema>
+export type Asset = z.infer<typeof AssetSchema>;
 
 export default AssetSchema;

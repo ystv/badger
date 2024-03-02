@@ -242,13 +242,17 @@ test("media/assets for long rundowns", async ({ showPage }) => {
       ),
     });
 
+  await showPage.getByRole("button", { name: "New Category" }).click();
+  await showPage.getByPlaceholder("Stills").fill("Test Assets");
+  await showPage.getByRole("button", { name: "Create" }).click();
+  await showPage.getByRole("button", { name: "Expand Test Assets" }).click();
+
   await showPage
     .getByRole("button", { name: "Upload new asset" })
     .scrollIntoViewIfNeeded();
   await showPage.getByRole("button", { name: "Upload new asset" }).click();
   // assert it isn't off-screen (BDGR-89)
-  await expect(showPage.getByRole("combobox")).toBeInViewport();
-  await showPage.getByRole("combobox").selectOption("Graphic");
+  await expect(showPage.getByText("Upload file")).toBeInViewport();
   await showPage.getByText("Upload file").click();
   const req = showPage.waitForRequest("http://localhost:1080/*");
   await showPage
@@ -278,8 +282,12 @@ test("asset upload failure (BDGR-54)", async ({ showPage }) => {
   await showPage.getByRole("link", { name: "Edit" }).click();
   await showPage.waitForURL("**/shows/*/rundown/*");
 
+  await showPage.getByRole("button", { name: "New Category" }).click();
+  await showPage.getByPlaceholder("Stills").fill("Test Assets");
+  await showPage.getByRole("button", { name: "Create" }).click();
+  await showPage.getByRole("button", { name: "Expand Test Assets" }).click();
+
   await showPage.getByRole("button", { name: "Upload new asset" }).click();
-  await showPage.getByRole("combobox").selectOption("Graphic");
   await showPage.getByText("Upload file").click();
   const req = showPage.waitForRequest("http://localhost:1080/*");
   await showPage
@@ -295,6 +303,7 @@ test("asset upload failure (BDGR-54)", async ({ showPage }) => {
     });
   await req;
 
+  await showPage.getByRole("button", { name: "Expand Test Assets" }).click();
   await expect(showPage.getByTestId("RundownAssets.loadFailed")).toBeVisible({
     timeout: 30_000,
   });

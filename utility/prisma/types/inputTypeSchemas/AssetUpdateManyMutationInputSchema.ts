@@ -1,8 +1,7 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
 import { StringFieldUpdateOperationsInputSchema } from "./StringFieldUpdateOperationsInputSchema";
-import { AssetTypeSchema } from "./AssetTypeSchema";
-import { EnumAssetTypeFieldUpdateOperationsInputSchema } from "./EnumAssetTypeFieldUpdateOperationsInputSchema";
+import { IntFieldUpdateOperationsInputSchema } from "./IntFieldUpdateOperationsInputSchema";
 
 export const AssetUpdateManyMutationInputSchema: z.ZodType<Prisma.AssetUpdateManyMutationInput> =
   z
@@ -13,10 +12,16 @@ export const AssetUpdateManyMutationInputSchema: z.ZodType<Prisma.AssetUpdateMan
           z.lazy(() => StringFieldUpdateOperationsInputSchema),
         ])
         .optional(),
-      type: z
+      category: z
         .union([
-          z.lazy(() => AssetTypeSchema),
-          z.lazy(() => EnumAssetTypeFieldUpdateOperationsInputSchema),
+          z.string(),
+          z.lazy(() => StringFieldUpdateOperationsInputSchema),
+        ])
+        .optional(),
+      order: z
+        .union([
+          z.number().int(),
+          z.lazy(() => IntFieldUpdateOperationsInputSchema),
         ])
         .optional(),
     })

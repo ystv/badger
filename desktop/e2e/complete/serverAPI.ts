@@ -100,14 +100,7 @@ export async function directlyCreateTestMedia(
   const finalPath = `media/${media.id}/final/${fileName}`;
 
   // We need to access server's env vars, as desktop doesn't have the S3 ones.
-  const { parsed: env, error } = dotenvFlow.load(
-    dotenvFlow
-      .listFiles(path.resolve(__dirname + "../../../../server"))
-      .filter((x) => existsSync(x)),
-  );
-  if (!env) {
-    throw new Error(String(error));
-  }
+  const env = loadServerEnvVars();
 
   const s3 = new S3Client({
     endpoint: env.S3_ENDPOINT,
@@ -140,4 +133,16 @@ export async function directlyCreateTestMedia(
       state: "Ready",
     },
   });
+}
+
+export function loadServerEnvVars() {
+  const { parsed: env, error } = dotenvFlow.load(
+    dotenvFlow
+      .listFiles(path.resolve(__dirname + "../../../../server"))
+      .filter((x) => existsSync(x)),
+  );
+  if (!env) {
+    throw new Error(String(error));
+  }
+  return env;
 }

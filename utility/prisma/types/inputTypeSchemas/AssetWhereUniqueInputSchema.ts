@@ -2,8 +2,6 @@ import type { Prisma } from "../../client";
 import { z } from "zod";
 import { AssetWhereInputSchema } from "./AssetWhereInputSchema";
 import { StringFilterSchema } from "./StringFilterSchema";
-import { EnumAssetTypeFilterSchema } from "./EnumAssetTypeFilterSchema";
-import { AssetTypeSchema } from "./AssetTypeSchema";
 import { IntFilterSchema } from "./IntFilterSchema";
 import { MediaRelationFilterSchema } from "./MediaRelationFilterSchema";
 import { MediaWhereInputSchema } from "./MediaWhereInputSchema";
@@ -39,11 +37,11 @@ export const AssetWhereUniqueInputSchema: z.ZodType<Prisma.AssetWhereUniqueInput
           name: z
             .union([z.lazy(() => StringFilterSchema), z.string()])
             .optional(),
-          type: z
-            .union([
-              z.lazy(() => EnumAssetTypeFilterSchema),
-              z.lazy(() => AssetTypeSchema),
-            ])
+          category: z
+            .union([z.lazy(() => StringFilterSchema), z.string()])
+            .optional(),
+          order: z
+            .union([z.lazy(() => IntFilterSchema), z.number()])
             .optional(),
           rundownId: z
             .union([z.lazy(() => IntFilterSchema), z.number()])

@@ -2,10 +2,15 @@ import { expect } from "@playwright/test";
 import { test } from "./desktopE2EUtils";
 import * as fsp from "node:fs/promises";
 import * as path from "node:path";
-import { directlyCreateTestMedia, server } from "./serverAPI";
+import {
+  directlyCreateTestMedia,
+  loadServerEnvVars,
+  server,
+} from "./serverAPI";
 import type { CompleteShowType } from "../../src/common/types";
 import * as os from "os";
 import type VMixConnection from "../../src/main/vmix/vmix";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 let testShow: CompleteShowType;
 let tempDir: string;
@@ -73,7 +78,7 @@ test.afterEach(async ({ app: [app] }) => {
   });
 });
 
-test("load into vMix", async ({ app: [app, page] }) => {
+test("load VTs into vMix", async ({ app: [app, page] }) => {
   test.slow();
   const testMedia = await directlyCreateTestMedia(
     "smpte_bars_15s.mp4",
@@ -146,4 +151,129 @@ test("load into vMix", async ({ app: [app, page] }) => {
   await page.getByRole("button", { name: "Load All VTs" }).click();
 
   await expect(page.getByText("Good to go!")).toBeVisible();
+});
+
+test("load assets into vMix", async ({ app: [app, page] }) => {
+  test.slow();
+  // Unlike rundown/continuity items, Assets' media is non-nullable,
+  // so we can't cheat like we normally do and do a direct upload.
+  // So we can't use directlyCreateTestMedia here.
+  // Instead, we cheat even harder.
+  const env = loadServerEnvVars();
+
+  const s3 = new S3Client({
+    endpoint: env.S3_ENDPOINT,
+    region: env.S3_REGION,
+    forcePathStyle: true,
+    credentials: {
+      accessKeyId: env.AWS_ACCESS_KEY_ID!,
+      secretAccessKey: env.AWS_SECRET_ACCESS_KEY!,
+    },
+  });
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: env.STORAGE_BUCKET!,
+      Key: `test_temporary/smpte_bars_15s.mp4`,
+      Body: await fsp.readFile(__dirname + "/../testdata/smpte_bars_15s.mp4"),
+    }),
+  );
+
+  const updated = await server.shows.update.mutate({
+    id: testShow.id,
+    data: {
+      rundowns: {
+        update: {
+          where: {
+            id: testShow.rundowns[0].id,
+          },
+          data: {
+            assets: {
+              create: {
+                name: "Test Asset",
+                category: "Test Category",
+                order: 1,
+                media: {
+                  create: {
+                    name: "smpte_bars_15s.mp4",
+                    rawPath: `test_temporary/smpte_bars_15s.mp4`,
+                    path: `test_temporary/smpte_bars_15s.mp4`,
+                    durationSeconds: 0,
+                    state: "Ready", // cheating.
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  await app.evaluate(({ ipcMain }) => {
+    ipcMain.emit("doIPCMutation", {}, "devtools.setSettings", {
+      enabled: true,
+    });
+  });
+  await app.evaluate(({ ipcMain }) => {
+    ipcMain.emit("doIPCMutation", {}, "devtools.setEnabledIntegrations", [
+      "obs",
+      "ontime",
+      "vmix",
+    ]);
+  });
+
+  await page.getByRole("button", { name: "Select" }).click();
+
+  await page.getByText("Continuity").click();
+  await page.getByRole("menuitem", { name: "Test Rundown" }).click();
+
+  await app.evaluate((_, testMediaPath) => {
+    globalThis.__MOCK_VMIX((when, vmix, It) => {
+      when(() => vmix.getFullState())
+        .thenResolve({
+          version: "26",
+          edition: "4k",
+          inputs: [],
+        })
+        .once();
+      when(() => vmix.addInput("VideoList", It.isString())).thenResolve("123");
+      when(() => vmix.renameInput("123", It.isString())).thenResolve();
+      when(() => vmix.addInputToList("123", It.isString())).thenResolve();
+      when(() => vmix.getFullState()).thenResolve({
+        version: "26",
+        edition: "4k",
+        inputs: [
+          {
+            key: "123",
+            number: 1,
+            type: "VideoList",
+            title: "Test Category - smpte_bars_15s.mp4",
+            shortTitle: "Test Category",
+            state: "Paused",
+            position: 0,
+            duration: 0,
+            loop: false,
+            selectedIndex: 1,
+            items: [
+              {
+                source: testMediaPath,
+                selected: true,
+              },
+            ],
+          },
+        ],
+      });
+    });
+  }, `${tempDir}/smpte_bars_15s (#${updated.rundowns[0].assets[0].media.id}).mp4`);
+
+  await page
+    .getByRole("button", { name: "Download All Media in Test Category" })
+    .click();
+  await page.getByRole("button", { name: "Expand Test Category" }).click();
+  await page
+    .getByRole("button", { name: "Load All Media in Test Category" })
+    .click();
+  await page.getByRole("menuitem", { name: "In List" }).click();
+
+  await expect(page.getByTestId("Load Success")).toBeVisible();
 });
