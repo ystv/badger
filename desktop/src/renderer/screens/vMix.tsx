@@ -1,6 +1,6 @@
 import { ipc, useInvalidateQueryOnIPCEvent } from "../ipc";
 import { Button } from "@badger/components/button";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import {
@@ -576,22 +576,6 @@ function AssetCategory(props: {
 function RundownAssets(props: {
   rundown: z.infer<typeof CompleteRundownModel>;
 }) {
-  const queryClient = useQueryClient();
-  const doDownload = ipc.media.downloadMedia.useMutation({
-    async onSuccess() {
-      await queryClient.invalidateQueries(
-        getQueryKey(ipc.media.getDownloadStatus),
-      );
-    },
-  });
-  const doLoad = ipc.vmix.loadAssets.useMutation({
-    async onSuccess() {
-      await queryClient.invalidateQueries(
-        getQueryKey(ipc.vmix.getCompleteState),
-      );
-    },
-  });
-
   const assets: Map<string, Asset[]> = useMemo(() => {
     const byCategory = new Map();
     for (const asset of props.rundown.assets) {
@@ -627,6 +611,22 @@ function RundownAssets(props: {
 }
 
 function Rundown(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
+  const queryClient = useQueryClient();
+  const { data: downloadStatus } = ipc.media.getDownloadStatus.useQuery(
+    undefined,
+    {
+      refetchInterval: (data) =>
+        data?.some((x) => x.status !== "done") ? 1_000 : false,
+    },
+  );
+  const [prevDownloadStatus, setPrevDownloadStatus] = useState(downloadStatus);
+  useEffect(() => {
+    if (prevDownloadStatus !== downloadStatus) {
+      setPrevDownloadStatus(downloadStatus);
+      queryClient.invalidateQueries(getQueryKey(ipc.media.getLocalMedia));
+    }
+  }, [downloadStatus, prevDownloadStatus, queryClient]);
+
   return (
     <div className="space-y-4">
       <h1 className="text-2xl">{props.rundown.name}</h1>
