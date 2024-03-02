@@ -2,8 +2,7 @@ import invariant from "../../common/invariant";
 import { getVMixConnection } from "./vmix";
 import { InputType, ListInput } from "./vmixTypes";
 import type { Asset, Media } from "@badger/prisma/client";
-import { getAssetsSettings, getLocalMediaSettings } from "../base/settings";
-import { VMIX_NAMES } from "../../common/constants";
+import { getLocalMediaSettings } from "../base/settings";
 
 export async function reconcileList(listName: string, elements: string[]) {
   const conn = getVMixConnection();
@@ -29,29 +28,40 @@ export async function reconcileList(listName: string, elements: string[]) {
 export function getInputTypeForAsset(
   asset: Asset & { media: Media | null },
 ): InputType {
-  switch (asset.type) {
-    case "Still":
+  const extension = asset.media!.name.split(".").pop();
+  switch (extension) {
+    case "gtxml":
+    case "gtzip":
+      return "Title";
+    case "mp4":
+    case "mov":
+    case "avi":
+    case "mkv":
+    case "webm":
+      return "Video";
+    case "jpg":
+    case "jpeg":
+    case "png":
+    case "gif":
+    case "bmp":
       return "Image";
-    case "Music":
-    case "SoundEffect":
+    case "mp3":
+    case "wav":
+    case "flac":
+    case "ogg":
+    case "m4a":
       return "AudioFile";
-    case "Graphic": {
-      const media = asset.media;
-      invariant(media, "Asset has no media");
-      if (media.name.endsWith(".gtxml") || media.name.endsWith(".gtzip")) {
-        return "Title";
-      } else {
-        return "Video";
-      }
-    }
     default:
-      invariant(false, `Unknown asset type ${asset.type}`);
+      throw new Error("Unknown file extension " + extension);
   }
 }
 
-export async function loadAssets(assets: (Asset & { media: Media | null })[]) {
+export async function loadAssets(
+  assets: (Asset & { media: Media | null })[],
+  loadType: "direct" | "list",
+  category: string,
+) {
   const localMedia = await getLocalMediaSettings();
-  const settings = await getAssetsSettings();
   const vmix = getVMixConnection();
   invariant(vmix, "No vMix connection");
   const state = await vmix.getFullState();
@@ -65,11 +75,6 @@ export async function loadAssets(assets: (Asset & { media: Media | null })[]) {
       throw new Error("No local media for asset " + asset.id);
     }
 
-    const loadType = settings.loadTypes[asset.type];
-    invariant(
-      loadType,
-      "no load type configured for " + asset.type + " asset " + asset.id,
-    );
     if (loadType === "direct") {
       const present = state.inputs.find((x) => x.title === asset.media!.name);
       if (!present) {
@@ -77,14 +82,12 @@ export async function loadAssets(assets: (Asset & { media: Media | null })[]) {
       }
     } else if (loadType === "list") {
       let present;
-      const list = state.inputs.find(
-        (x) => x.shortTitle === VMIX_NAMES.ASSET_LIST[asset.type],
-      );
+      const list = state.inputs.find((x) => x.shortTitle === category);
       let listKey;
       if (!list) {
         present = false;
         listKey = await vmix.addInput("VideoList", "");
-        await vmix.renameInput(listKey, VMIX_NAMES.ASSET_LIST[asset.type]);
+        await vmix.renameInput(listKey, category);
       } else {
         listKey = list.key;
         present = (list as ListInput).items.some(

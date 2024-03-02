@@ -1,6 +1,6 @@
 import { ipc, useInvalidateQueryOnIPCEvent } from "../ipc";
 import { Button } from "@badger/components/button";
-import { useCallback, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import {
@@ -9,7 +9,6 @@ import {
   CompleteRundownModel,
 } from "@badger/prisma/utilityTypes";
 import { z } from "zod";
-import { VMIX_NAMES } from "../../common/constants";
 import { ListInput } from "../../main/vmix/vmixTypes";
 import invariant from "../../common/invariant";
 import { Alert } from "@badger/components/alert";
@@ -23,6 +22,20 @@ import {
 import { Badge } from "@badger/components/badge";
 import { Label } from "@badger/components/label";
 import { Input } from "@badger/components/input";
+import {
+  IoChevronDown,
+  IoChevronForward,
+  IoDownload,
+  IoPush,
+} from "react-icons/io5";
+import { Rundown } from "@badger/prisma/types";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@badger/components/dropdown-menu";
+import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
+import { VMIX_NAMES } from "../../common/constants";
 
 export function VMixConnection() {
   const [state] = ipc.vmix.getConnectionState.useSuspenseQuery();
@@ -297,34 +310,29 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
   );
 }
 
-function RundownAssets(props: {
-  rundown: z.infer<typeof CompleteRundownModel>;
+type Asset = z.infer<typeof CompleteAssetSchema>;
+
+interface AssetState {
+  state:
+    | "no-media"
+    | "downloading"
+    | "no-local"
+    | "processing"
+    | "processing-failed"
+    | "ready";
+  downloadProgress?: number;
+}
+
+function SingleAsset({
+  asset,
+  state,
+  rundown,
+}: {
+  asset: Asset;
+  state: AssetState;
+  rundown: Rundown;
 }) {
   const queryClient = useQueryClient();
-  const vmixState = ipc.vmix.getCompleteState.useQuery(undefined, {
-    refetchInterval: () => 15_000,
-    staleTime: 2_500,
-  });
-  const downloadState = ipc.media.getDownloadStatus.useQuery(undefined, {
-    refetchInterval: (data) =>
-      data?.some((x) => x.status !== "done") ? 1_000 : false,
-  });
-  const localMedia = ipc.media.getLocalMedia.useQuery(undefined, {
-    refetchInterval: () =>
-      downloadState.data?.some((x) => x.status === "downloading")
-        ? 2_500
-        : 10_000,
-    staleTime: 2_500,
-  });
-  const assetSettings = ipc.assets.getSettings.useQuery();
-  useInvalidateQueryOnIPCEvent(
-    getQueryKey(ipc.assets.getSettings),
-    "assetsSettingsChange",
-  );
-  useInvalidateQueryOnIPCEvent(
-    getQueryKey(ipc.media.getLocalMedia),
-    "localMediaStateChange",
-  );
   const doDownload = ipc.media.downloadMedia.useMutation({
     async onSuccess() {
       await queryClient.invalidateQueries(
@@ -340,81 +348,260 @@ function RundownAssets(props: {
     },
   });
 
-  const assets: Array<
-    z.infer<typeof CompleteAssetSchema> & {
-      _state: ItemState;
-      _downloadProgress?: number;
+  return (
+    <TableRow>
+      <TableCell className="text-lg align-middle h-full">
+        {asset.name}
+      </TableCell>
+      <TableCell className="flex justify-center flex-col">
+        {state.state === "no-media" && (
+          <span className="text-warning-4">No media!</span>
+        )}
+        {state.state === "processing" && (
+          <span className="text-primary-4">Processing on server</span>
+        )}
+        {state.state === "processing-failed" && (
+          <span className="text-warning-4">Processing failed on server!</span>
+        )}
+        {state.state === "downloading" && (
+          <Progress value={state.downloadProgress} />
+        )}
+        {state.state === "no-local" && (
+          <Button
+            color="primary"
+            onClick={async () => {
+              invariant(
+                asset.media,
+                "no media for asset in download button handler",
+              );
+              await doDownload.mutateAsync({
+                id: asset.media.id,
+                name: asset.media.name,
+              });
+              await queryClient.invalidateQueries(
+                getQueryKey(ipc.media.getDownloadStatus),
+              );
+            }}
+            className="w-full"
+          >
+            Download
+          </Button>
+        )}
+        {state.state === "ready" && (
+          <Button
+            onClick={() =>
+              doLoad.mutate({
+                rundownID: rundown.id,
+                assetID: asset.id,
+              })
+            }
+            color="primary"
+            className="w-full"
+          >
+            Load
+          </Button>
+        )}
+      </TableCell>
+    </TableRow>
+  );
+}
+
+function AssetCategory(props: {
+  category: string;
+  assets: Asset[];
+  rundown: Rundown;
+}) {
+  const [isExpanded, setExpanded] = useState(false);
+
+  const queryClient = useQueryClient();
+  const downloadState = ipc.media.getDownloadStatus.useQuery(undefined, {
+    refetchInterval: (data) =>
+      data?.some((x) => x.status !== "done") ? 1_000 : false,
+  });
+  const localMedia = ipc.media.getLocalMedia.useQuery(undefined, {
+    refetchInterval: () =>
+      downloadState.data?.some((x) => x.status === "downloading")
+        ? 2_500
+        : 10_000,
+    staleTime: 2_500,
+  });
+  useInvalidateQueryOnIPCEvent(
+    getQueryKey(ipc.media.getLocalMedia),
+    "localMediaStateChange",
+  );
+
+  const doDownload = ipc.media.downloadMedia.useMutation({
+    async onSuccess() {
+      await queryClient.invalidateQueries(
+        getQueryKey(ipc.media.getDownloadStatus),
+      );
+    },
+  });
+
+  const doLoad = ipc.vmix.loadAssets.useMutation({
+    async onSuccess() {
+      await queryClient.invalidateQueries(
+        getQueryKey(ipc.vmix.getCompleteState),
+      );
+    },
+  });
+
+  function getAssetState(asset: Asset): AssetState {
+    if (!asset.media) {
+      return { state: "no-media" };
     }
-  > | null = useMemo(() => {
-    if (!assetSettings.data) {
-      return null;
+    if (asset.media.state === "Archived") {
+      return { state: "no-media" };
     }
-    if (!localMedia.data) {
-      return null;
+    if (asset.media.state === "Processing") {
+      return { state: "processing" };
     }
-    if (!vmixState.data) {
-      return null;
+    if (asset.media.state === "ProcessingFailed") {
+      return { state: "processing-failed" };
     }
-    return props.rundown.assets.map((asset) => {
-      if (!asset.media) {
-        return {
-          ...asset,
-          _state: "no-media",
-        };
-      }
-      if (asset.media.state !== "Ready") {
-        return {
-          ...asset,
-          _state: "media-processing",
-        };
-      }
-      const local = localMedia.data.find((x) => x.mediaID === asset.media!.id);
-      if (!local) {
-        const dl = downloadState.data?.find(
-          (x) => x.mediaID === asset.media!.id,
-        );
-        if (dl) {
-          return {
-            ...asset,
-            _state: "downloading",
-            _downloadProgress: dl.progressPercent,
-          };
+    if (asset.media.state !== "Ready") {
+      return { state: "no-media" };
+    }
+
+    const local = localMedia.data?.find((x) => x.mediaID === asset.media!.id);
+    if (!local) {
+      const dl = downloadState.data?.find((x) => x.mediaID === asset.media!.id);
+      if (dl) {
+        switch (dl.status) {
+          case "downloading":
+            return {
+              state: "downloading",
+              downloadProgress: dl.progressPercent,
+            };
+          case "pending":
+            return { state: "downloading" };
+          case "error":
+            return { state: "no-local" };
+          case "done":
+            return { state: "downloading", downloadProgress: 100 };
         }
-        return {
-          ...asset,
-          _state: "no-local",
-        };
       }
-      const addMode = assetSettings.data.loadTypes[asset.type] ?? "direct";
-      let alreadyPresent;
-      if (addMode === "direct") {
-        alreadyPresent = vmixState.data.inputs.find(
-          (x) => x.title === local.path,
-        );
-      } else {
-        const list = vmixState.data.inputs.find(
-          (x) => x.shortTitle === VMIX_NAMES.ASSET_LIST[asset.type],
-        );
-        if (list) {
-          alreadyPresent = (list as ListInput).items.find(
-            (x) => x.source === local.path,
-          );
-        } else {
-          alreadyPresent = false;
-        }
+      return { state: "no-local" };
+    }
+
+    return { state: "ready" };
+  }
+
+  const someNeedDownload = props.assets.some(
+    (asset) => getAssetState(asset).state === "no-local",
+  );
+
+  return (
+    <div>
+      <div className="px-2">
+        <Button size="icon" onClick={() => setExpanded((v) => !v)}>
+          {isExpanded ? (
+            <IoChevronDown aria-label="Collapse" />
+          ) : (
+            <IoChevronForward aria-label="Expand" />
+          )}
+        </Button>
+        <h3>{props.category}</h3>
+        {someNeedDownload && (
+          <Button
+            size="icon"
+            title="Download All"
+            className="ml-auto"
+            onClick={() => {
+              for (const asset of props.assets) {
+                if (getAssetState(asset).state === "no-media") {
+                  continue;
+                }
+                if (getAssetState(asset).state === "no-local") {
+                  doDownload.mutate({
+                    id: asset.media!.id,
+                    name: asset.media!.name,
+                  });
+                }
+              }
+            }}
+          >
+            <IoDownload />
+          </Button>
+        )}
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="icon" title="Load All" className="ml-auto">
+              <IoPush />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem
+              onClick={() =>
+                doLoad.mutate({
+                  rundownID: props.rundown.id,
+                  category: props.category,
+                  loadType: "list",
+                })
+              }
+            >
+              In List
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() =>
+                doLoad.mutate({
+                  rundownID: props.rundown.id,
+                  category: props.category,
+                  loadType: "direct",
+                })
+              }
+            >
+              As separate inputs
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+      {isExpanded && (
+        <div>
+          {props.assets.map((asset) => (
+            <SingleAsset
+              key={asset.id}
+              asset={asset}
+              state={getAssetState(asset)}
+              rundown={props.rundown}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RundownAssets(props: {
+  rundown: z.infer<typeof CompleteRundownModel>;
+}) {
+  const queryClient = useQueryClient();
+  const doDownload = ipc.media.downloadMedia.useMutation({
+    async onSuccess() {
+      await queryClient.invalidateQueries(
+        getQueryKey(ipc.media.getDownloadStatus),
+      );
+    },
+  });
+  const doLoad = ipc.vmix.loadAssets.useMutation({
+    async onSuccess() {
+      await queryClient.invalidateQueries(
+        getQueryKey(ipc.vmix.getCompleteState),
+      );
+    },
+  });
+
+  const assets: Map<string, Asset[]> = useMemo(() => {
+    const byCategory = new Map();
+    for (const asset of props.rundown.assets) {
+      if (!byCategory.has(asset.category)) {
+        byCategory.set(asset.category, []);
       }
-      return {
-        ...asset,
-        _state: alreadyPresent ? "loaded" : "ready",
-      };
-    });
-  }, [
-    assetSettings.data,
-    downloadState.data,
-    localMedia.data,
-    props.rundown.assets,
-    vmixState.data,
-  ]);
+      byCategory.get(asset.category)!.push(asset);
+    }
+    return byCategory;
+  }, [props.rundown.assets]);
 
   return (
     <>
@@ -425,82 +612,14 @@ function RundownAssets(props: {
           <col style={{ width: "12rem" }} />
         </colgroup>
         <TableBody>
-          {assets?.map((asset) => (
-            <TableRow key={asset.id}>
-              <TableCell className="text-lg align-middle h-full">
-                {asset.name}
-              </TableCell>
-              <TableCell className="flex justify-center flex-col">
-                {asset._state === "no-media" && (
-                  <span className="text-warning-4">No media!</span>
-                )}
-                {asset._state === "downloading" && (
-                  <Progress value={asset._downloadProgress} />
-                )}
-                {asset._state === "no-local" && (
-                  <Button
-                    color="primary"
-                    onClick={async () => {
-                      invariant(
-                        asset.media,
-                        "no media for asset in download button handler",
-                      );
-                      await doDownload.mutateAsync({
-                        id: asset.media.id,
-                        name: asset.media.name,
-                      });
-                      await queryClient.invalidateQueries(
-                        getQueryKey(ipc.media.getDownloadStatus),
-                      );
-                    }}
-                    className="w-full"
-                  >
-                    Download
-                  </Button>
-                )}
-                {asset._state === "ready" && (
-                  <Button
-                    onClick={() =>
-                      doLoad.mutate({
-                        rundownID: props.rundown.id,
-                        assetIDs: [asset.id],
-                      })
-                    }
-                    color="primary"
-                    className="w-full"
-                  >
-                    Load
-                  </Button>
-                )}
-                {asset._state === "loaded" && (
-                  <Badge variant="outline">Good to go!</Badge>
-                )}
-              </TableCell>
-            </TableRow>
-          )) ?? <div>Loading...</div>}
-          <TableRow>
-            <TableCell />
-            <TableCell className="flex justify-center flex-col">
-              <Button
-                color={
-                  assets?.some((x) => x._state === "ready")
-                    ? "primary"
-                    : "ghost"
-                }
-                onClick={() => {
-                  invariant(assets, "no assets");
-                  doLoad.mutate({
-                    rundownID: props.rundown.id,
-                    assetIDs: assets
-                      .filter((x) => x._state === "ready")
-                      .map((x) => x.id),
-                  });
-                }}
-              >
-                Load All <span className="sr-only">Assets</span>
-              </Button>
-            </TableCell>
-          </TableRow>
+          {Array.from(assets.entries()).map(([category, assets]) => (
+            <AssetCategory
+              key={category}
+              category={category}
+              assets={assets}
+              rundown={props.rundown}
+            />
+          ))}
         </TableBody>
       </Table>
     </>

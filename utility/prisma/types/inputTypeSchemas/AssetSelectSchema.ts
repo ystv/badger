@@ -9,7 +9,8 @@ export const AssetSelectSchema: z.ZodType<Prisma.AssetSelect> = z
   .object({
     id: z.boolean().optional(),
     name: z.boolean().optional(),
-    type: z.boolean().optional(),
+    category: z.boolean().optional(),
+    order: z.boolean().optional(),
     rundownId: z.boolean().optional(),
     mediaId: z.boolean().optional(),
     media: z.union([z.boolean(), z.lazy(() => MediaArgsSchema)]).optional(),

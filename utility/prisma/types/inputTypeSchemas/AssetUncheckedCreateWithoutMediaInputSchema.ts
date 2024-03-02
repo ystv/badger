@@ -1,6 +1,5 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
-import { AssetTypeSchema } from "./AssetTypeSchema";
 import { LoadAssetJobUncheckedCreateNestedManyWithoutAssetInputSchema } from "./LoadAssetJobUncheckedCreateNestedManyWithoutAssetInputSchema";
 
 export const AssetUncheckedCreateWithoutMediaInputSchema: z.ZodType<Prisma.AssetUncheckedCreateWithoutMediaInput> =
@@ -8,7 +7,8 @@ export const AssetUncheckedCreateWithoutMediaInputSchema: z.ZodType<Prisma.Asset
     .object({
       id: z.number().int().optional(),
       name: z.string(),
-      type: z.lazy(() => AssetTypeSchema),
+      category: z.string(),
+      order: z.number().int(),
       rundownId: z.number().int(),
       loadJobs: z
         .lazy(

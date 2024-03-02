@@ -1,25 +1,17 @@
 "use client";
 
-import { Asset, AssetTypeSchema, Rundown } from "@badger/prisma/types";
-import React, { useEffect, useRef, useState, useTransition } from "react";
-import { AssetTypeType } from "@badger/prisma/types/inputTypeSchemas/AssetTypeSchema";
+import { Asset, Rundown } from "@badger/prisma/types";
+import React, { ReactNode, useMemo, useState, useTransition } from "react";
 import classNames from "classnames";
 import Button from "@badger/components/button";
 import {
-  IoAddCircleSharp,
+  IoChevronDown,
+  IoChevronForward,
   IoImageSharp,
   IoMusicalNoteSharp,
   IoTvSharp,
-  IoVolumeMediumSharp,
   IoWarningSharp,
 } from "react-icons/io5";
-import { IconType } from "react-icons/lib/cjs/iconBase";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@badger/components/dialog";
 import {
   Popover,
   PopoverContent,
@@ -33,241 +25,254 @@ import {
   processAssetUpload,
   removeAsset,
 } from "@/app/shows/[show_id]/rundown/[rundown_id]/assetsActions";
-import { useRouter } from "next/navigation";
 import {
   MediaSelectOrUploadDialog,
   PastShowsMedia,
 } from "@/components/MediaSelection";
 import { expectNever } from "ts-expect";
+import { Input } from "@badger/components/input";
+import { isEqual } from "lodash";
 
-export interface RundownWithAssets extends Rundown {
-  assets: (Asset & { media: Media })[];
+interface AssetWithMedia extends Asset {
+  media: Media;
 }
 
-const AssetColorClasses: { [K in AssetTypeType]: string } = {
-  Still: "text-success-4",
-  Graphic: "text-warning-4",
-  SoundEffect: "text-purple-4",
-  Music: "text-danger-4",
+export interface RundownWithAssets extends Rundown {
+  assets: AssetWithMedia[];
+}
+
+export const AssetExtensionIcons: Record<string, ReactNode> = {
+  ".png": <IoImageSharp />,
+  ".jpg": <IoImageSharp />,
+  ".jpeg": <IoImageSharp />,
+  ".gif": <IoImageSharp />,
+  ".svg": <IoImageSharp />,
+  ".mp3": <IoMusicalNoteSharp />,
+  ".wav": <IoMusicalNoteSharp />,
+  ".flac": <IoMusicalNoteSharp />,
+  ".mp4": <IoTvSharp />,
+  ".mov": <IoTvSharp />,
+  ".avi": <IoTvSharp />,
 };
 
-const AssetIcons: { [K in AssetTypeType]: IconType } = {
-  Still: IoTvSharp,
-  Graphic: IoImageSharp,
-  SoundEffect: IoVolumeMediumSharp,
-  Music: IoMusicalNoteSharp,
-};
+function AssetsCategory({
+  assets,
+  rundownId,
+  category,
+  pastShowsPromise,
+}: {
+  assets: AssetWithMedia[];
+  rundownId: number;
+  category: string;
+  pastShowsPromise: Promise<PastShowsMedia>;
+}) {
+  const [isPending, startTransition] = useTransition();
+  const [isExpanded, setExpanded] = useState(false);
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+
+  return (
+    <div className="shadow-md rounded-md bg-light p-2 mb-4">
+      <div onClick={() => setExpanded((v) => !v)} role="button">
+        {isExpanded ? (
+          <IoChevronDown className="inline-block" aria-label="Collapse" />
+        ) : (
+          <IoChevronForward className="inline-block" aria-label="Expand" />
+        )}
+        <h3 className="inline font-lg font-bold">{category}</h3>
+      </div>
+      {isExpanded && (
+        <div className="flex flex-col">
+          {assets
+            .sort((a, b) => a.order - b.order)
+            .map((asset) => {
+              let icon;
+              switch (asset.media.state) {
+                case MediaState.Pending:
+                case MediaState.Processing:
+                  icon = (
+                    <Image src={Spinner} alt="" className="inline-block" />
+                  );
+                  break;
+                case MediaState.ProcessingFailed:
+                  icon = (
+                    <IoWarningSharp
+                      className="inline"
+                      data-testid="RundownAssets.loadFailed"
+                    />
+                  );
+                  break;
+                case MediaState.Ready:
+                case MediaState.ReadyWithWarnings: {
+                  icon =
+                    AssetExtensionIcons[asset.media!.name.split(".").pop()!];
+                  break;
+                }
+                case MediaState.Archived:
+                  icon = (
+                    <IoWarningSharp
+                      className="inline"
+                      data-testid="RundownAssets.archived"
+                    />
+                  );
+                  break;
+                default:
+                  expectNever(asset.media.state);
+              }
+              return (
+                <div
+                  key={asset.id}
+                  className={classNames(
+                    "flex flex-row items-center space-x-2",
+                    asset.media.state === "Pending" && "text-mid-dark",
+                    asset.media.state === "Processing" && "text-purple-4",
+                    asset.media.state === "ProcessingFailed" &&
+                      "text-danger-4 line-through",
+                    asset.media.state === "ReadyWithWarnings" &&
+                      "text-warning-4",
+                  )}
+                >
+                  <div>{icon}</div>
+                  <div>{asset.name}</div>
+                  <div>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button color="ghost" size="icon" aria-label="Delete">
+                          &times;
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent>
+                        <Button
+                          color="danger"
+                          onClick={() =>
+                            startTransition(async () => {
+                              await removeAsset(asset.id);
+                            })
+                          }
+                          disabled={isPending}
+                          className="z-50"
+                        >
+                          {isPending && <Image src={Spinner} alt="" />}
+                          You sure boss?
+                        </Button>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+              );
+            })}
+          <div>
+            <Button
+              color="light"
+              onClick={() => setIsUploadOpen(true)}
+              disabled={isPending}
+              size="small"
+            >
+              {isPending && <Image src={Spinner} alt="" />}
+              Upload new asset
+            </Button>
+          </div>
+        </div>
+      )}
+      <MediaSelectOrUploadDialog
+        isOpen={isUploadOpen}
+        setOpen={setIsUploadOpen}
+        title={"Upload new asset"}
+        onUploadComplete={(url, fileName) =>
+          processAssetUpload(rundownId, category, fileName, url)
+        }
+        onExistingSelected={(id) =>
+          createAssetFromExistingMedia(rundownId, category, id)
+        }
+        pastShowsPromise={pastShowsPromise}
+        containerType="asset"
+        acceptMedia={{}}
+      />
+    </div>
+  );
+}
 
 export default function RundownAssets(props: {
   rundown: RundownWithAssets;
   pastShowsPromise: Promise<PastShowsMedia>;
 }) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [filter, setFilter] = useState<AssetTypeType | "all">("all");
-  const assets = props.rundown.assets.filter((asset) => {
-    if (filter === "all") {
-      return true;
-    }
-    return asset.type === filter;
-  });
-  const [isTypeDialogOpen, setTypeDialogOpen] = useState(false);
-  const [newUploadType, setNewUploadType] = useState<AssetTypeType | "$none">(
-    "$none",
-  );
-  const [isUploadDialogOpen, setUploadDialogOpen] = useState(false);
-
-  // Periodically refresh if any assets are pending
-  const refreshIntervalRef = useRef<number | null>(null);
-  useEffect(() => {
-    if (
-      props.rundown.assets.some(
-        (asset) => asset.media.state !== MediaState.Ready,
-      )
-    ) {
-      refreshIntervalRef.current = window.setInterval(() => {
-        router.refresh();
-      }, 2500);
-    }
-    return () => {
-      if (refreshIntervalRef.current !== null) {
-        window.clearInterval(refreshIntervalRef.current);
+  const assetsByCategory = useMemo(() => {
+    const categories = new Map<string, AssetWithMedia[]>();
+    for (const asset of props.rundown.assets) {
+      if (!categories.has(asset.category)) {
+        categories.set(asset.category, []);
       }
-    };
-  }, [props.rundown.assets, router]);
+      categories.get(asset.category)!.push(asset);
+    }
+    return categories;
+  }, [props.rundown.assets]);
+
+  const [isCatOpen, setIsCatOpen] = useState(false);
+  const [tempCatInputVal, setTempCatInputVal] = useState("");
+  const [tempCats, setTempCats] = useState<string[]>([]);
+
+  const [prevCats, setPrevCats] = useState<string[]>([]);
+  const cats = Array.from(assetsByCategory.keys());
+  if (!isEqual(cats, prevCats)) {
+    setPrevCats(cats);
+    setTempCats((v) => v.filter((tc) => !cats.includes(tc)));
+  }
 
   return (
     <div>
       <h2 className="text-xl">Assets</h2>
-      <div className="flex flex-col">
-        <div className="flex flex-row space-x-1">
-          <button
-            onClick={() => setFilter("all")}
-            className={classNames(
-              "text-primary-4",
-              filter === "all" && "font-black uppercase",
-            )}
-          >
-            All
-          </button>
-          {AssetTypeSchema.options.map((option) => (
-            <button
-              key={option}
-              onClick={() => setFilter(option)}
-              className={classNames(
-                AssetColorClasses[option],
-                filter === option && "font-black uppercase",
-              )}
-            >
-              {option}
-            </button>
-          ))}
-        </div>
-        <div className="flex flex-col">
-          {assets.map((asset) => {
-            let icon;
-            switch (asset.media.state) {
-              case MediaState.Pending:
-              case MediaState.Processing:
-                icon = <Image src={Spinner} alt="" className="inline-block" />;
-                break;
-              case MediaState.ProcessingFailed:
-                icon = (
-                  <IoWarningSharp
-                    className="inline"
-                    data-testid="RundownAssets.loadFailed"
-                  />
-                );
-                break;
-              case MediaState.Ready:
-              case MediaState.ReadyWithWarnings: {
-                const Icon = AssetIcons[asset.type];
-                icon = (
-                  <Icon
-                    className={classNames(
-                      "w-6 h-6",
-                      AssetColorClasses[asset.type],
-                    )}
-                  />
-                );
-                break;
-              }
-              case MediaState.Archived:
-                icon = (
-                  <IoWarningSharp
-                    className="inline"
-                    data-testid="RundownAssets.archived"
-                  />
-                );
-                break;
-              default:
-                expectNever(asset.media.state);
-            }
-            return (
-              <div
-                key={asset.id}
-                className={classNames(
-                  "flex flex-row items-center space-x-2",
-                  asset.media.state === "Pending" && "text-mid-dark",
-                  asset.media.state === "Processing" && "text-purple-4",
-                  asset.media.state === "ProcessingFailed" &&
-                    "text-danger-4 line-through",
-                )}
-              >
-                <div>{icon}</div>
-                <div>{asset.name}</div>
-                <div>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button color="ghost" size="icon">
-                        &times;
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent>
-                      <Button
-                        color="danger"
-                        onClick={() =>
-                          startTransition(async () => {
-                            await removeAsset(asset.id);
-                          })
-                        }
-                        disabled={isPending}
-                        className="z-50"
-                      >
-                        {isPending && <Image src={Spinner} alt="" />}
-                        You sure boss?
-                      </Button>
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              </div>
-            );
-          })}
-          <Button
-            color="ghost"
-            className="self-start"
-            onClick={() => setTypeDialogOpen(true)}
-          >
-            <IoAddCircleSharp className="inline" />
-            <div>Upload new asset</div>
-          </Button>
-        </div>
-      </div>
-      <Dialog
-        open={isTypeDialogOpen}
-        onOpenChange={(v) => setTypeDialogOpen(v)}
+
+      {Array.from(assetsByCategory.entries()).map(([category, assets]) => (
+        <AssetsCategory
+          key={category}
+          category={category}
+          assets={assets}
+          rundownId={props.rundown.id}
+          pastShowsPromise={props.pastShowsPromise}
+        />
+      ))}
+      {tempCats.map((cat) => (
+        <AssetsCategory
+          key={cat}
+          category={cat}
+          assets={[]}
+          rundownId={props.rundown.id}
+          pastShowsPromise={props.pastShowsPromise}
+        />
+      ))}
+      <Popover
+        open={isCatOpen}
+        onOpenChange={(open) => {
+          setIsCatOpen(open);
+          if (open) {
+            setTempCatInputVal("");
+          }
+        }}
       >
-        <DialogContent className="mx-auto max-w-sm rounded bg-light p-8">
-          <DialogHeader>
-            <DialogTitle>
-              Upload new {newUploadType === "$none" ? "asset" : newUploadType}
-            </DialogTitle>
-          </DialogHeader>
-          <select
-            onChange={(e) => {
-              setNewUploadType(e.target.value as AssetTypeType);
-              if (e.target.value !== "$none") {
-                setTypeDialogOpen(false);
-                setUploadDialogOpen(true);
-              }
+        <PopoverTrigger asChild>
+          <Button color="ghost" size="small">
+            New Category
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent>
+          <form
+            action={() => {
+              setTempCats((v) => [...v, tempCatInputVal]);
+              setIsCatOpen(false);
             }}
-            value={String(newUploadType)}
-            className="border border-mid-dark rounded-md p-1 w-64"
           >
-            <option value="$none" disabled>
-              Select type
-            </option>
-            {AssetTypeSchema.options.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </DialogContent>
-      </Dialog>
-      <MediaSelectOrUploadDialog
-        isOpen={isUploadDialogOpen}
-        setOpen={setUploadDialogOpen}
-        title={"Upload new " + newUploadType}
-        onUploadComplete={(url, fileName) =>
-          processAssetUpload(
-            props.rundown.id,
-            newUploadType as AssetTypeType,
-            fileName,
-            url,
-          )
-        }
-        onExistingSelected={(id) =>
-          createAssetFromExistingMedia(
-            props.rundown.id,
-            newUploadType as AssetTypeType,
-            id,
-          )
-        }
-        pastShowsPromise={props.pastShowsPromise}
-        containerType="asset"
-        acceptMedia={{}}
-      />
+            <label>
+              Name
+              <Input
+                type="text"
+                value={tempCatInputVal}
+                onChange={(e) => setTempCatInputVal(e.target.value)}
+                placeholder="Stills"
+              />
+            </label>
+            <Button>Create</Button>
+          </form>
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }

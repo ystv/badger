@@ -2,8 +2,6 @@ import type { Prisma } from "../../client";
 import { z } from "zod";
 import { IntWithAggregatesFilterSchema } from "./IntWithAggregatesFilterSchema";
 import { StringWithAggregatesFilterSchema } from "./StringWithAggregatesFilterSchema";
-import { EnumAssetTypeWithAggregatesFilterSchema } from "./EnumAssetTypeWithAggregatesFilterSchema";
-import { AssetTypeSchema } from "./AssetTypeSchema";
 
 export const AssetScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.AssetScalarWhereWithAggregatesInput> =
   z
@@ -30,11 +28,11 @@ export const AssetScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.AssetSc
       name: z
         .union([z.lazy(() => StringWithAggregatesFilterSchema), z.string()])
         .optional(),
-      type: z
-        .union([
-          z.lazy(() => EnumAssetTypeWithAggregatesFilterSchema),
-          z.lazy(() => AssetTypeSchema),
-        ])
+      category: z
+        .union([z.lazy(() => StringWithAggregatesFilterSchema), z.string()])
+        .optional(),
+      order: z
+        .union([z.lazy(() => IntWithAggregatesFilterSchema), z.number()])
         .optional(),
       rundownId: z
         .union([z.lazy(() => IntWithAggregatesFilterSchema), z.number()])
