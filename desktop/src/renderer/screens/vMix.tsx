@@ -23,6 +23,7 @@ import { Badge } from "@badger/components/badge";
 import { Label } from "@badger/components/label";
 import { Input } from "@badger/components/input";
 import {
+  IoCheckmarkDone,
   IoChevronDown,
   IoChevronForward,
   IoDownload,
@@ -438,11 +439,12 @@ function AssetCategory(props: {
     },
   });
 
+  // Just so there's *some* feedback - determining it from vMix is unreliable
+  // as we don't know how it'll be loaded
+  const [didLoad, setDidLoad] = useState(false);
   const doLoad = ipc.vmix.loadAssets.useMutation({
     async onSuccess() {
-      await queryClient.invalidateQueries(
-        getQueryKey(ipc.vmix.getCompleteState),
-      );
+      setDidLoad(true);
     },
   });
 
@@ -493,20 +495,26 @@ function AssetCategory(props: {
 
   return (
     <div>
-      <div className="px-2">
-        <Button size="icon" onClick={() => setExpanded((v) => !v)}>
-          {isExpanded ? (
-            <IoChevronDown aria-label="Collapse" />
-          ) : (
-            <IoChevronForward aria-label="Expand" />
-          )}
+      <div className="px-2 w-full flex items-start justify-center">
+        <Button
+          size="icon"
+          color="ghost"
+          onClick={() => setExpanded((v) => !v)}
+          title="Expand"
+          aria-label={`${isExpanded ? "Collapse" : "Expand"} ${props.category}`}
+        >
+          {isExpanded ? <IoChevronDown /> : <IoChevronForward />}
         </Button>
-        <h3>{props.category}</h3>
+        <div className="self-stretch flex items-center justify-center align-middle">
+          <h3>{props.category}</h3>
+        </div>
+        <div className="grow">{/* spacer */}</div>
         {someNeedDownload && (
           <Button
             size="icon"
+            color="ghost"
             title="Download All"
-            className="ml-auto"
+            aria-label={`Download All Media in ${props.category}`}
             onClick={() => {
               for (const asset of props.assets) {
                 if (getAssetState(asset).state === "no-media") {
@@ -521,14 +529,23 @@ function AssetCategory(props: {
               }
             }}
           >
-            <IoDownload />
+            <IoDownload size="sm" />
           </Button>
         )}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button size="icon" title="Load All" className="ml-auto">
-              <IoPush />
+            <Button
+              size="icon"
+              color="ghost"
+              title="Load All"
+              aria-label={`Load All Media in ${props.category}`}
+            >
+              {didLoad ? (
+                <IoCheckmarkDone data-testid="Load Success" />
+              ) : (
+                <IoPush size="sm" />
+              )}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -558,16 +575,22 @@ function AssetCategory(props: {
         </DropdownMenu>
       </div>
       {isExpanded && (
-        <div>
-          {props.assets.map((asset) => (
-            <SingleAsset
-              key={asset.id}
-              asset={asset}
-              state={getAssetState(asset)}
-              rundown={props.rundown}
-            />
-          ))}
-        </div>
+        <Table className="space-y-2">
+          <colgroup>
+            <col />
+            <col style={{ width: "12rem" }} />
+          </colgroup>
+          <TableBody>
+            {props.assets.map((asset) => (
+              <SingleAsset
+                key={asset.id}
+                asset={asset}
+                state={getAssetState(asset)}
+                rundown={props.rundown}
+              />
+            ))}
+          </TableBody>
+        </Table>
       )}
     </div>
   );
@@ -590,22 +613,14 @@ function RundownAssets(props: {
   return (
     <>
       <h2 className="text-xl font-light">Assets</h2>
-      <Table className="space-y-2">
-        <colgroup>
-          <col />
-          <col style={{ width: "12rem" }} />
-        </colgroup>
-        <TableBody>
-          {Array.from(assets.entries()).map(([category, assets]) => (
-            <AssetCategory
-              key={category}
-              category={category}
-              assets={assets}
-              rundown={props.rundown}
-            />
-          ))}
-        </TableBody>
-      </Table>
+      {Array.from(assets.entries()).map(([category, assets]) => (
+        <AssetCategory
+          key={category}
+          category={category}
+          assets={assets}
+          rundown={props.rundown}
+        />
+      ))}
     </>
   );
 }

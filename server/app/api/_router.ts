@@ -22,6 +22,7 @@ import {
 } from "@badger/prisma/types";
 import invariant from "@/lib/invariant";
 import { dispatchJobForJobrunner } from "@/lib/jobs";
+import { expectNever } from "ts-expect";
 
 const ExtendedMediaModelWithDownloadURL = ExtendedMediaModel.extend({
   continuityItems: z.array(ContinuityItemSchema),
@@ -225,7 +226,7 @@ export const appRouter = router({
           sourceType: MediaFileSourceTypeSchema,
           source: z.string(),
           fileName: z.string(),
-          targetType: z.enum(["rundownItem", "continuityItem"]), // TODO: support assets
+          targetType: z.enum(["rundownItem", "continuityItem", "asset"]),
           targetID: z.number(),
           process: z.boolean(),
         }),
@@ -295,8 +296,40 @@ export const appRouter = router({
                 },
               });
               break;
+            case "asset":
+              med = await $db.media.create({
+                data: {
+                  name: input.fileName,
+                  rawPath: "",
+                  durationSeconds: 0,
+                  assets: {
+                    connect: {
+                      id: input.targetID,
+                    },
+                  },
+                },
+              });
+              await $db.asset.update({
+                where: {
+                  id: input.targetID,
+                },
+                data: {
+                  rundown: {
+                    update: {
+                      show: {
+                        update: {
+                          version: {
+                            increment: 1,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              });
+              break;
             default:
-              invariant(false, "Invalid target type " + input.targetType);
+              expectNever(input.targetType);
           }
           let job;
           if (input.process) {
