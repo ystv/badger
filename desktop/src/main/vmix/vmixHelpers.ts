@@ -94,9 +94,7 @@ export async function loadAssets(
         await vmix.addInput(getInputTypeForAsset(asset), local.path);
       }
     } else if (loadType === "list") {
-      const present = listMedia.some(
-        (x) => x.source === local.path,
-      );
+      const present = listMedia.some((x) => x.source === local.path);
       if (!present) {
         invariant(listKey, "not got a listKey for a list we just created");
         await vmix.addInputToList(listKey, local.path);
