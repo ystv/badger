@@ -258,6 +258,9 @@ export default class VMixConnection {
       req.reject = reject;
     });
     this.requestQueue.push(req);
+    logger.debug(
+      `Queued request ${command}; queue is now ${this.requestQueue.length} deep`,
+    );
     await this.doNextRequest();
     return reply;
   }
@@ -288,6 +291,7 @@ export default class VMixConnection {
     }
     if (this.replyAwaiting.has(req.command)) {
       // Wait until the next run
+      logger.debug(`Request ${req.command} is blocked`);
       return;
     }
     this.requestQueue.shift();
@@ -301,6 +305,7 @@ export default class VMixConnection {
         (err) => (err ? reject(err) : resolve()),
       );
     });
+    logger.debug(`Sent request ${req.command}`);
   }
 
   private onData(data: Buffer) {
@@ -325,6 +330,7 @@ export default class VMixConnection {
     }
     const firstLine = this.buffer.slice(0, this.buffer.indexOf("\r\n"));
     const [command, status, ...rest] = firstLine.split(" ");
+    logger.debug(`Received response to ${command}`);
     const reply = this.replyAwaiting.get(command as VMixCommand);
     if (status === "OK") {
       reply?.resolve([rest.join(" "), ""]);
@@ -346,6 +352,9 @@ export default class VMixConnection {
     // +2 for the \r\n
     if (this.buffer.length < payloadLength + firstLine.length + 2) {
       // still need more data
+      logger.debug(
+        `Expecting ${payloadLength} bytes of binary data but only got ${this.buffer.length - firstLine.length - 2}`,
+      );
       return;
     }
     const payload = this.buffer.slice(
@@ -359,6 +368,7 @@ export default class VMixConnection {
   }
 
   private onClose() {
+    logger.warn("VMix connection closed");
     this.replyAwaiting.forEach((req) => req.reject(new Error("Socket closed")));
     this.replyAwaiting.clear();
     this.requestQueue.forEach((req) => req.reject(new Error("Socket closed")));
