@@ -1,6 +1,6 @@
 import invariant from "../../common/invariant";
 import { getVMixConnection } from "./vmix";
-import { InputType, ListInput } from "./vmixTypes";
+import { InputType, ListInput, ListItem } from "./vmixTypes";
 import type { Asset, Media } from "@badger/prisma/client";
 import { getLocalMediaSettings } from "../base/settings";
 
@@ -66,6 +66,19 @@ export async function loadAssets(
   invariant(vmix, "No vMix connection");
   const state = await vmix.getFullState();
 
+  let listKey;
+  let listMedia: ListItem[] = [];
+  if (loadType === "list") {
+    const list = state.inputs.find((x) => x.shortTitle === category);
+    if (list) {
+      listKey = list.key;
+      listMedia = (list as ListInput).items;
+    } else {
+      listKey = await vmix.addInput("VideoList", "");
+      await vmix.renameInput(listKey, category);
+    }
+  }
+
   for (const asset of assets) {
     if (!asset.media || asset.media.state !== "Ready") {
       throw new Error("Not all assets have remote media");
@@ -81,20 +94,11 @@ export async function loadAssets(
         await vmix.addInput(getInputTypeForAsset(asset), local.path);
       }
     } else if (loadType === "list") {
-      let present;
-      const list = state.inputs.find((x) => x.shortTitle === category);
-      let listKey;
-      if (!list) {
-        present = false;
-        listKey = await vmix.addInput("VideoList", "");
-        await vmix.renameInput(listKey, category);
-      } else {
-        listKey = list.key;
-        present = (list as ListInput).items.some(
-          (x) => x.source === local.path,
-        );
-      }
+      const present = listMedia.some(
+        (x) => x.source === local.path,
+      );
       if (!present) {
+        invariant(listKey, "not got a listKey for a list we just created");
         await vmix.addInputToList(listKey, local.path);
       }
     } else {
