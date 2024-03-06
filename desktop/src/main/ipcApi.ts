@@ -81,7 +81,7 @@ export const appRouter = r({
     return await serverAPI().shows.listUpcoming.query();
   }),
   getSelectedShow: proc.output(CompleteShowModel.nullable()).query(() => {
-    logger.debug(
+    logger.trace(
       `getSelectedShow called, current value is ${inspect(selectedShow.value)}`,
     );
     return selectedShow.value;
