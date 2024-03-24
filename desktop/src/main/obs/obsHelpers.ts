@@ -4,11 +4,11 @@ import {
   OBSVideoSettings,
   SceneItem,
 } from "./obs";
-import { getLocalMediaSettings, LocalMediaType } from "../base/settings";
 import invariant from "../../common/invariant";
 import type { Media, ContinuityItem } from "@badger/prisma/client";
 import { getLogger } from "../base/logging";
 import { selectedShow } from "../base/selectedShow";
+import { getLocalMedia } from "../media/mediaManagement";
 
 const logger = getLogger("obsHelpers");
 
@@ -55,7 +55,7 @@ export async function addOrReplaceMediaAsScene(
     "No continuity item for media in addMediaAsScene",
   );
   invariant(obsConnection, "no OBS connection");
-  const localMedia = await getLocalMediaSettings();
+  const localMedia = getLocalMedia();
   const item = localMedia.find((x) => x.mediaID === info.id);
   invariant(
     item !== undefined,
@@ -227,7 +227,7 @@ export async function addOrReplaceMediaAsScene(
 async function _doAddMediaToScene(
   sceneTitle: string,
   mediaSourceName: string,
-  localMedia: LocalMediaType,
+  localMedia: { path: string },
   videoSettings: OBSVideoSettings,
 ) {
   invariant(obsConnection, "no OBS connection");

@@ -16,8 +16,8 @@ import { MockOBSConnection } from "./__mocks__/obs";
 import { selectedShow } from "../base/selectedShow";
 
 vi.mock("./obs");
-vi.mock("../base/settings", () => ({
-  getLocalMediaSettings: () => [
+vi.mock("../base/mediaManagement", () => ({
+  getLocalMedia: () => [
     {
       mediaID: 1,
       path: "TEST_PATH",

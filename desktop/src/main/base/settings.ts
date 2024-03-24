@@ -15,6 +15,7 @@ const logger = logging.getLogger("settings");
 interface SettingsStore {
   get(key: string): Promise<unknown | undefined>;
   set(key: string, value: unknown): Promise<void>;
+  unset(key: string): Promise<void>;
 }
 
 const inMemSettings = new Map<string, unknown>();
@@ -24,6 +25,9 @@ const inMemSettingsStore: SettingsStore = {
   },
   async set(key: string, value: unknown) {
     inMemSettings.set(key, value);
+  },
+  async unset(key: string) {
+    inMemSettings.delete(key);
   },
 };
 
@@ -37,6 +41,10 @@ ipcMain.on("resetTestSettings", () => {
 ipcMain.on("setSetting", (_, { key, value }) => {
   inMemSettings.set(key, value);
 });
+
+export async function migrateSettings() {
+  await settings.unset("localMedia");
+}
 
 /**
  * Since settings are stored as JSON files on disk, we pass them through zod as a sanity check.
@@ -114,72 +122,6 @@ export async function saveMediaSettings(
   val: z.infer<typeof MediaSettingsSchema>,
 ): Promise<void> {
   await settings.set("media", val);
-}
-
-export const LocalMediaData = z.object({
-  mediaID: z.number(),
-  path: z.string(),
-});
-export type LocalMediaType = z.infer<typeof LocalMediaData>;
-export const LocalMediaSettingsSchema = z.array(LocalMediaData);
-
-/**
- * Checks that all the files referenced in the local media state actually exist, and removes them if not.
- */
-export async function validateLocalMediaState() {
-  const v = await settings.get("localMedia");
-  if (v === undefined) {
-    logger.info(
-      "Skipping local media state validation, no local media settings.",
-    );
-    return;
-  }
-  let localMediaState = LocalMediaSettingsSchema.parse(v);
-  for (const info of localMediaState) {
-    try {
-      const stat = await fsp.stat(info.path);
-      if (!stat.isFile()) {
-        logger.warn(
-          `Local media file ${info.path} is not a file. Removing from settings.`,
-        );
-        localMediaState = localMediaState.filter((v) => v !== info);
-      }
-    } catch (e) {
-      logger.warn(
-        `Failed to stat local media file ${info.path}: ${e}. Removing from settings.`,
-      );
-      localMediaState = localMediaState.filter((v) => v !== info);
-    }
-  }
-  // TODO[BDGR-67]: What should we do about files that exist in the local media folder but aren't in the settings?
-  //  Two cases - either they match our naming convention, in which case we can probably assume they're
-  //  supposed to be there, or they don't - but we shouldn't delete them, to avoid data loss.
-  await settings.set("localMedia", localMediaState);
-  logger.info("Finished validating local media state.");
-}
-
-export async function getLocalMediaSettings(): Promise<
-  z.infer<typeof LocalMediaSettingsSchema>
-> {
-  const settingsData = await settings.get("localMedia");
-  if (settingsData === undefined) {
-    return [];
-  }
-  return LocalMediaSettingsSchema.parse(settingsData);
-}
-
-export async function updateLocalMediaState(
-  mediaID: number,
-  val: z.infer<typeof LocalMediaData> | null,
-) {
-  const localMediaState = await getLocalMediaSettings();
-  const newLocalMediaState = localMediaState.filter(
-    (v) => v.mediaID !== mediaID,
-  );
-  if (val !== null) {
-    newLocalMediaState.push(val);
-  }
-  await settings.set("localMedia", newLocalMediaState);
 }
 
 export const devToolsConfigSchema = z.object({

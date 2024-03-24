@@ -5,10 +5,10 @@ import { getLogger } from "../base/logging";
 import invariant from "../../common/invariant";
 import { serverAPI } from "../base/serverApiClient";
 import { PartialMediaModel } from "@badger/prisma/utilityTypes";
-import { getLocalMediaSettings } from "../base/settings";
 import { TRPCError } from "@trpc/server";
 import { loadAssets, reconcileList } from "./vmixHelpers";
 import { VMIX_NAMES } from "../../common/constants";
+import { getLocalMedia } from "../media/mediaManagement";
 
 const logger = getLogger("vmix/ipc");
 
@@ -82,7 +82,7 @@ export const vmixRouter = r({
         .sort((a, b) => a.order - b.order)
         .map<z.infer<typeof PartialMediaModel> | null>((i) => i.media)
         .filter((x) => x && x.state === "Ready");
-      const localMedia = await getLocalMediaSettings();
+      const localMedia = getLocalMedia();
       const paths = media.map(
         (remote) =>
           localMedia.find((local) => local.mediaID === remote?.id)?.path,

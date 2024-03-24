@@ -1,8 +1,8 @@
 import invariant from "../../common/invariant";
+import { getLocalMedia } from "../media/mediaManagement";
 import { getVMixConnection } from "./vmix";
 import { InputType, ListInput, ListItem } from "./vmixTypes";
 import type { Asset, Media } from "@badger/prisma/client";
-import { getLocalMediaSettings } from "../base/settings";
 
 export async function reconcileList(listName: string, elements: string[]) {
   const conn = getVMixConnection();
@@ -61,7 +61,7 @@ export async function loadAssets(
   loadType: "direct" | "list",
   category: string,
 ) {
-  const localMedia = await getLocalMediaSettings();
+  const localMedia = getLocalMedia();
   const vmix = getVMixConnection();
   invariant(vmix, "No vMix connection");
   const state = await vmix.getFullState();

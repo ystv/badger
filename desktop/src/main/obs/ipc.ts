@@ -6,8 +6,9 @@ import { getLogger } from "loglevel";
 import { serverAPI } from "../base/serverApiClient";
 import invariant from "../../common/invariant";
 import { selectedShow } from "../base/selectedShow";
-import { getDevToolsConfig, getLocalMediaSettings } from "../base/settings";
+import { getDevToolsConfig } from "../base/settings";
 import { TRPCError } from "@trpc/server";
+import { getLocalMedia } from "../media/mediaManagement";
 
 const logger = getLogger("obs/ipc");
 
@@ -83,7 +84,7 @@ export const obsRouter = r({
     .mutation(async () => {
       const show = selectedShow.value;
       invariant(show, "No show selected");
-      const state = await getLocalMediaSettings();
+      const state = getLocalMedia();
       let done = 0;
       const warnings: string[] = [];
       for (const item of show.continuityItems) {
