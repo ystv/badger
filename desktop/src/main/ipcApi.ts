@@ -78,7 +78,9 @@ export const appRouter = r({
       return true;
     }),
   listUpcomingShows: proc.output(z.array(ShowSchema)).query(async () => {
-    return await serverAPI().shows.listUpcoming.query();
+    return await serverAPI().shows.listUpcoming.query({
+      gracePeriodHours: 24,
+    });
   }),
   getSelectedShow: proc.output(CompleteShowModel.nullable()).query(() => {
     logger.trace(

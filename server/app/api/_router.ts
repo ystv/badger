@@ -23,6 +23,7 @@ import {
 import invariant from "@/lib/invariant";
 import { dispatchJobForJobrunner } from "@/lib/jobs";
 import { expectNever } from "ts-expect";
+import { add } from "date-fns";
 
 const ExtendedMediaModelWithDownloadURL = ExtendedMediaModel.extend({
   continuityItems: z.array(ContinuityItemSchema),
@@ -62,12 +63,19 @@ export const appRouter = router({
   }),
   shows: router({
     listUpcoming: publicProcedure
+      .input(
+        z
+          .object({
+            gracePeriodHours: z.number().default(0),
+          })
+          .optional(),
+      )
       .output(z.array(ShowSchema))
-      .query(async () => {
+      .query(async ({ input }) => {
         return db.showWithDuration.findMany({
           where: {
             end: {
-              gte: new Date(),
+              gte: add(new Date(), { hours: input?.gracePeriodHours ?? 0 }),
             },
           },
         });
