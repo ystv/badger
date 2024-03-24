@@ -1,11 +1,7 @@
 // noinspection ExceptionCaughtLocallyJS
 
 import * as os from "node:os";
-import {
-  getLocalMediaSettings,
-  getMediaSettings,
-  updateLocalMediaState,
-} from "../base/settings";
+import { getMediaSettings } from "../base/settings";
 import * as fsp from "fs/promises";
 import * as path from "path";
 import { serverApiClient } from "../base/serverApiClient";
@@ -15,6 +11,8 @@ import { downloadFile } from "./downloadFile";
 import logging from "../base/logging";
 
 const logger = logging.getLogger("mediaManagement");
+
+const LOCAL_MEDIA_PATH_REGEX = /\(#(\d+)\)/;
 
 export async function getMediaPath(): Promise<string> {
   const settings = await getMediaSettings();
@@ -37,6 +35,37 @@ export async function ensureMediaPath(): Promise<string> {
   const mediaPath = await getMediaPath();
   await fsp.mkdir(mediaPath, { recursive: true });
   return mediaPath;
+}
+
+const downloadedMedia = new Map<number, string>();
+
+export function getLocalMedia() {
+  return Array.from(downloadedMedia.entries()).map(([mediaID, path]) => ({
+    mediaID,
+    path,
+  }));
+}
+
+export async function scanLocalMedia() {
+  logger.info("Scanning local media...");
+  await ensureMediaPath();
+  const files = await fsp.readdir(await getMediaPath());
+  for (const file of files) {
+    if (file.endsWith(".badgerdownload")) {
+      continue; // pending download
+    }
+    const name = file.replace(path.extname(file), "");
+    const match = name.match(LOCAL_MEDIA_PATH_REGEX);
+    if (!match) {
+      continue;
+    }
+    downloadedMedia.set(
+      Number(match[1]),
+      path.join(await getMediaPath(), file),
+    );
+  }
+  logger.info(`Finished local media scan, found ${downloadedMedia.size} items`);
+  // TODO[BDGR-67]: Check if any of these are orphans and delete them
 }
 
 interface DownloadQueueItem {
@@ -121,13 +150,10 @@ async function doDownloadMedia() {
     status.progressPercent = 100;
     downloadStatus.set(info.id, status);
 
+    downloadedMedia.set(info.id, outputPath);
     IPCEvents.send("downloadStatusChange");
     IPCEvents.send("localMediaStateChange");
-    logger.trace("IPC sent (ostensibly)");
-    await updateLocalMediaState(info.id, {
-      mediaID: info.id,
-      path: outputPath,
-    });
+    logger.trace("IPC sent");
 
     if (downloadQueue.length > 0) {
       process.nextTick(doDownloadMedia);
@@ -155,18 +181,12 @@ export function getDownloadStatus() {
 }
 
 export async function deleteMedia(mediaID: number) {
-  // TODO [BDGR-67]: This won't handle orphans - media that is not present in the settings,
-  //  but is still present on disk. We can find them by the file name (they'll have
-  //  the [#123] suffix). We should somewhere, perhaps on startup, check for orphans
-  //  and either re-link them in the settings (if they map to an existing media object
-  //  on Server) or mark them for deletion.
-  const local = await getLocalMediaSettings();
-  const item = local.find((x) => x.mediaID === mediaID);
-  if (!item) {
+  const path = downloadedMedia.get(mediaID);
+  if (!path) {
     throw new Error(`Media ${mediaID} not found`);
   }
-  await updateLocalMediaState(mediaID, null);
-  await fsp.unlink(item.path);
-  logger.info("Deleted", item.path);
+  downloadedMedia.delete(mediaID);
+  await fsp.unlink(path);
+  logger.info("Deleted", path);
   IPCEvents.send("localMediaStateChange");
 }

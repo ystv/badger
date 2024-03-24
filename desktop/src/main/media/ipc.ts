@@ -6,14 +6,10 @@ import {
   deleteMedia,
   downloadMedia,
   getDownloadStatus,
+  getLocalMedia,
   getMediaPath,
 } from "./mediaManagement";
-import {
-  LocalMediaData,
-  getDownloadsSettings,
-  getLocalMediaSettings,
-  saveDownloadsSettings,
-} from "../base/settings";
+import { getDownloadsSettings, saveDownloadsSettings } from "../base/settings";
 import { shell } from "electron";
 import { selectedShow } from "../base/selectedShow";
 import { serverAPI } from "../base/serverApiClient";
@@ -45,13 +41,15 @@ export const mediaRouter = r({
     )
     .output(
       z.array(
-        LocalMediaData.extend({
+        z.object({
+          mediaID: z.number(),
+          path: z.string(),
           sizeBytes: z.number().optional(),
         }),
       ),
     )
     .query(async ({ input }) => {
-      const media = await getLocalMediaSettings();
+      const media = getLocalMedia();
       if (input?.includeSize) {
         await Promise.all(
           media.map(async (item) => {
@@ -62,8 +60,7 @@ export const mediaRouter = r({
               // This is an orphan. TODO [BDGR-67]: we don't currently handle them
               return;
             }
-            // prettier-ignore
-            (item as z.infer<typeof LocalMediaData> & {sizeBytes: number}).sizeBytes = stat.size;
+            (item as unknown as { sizeBytes: number }).sizeBytes = stat.size;
           }),
         );
       }
@@ -81,7 +78,7 @@ export const mediaRouter = r({
   deleteOldMedia: proc
     .input(z.object({ minAgeDays: z.number() }))
     .mutation(async ({ input }) => {
-      const localMedia = await getLocalMediaSettings();
+      const localMedia = getLocalMedia();
       const currentShow = selectedShow.value;
       let notInUse;
       if (currentShow) {
@@ -140,7 +137,7 @@ export const mediaRouter = r({
   downloadAllMediaForSelectedShow: proc.mutation(async () => {
     const show = selectedShow.value;
     invariant(show, "No show selected");
-    const state = await getLocalMediaSettings();
+    const state = getLocalMedia();
     // TODO[BDGR-136]: Rather than checking for the connection, split out supportedIntegrations and enabledIntegrations and check the latter
     if (getVMixConnection() !== null) {
       for (const rundown of show.rundowns) {

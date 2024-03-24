@@ -5,7 +5,7 @@ import { emitObservable, setSender } from "./ipcEventBus";
 import { appRouter } from "./ipcApi";
 import { tryCreateAPIClient } from "./base/serverApiClient";
 import { tryCreateOBSConnection } from "./obs/obs";
-import { validateLocalMediaState } from "./base/settings";
+import { migrateSettings } from "./base/settings";
 import isSquirrel from "electron-squirrel-startup";
 import { selectedShow } from "./base/selectedShow";
 import { tryCreateVMixConnection } from "./vmix/vmix";
@@ -14,6 +14,7 @@ import { tryCreateOntimeConnection } from "./ontime/ontime";
 import * as Sentry from "@sentry/electron/main";
 import { logFlagState } from "@badger/feature-flags";
 import { getLogger } from "./base/logging";
+import { scanLocalMedia } from "./media/mediaManagement";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (isSquirrel) {
@@ -48,8 +49,9 @@ declare const MAIN_WINDOW_VITE_NAME: string;
 
 const createWindow = async () => {
   logger.debug("Pre-flight...");
+  await migrateSettings();
   await Promise.all([
-    validateLocalMediaState(),
+    scanLocalMedia(),
     tryCreateAPIClient(),
     tryCreateOBSConnection(),
     process.platform === "win32"

@@ -1,41 +1,34 @@
-import {
-  vi,
-  describe,
-  test,
-  expect,
-  beforeEach,
-  afterEach,
-  beforeAll,
-} from "vitest";
+import { vi, describe, test, expect, beforeEach, afterEach } from "vitest";
 import {
   addOrReplaceMediaAsScene,
   findContinuityScenes,
   MediaType,
 } from "./obsHelpers";
 import { MockOBSConnection } from "./__mocks__/obs";
-import { selectedShow } from "../base/selectedShow";
 
 vi.mock("./obs");
-vi.mock("../base/settings", () => ({
-  getLocalMediaSettings: () => [
+vi.mock("../media/mediaManagement", () => ({
+  getLocalMedia: () => [
     {
       mediaID: 1,
       path: "TEST_PATH",
     },
   ],
 }));
-
-beforeAll(() => {
-  selectedShow.next({
-    id: 1,
-    name: "Test",
-    start: new Date(),
-    rundowns: [],
-    continuityItems: [],
-    version: 1,
-    ytBroadcastID: null,
-    ytStreamID: null,
-  });
+vi.mock("../base/selectedShow", async () => {
+  const { BehaviorSubject } = await import("rxjs");
+  return {
+    selectedShow: new BehaviorSubject({
+      id: 1,
+      name: "Test",
+      start: new Date(),
+      rundowns: [],
+      continuityItems: [],
+      version: 1,
+      ytBroadcastID: null,
+      ytStreamID: null,
+    }),
+  };
 });
 
 describe("addOrReplaceMediaAsScene", () => {
