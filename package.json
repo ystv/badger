@@ -17,7 +17,7 @@
     "octokit": "^3.1.0",
     "prettier": "^3.0.3",
     "semver": "^7.5.4",
-    "undici": "^5.27.2"
+    "undici": "^6.9.0"
   },
   "scripts": {
     "lint": "yarn workspaces foreach -p --exclude badger-root-workspace run lint",
