@@ -1,5 +1,6 @@
 import * as wget from "wget-improved";
 import { spawn } from "child_process";
+import * as fs from "fs/promises";
 import which from "which";
 import invariant from "../../common/invariant";
 import logging from "../base/logging";
@@ -129,5 +130,8 @@ export async function downloadFile(
     default:
       throw new Error(`Unknown downloader ${settings.downloader}`);
   }
-  await downloader(url, outputPath, progress);
+  const downloadPath = outputPath + ".badgerdownload";
+  await downloader(url, downloadPath, progress);
+  logger.info(`Downloaded ${downloadPath}`);
+  await fs.rename(downloadPath, outputPath);
 }
