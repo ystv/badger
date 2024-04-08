@@ -55,7 +55,7 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Docker metadata
-      id: meta
+      id: jr_meta
       uses: docker/metadata-action@v5
       with:
         images: ghcr.io/ystv/badger/jobrunner
@@ -66,8 +66,8 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+        tags: ${{ steps.jr_meta.outputs.tags }}
+        labels: ${{ steps.jr_meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
         context: ${{ runner.workspace }}/badger/jobrunner
