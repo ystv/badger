@@ -1,6 +1,6 @@
 {
   "name": "badger-jobrunner",
-  "version": "1.0.0-beta.7",
+  "version": "1.0.0-beta.8",
   "packageManager": "yarn@3.6.1",
   "devDependencies": {
     "@sentry/esbuild-plugin": "^2.7.0",
