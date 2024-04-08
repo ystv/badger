@@ -71,6 +71,7 @@ jobs:
         flavor: latest=true
         tags: |
           type=semver,pattern={{version}}
+          type=raw,value=${{ inputs.tag }},enable=${{ github.event_name == 'workflow_dispatch' }}
     - name: Build and push
       uses: docker/build-push-action@v5
       with:
