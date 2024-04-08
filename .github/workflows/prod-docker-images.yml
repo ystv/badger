@@ -38,7 +38,7 @@ jobs:
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
-        context: ${{ runner.workspace }}/badger/server
+        file: Dockerfile.server
   
   jobrunner:
 
@@ -70,4 +70,4 @@ jobs:
         labels: ${{ steps.jr_meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
-        context: ${{ runner.workspace }}/badger/jobrunner
+        file: Dockerfile.jobrunner
