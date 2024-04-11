@@ -1397,20 +1397,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electron-forge/maker-wix@npm:^6.4.2":
-  version: 6.4.2
-  resolution: "@electron-forge/maker-wix@npm:6.4.2"
-  dependencies:
-    "@electron-forge/maker-base": 6.4.2
-    "@electron-forge/shared-types": 6.4.2
-    chalk: ^4.0.0
-    electron-wix-msi: ^5.0.0
-    log-symbols: ^4.0.0
-    parse-author: ^2.0.0
-  checksum: 360de91b1e203782f9ed404b2c35eb2238fbb8046306121439cf7dd1f4bab798a59d831b69b9bbfb5f67a7c6f04e7ed23c2980d4ee363c0052abfde639885576
-  languageName: node
-  linkType: hard
-
 "@electron-forge/maker-zip@npm:^6.4.2":
   version: 6.4.2
   resolution: "@electron-forge/maker-zip@npm:6.4.2"
@@ -6799,7 +6785,6 @@ __metadata:
     "@electron-forge/maker-deb": ^6.4.2
     "@electron-forge/maker-rpm": ^6.4.2
     "@electron-forge/maker-squirrel": ^6.4.2
-    "@electron-forge/maker-wix": ^6.4.2
     "@electron-forge/maker-zip": ^6.4.2
     "@electron-forge/plugin-auto-unpack-natives": ^6.4.2
     "@electron-forge/plugin-vite": ^6.4.2
