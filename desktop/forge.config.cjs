@@ -12,13 +12,16 @@ module.exports = {
   },
   rebuildConfig: {},
   makers: [
-    // {
-    //   name: "@electron-forge/maker-squirrel",
-    //   config: {
-    //     authors: "YSTV",
-    //   },
-    //   platforms: ["win32"],
-    // },
+    {
+      name: "@electron-forge/maker-squirrel",
+      config: {
+        authors: "YSTV",
+        noMsi: false,
+        setupMsi: "Badger.Desktop.msi",
+        setupExe: "Badger.Desktop.exe",
+      },
+      platforms: ["win32"],
+    },
     {
       name: "@electron-forge/maker-wix",
       config: {
