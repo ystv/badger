@@ -146,7 +146,7 @@ export default function MainScreen() {
             <DialogTrigger aria-label="Settings">
               <IoCog className="h-6 w-6" size={24} />
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="min-w-[600px] max-h-[100vh] overflow-y-scroll py-8">
               <DialogHeader className="text-3xl">Settings</DialogHeader>
               <Suspense fallback={<b>Please wait, loading settings...</b>}>
                 <Settings />
