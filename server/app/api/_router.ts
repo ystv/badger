@@ -75,7 +75,7 @@ export const appRouter = router({
         return db.showWithDuration.findMany({
           where: {
             end: {
-              gte: subtract(new Date(), { hours: input?.gracePeriodHours ?? 0 }),
+              lte: subtract(new Date(), { hours: input?.gracePeriodHours ?? 0 }),
             },
           },
         });
