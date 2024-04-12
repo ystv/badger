@@ -23,7 +23,7 @@ import {
 import invariant from "@/lib/invariant";
 import { dispatchJobForJobrunner } from "@/lib/jobs";
 import { expectNever } from "ts-expect";
-import { add } from "date-fns";
+import { subtract } from "date-fns";
 
 const ExtendedMediaModelWithDownloadURL = ExtendedMediaModel.extend({
   continuityItems: z.array(ContinuityItemSchema),
@@ -75,7 +75,7 @@ export const appRouter = router({
         return db.showWithDuration.findMany({
           where: {
             end: {
-              gte: add(new Date(), { hours: input?.gracePeriodHours ?? 0 }),
+              gte: subtract(new Date(), { hours: input?.gracePeriodHours ?? 0 }),
             },
           },
         });
