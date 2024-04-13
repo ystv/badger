@@ -7,7 +7,7 @@ const logger = getLogger("ontime");
 
 interface OntimeInfo {
   networkInterfaces: unknown[];
-  version: number;
+  version: number | string;
   serverPort: number;
   osc: unknown;
 }
@@ -66,8 +66,14 @@ export class OntimeClient {
         { cause: e },
       );
     }
-    if (info.version !== 2) {
-      throw new Error(`Ontime at ${host} is not version 2`);
+    if (typeof info.version === "number") {
+      if (info.version !== 2) {
+        throw new Error(`Ontime at ${host} is not version 2`);
+      }
+    } else {
+      if (info.version[0] !== "2") {
+        throw new Error(`Ontime at ${host} is not version 2`);
+      }
     }
     const result = new OntimeClient(host);
     result.got = client;
