@@ -243,6 +243,11 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
                     No media uploaded
                   </Badge>
                 )}
+                {item._state === "media-processing" && (
+                  <Badge variant="purple" className="w-full">
+                    Processing on server
+                  </Badge>
+                )}
                 {item._state === "archived" && (
                   <Badge variant="dark" className="w-full">
                     Archived on server
