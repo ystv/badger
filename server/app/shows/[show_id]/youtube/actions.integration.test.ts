@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { doCreateStreams } from "./actions";
-import { integrate } from "@badger/testing";
+import { integrate } from "@/lib/testing";
 import { youtube_v3 } from "googleapis";
 import { ContinuityItem, Rundown, Show } from "@badger/prisma/client";
 import { OAuth2Client } from "google-auth-library";

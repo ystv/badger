@@ -31,23 +31,23 @@ exports[`VMixConnection > getFullState 1`] = `
       "items": [
         {
           "selected": true,
-          "source": "C:\\\\media\\\\Test 0.mp4",
+          "source": "C:\\media\\Test 0.mp4",
         },
         {
           "selected": false,
-          "source": "C:\\\\media\\\\Test 1.mp4",
+          "source": "C:\\media\\Test 1.mp4",
         },
         {
           "selected": false,
-          "source": "C:\\\\media\\\\Test 22.mp4",
+          "source": "C:\\media\\Test 22.mp4",
         },
         {
           "selected": false,
-          "source": "C:\\\\media\\\\Test 3.mov",
+          "source": "C:\\media\\Test 3.mov",
         },
         {
           "selected": false,
-          "source": "C:\\\\media\\\\Test 4.mp4",
+          "source": "C:\\media\\Test 4.mp4",
         },
       ],
       "key": "705aa6bc-632e-4714-8759-0966703c154f",
@@ -92,7 +92,7 @@ exports[`VMixConnection > getFullState 1`] = `
       "items": [
         {
           "selected": true,
-          "source": "C:\\\\media\\\\Test.png",
+          "source": "C:\\media\\Test.png",
         },
       ],
       "key": "be25c595-60e1-49b1-873b-1c1f7fde77b4",
@@ -133,7 +133,7 @@ exports[`VMixConnection > getFullState 1`] = `
       "volume": 100,
     },
   ],
-  "preset": "C:\\\\Test.vmix",
+  "preset": "C:\\Test.vmix",
   "version": "26.0.0.44",
 }
 `;
