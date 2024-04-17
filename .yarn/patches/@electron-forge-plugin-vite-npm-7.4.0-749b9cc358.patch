@@ -1,0 +1,38 @@
+diff --git a/dist/util/package.js b/dist/util/package.js
+index be2a9f9b575fb0d9eb2d7eb4df9e500e3baf26b0..f94fdf9fc2aa5f2253ab6eb583a198b37bbdd7e9 100644
+--- a/dist/util/package.js
++++ b/dist/util/package.js
+@@ -69,8 +69,13 @@ async function resolveDependencies(root) {
+             },
+             dependencies: [],
+         };
+-        const shouldResolveDeps = !collected.has(depPath);
++        let shouldResolveDeps = !collected.has(depPath);
+         collected.set(depPath, result);
++        // HACK
++        if (name === "badger-server") {
++            shouldResolveDeps = false;
++        }
++        // END HACK
+         if (shouldResolveDeps) {
+             result.dependencies = await resolve(depPath, Object.keys(packageJson.dependencies || {}), collected);
+         }
+diff --git a/src/util/package.ts b/src/util/package.ts
+index 0fbb9a4a7820a721f13591dbb3b8a1cbe971c017..79f93b4268b7c12002857cbd448d8861fcdbc1fa 100644
+--- a/src/util/package.ts
++++ b/src/util/package.ts
+@@ -83,8 +83,13 @@ export async function resolveDependencies(root: string) {
+           },
+           dependencies: [],
+         };
+-        const shouldResolveDeps = !collected.has(depPath);
++        let shouldResolveDeps = !collected.has(depPath);
+         collected.set(depPath, result);
++        // HACK
++        if (name === "badger-server") {
++            shouldResolveDeps = false;
++        }
++        // END HACK
+         if (shouldResolveDeps) {
+           result.dependencies = await resolve(depPath, Object.keys(packageJson.dependencies || {}), collected);
+         }

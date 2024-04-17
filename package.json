@@ -34,6 +34,7 @@
   "resolutions": {
     "zod": "<=3.21.1",
     "p-event": "<5.0.0",
-    "flora-colossus@^2.0.0": "patch:flora-colossus@npm%3A2.0.0#./.yarn/patches/flora-colossus-npm-2.0.0-277653bd57.patch"
+    "flora-colossus@^2.0.0": "patch:flora-colossus@npm%3A2.0.0#./.yarn/patches/flora-colossus-npm-2.0.0-277653bd57.patch",
+    "@electron-forge/plugin-vite@^7.4.0": "patch:@electron-forge/plugin-vite@npm%3A7.4.0#./.yarn/patches/@electron-forge-plugin-vite-npm-7.4.0-749b9cc358.patch"
   }
 }
