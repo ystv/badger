@@ -29,7 +29,7 @@ import {
   IoDownload,
   IoPush,
 } from "react-icons/io5";
-import { Rundown } from "@badger/prisma/types";
+import type { Rundown } from "@badger/prisma/types";
 import {
   DropdownMenu,
   DropdownMenuContent,

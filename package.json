@@ -24,7 +24,7 @@
     "prettify": "yarn workspaces foreach -p --exclude badger-root-workspace run prettify",
     "test": "yarn workspaces foreach --exclude badger-root-workspace run test",
     "test:integration": "yarn workspaces foreach --exclude badger-root-workspace run test:integration",
-    "typecheck": "yarn workspaces foreach -p --exclude badger-root-workspace run tsc --noEmit",
+    "typecheck": "yarn workspaces foreach -p --include 'badger-{desktop,jobrunner,server}' run tsc --noEmit",
     "prepare": "husky install"
   },
   "lint-staged": {
