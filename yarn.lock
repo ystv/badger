@@ -1985,13 +1985,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fastify/busboy@npm:^2.0.0":
-  version: 2.1.0
-  resolution: "@fastify/busboy@npm:2.1.0"
-  checksum: 3233abd10f73e50668cb4bb278a79b7b3fadd30215ac6458299b0e5a09a29c3586ec07597aae6bd93f5cbedfcef43a8aeea51829cd28fc13850cdbcd324c28d5
-  languageName: node
-  linkType: hard
-
 "@floating-ui/core@npm:^1.6.0":
   version: 1.6.0
   resolution: "@floating-ui/core@npm:1.6.0"
@@ -6871,7 +6864,7 @@ __metadata:
     superjson: ^1.13.1
     tailwindcss: ^3.3.3
     typescript: ^5.1.6
-    undici: ^5.28.3
+    undici: ^6.13.0
     utf-8-validate: ^6.0.3
     uuid: ^9.0.0
     vite: ^5.2.9
@@ -6933,7 +6926,7 @@ __metadata:
     octokit: ^3.1.0
     prettier: ^3.0.3
     semver: ^7.5.4
-    undici: ^5.28.3
+    undici: ^6.13.0
   languageName: unknown
   linkType: soft
 
@@ -7009,7 +7002,7 @@ __metadata:
     tsx: ^3.12.7
     tus-js-client: ^3.1.0
     typescript: 5.1.6
-    undici: ^5.28.3
+    undici: ^6.13.0
     zod: ^3.21.4
     zod-error: ^1.5.0
     zod-form-data: ^2.0.1
@@ -16953,12 +16946,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici@npm:^5.28.3":
-  version: 5.28.3
-  resolution: "undici@npm:5.28.3"
-  dependencies:
-    "@fastify/busboy": ^2.0.0
-  checksum: fa1e65aff896c5e2ee23637b632e306f9e3a2b32a3dc0b23ea71e5555ad350bcc25713aea894b3dccc0b7dc2c5e92a5a58435ebc2033b731a5524506f573dfd2
+"undici@npm:^6.13.0":
+  version: 6.13.0
+  resolution: "undici@npm:6.13.0"
+  checksum: 47495e93aceeab18664678b6fb0ea2395b7c13a33d2ed4f7f36eb9be9ec5cd6f8e3a4ddaec18127da5e2012e5d7666ca824c7dc70af606dcfe6fdb8441ee3a7a
   languageName: node
   linkType: hard
 
