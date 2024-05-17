@@ -401,10 +401,12 @@ export function MediaSelectOrUploadDialog(props: {
           )}
           {mode === "new" && (
             <MediaUploader
-              ref={uploadRef}
               title={props.title}
               prompt="Drop files here, or click to select"
               accept={props.acceptMedia}
+              onSelection={() => {
+                props.setOpen(false);
+              }}
               onComplete={(url, fileName) =>
                 startTransition(async () => {
                   await props.onUploadComplete(url, fileName);
@@ -413,7 +415,6 @@ export function MediaSelectOrUploadDialog(props: {
               }
             />
           )}
-          {isPending && <em>Processing, please wait...</em>}
         </DialogBody>
       </DialogContent>
     </Dialog>

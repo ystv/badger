@@ -11,11 +11,8 @@ export function GoogleLoginButton(props: {
       <div
         id="g_id_onload"
         data-client_id={props.clientID}
-        data-context="signin"
-        data-ux_mode="redirect"
         data-login_uri={`${props.publicURL}/login/google/callback`}
-        data-itp_support="true"
-        data-prompt-parent="signInWrapper"
+        data-auto_prompt="false"
       ></div>
 
       <div
@@ -27,7 +24,7 @@ export function GoogleLoginButton(props: {
         data-size="large"
         data-logo_alignment="left"
       ></div>
-      <Script src="https://accounts.google.com/gsi/client" />
+      <Script src="https://accounts.google.com/gsi/client" async />
     </div>
   );
 }

@@ -30,6 +30,19 @@ const nextConfig = {
     NEXT_PUBLIC_GIT_COMMIT: gitCommit,
     NEXT_PUBLIC_SENTRY_RELEASE: sentryRelease,
   },
+  async headers() {
+    return [
+      {
+        source: "/login",
+        headers: [
+          {
+            key: "Cross-Origin-Embedder-Policy",
+            value: "unsafe-none",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 module.exports = withSentryConfig(
