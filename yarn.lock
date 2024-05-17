@@ -6932,19 +6932,15 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "badger-root-workspace@workspace:."
   dependencies:
-    "@types/async-lock": ^1.4.2
-    async-lock: ^1.4.1
     chalk: ^5.3.0
     danger: ^11.2.8
     husky: ^8.0.3
-    immer: ^10.1.1
     inquirer: ^9.2.10
     lint-staged: ^14.0.1
     octokit: ^3.1.0
     prettier: ^3.0.3
     semver: ^7.5.4
     undici: ^6.13.0
-    zustand: ^4.5.2
   languageName: unknown
   linkType: soft
 
@@ -6970,6 +6966,7 @@ __metadata:
     "@tanstack/react-table": ^8.10.7
     "@trpc/client": ^10.44.1
     "@trpc/server": ^10.34.0
+    "@types/async-lock": ^1.4.2
     "@types/debug": ^4.1.12
     "@types/jest": ^29.5.9
     "@types/lodash": ^4.14.196
@@ -6980,6 +6977,7 @@ __metadata:
     "@types/shelljs": ^0.8.12
     "@typescript-eslint/eslint-plugin": latest
     "@typescript-eslint/parser": latest
+    async-lock: ^1.4.1
     autoprefixer: ^10.4.14
     class-variance-authority: ^0.7.0
     classnames: ^2.3.2
@@ -6994,6 +6992,7 @@ __metadata:
     eslint-plugin-react: latest
     google-auth-library: ^9.2.0
     googleapis: ^128.0.0
+    immer: ^10.1.1
     jest: ^29.7.0
     jsdom: ^22.1.0
     lodash: ^4.17.21
@@ -7024,6 +7023,7 @@ __metadata:
     zod: ^3.21.4
     zod-error: ^1.5.0
     zod-form-data: ^2.0.1
+    zustand: ^4.5.2
   languageName: unknown
   linkType: soft
 
