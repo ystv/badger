@@ -185,6 +185,7 @@ function AssetsCategory({
         }
         pastShowsPromise={pastShowsPromise}
         containerType="asset"
+        containerId={rundownId + ":" + category}
         acceptMedia={{}}
       />
     </div>
