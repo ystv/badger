@@ -227,7 +227,7 @@ export function ItemMediaStateAndUploadDialog({
       : "type" in item
         ? "rundownItem"
         : "continuityItem";
-  // TODO: THIS IS WRONG FOR METADATA
+  // TODO[BDGR-159]: THIS IS WRONG FOR METADATA
   const containerId = "field" in item ? item.field.id : item.id;
 
   const isUploading = useUploadsStore((state) =>
