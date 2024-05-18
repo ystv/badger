@@ -16,6 +16,7 @@ import { escapeRegExp } from "lodash";
 
 import { dispatchJobForJobrunner } from "@/lib/jobs";
 import invariant from "@/lib/invariant";
+import { getPublicTusEndpoint } from "@/lib/tus";
 
 export async function addItem(
   raw: z.infer<typeof AddItemSchema>,
@@ -291,7 +292,7 @@ export async function processUploadForRundownItem(
   }
 
   // Sanity check to ensure it was really uploaded where we expected
-  if (!uploadURL.startsWith(process.env.TUS_ENDPOINT!)) {
+  if (!uploadURL.startsWith(getPublicTusEndpoint())) {
     throw new Error("Invalid upload URL");
   }
 
@@ -327,7 +328,7 @@ export async function processUploadForRundownItem(
             sourceType: MediaFileSourceType.Tus,
             source: uploadURL.replace(
               // Strip off the Tus endpoint prefix so the source is just the ID
-              new RegExp(`^${escapeRegExp(process.env.TUS_ENDPOINT!)}/?`),
+              new RegExp(`^${escapeRegExp(getPublicTusEndpoint())}/?`),
               "",
             ),
             base_job: {

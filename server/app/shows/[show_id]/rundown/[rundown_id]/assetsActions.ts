@@ -6,6 +6,7 @@ import { escapeRegExp } from "lodash";
 import { revalidatePath } from "next/cache";
 
 import { dispatchJobForJobrunner } from "@/lib/jobs";
+import { getPublicTusEndpoint } from "@/lib/tus";
 
 export async function processAssetUpload(
   rundownID: number,
@@ -14,7 +15,7 @@ export async function processAssetUpload(
   uploadURL: string,
 ): Promise<FormResponse> {
   // Sanity check to ensure it was really uploaded where we expected
-  if (!uploadURL.startsWith(process.env.TUS_ENDPOINT!)) {
+  if (!uploadURL.startsWith(getPublicTusEndpoint())) {
     throw new Error("Invalid upload URL");
   }
 
@@ -52,7 +53,7 @@ export async function processAssetUpload(
           create: {
             sourceType: "Tus",
             source: uploadURL.replace(
-              new RegExp(`^${escapeRegExp(process.env.TUS_ENDPOINT!)}/?`),
+              new RegExp(`^${escapeRegExp(getPublicTusEndpoint())}/?`),
               "",
             ),
             base_job: {

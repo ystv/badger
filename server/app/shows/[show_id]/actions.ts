@@ -22,6 +22,7 @@ import type {
   MediaMetaSelectValue,
   MediaMetaUploadValue,
 } from "@/components/Metadata";
+import { getPublicTusEndpoint } from "@/lib/tus";
 
 export async function revalidateIfChanged(showID: number, version: number) {
   const show = await db.show.findUnique({
@@ -388,7 +389,7 @@ export async function setMetaValue(
                         source: newValue.uploadUrl.replace(
                           // Strip off the Tus endpoint prefix so the source is just the ID
                           new RegExp(
-                            `^${escapeRegExp(process.env.TUS_ENDPOINT!)}/?`,
+                            `^${escapeRegExp(getPublicTusEndpoint())}/?`,
                           ),
                           "",
                         ),
@@ -486,7 +487,7 @@ export async function addMeta(
                         source: newValue.uploadUrl.replace(
                           // Strip off the Tus endpoint prefix so the source is just the ID
                           new RegExp(
-                            `^${escapeRegExp(process.env.TUS_ENDPOINT!)}/?`,
+                            `^${escapeRegExp(getPublicTusEndpoint())}/?`,
                           ),
                           "",
                         ),
@@ -578,7 +579,7 @@ export async function processUploadForContinuityItem(
   }
 
   // Sanity check to ensure it was really uploaded where we expected
-  if (!uploadURL.startsWith(process.env.TUS_ENDPOINT!)) {
+  if (!uploadURL.startsWith(getPublicTusEndpoint())) {
     throw new Error("Invalid upload URL");
   }
 
@@ -613,7 +614,7 @@ export async function processUploadForContinuityItem(
             sourceType: MediaFileSourceType.Tus,
             source: uploadURL.replace(
               // Strip off the Tus endpoint prefix so the source is just the ID
-              new RegExp(`^${escapeRegExp(process.env.TUS_ENDPOINT!)}/?`),
+              new RegExp(`^${escapeRegExp(getPublicTusEndpoint())}/?`),
               "",
             ),
             base_job: {

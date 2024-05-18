@@ -7,6 +7,7 @@ import type {
 } from "@/components/Metadata";
 import { db } from "@/lib/db";
 import invariant from "@/lib/invariant";
+import { getPublicTusEndpoint } from "@/lib/tus";
 import {
   MediaFileSourceType,
   MetadataTargetType,
@@ -64,7 +65,7 @@ export async function setMetaValue(
                         source: newValue.uploadUrl.replace(
                           // Strip off the Tus endpoint prefix so the source is just the ID
                           new RegExp(
-                            `^${escapeRegExp(process.env.TUS_ENDPOINT!)}/?`,
+                            `^${escapeRegExp(getPublicTusEndpoint())}/?`,
                           ),
                           "",
                         ),
@@ -155,7 +156,7 @@ export async function addMeta(
                       source: newValue.uploadUrl.replace(
                         // Strip off the Tus endpoint prefix so the source is just the ID
                         new RegExp(
-                          `^${escapeRegExp(process.env.TUS_ENDPOINT!)}/?`,
+                          `^${escapeRegExp(getPublicTusEndpoint())}/?`,
                         ),
                         "",
                       ),
