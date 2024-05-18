@@ -27,6 +27,7 @@ import {
 } from "@badger/components/popover";
 import { MediaSelectOrUploadDialog, PastShowsMedia } from "./MediaSelection";
 import Link from "next/link";
+import { useUploadsStore } from "./Uploader";
 
 export interface CompleteMedia extends Media {
   tasks: MediaProcessingTask[];
@@ -219,7 +220,34 @@ export function ItemMediaStateAndUploadDialog({
 }) {
   let base;
   const [isUploadOpen, setIsUploadOpen] = useState(false);
-  if (item.media === null) {
+
+  const containerType =
+    "field" in item
+      ? "metadata"
+      : "type" in item
+        ? "rundownItem"
+        : "continuityItem";
+  // TODO[BDGR-159]: THIS IS WRONG FOR METADATA
+  const containerId = "field" in item ? item.field.id : item.id;
+
+  const isUploading = useUploadsStore((state) =>
+    state.uploads.some(
+      (x) =>
+        x.sourceType === containerType &&
+        x.sourceId === containerId.toString() &&
+        x.state !== "complete" &&
+        x.state !== "cancelled" &&
+        x.state !== "error",
+    ),
+  );
+
+  if (isUploading) {
+    base = (
+      <Button color="dark" disabled className="py-6">
+        Uploading...
+      </Button>
+    );
+  } else if (item.media === null) {
     base = (
       <Button
         color="danger"
@@ -252,13 +280,8 @@ export function ItemMediaStateAndUploadDialog({
     <>
       {base}
       <MediaSelectOrUploadDialog
-        containerType={
-          "field" in item
-            ? "metadata"
-            : "type" in item
-              ? "rundownItem"
-              : "continuityItem"
-        }
+        containerType={containerType}
+        containerId={containerId.toString()}
         metaFieldContainer={"field" in item ? item.field : undefined}
         isOpen={isUploadOpen}
         setOpen={setIsUploadOpen}
