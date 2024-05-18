@@ -1,5 +1,5 @@
 "use client";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 
 export function Pagination(props: {
@@ -9,20 +9,24 @@ export function Pagination(props: {
 }) {
   const router = useRouter();
   const path = usePathname();
+  const search = useSearchParams();
 
   const totalPages = Math.ceil(props.total / props.pageSize);
 
   const goToPage = useCallback(
     (page: number) => {
-      const url = new URL(path ?? "", window.location.href);
+      const url = new URL(path ?? "", window.location.origin);
+      search.forEach((value, key) => {
+        url.searchParams.set(key, value);
+      });
       url.searchParams.set("page", page.toString());
       router.push(url.toString());
     },
-    [router, path],
+    [router, path, search],
   );
 
   return (
-    <div className="flex flex-row justify-center">
+    <div className="flex flex-row justify-center" data-testid="Pagination">
       {props.current > 1 && (
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"

@@ -4,7 +4,7 @@ import {
   PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
-import { Page, expect, test as base } from "@playwright/test";
+import { Page, expect, test as base, Request } from "@playwright/test";
 import {
   CreateTRPCProxyClient,
   createTRPCProxyClient,
@@ -87,6 +87,25 @@ export async function createShow(
   await expect(page.getByRole("heading", { name: name })).toBeVisible({
     // Compiling the show page can take some time on local dev
     timeout: process.env.CI ? 5_000 : 30_000,
+  });
+}
+
+export async function createShowAPI(
+  name: string,
+  time: "past" | "future" = "future",
+) {
+  const api = getAPIClient();
+  const start = new Date();
+  if (time === "future") {
+    start.setMonth(start.getMonth() + 1);
+    start.setDate(15);
+  } else {
+    start.setMonth(start.getMonth() - 1);
+    start.setDate(15);
+  }
+  await api.shows.create.mutate({
+    name,
+    start,
   });
 }
 
