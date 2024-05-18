@@ -28,17 +28,12 @@ export default async function RootLayout({
     <html lang="en">
       <head>
         <meta name="referrer" content="no-referrer-when-downgrade" />
-        {/* eslint-disable-next-line @next/next/no-before-interactive-script-outside-document */}
-        <Script
-          // https://github.com/vercel/next.js/issues/56484
-          // strategy="beforeInteractive"
-          id="sentry-env"
-          dangerouslySetInnerHTML={{
-            __html: `window.ENVIRONMENT = ${JSON.stringify(
-              process.env.ENVIRONMENT,
-            )};`,
-          }}
-        />
+        <Script id="sentry-env" strategy="beforeInteractive">
+          {`window.ENVIRONMENT = ${JSON.stringify(process.env.ENVIRONMENT)};`}
+        </Script>
+        <Script id="tus-endpoint" strategy="beforeInteractive">
+          {`window.TUS_ENDPOINT = ${JSON.stringify(getTusEndpoint())};`}
+        </Script>
       </head>
       <body>
         <DebugModeProvider
@@ -64,11 +59,6 @@ export default async function RootLayout({
             </UserProvider>
           </FeatureFlagsProvider>
         </DebugModeProvider>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.TUS_ENDPOINT = ${JSON.stringify(getTusEndpoint())};`,
-          }}
-        />
       </body>
     </html>
   );
