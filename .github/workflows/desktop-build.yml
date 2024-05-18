@@ -53,10 +53,10 @@ jobs:
           value: "Badger Desktop (DEV)"
 
         # This is negated because a workflow_call won't have the do_release input, and we want to publish then.
-      - run: "yarn ${{ inputs.do_release && 'publish' || 'make' }}"
+      - run: "yarn package ${{ inputs.do_release && '--publish onTagOrDraft' }}"
         working-directory: ./desktop
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DESKTOP_SENTRY_DSN: ${{ secrets.DESKTOP_SENTRY_DSN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           ENVIRONMENT: ${{ inputs.prerelease && 'dev' || 'prod' }}

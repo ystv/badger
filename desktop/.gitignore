@@ -87,8 +87,9 @@ typings/
 # Vite
 .vite/
 
-# Electron-Forge
+# Electron
 out/
+dist/
 
 # Playwright
 /test-results/

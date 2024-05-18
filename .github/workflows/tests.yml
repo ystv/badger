@@ -213,7 +213,7 @@ jobs:
         run: yarn install --immutable --inline-builds
 
       - name: Build desktop
-        run: yarn package
+        run: yarn build
         working-directory: ./desktop
 
       - name: Make logs folder
@@ -277,7 +277,7 @@ jobs:
         working-directory: ./jobrunner
 
       - name: Build desktop
-        run: yarn package
+        run: yarn build
         working-directory: ./desktop
 
       - name: Migrate database
