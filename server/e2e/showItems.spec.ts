@@ -139,6 +139,7 @@ test("add media", async ({ showPage }) => {
     });
   // Check the upload progress box appears
   const progressBox = showPage.getByTestId("MediaUploader.progress");
+  await expect(progressBox).toBeVisible();
   await expect(progressBox.getByText("smpte_bars_15s.mp4")).toBeVisible();
 
   await expect(
