@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
+import { Fragment, ReactNode } from "react";
 import { create as zustand } from "zustand";
 import { produce } from "immer";
 import {
@@ -55,78 +55,86 @@ export const useUploadsStore = zustand<UploadsState>()((set) => ({
         });
       }),
     );
-    await uploadLock.acquire("upload", async () => {
-      const upload = new tus.Upload(file, {
-        endpoint: (window as unknown as { TUS_ENDPOINT: string }).TUS_ENDPOINT,
-        // The Tus JS Client documentation doesn't recommend manually setting a chunk size.
-        // However we've observed that the default of Infinity can lead to failures
-        // of particularly big files (as video tends to be), so we set one. The chunk size of 50MB
-        // is a good balance between upload speed, per-chunk overhead, and reliability - assuming an average
-        // UK broadband connection of 86Mbps, it should take about 5 seconds to upload
-        // a chunk, and a 1Gb file would be split into 20 chunks, with maybe 0.5s of processing
-        // time for each chunk.
-        chunkSize: 50 * 1024 * 1024,
-        retryDelays: [0, 1000, 3000, 5000],
-        onError: function (error) {
-          set(
-            produce<UploadsState>((draft) => {
-              const upload = draft.uploads.find((x) => x.file === file);
-              if (upload) {
-                upload.state = "error";
-                upload.errorReason = error.message;
-              }
-            }),
-          );
-        },
-        onProgress: function (bytesUploaded, bytesTotal) {
-          set(
-            produce<UploadsState>((draft) => {
-              const upload = draft.uploads.find((x) => x.file === file);
-              if (upload) {
-                upload.progress = bytesUploaded / bytesTotal;
-              }
-            }),
-          );
-        },
-        onSuccess: function () {
-          onComplete(upload.url!, file.name);
-          set(
-            produce<UploadsState>((draft) => {
-              const upload = draft.uploads.find((x) => x.file === file);
-              if (upload) {
-                upload.state = "complete";
-              }
-            }),
-          );
-          setTimeout(() => {
+    await uploadLock.acquire(
+      "upload",
+      () =>
+        new Promise<void>((resolve, reject) => {
+          const upload = new tus.Upload(file, {
+            endpoint: (window as unknown as { TUS_ENDPOINT: string })
+              .TUS_ENDPOINT,
+            // The Tus JS Client documentation doesn't recommend manually setting a chunk size.
+            // However we've observed that the default of Infinity can lead to failures
+            // of particularly big files (as video tends to be), so we set one. The chunk size of 50MB
+            // is a good balance between upload speed, per-chunk overhead, and reliability - assuming an average
+            // a chunk, and a 1Gb file would be split into 20 chunks, with maybe 0.5s of processing
+            // time for each chunk.
+            chunkSize: 50 * 1024 * 1024,
+            retryDelays: [0, 1000, 3000, 5000],
+            onError: function (error) {
+              set(
+                produce<UploadsState>((draft) => {
+                  const upload = draft.uploads.find((x) => x.file === file);
+                  if (upload) {
+                    upload.state = "error";
+                    upload.errorReason = error.message;
+                  }
+                }),
+              );
+              reject(error);
+            },
+            onProgress: function (bytesUploaded, bytesTotal) {
+              set(
+                produce<UploadsState>((draft) => {
+                  const upload = draft.uploads.find((x) => x.file === file);
+                  if (upload) {
+                    upload.progress = bytesUploaded / bytesTotal;
+                  }
+                }),
+              );
+            },
+            onSuccess: function () {
+              onComplete(upload.url!, file.name);
+              resolve();
+              set(
+                produce<UploadsState>((draft) => {
+                  const upload = draft.uploads.find((x) => x.file === file);
+                  if (upload) {
+                    upload.state = "complete";
+                  }
+                }),
+              );
+              setTimeout(() => {
+                set(
+                  produce<UploadsState>((draft) => {
+                    draft.uploads = draft.uploads.filter(
+                      (x) => x.file !== file,
+                    );
+                  }),
+                );
+              }, COMPLETE_UPLOAD_REMOVAL_DELAY);
+            },
+          });
+          pendingUploads.set(file, upload);
+          // Check if there are any previous uploads to continue.
+          upload.findPreviousUploads().then(function (previousUploads) {
+            // Found previous uploads so we select the first one.
+            if (previousUploads.length) {
+              upload.resumeFromPreviousUpload(previousUploads[0]);
+            }
+
+            // Start the upload
+            upload.start();
             set(
               produce<UploadsState>((draft) => {
-                draft.uploads = draft.uploads.filter((x) => x.file !== file);
+                const upload = draft.uploads.find((x) => x.file === file);
+                if (upload) {
+                  upload.state = "uploading";
+                }
               }),
             );
-          }, COMPLETE_UPLOAD_REMOVAL_DELAY);
-        },
-      });
-      pendingUploads.set(file, upload);
-      // Check if there are any previous uploads to continue.
-      upload.findPreviousUploads().then(function (previousUploads) {
-        // Found previous uploads so we select the first one.
-        if (previousUploads.length) {
-          upload.resumeFromPreviousUpload(previousUploads[0]);
-        }
-
-        // Start the upload
-        upload.start();
-        set(
-          produce<UploadsState>((draft) => {
-            const upload = draft.uploads.find((x) => x.file === file);
-            if (upload) {
-              upload.state = "uploading";
-            }
-          }),
-        );
-      });
-    });
+          });
+        }),
+    );
   },
   cancelUpload: (file) => {
     const upload = pendingUploads.get(file);
@@ -164,24 +172,21 @@ export function MediaUploader(props: { children: ReactNode }) {
             <CardTitle>Uploads</CardTitle>
           </CardHeader>
           <CardContent
-            className="space-y-2"
+            className="grid grid-cols-[1fr_auto] items-center justify-items-center"
             data-testid="MediaUploader.progress"
           >
             {uploads.uploads.map((up) => (
-              <div
-                key={up.fileName}
-                className={twMerge(
-                  "shadow-xs rounded flex flex-row items-center",
-                  up.state === "cancelled" && "line-through",
-                )}
-              >
-                <p>{up.fileName}</p>
-                <Progress
-                  value={up.progress}
-                  max={1}
-                  className="inline-block"
-                ></Progress>
-                {up.state === "error" && <p>Error: {up.errorReason}</p>}
+              <Fragment key={up.fileName}>
+                <p
+                  className={twMerge(
+                    (up.state === "cancelled" || up.state === "error") &&
+                      "line-through",
+                    up.state === "error" && "text-red-500",
+                    up.state === "complete" && "text-green-500",
+                  )}
+                >
+                  {up.fileName}
+                </p>
                 {up.state === "uploading" && (
                   <Button
                     size="icon"
@@ -192,7 +197,13 @@ export function MediaUploader(props: { children: ReactNode }) {
                     &times;
                   </Button>
                 )}
-              </div>
+                <Progress
+                  value={up.progress * 100}
+                  max={100}
+                  className="inline-block col-span-2 w-full"
+                ></Progress>
+                {up.state === "error" && <p>Error: {up.errorReason}</p>}
+              </Fragment>
             ))}
           </CardContent>
         </Card>
