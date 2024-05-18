@@ -33,7 +33,9 @@ interface UploadsState {
 const COMPLETE_UPLOAD_REMOVAL_DELAY =
   // __COMPLETE_UPLOAD_REMOVAL_DELAY is only used for testing
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).__COMPLETE_UPLOAD_REMOVAL_DELAY ?? 10_000;
+  (typeof window !== "undefined" &&
+    (window as any).__COMPLETE_UPLOAD_REMOVAL_DELAY) ??
+  10_000;
 
 const uploadLock = new AsyncLock();
 
