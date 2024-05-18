@@ -10,7 +10,7 @@ import { UserProvider } from "@/components/CurrentUser";
 import Script from "next/script";
 import { FeatureFlagsProvider } from "@/components/FeatureFlags";
 import { getTusEndpoint } from "@/lib/tus";
-import { MediaUploader } from "@/components/Uploader";
+import { UploadProgress } from "@/components/Uploader";
 
 export const metadata: Metadata = {
   title: "Badger",
@@ -49,9 +49,9 @@ export default async function RootLayout({
             }
           >
             <UserProvider value={user}>
-              <MediaUploader>
+              <UploadProgress>
                 <main className="max-w-3xl mx-auto">{children}</main>
-              </MediaUploader>
+              </UploadProgress>
               <footer className="max-w-3xl mx-auto text-sm text-mid-dark mt-2">
                 This is Badger {process.env.NEXT_PUBLIC_VERSION} (code version{" "}
                 <code>{process.env.NEXT_PUBLIC_GIT_COMMIT?.slice(0, 7)})</code>.
