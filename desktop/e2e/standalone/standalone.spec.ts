@@ -15,7 +15,7 @@ export const test = base.extend<{
   // eslint-disable-next-line no-empty-pattern
   app: async ({}, use, testInfo) => {
     const app = await electron.launch({
-      args: ["--enable-logging", ".vite/build/main.js"],
+      args: ["--enable-logging", "out/main/index.js"],
       env: {
         ...process.env,
         NODE_ENV: "test",
