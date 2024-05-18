@@ -71,6 +71,18 @@ GOOGLE_CLIENT_ID=
 USER_AUTO_CREATE_DOMAINS=
 ```
 
+## Background
+
+Badger was initially developed at [York Student Television (YSTV)](https://ystv.co.uk) for our own live broadcast needs.
+YSTV are still the primary users of it, though we have made it public in the hope that it may be useful to other student TV stations or similar organisations.
+
+YSTV use Badger on a regular basis, so we are confident that it is (mostly) stable and usable.
+However, we do not guarantee that it will work perfectly in other contexts, and there are still bugs that we work around.
+Contributions are always welcome, though please be aware that we may decline changes that would not work for our workflow.
+If in doubt, please file an issue before starting work.
+
+There are still quite a few YSTV-isms in its design, for example the semi-arbitrary distinction between rundowns and continuity items - this was borne out of our workflow. Follow issue [BDGR-145](https://github.com/ystv/badger/issues/277) for progress on changing this.
+
 ## Developing
 
 We use [Linear](https://linear.app/ystv) to track issues.
