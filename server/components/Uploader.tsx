@@ -184,7 +184,7 @@ export function UploadProgress(props: { children: ReactNode }) {
             <CardTitle>Uploads</CardTitle>
           </CardHeader>
           <CardContent
-            className="grid grid-cols-[1fr_auto] items-center justify-items-center"
+            className="grid grid-cols-[1fr_auto] items-center justify-items-center bg-light dark:bg-dark"
             data-testid="UploadProgress.progress"
           >
             {uploads.uploads.map((up) => (
