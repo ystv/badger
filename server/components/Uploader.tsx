@@ -153,7 +153,10 @@ export function MediaUploader(props: { children: ReactNode }) {
           <CardHeader>
             <CardTitle>Uploads</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent
+            className="space-y-2"
+            data-testid="MediaUploader.progress"
+          >
             {uploads.uploads.map((up) => (
               <div
                 key={up.fileName}

@@ -137,14 +137,16 @@ test("add media", async ({ showPage }) => {
         "video/mp4",
       ),
     });
-  await expect(showPage.getByText("smpte_bars_15s.mp4")).toBeVisible();
+  // Check the upload progress box appears
+  const progressBox = showPage.getByTestId("MediaUploader.progress");
+  await expect(progressBox.getByText("smpte_bars_15s.mp4")).toBeVisible();
 
   await expect(
     showPage.getByRole("button", { name: "Good to go!" }),
   ).toBeVisible({
     timeout: 30_000,
   });
-  await expect(showPage.getByText("smpte_bars_15s.mp4")).not.toBeVisible();
+  await expect(progressBox.getByText("smpte_bars_15s.mp4")).not.toBeVisible();
 
   await expect
     .soft(showPage.getByTestId("ShowItemsList.runtime"))
