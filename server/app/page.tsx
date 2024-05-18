@@ -32,6 +32,9 @@ export default async function ShowsPage(props: {
       where: conditions,
       take: PAGE_SIZE,
       skip: PAGE_SIZE * page,
+      orderBy: {
+        start: "desc",
+      },
     }),
     db.showWithDuration.count({
       where: conditions,
