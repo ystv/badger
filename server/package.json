@@ -32,6 +32,7 @@
     "@tailwindcss/forms": "^0.5.4",
     "@tanstack/react-table": "^8.10.7",
     "@trpc/server": "^10.34.0",
+    "@types/async-lock": "^1.4.2",
     "@types/lodash": "^4.14.196",
     "@types/node": "20.4.2",
     "@types/react": "^18.2.33",
@@ -39,6 +40,7 @@
     "@types/react-dom": "^18.2.14",
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "latest",
+    "async-lock": "^1.4.1",
     "class-variance-authority": "^0.7.0",
     "classnames": "^2.3.2",
     "client-only": "^0.0.1",
@@ -49,6 +51,7 @@
     "eslint-plugin-react": "latest",
     "google-auth-library": "^9.2.0",
     "googleapis": "^128.0.0",
+    "immer": "^10.1.1",
     "lodash": "^4.17.21",
     "next": "^14.2.2",
     "prisma": "latest",
@@ -67,7 +70,8 @@
     "undici": "^6.13.0",
     "zod": "^3.21.4",
     "zod-error": "^1.5.0",
-    "zod-form-data": "^2.0.1"
+    "zod-form-data": "^2.0.1",
+    "zustand": "^4.5.2"
   },
   "devDependencies": {
     "@playwright/test": "^1.43.1",
