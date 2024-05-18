@@ -71,6 +71,15 @@ GOOGLE_CLIENT_ID=
 USER_AUTO_CREATE_DOMAINS=
 ```
 
+You'll also need to set up the database tables before it will work. Run:
+
+```sh
+# inside the server container
+$ npx -y prisma migrate deploy --schema utility/prisma/schema.prisma
+```
+
+You may need to re-run that command after upgrading.
+
 ## Background
 
 Badger was initially developed at [York Student Television (YSTV)](https://ystv.co.uk) for our own live broadcast needs.
