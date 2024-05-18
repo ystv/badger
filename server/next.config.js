@@ -15,10 +15,18 @@ const nextConfig = {
   output: "standalone",
   experimental: {
     instrumentationHook: true,
-    serverComponentsExternalPackages: ["@sentry/node", "@sentry/nextjs"],
+    serverComponentsExternalPackages: [
+      "@aws-sdk/s3-request-presigner",
+      "@sentry/node",
+      "@sentry/nextjs",
+    ],
   },
   transpilePackages: ["@badger/prisma"],
-  serverExternalPackages: ["@sentry/node", "@sentry/nextjs"],
+  serverExternalPackages: [
+    "@aws-sdk/s3-request-presigner",
+    "@sentry/node",
+    "@sentry/nextjs",
+  ],
   eslint: {
     // eslint is run as a separate step as part of the PR workflow
     // and we don't want to block tests on a lint failure that'll
