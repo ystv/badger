@@ -16,8 +16,16 @@ import { Progress } from "@badger/components/progress";
 import { twMerge } from "tailwind-merge";
 import { useBeforeunload } from "react-beforeunload";
 
+export type UploadSourceType =
+  | "rundownItem"
+  | "continuityItem"
+  | "asset"
+  | "metadata";
+
 interface UploadsState {
   uploads: Array<{
+    sourceType: UploadSourceType;
+    sourceId: number;
     file: File;
     fileName: string;
     progress: number;
@@ -25,6 +33,8 @@ interface UploadsState {
     errorReason?: string;
   }>;
   enqueueUpload: (
+    sourceType: UploadSourceType,
+    sourceId: number,
     file: File,
     onComplete: (url: string, fileName: string) => void,
   ) => void;
@@ -44,10 +54,12 @@ const pendingUploads = new WeakMap<File, tus.Upload>();
 
 export const useUploadsStore = zustand<UploadsState>()((set) => ({
   uploads: [],
-  enqueueUpload: async (file, onComplete) => {
+  enqueueUpload: async (sourceType, sourceId, file, onComplete) => {
     set(
       produce<UploadsState>((draft) => {
         draft.uploads.push({
+          sourceType,
+          sourceId,
           file,
           fileName: file.name,
           progress: 0,
@@ -152,7 +164,7 @@ export const useUploadsStore = zustand<UploadsState>()((set) => ({
   },
 }));
 
-export function MediaUploader(props: { children: ReactNode }) {
+export function UploadProgress(props: { children: ReactNode }) {
   const uploads = useUploadsStore();
 
   const inProgress = uploads.uploads.filter((x) => x.state !== "complete");
@@ -173,7 +185,7 @@ export function MediaUploader(props: { children: ReactNode }) {
           </CardHeader>
           <CardContent
             className="grid grid-cols-[1fr_auto] items-center justify-items-center"
-            data-testid="MediaUploader.progress"
+            data-testid="UploadProgress.progress"
           >
             {uploads.uploads.map((up) => (
               <Fragment key={up.fileName}>

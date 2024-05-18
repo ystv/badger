@@ -41,6 +41,7 @@ import {
 } from "@badger/prisma/client";
 import invariant from "@/lib/invariant";
 import { expectNever } from "ts-expect";
+import { UploadSourceType } from "./Uploader";
 
 export type PastShowsMedia = Array<{
   id: number;
@@ -335,30 +336,20 @@ export function MediaSelectOrUploadDialog(props: {
   title: string;
   onUploadComplete: (url: string, fileName: string) => Promise<unknown>;
   onExistingSelected: (id: number) => Promise<unknown>;
-  containerType: "rundownItem" | "continuityItem" | "asset" | "metadata";
+  containerType: UploadSourceType;
+  containerId: number;
   metaFieldContainer?: MetadataField;
   pastShowsPromise: Promise<PastShowsMedia>;
   acceptMedia: Record<string, string[]>;
 }) {
   const [mode, setMode] = useState<"existing" | "new" | null>(null);
   const [isPending, startTransition] = useTransition();
-  const uploadRef = useRef<MediaUploaderHandle | null>(null);
 
   return (
     <Dialog
       open={props.isOpen}
       onOpenChange={(v) => {
-        if (uploadRef.current && !v) {
-          const progress = uploadRef.current.getProgress();
-          if (progress > 0 && progress < 1) {
-            if (confirm("Are you sure you want to cancel the upload?")) {
-              uploadRef.current.cancel();
-              props.setOpen(v);
-            }
-          } else {
-            props.setOpen(v);
-          }
-        } else {
+        if (!isPending) {
           props.setOpen(v);
         }
       }}
@@ -403,6 +394,8 @@ export function MediaSelectOrUploadDialog(props: {
             <MediaUploader
               title={props.title}
               prompt="Drop files here, or click to select"
+              sourceType={props.containerType}
+              sourceId={props.containerId}
               accept={props.acceptMedia}
               onSelection={() => {
                 props.setOpen(false);

@@ -2,7 +2,7 @@
 
 import { createContext, forwardRef, ReactNode, useContext } from "react";
 import { useDropzone } from "react-dropzone";
-import { useUploadsStore } from "./Uploader";
+import { UploadSourceType, useUploadsStore } from "./Uploader";
 
 const TusEndpointContext = createContext<string>(
   process.env.TUS_ENDPOINT ?? "",
@@ -33,6 +33,8 @@ interface MediaUploaderProps {
   prompt: ReactNode;
   title: string;
   accept: Record<string, string[]>;
+  sourceType: UploadSourceType;
+  sourceId: number;
   onSelection: () => void;
   onComplete: (url: string, fileName: string) => void;
   disabled?: boolean;
@@ -48,7 +50,12 @@ export const MediaUploader = forwardRef<
     disabled: props.disabled,
     onDrop(files) {
       for (const file of files) {
-        uploads.enqueueUpload(file, props.onComplete);
+        uploads.enqueueUpload(
+          props.sourceType,
+          props.sourceId,
+          file,
+          props.onComplete,
+        );
       }
       props.onSelection();
     },
