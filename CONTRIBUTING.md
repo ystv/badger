@@ -4,6 +4,10 @@ We use [Linear](https://linear.app/ystv) to track issues.
 If you're a YSTV member, sign in with your @ystv.co.uk Google account.
 Otherwise, file a GitHub issue and it'll get automatically synced to Linear.
 
+> [!NOTE]
+> YSTV members: unless there's a reason not to (e.g. private Slack conversations), add the `Public` label to the Linear ticket when you create it.
+> This will create a GitHub issue so that people outside YSTV can see the issue and contribute.
+
 We use [GitHub Flow](https://guides.github.com/introduction/flow/) for development.
 Linear has a handy button in the top-right (or press <kbd>Control</kbd><kbd>Shift</kbd><kbd>.</kbd>) to copy a name for an issue's branch, which will automatically link the pull request (when you open it) to the issue.
 
