@@ -18,6 +18,9 @@ const nextConfig = {
     serverComponentsExternalPackages: ["@aws-sdk/s3-request-presigner"],
   },
   transpilePackages: ["@badger/prisma"],
+  eslint: {
+    ignoreDuringBuilds: process.env.E2E_TEST === "true",
+  },
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.plugins = [...config.plugins, new PrismaPlugin()];
