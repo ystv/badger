@@ -18,6 +18,12 @@ const nextConfig = {
     serverComponentsExternalPackages: ["@aws-sdk/s3-request-presigner"],
   },
   transpilePackages: ["@badger/prisma"],
+  eslint: {
+    // eslint is run as a separate step as part of the PR workflow
+    // and we don't want to block tests on a lint failure that'll
+    // already be caught
+    ignoreDuringBuilds: process.env.E2E_TEST === "true",
+  },
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.plugins = [...config.plugins, new PrismaPlugin()];
