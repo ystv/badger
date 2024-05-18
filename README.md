@@ -90,7 +90,7 @@ However, we do not guarantee that it will work perfectly in other contexts, and 
 Contributions are always welcome, though please be aware that we may decline changes that would not work for our workflow.
 If in doubt, please file an issue before starting work.
 
-There are still quite a few YSTV-isms in its design, for example the semi-arbitrary distinction between rundowns and continuity items - this was borne out of our workflow. Follow issue [BDGR-145](https://github.com/ystv/badger/issues/277) for progress on changing this.
+There are still quite a few YSTV-isms in its design, for example the semi-arbitrary distinction between rundowns and continuity items - this was borne out of our workflow. Follow [the "Public-isation" milestone](https://github.com/ystv/badger/milestone/1) for a list of tasks we're working on to make Badger more generally useful.
 
 ## Developing
 
