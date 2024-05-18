@@ -118,6 +118,8 @@ test("add media", async ({ showPage }) => {
   test.slow();
   const testFile = readFileSync(__dirname + "/testdata/smpte_bars_15s.mp4");
 
+  await showPage.evaluate(`window.__COMPLETE_UPLOAD_REMOVAL_DELAY = 500`);
+
   await showPage.getByRole("button", { name: "New Continuity Item" }).click();
   await showPage.getByTestId("name-continuity_item").fill("Test");
   await showPage.getByTestId("create-continuity_item").click();
@@ -135,12 +137,14 @@ test("add media", async ({ showPage }) => {
         "video/mp4",
       ),
     });
+  await expect(showPage.getByText("smpte_bars_15s.mp4")).toBeVisible();
 
   await expect(
     showPage.getByRole("button", { name: "Good to go!" }),
   ).toBeVisible({
     timeout: 30_000,
   });
+  await expect(showPage.getByText("smpte_bars_15s.mp4")).not.toBeVisible();
 
   await expect
     .soft(showPage.getByTestId("ShowItemsList.runtime"))

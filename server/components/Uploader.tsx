@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useRef } from "react";
+import { ReactNode } from "react";
 import { create as zustand } from "zustand";
 import { produce } from "immer";
 import {
@@ -20,13 +20,7 @@ interface UploadsState {
     file: File;
     fileName: string;
     progress: number;
-    state:
-      | "pending"
-      | "uploading"
-      | "complete"
-      | "gone"
-      | "cancelled"
-      | "error";
+    state: "pending" | "uploading" | "complete" | "cancelled" | "error";
     errorReason?: string;
   }>;
   enqueueUpload: (
@@ -35,6 +29,10 @@ interface UploadsState {
   ) => void;
   cancelUpload: (file: File) => void;
 }
+
+const COMPLETE_UPLOAD_REMOVAL_DELAY =
+  // __COMPLETE_UPLOAD_REMOVAL_DELAY is only used for testing
+  (window as any).__COMPLETE_UPLOAD_REMOVAL_DELAY ?? 10_000;
 
 const uploadLock = new AsyncLock();
 
@@ -99,13 +97,10 @@ export const useUploadsStore = zustand<UploadsState>()((set) => ({
           setTimeout(() => {
             set(
               produce<UploadsState>((draft) => {
-                const upload = draft.uploads.find((x) => x.file === file);
-                if (upload) {
-                  upload.state = "gone";
-                }
+                draft.uploads = draft.uploads.filter((x) => x.file !== file);
               }),
             );
-          }, 10_000);
+          }, COMPLETE_UPLOAD_REMOVAL_DELAY);
         },
       });
       pendingUploads.set(file, upload);
@@ -159,35 +154,33 @@ export function MediaUploader(props: { children: ReactNode }) {
             <CardTitle>Uploads</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {uploads.uploads
-              .filter((x) => x.state !== "gone")
-              .map((up) => (
-                <div
-                  key={up.fileName}
-                  className={twMerge(
-                    "shadow-xs rounded flex flex-row items-center",
-                    up.state === "cancelled" && "line-through",
-                  )}
-                >
-                  <p>{up.fileName}</p>
-                  <Progress
-                    value={up.progress}
-                    max={1}
-                    className="inline-block"
-                  ></Progress>
-                  {up.state === "error" && <p>Error: {up.errorReason}</p>}
-                  {up.state === "uploading" && (
-                    <Button
-                      size="icon"
-                      color="ghost"
-                      aria-label="Cancel"
-                      onClick={() => uploads.cancelUpload(up.file)}
-                    >
-                      &times;
-                    </Button>
-                  )}
-                </div>
-              ))}
+            {uploads.uploads.map((up) => (
+              <div
+                key={up.fileName}
+                className={twMerge(
+                  "shadow-xs rounded flex flex-row items-center",
+                  up.state === "cancelled" && "line-through",
+                )}
+              >
+                <p>{up.fileName}</p>
+                <Progress
+                  value={up.progress}
+                  max={1}
+                  className="inline-block"
+                ></Progress>
+                {up.state === "error" && <p>Error: {up.errorReason}</p>}
+                {up.state === "uploading" && (
+                  <Button
+                    size="icon"
+                    color="ghost"
+                    aria-label="Cancel"
+                    onClick={() => uploads.cancelUpload(up.file)}
+                  >
+                    &times;
+                  </Button>
+                )}
+              </div>
+            ))}
           </CardContent>
         </Card>
       )}
