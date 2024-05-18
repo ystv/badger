@@ -15,10 +15,10 @@ export function Pagination(props: {
 
   const goToPage = useCallback(
     (page: number) => {
-      const url = new URL(
-        (path ?? "") + (search?.toString() ?? ""),
-        window.location.href,
-      );
+      const url = new URL(path ?? "", window.location.origin);
+      search.forEach((value, key) => {
+        url.searchParams.set(key, value);
+      });
       url.searchParams.set("page", page.toString());
       router.push(url.toString());
     },
@@ -26,7 +26,7 @@ export function Pagination(props: {
   );
 
   return (
-    <div className="flex flex-row justify-center">
+    <div className="flex flex-row justify-center" data-testid="Pagination">
       {props.current > 1 && (
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"

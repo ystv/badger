@@ -11,6 +11,7 @@ import {
 } from "@badger/components/table";
 import { DateTime } from "@/components/DateTIme";
 import { PermissionGate } from "@/components/PermissionGate";
+import { isBefore } from "date-fns";
 
 const PAGE_SIZE = 25;
 
@@ -32,9 +33,6 @@ export default async function ShowsPage(props: {
       where: conditions,
       take: PAGE_SIZE,
       skip: PAGE_SIZE * page,
-      orderBy: {
-        start: "desc",
-      },
     }),
     db.showWithDuration.count({
       where: conditions,
@@ -60,19 +58,32 @@ export default async function ShowsPage(props: {
       )}
       <Table>
         <TableBody>
-          {shows.map((show) => (
-            <TableRow key={show.id}>
-              <TableCell className="font-bold">{show.name}</TableCell>
-              <TableCell>
-                <DateTime val={show.start.toUTCString()} />
-              </TableCell>
-              <TableCell>
-                <Link href={`/shows/${show.id}`}>
-                  <Button color="light">View/Edit</Button>
-                </Link>
-              </TableCell>
-            </TableRow>
-          ))}
+          {shows
+            .sort((a, b) => {
+              const diff = a.start.getTime() - b.start.getTime();
+              // For shows in the past, we want to sort them in reverse order.
+              // For future shows, we want to sort them in the normal order.
+              if (diff === 0) {
+                return a.id - b.id;
+              }
+              if (isBefore(a.start, new Date())) {
+                return diff * -1;
+              }
+              return diff;
+            })
+            .map((show) => (
+              <TableRow key={show.id}>
+                <TableCell className="font-bold">{show.name}</TableCell>
+                <TableCell>
+                  <DateTime val={show.start.toUTCString()} />
+                </TableCell>
+                <TableCell>
+                  <Link href={`/shows/${show.id}`}>
+                    <Button color="light">View/Edit</Button>
+                  </Link>
+                </TableCell>
+              </TableRow>
+            ))}
         </TableBody>
       </Table>
       <Pagination current={page + 1} total={total} pageSize={PAGE_SIZE} />
