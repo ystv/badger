@@ -14,6 +14,7 @@ import * as tus from "tus-js-client";
 import Button from "@badger/components/button";
 import { Progress } from "@badger/components/progress";
 import { twMerge } from "tailwind-merge";
+import { useBeforeunload } from "react-beforeunload";
 
 interface UploadsState {
   uploads: Array<{
@@ -155,6 +156,12 @@ export function MediaUploader(props: { children: ReactNode }) {
   const uploads = useUploadsStore();
 
   const inProgress = uploads.uploads.filter((x) => x.state !== "complete");
+  useBeforeunload((e) => {
+    if (inProgress.length > 0) {
+      e.preventDefault();
+      return "You have uploads in progress. Are you sure you want to leave?";
+    }
+  });
 
   return (
     <>
