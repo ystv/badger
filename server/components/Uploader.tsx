@@ -25,7 +25,7 @@ export type UploadSourceType =
 interface UploadsState {
   uploads: Array<{
     sourceType: UploadSourceType;
-    sourceId: number;
+    sourceId: string;
     file: File;
     fileName: string;
     progress: number;
@@ -34,7 +34,7 @@ interface UploadsState {
   }>;
   enqueueUpload: (
     sourceType: UploadSourceType,
-    sourceId: number,
+    sourceId: string,
     file: File,
     onComplete: (url: string, fileName: string) => void,
   ) => void;

@@ -34,7 +34,7 @@ interface MediaUploaderProps {
   title: string;
   accept: Record<string, string[]>;
   sourceType: UploadSourceType;
-  sourceId: number;
+  sourceId: string;
   onSelection: () => void;
   onComplete: (url: string, fileName: string) => void;
   disabled?: boolean;

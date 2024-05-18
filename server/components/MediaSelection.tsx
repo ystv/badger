@@ -337,7 +337,7 @@ export function MediaSelectOrUploadDialog(props: {
   onUploadComplete: (url: string, fileName: string) => Promise<unknown>;
   onExistingSelected: (id: number) => Promise<unknown>;
   containerType: UploadSourceType;
-  containerId: number;
+  containerId: string;
   metaFieldContainer?: MetadataField;
   pastShowsPromise: Promise<PastShowsMedia>;
   acceptMedia: Record<string, string[]>;

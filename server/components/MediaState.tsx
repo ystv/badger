@@ -234,7 +234,7 @@ export function ItemMediaStateAndUploadDialog({
     state.uploads.some(
       (x) =>
         x.sourceType === containerType &&
-        x.sourceId === containerId &&
+        x.sourceId === containerId.toString() &&
         x.state !== "complete" &&
         x.state !== "cancelled" &&
         x.state !== "error",
@@ -281,7 +281,7 @@ export function ItemMediaStateAndUploadDialog({
       {base}
       <MediaSelectOrUploadDialog
         containerType={containerType}
-        containerId={containerId}
+        containerId={containerId.toString()}
         metaFieldContainer={"field" in item ? item.field : undefined}
         isOpen={isUploadOpen}
         setOpen={setIsUploadOpen}
