@@ -2039,11 +2039,11 @@ __metadata:
   linkType: hard
 
 "@googleapis/drive@npm:^8.0.0":
-  version: 8.6.0
-  resolution: "@googleapis/drive@npm:8.6.0"
+  version: 8.8.0
+  resolution: "@googleapis/drive@npm:8.8.0"
   dependencies:
     googleapis-common: ^7.0.0
-  checksum: 11b0c1a1467aedf57577a8091a853758d3a8b80db078237d26ae96dd757e733eb0f7bcac962e2e2980a66f46b8a7703583769ded1e5bdd5edcd9d55de3f6436b
+  checksum: 99eaa316f22044b4985ef4c0ee07ca179c915062f0b1c0a45d184a5b1643743642c3522b427be21a1668d19f00e4eb2e47dc89d9bde9fe78b54aba5bd8cff1f2
   languageName: node
   linkType: hard
 
