@@ -1098,12 +1098,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.12.1, @babel/runtime@npm:^7.13.10, @babel/runtime@npm:^7.21.0, @babel/runtime@npm:^7.23.2, @babel/runtime@npm:^7.23.7, @babel/runtime@npm:^7.9.2":
-  version: 7.23.9
-  resolution: "@babel/runtime@npm:7.23.9"
+"@babel/runtime@npm:^7.12.1, @babel/runtime@npm:^7.13.10, @babel/runtime@npm:^7.21.0, @babel/runtime@npm:^7.23.2, @babel/runtime@npm:^7.24.1, @babel/runtime@npm:^7.9.2":
+  version: 7.24.5
+  resolution: "@babel/runtime@npm:7.24.5"
   dependencies:
     regenerator-runtime: ^0.14.0
-  checksum: 6bbebe8d27c0c2dd275d1ac197fc1a6c00e18dab68cc7aaff0adc3195b45862bae9c4cc58975629004b0213955b2ed91e99eccb3d9b39cabea246c657323d667
+  checksum: 755383192f3ac32ba4c62bd4f1ae92aed5b82d2c6665f39eb28fa94546777cf5c63493ea92dd03f1c2e621b17e860f190c056684b7f234270fdc91e29beda063
   languageName: node
   linkType: hard
 
@@ -16362,11 +16362,11 @@ __metadata:
   linkType: hard
 
 "tailwind-merge@npm:^2.2.1":
-  version: 2.2.1
-  resolution: "tailwind-merge@npm:2.2.1"
+  version: 2.3.0
+  resolution: "tailwind-merge@npm:2.3.0"
   dependencies:
-    "@babel/runtime": ^7.23.7
-  checksum: fd149409b1c18f3bc57aa30ae3a0e0c7f2913636666bd920c1aceeb8798b36766be55dfec8581e63860b83c7e405700ef530952a59c828ccff0c2a401fa67f05
+    "@babel/runtime": ^7.24.1
+  checksum: 1254eea9b6ec480911f01e2909e3ba35ca3c534d9db1405dfe9bdf51d100663a3935cb20662c023ab44ee9679bce10d86bd27beba23d0174beff32a6acb06978
   languageName: node
   linkType: hard
 
