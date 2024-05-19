@@ -31,7 +31,7 @@ console.error = logger.error;
 /* eslint-enable no-console */
 
 logger.info(
-  `Badger Desktop v${global.__APP_VERSION__} (${global.__GIT_COMMIT__}) starting up.`,
+  `Badger Desktop v${global.__APP_VERSION__} ${global.__ENVIRONMENT__} (${global.__GIT_COMMIT__}) starting up.`,
 );
 logFlagState(true);
 

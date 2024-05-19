@@ -5,4 +5,5 @@ declare module globalThis {
   var __BUILD_TIME__: string;
   var __GIT_COMMIT__: string;
   var __SENTRY_RELEASE__: string;
+  var __ENVIRONMENT__: string;
 }

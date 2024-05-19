@@ -96,3 +96,6 @@ dist/
 /playwright-report/
 /playwright/.cache/
 /traces/
+
+# Bundle visualization
+bundle-*.html
