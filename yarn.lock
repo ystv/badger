@@ -5803,14 +5803,14 @@ __metadata:
   linkType: hard
 
 "@types/react-datepicker@npm:^4.15.0":
-  version: 4.19.5
-  resolution: "@types/react-datepicker@npm:4.19.5"
+  version: 4.19.6
+  resolution: "@types/react-datepicker@npm:4.19.6"
   dependencies:
     "@popperjs/core": ^2.9.2
     "@types/react": "*"
     date-fns: ^2.0.1
     react-popper: ^2.2.5
-  checksum: 1ac944eda5179d40ab60c0cd4e105c6fd5242663bb134a7c79c1d8a2b93d47746fc1bf012f2c3d28abe0936b87d9a655ba84f36b612486233d70eccb471bdfe8
+  checksum: ee9f21bd7012c03abbcc3e6cda72aec69f4a96955d80938a8c8b23b1867bb515588ea17121d99835a9bd444774dd467f8e29e3ae36591d45e26c8ec536ba103a
   languageName: node
   linkType: hard
 
