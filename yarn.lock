@@ -8590,18 +8590,15 @@ __metadata:
   linkType: hard
 
 "electron-settings@npm:^4.0.2":
-  version: 4.0.2
-  resolution: "electron-settings@npm:4.0.2"
+  version: 4.0.4
+  resolution: "electron-settings@npm:4.0.4"
   dependencies:
-    lodash.get: ^4.4.2
-    lodash.has: ^4.5.2
-    lodash.set: ^4.3.2
-    lodash.unset: ^4.5.2
+    lodash: ^4.17.21
     mkdirp: ^1.0.4
     write-file-atomic: ^3.0.3
   peerDependencies:
     electron: ">= 2"
-  checksum: d6f72b4515352dd9e648d75dac46a64f41aad32e1e8db7332fd0dbd602ce75b44df3537a7fe87ada12ff6843ccc1b5cd5c5ade2f880f16a9005d585496b606ff
+  checksum: 10ecb03f5b764cf035e9d4fb727d0bbdbd593e5af3a6d8721b237a82318d9d4b30ca3202999e68067e6dfa01ed3e77a59dee2826000eed5934fee2b1650c0eb0
   languageName: node
   linkType: hard
 
@@ -12482,17 +12479,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.get@npm:^4.0.0, lodash.get@npm:^4.4.2":
+"lodash.get@npm:^4.0.0":
   version: 4.4.2
   resolution: "lodash.get@npm:4.4.2"
   checksum: e403047ddb03181c9d0e92df9556570e2b67e0f0a930fcbbbd779370972368f5568e914f913e93f3b08f6d492abc71e14d4e9b7a18916c31fa04bd2306efe545
-  languageName: node
-  linkType: hard
-
-"lodash.has@npm:^4.5.2":
-  version: 4.5.2
-  resolution: "lodash.has@npm:4.5.2"
-  checksum: b3ec829a86852331d48b3730ff06088a283d128a3965aa521ffd942bcf5c82e06bed3164ff7a7751d11e768d88f0d7bab316192091489caf20f452d42f7055d5
   languageName: node
   linkType: hard
 
@@ -12580,13 +12570,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.set@npm:^4.3.2":
-  version: 4.3.2
-  resolution: "lodash.set@npm:4.3.2"
-  checksum: a9122f49eef9f2d0fc9061a33d87f8e5b8c6b23d46e8b9e9ce1529d3588d79741bd1145a3abdfa3b13082703e65af27ff18d8a07bfc22b9be32f3fc36f763f70
-  languageName: node
-  linkType: hard
-
 "lodash.template@npm:^4.2.2":
   version: 4.5.0
   resolution: "lodash.template@npm:4.5.0"
@@ -12620,13 +12603,6 @@ __metadata:
     lodash._baseiteratee: ~4.7.0
     lodash._baseuniq: ~4.6.0
   checksum: 40a4fdd4c31323fcb6db91ec3124020333212ca1f13e75cc9939decdd33e8b176d204fb277be36a51a855c2c90e14d67932b3b130b2f0eedc729e4cb9cdcaed1
-  languageName: node
-  linkType: hard
-
-"lodash.unset@npm:^4.5.2":
-  version: 4.5.2
-  resolution: "lodash.unset@npm:4.5.2"
-  checksum: 53b2a79c20e7c8c604ccfd82c7ad5caa28876171a323c5dc4d6d745d42bc43f4827c24526d877484bf64284104dffa4dd34e0c363d49fd84bd398c259001ac3f
   languageName: node
   linkType: hard
 
