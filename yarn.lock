@@ -5401,31 +5401,31 @@ __metadata:
   linkType: hard
 
 "@trpc/client@npm:^10.38.1, @trpc/client@npm:^10.44.1":
-  version: 10.45.0
-  resolution: "@trpc/client@npm:10.45.0"
+  version: 10.45.2
+  resolution: "@trpc/client@npm:10.45.2"
   peerDependencies:
-    "@trpc/server": 10.45.0
-  checksum: 7eb48d4f3fd5404180c046052c2771d222a50ed9cc2a37be40948d9d48108c11ee5cba3819d719a44e4e461b0ff6d37a7442e7301d2d4c125414e89e1e521e5f
+    "@trpc/server": 10.45.2
+  checksum: d1eaa8e0059a371265065dafb48372be8456bc5bbc68f63c92401b12258cf15efb3f9f3790ef18ec6a0b7b73daa362bbd371f98db67c0610f2aee284f12cf09a
   languageName: node
   linkType: hard
 
 "@trpc/react-query@npm:^10.35.0":
-  version: 10.45.0
-  resolution: "@trpc/react-query@npm:10.45.0"
+  version: 10.45.2
+  resolution: "@trpc/react-query@npm:10.45.2"
   peerDependencies:
     "@tanstack/react-query": ^4.18.0
-    "@trpc/client": 10.45.0
-    "@trpc/server": 10.45.0
+    "@trpc/client": 10.45.2
+    "@trpc/server": 10.45.2
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
-  checksum: 54173026587f4714c51c7f18b041b7762ce00d9c32d32d9c1c5f6519d889fd41325188a613be4c380acc0943c1337eba6707c9eadcc147d0d6f5ff3a906249f6
+  checksum: 5b94176f8b802dbe2642da8fa1c122b8a7e7907fcf9b7ccb7c9e1eab60a4c494db6efd61bfe536a6abc2e0e85a2fb0b8d3362b8a269bd1d9ee8e3e539b15be75
   languageName: node
   linkType: hard
 
 "@trpc/server@npm:^10.34.0, @trpc/server@npm:^10.35.0":
-  version: 10.45.0
-  resolution: "@trpc/server@npm:10.45.0"
-  checksum: 48a1c8337853639919d2696321cf87d76eaa6273fc7987022b9f12ced3c688af81a2a065f2dbf93f9e51ac593be8858cc165fa147a3a556956b419d0284e043a
+  version: 10.45.2
+  resolution: "@trpc/server@npm:10.45.2"
+  checksum: 30b92853c45747a376bbbd5c4eef71fea17a2b22e83ba7e694fb13cc99b15d1f24a17aa9124346074618fb5cee8d13434aa16cdf24af82f5e8acabdecfee0ca2
   languageName: node
   linkType: hard
 
