@@ -90,6 +90,7 @@ if (data.type === "prerelease") {
         { name: "Alpha (x.y.z-alpha.w)", value: "alpha" },
         { name: "Beta (x.y.z-beta.w)", value: "beta" },
         { name: "Release candidate (x.y.z-rc.w)", value: "rc" },
+        { name: "Canary (x.y.z-canary.w)", value: "canary" },
         { name: "Other (x.y.z-pre.w)", value: "pre" },
       ],
     },
