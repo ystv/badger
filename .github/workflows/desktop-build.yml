@@ -42,10 +42,8 @@ jobs:
           node-version: 18.x
           cache: "yarn"
           cache-dependency-path: "yarn.lock"
-      
-      - name: Clean up
-        run: Remove-Item -Recurse -Force ./desktop/dist/win-unpacked
-        shell: pwsh
+
+      - run: yarn install --immutable
 
         # This is negated because a workflow_call won't have the do_release input, and we want to publish then.
       - run: "yarn package ${{ inputs.do_release && '--publish onTagOrDraft' || '' }}"
@@ -56,7 +54,9 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           ENVIRONMENT: ${{ inputs.prerelease && 'dev' || 'prod' }}
 
-      - run: ls desktop/dist
+      - name: Clean up
+        run: Remove-Item -Recurse -Force ./desktop/dist/win-unpacked
+        shell: pwsh
 
       - uses: actions/upload-artifact@v3
         with:
