@@ -5788,22 +5788,21 @@ __metadata:
   linkType: hard
 
 "@types/react-dom@npm:^18.2.14":
-  version: 18.2.18
-  resolution: "@types/react-dom@npm:18.2.18"
+  version: 18.3.0
+  resolution: "@types/react-dom@npm:18.3.0"
   dependencies:
     "@types/react": "*"
-  checksum: 8e3da404c980e2b2a76da3852f812ea6d8b9d0e7f5923fbaf3bfbbbfa1d59116ff91c129de8f68e9b7668a67ae34484fe9df74d5a7518cf8591ec07a0c4dad57
+  checksum: a0cd9b1b815a6abd2a367a9eabdd8df8dd8f13f95897b2f9e1359ea3ac6619f957c1432ece004af7d95e2a7caddbba19faa045f831f32d6263483fc5404a7596
   languageName: node
   linkType: hard
 
 "@types/react@npm:*, @types/react@npm:^18.2.33":
-  version: 18.2.48
-  resolution: "@types/react@npm:18.2.48"
+  version: 18.3.2
+  resolution: "@types/react@npm:18.3.2"
   dependencies:
     "@types/prop-types": "*"
-    "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: c9ca43ed2995389b7e09492c24e6f911a8439bb8276dd17cc66a2fbebbf0b42daf7b2ad177043256533607c2ca644d7d928fdfce37a67af1f8646d2bac988900
+  checksum: d0b8b9d0ede6cd28dbbe34106d914b5e3652d9d7aa9d0f32fe6171506b6fc7c826d9d6571642976a5422bd29c5022fd893a710ed59a1177a0c1df8e02cf17ffe
   languageName: node
   linkType: hard
 
@@ -5813,13 +5812,6 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: 6ac4b35723429b11b117e813c7acc42c3af8b5554caaf1fc750404c1ae59f9b7376bc69b9e9e194a5a97357a597c2228b7173d317320f0360d617b6425212f58
-  languageName: node
-  linkType: hard
-
-"@types/scheduler@npm:*":
-  version: 0.16.8
-  resolution: "@types/scheduler@npm:0.16.8"
-  checksum: 6c091b096daa490093bf30dd7947cd28e5b2cd612ec93448432b33f724b162587fed9309a0acc104d97b69b1d49a0f3fc755a62282054d62975d53d7fd13472d
   languageName: node
   linkType: hard
 
@@ -6976,10 +6968,10 @@ __metadata:
     prettier: ^3.0.3
     prettier-plugin-tailwindcss: ^0.5.9
     prisma: latest
-    react: 18.3.0-canary-8c8ee9ee6-20231026
+    react: 18.3.1
     react-beforeunload: ^2.6.0
     react-day-picker: ^8.8.0
-    react-dom: 18.3.0-canary-8c8ee9ee6-20231026
+    react-dom: 18.3.1
     react-dropzone: ^14.2.3
     react-hook-form: ^7.45.2
     react-icons: ^4.10.1
@@ -9180,11 +9172,11 @@ __metadata:
   linkType: hard
 
 "eslint-plugin-react-hooks@npm:^4.6.0":
-  version: 4.6.0
-  resolution: "eslint-plugin-react-hooks@npm:4.6.0"
+  version: 4.6.2
+  resolution: "eslint-plugin-react-hooks@npm:4.6.2"
   peerDependencies:
     eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0
-  checksum: 23001801f14c1d16bf0a837ca7970d9dd94e7b560384b41db378b49b6e32dc43d6e2790de1bd737a652a86f81a08d6a91f402525061b47719328f586a57e86c3
+  checksum: 395c433610f59577cfcf3f2e42bcb130436c8a0b3777ac64f441d88c5275f4fcfc89094cedab270f2822daf29af1079151a7a6579a8e9ea8cee66540ba0384c4
   languageName: node
   linkType: hard
 
@@ -14783,27 +14775,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:18.3.0-canary-8c8ee9ee6-20231026":
-  version: 18.3.0-canary-8c8ee9ee6-20231026
-  resolution: "react-dom@npm:18.3.0-canary-8c8ee9ee6-20231026"
+"react-dom@npm:18.3.1, react-dom@npm:^18.2.0":
+  version: 18.3.1
+  resolution: "react-dom@npm:18.3.1"
   dependencies:
     loose-envify: ^1.1.0
-    scheduler: 0.24.0-canary-8c8ee9ee6-20231026
+    scheduler: ^0.23.2
   peerDependencies:
-    react: 18.3.0-canary-8c8ee9ee6-20231026
-  checksum: 2d794f5615817e74af21ea25d12272a4d127c1f749813bd2c1580b62c625ab254fc1f3f87f77c92417cc86ba9a593e5e1d7ca87a538d31cb91a0b505fdd91a6b
-  languageName: node
-  linkType: hard
-
-"react-dom@npm:^18.2.0":
-  version: 18.2.0
-  resolution: "react-dom@npm:18.2.0"
-  dependencies:
-    loose-envify: ^1.1.0
-    scheduler: ^0.23.0
-  peerDependencies:
-    react: ^18.2.0
-  checksum: 7d323310bea3a91be2965f9468d552f201b1c27891e45ddc2d6b8f717680c95a75ae0bc1e3f5cf41472446a2589a75aed4483aee8169287909fcd59ad149e8cc
+    react: ^18.3.1
+  checksum: 298954ecd8f78288dcaece05e88b570014d8f6dce5db6f66e6ee91448debeb59dcd31561dddb354eee47e6c1bb234669459060deb238ed0213497146e555a0b9
   languageName: node
   linkType: hard
 
@@ -14957,21 +14937,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:18.3.0-canary-8c8ee9ee6-20231026":
-  version: 18.3.0-canary-8c8ee9ee6-20231026
-  resolution: "react@npm:18.3.0-canary-8c8ee9ee6-20231026"
+"react@npm:18.3.1, react@npm:^18.2.0":
+  version: 18.3.1
+  resolution: "react@npm:18.3.1"
   dependencies:
     loose-envify: ^1.1.0
-  checksum: 848c1e8ef9e70c9a598298d5462fed7271fa9fb7b06dbdafa6cb95e5034121e2f292db80e7fea681e376a6b23f879a6a093b24aad7f63f05f1b8ef4077ef670f
-  languageName: node
-  linkType: hard
-
-"react@npm:^18.2.0":
-  version: 18.2.0
-  resolution: "react@npm:18.2.0"
-  dependencies:
-    loose-envify: ^1.1.0
-  checksum: 88e38092da8839b830cda6feef2e8505dec8ace60579e46aa5490fc3dc9bba0bd50336507dc166f43e3afc1c42939c09fe33b25fae889d6f402721dcd78fca1b
+  checksum: a27bcfa8ff7c15a1e50244ad0d0c1cb2ad4375eeffefd266a64889beea6f6b64c4966c9b37d14ee32d6c9fcd5aa6ba183b6988167ab4d127d13e7cb5b386a376
   languageName: node
   linkType: hard
 
@@ -15545,21 +15516,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"scheduler@npm:0.24.0-canary-8c8ee9ee6-20231026":
-  version: 0.24.0-canary-8c8ee9ee6-20231026
-  resolution: "scheduler@npm:0.24.0-canary-8c8ee9ee6-20231026"
+"scheduler@npm:^0.23.2":
+  version: 0.23.2
+  resolution: "scheduler@npm:0.23.2"
   dependencies:
     loose-envify: ^1.1.0
-  checksum: f2e4f5f998d139366fc670a90cd9d4930957396e460007dec6a4e5d4a3a15904a7c276564c9a4af1da01e07e64c8dc8da9f9d349c7fae1d1714d6c6283a03723
-  languageName: node
-  linkType: hard
-
-"scheduler@npm:^0.23.0":
-  version: 0.23.0
-  resolution: "scheduler@npm:0.23.0"
-  dependencies:
-    loose-envify: ^1.1.0
-  checksum: d79192eeaa12abef860c195ea45d37cbf2bbf5f66e3c4dcd16f54a7da53b17788a70d109ee3d3dde1a0fd50e6a8fc171f4300356c5aee4fc0171de526bf35f8a
+  checksum: 3e82d1f419e240ef6219d794ff29c7ee415fbdc19e038f680a10c067108e06284f1847450a210b29bbaf97b9d8a97ced5f624c31c681248ac84c80d56ad5a2c4
   languageName: node
   linkType: hard
 
