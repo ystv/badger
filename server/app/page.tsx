@@ -60,16 +60,13 @@ export default async function ShowsPage(props: {
         <TableBody>
           {shows
             .sort((a, b) => {
-              const diff = a.start.getTime() - b.start.getTime();
               // For shows in the past, we want to sort them in reverse order.
               // For future shows, we want to sort them in the normal order.
-              if (diff === 0) {
-                return a.id - b.id;
-              }
-              if (isBefore(a.start, new Date())) {
-                return diff * -1;
-              }
-              return diff;
+              // Essentially, we need to sort them by the (signed)
+              // difference between the current date and the show's start date.
+              const aDiff = new Date().getTime() - a.end.getTime();
+              const bDiff = new Date().getTime() - b.end.getTime();
+              return aDiff - bDiff;
             })
             .map((show) => (
               <TableRow key={show.id}>
