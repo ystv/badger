@@ -1,18 +1,17 @@
-import {
-  LoadAssetJob as LoadAssetJobType,
-  MediaState,
-} from "@badger/prisma/client";
+import { MediaState } from "@badger/prisma/client";
 import { MediaJobCommon } from "./MediaJobCommon.js";
+import invariant from "../invariant.js";
 
 export class LoadAssetJob extends MediaJobCommon {
   constructor() {
     super();
   }
 
-  async run(params: LoadAssetJobType): Promise<void> {
+  async run(params: PrismaJson.JobPayload): Promise<void> {
+    invariant("assetId" in params, "assetId is required");
     await this.db.asset.update({
       where: {
-        id: params.asset_id,
+        id: params.assetId,
       },
       data: {
         media: {
@@ -33,33 +32,35 @@ export class LoadAssetJob extends MediaJobCommon {
         },
       },
     });
-    const fullJob = await this.db.loadAssetJob.findUniqueOrThrow({
+    const asset = await this.db.asset.findFirst({
       where: {
-        id: params.id,
+        id: params.assetId,
       },
       include: {
-        asset: {
+        rundown: {
           include: {
-            rundown: true,
+            show: true,
           },
         },
       },
     });
+    invariant(asset, "Asset not found");
     try {
       // Test only: allow testing failure handling
-      if (fullJob.asset.name.includes("__FAIL__")) {
-        throw new Error("Test failure!");
+      if (asset.name.includes("__FAIL__")) {
+        throw new Error(
+          "Failing job to test error handling (I sure do hope this is a test...)",
+        );
       }
 
       const path = await this._downloadSourceFile(params);
-      const asset = fullJob.asset;
       const res = await this._uploadFileToS3(
         path,
         `shows/${asset.rundown.showId}/rundown/${asset.rundown.id}/assets/${asset.id} - ${asset.name}`,
       );
       await this.db.asset.update({
         where: {
-          id: fullJob.asset.id,
+          id: asset.id,
         },
         data: {
           media: {
@@ -85,7 +86,7 @@ export class LoadAssetJob extends MediaJobCommon {
     } catch (e) {
       await this.db.asset.update({
         where: {
-          id: fullJob.asset.id,
+          id: asset.id,
         },
         data: {
           media: {

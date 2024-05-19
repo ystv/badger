@@ -8,7 +8,6 @@ import { MediaStateSchema } from "./MediaStateSchema";
 import { RundownItemListRelationFilterSchema } from "./RundownItemListRelationFilterSchema";
 import { ContinuityItemListRelationFilterSchema } from "./ContinuityItemListRelationFilterSchema";
 import { MediaProcessingTaskListRelationFilterSchema } from "./MediaProcessingTaskListRelationFilterSchema";
-import { ProcessMediaJobListRelationFilterSchema } from "./ProcessMediaJobListRelationFilterSchema";
 import { AssetListRelationFilterSchema } from "./AssetListRelationFilterSchema";
 import { MetadataListRelationFilterSchema } from "./MetadataListRelationFilterSchema";
 
@@ -51,9 +50,6 @@ export const MediaWhereInputSchema: z.ZodType<Prisma.MediaWhereInput> = z
       .lazy(() => ContinuityItemListRelationFilterSchema)
       .optional(),
     tasks: z.lazy(() => MediaProcessingTaskListRelationFilterSchema).optional(),
-    process_jobs: z
-      .lazy(() => ProcessMediaJobListRelationFilterSchema)
-      .optional(),
     assets: z.lazy(() => AssetListRelationFilterSchema).optional(),
     metadata: z.lazy(() => MetadataListRelationFilterSchema).optional(),
   })

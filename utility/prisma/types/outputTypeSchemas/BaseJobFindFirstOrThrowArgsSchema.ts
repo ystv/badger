@@ -6,7 +6,7 @@ import { BaseJobWhereUniqueInputSchema } from "../inputTypeSchemas/BaseJobWhereU
 import { BaseJobScalarFieldEnumSchema } from "../inputTypeSchemas/BaseJobScalarFieldEnumSchema";
 
 export const BaseJobFindFirstOrThrowArgsSchema: z.ZodType<
-  Omit<Prisma.BaseJobFindFirstOrThrowArgs, "select" | "include">
+  Omit<Prisma.BaseJobFindFirstOrThrowArgs, "select">
 > = z
   .object({
     where: BaseJobWhereInputSchema.optional(),

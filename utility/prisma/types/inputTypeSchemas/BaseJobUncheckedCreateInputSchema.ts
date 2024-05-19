@@ -1,9 +1,9 @@
 import type { Prisma } from "../../client";
 import { z } from "zod";
 import { JobStateSchema } from "./JobStateSchema";
-import { ProcessMediaJobUncheckedCreateNestedOneWithoutBase_jobInputSchema } from "./ProcessMediaJobUncheckedCreateNestedOneWithoutBase_jobInputSchema";
-import { LoadAssetJobUncheckedCreateNestedOneWithoutBase_jobInputSchema } from "./LoadAssetJobUncheckedCreateNestedOneWithoutBase_jobInputSchema";
-import { DummyTestJobUncheckedCreateNestedOneWithoutBase_jobInputSchema } from "./DummyTestJobUncheckedCreateNestedOneWithoutBase_jobInputSchema";
+import { JobTypeSchema } from "./JobTypeSchema";
+import { JsonNullValueInputSchema } from "./JsonNullValueInputSchema";
+import { InputJsonValue } from "./InputJsonValue";
 
 export const BaseJobUncheckedCreateInputSchema: z.ZodType<Prisma.BaseJobUncheckedCreateInput> =
   z
@@ -16,22 +16,11 @@ export const BaseJobUncheckedCreateInputSchema: z.ZodType<Prisma.BaseJobUnchecke
       completedAt: z.coerce.date().optional().nullable(),
       externalJobProvider: z.string().optional().nullable(),
       externalJobID: z.string().optional().nullable(),
-      ProcessMediaJob: z
-        .lazy(
-          () =>
-            ProcessMediaJobUncheckedCreateNestedOneWithoutBase_jobInputSchema,
-        )
-        .optional(),
-      LoadAssetJob: z
-        .lazy(
-          () => LoadAssetJobUncheckedCreateNestedOneWithoutBase_jobInputSchema,
-        )
-        .optional(),
-      DummyTestJob: z
-        .lazy(
-          () => DummyTestJobUncheckedCreateNestedOneWithoutBase_jobInputSchema,
-        )
-        .optional(),
+      jobType: z.lazy(() => JobTypeSchema),
+      jobPayload: z.union([
+        z.lazy(() => JsonNullValueInputSchema),
+        InputJsonValue,
+      ]),
     })
     .strict();
 

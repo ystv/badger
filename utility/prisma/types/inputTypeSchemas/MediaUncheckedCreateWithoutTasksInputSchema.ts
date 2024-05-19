@@ -3,7 +3,6 @@ import { z } from "zod";
 import { MediaStateSchema } from "./MediaStateSchema";
 import { RundownItemUncheckedCreateNestedManyWithoutMediaInputSchema } from "./RundownItemUncheckedCreateNestedManyWithoutMediaInputSchema";
 import { ContinuityItemUncheckedCreateNestedManyWithoutMediaInputSchema } from "./ContinuityItemUncheckedCreateNestedManyWithoutMediaInputSchema";
-import { ProcessMediaJobUncheckedCreateNestedManyWithoutMediaInputSchema } from "./ProcessMediaJobUncheckedCreateNestedManyWithoutMediaInputSchema";
 import { AssetUncheckedCreateNestedManyWithoutMediaInputSchema } from "./AssetUncheckedCreateNestedManyWithoutMediaInputSchema";
 import { MetadataUncheckedCreateNestedManyWithoutMediaInputSchema } from "./MetadataUncheckedCreateNestedManyWithoutMediaInputSchema";
 
@@ -22,11 +21,6 @@ export const MediaUncheckedCreateWithoutTasksInputSchema: z.ZodType<Prisma.Media
       continuityItems: z
         .lazy(
           () => ContinuityItemUncheckedCreateNestedManyWithoutMediaInputSchema,
-        )
-        .optional(),
-      process_jobs: z
-        .lazy(
-          () => ProcessMediaJobUncheckedCreateNestedManyWithoutMediaInputSchema,
         )
         .optional(),
       assets: z

@@ -1,0 +1,3 @@
+id,name,rawPath,path,durationSeconds,state
+3,test.mov,test,test,0,Pending
+4,test.mp4,test2,test2,0,Pending

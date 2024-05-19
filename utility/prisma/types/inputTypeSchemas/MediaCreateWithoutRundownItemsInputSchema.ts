@@ -3,7 +3,6 @@ import { z } from "zod";
 import { MediaStateSchema } from "./MediaStateSchema";
 import { ContinuityItemCreateNestedManyWithoutMediaInputSchema } from "./ContinuityItemCreateNestedManyWithoutMediaInputSchema";
 import { MediaProcessingTaskCreateNestedManyWithoutMediaInputSchema } from "./MediaProcessingTaskCreateNestedManyWithoutMediaInputSchema";
-import { ProcessMediaJobCreateNestedManyWithoutMediaInputSchema } from "./ProcessMediaJobCreateNestedManyWithoutMediaInputSchema";
 import { AssetCreateNestedManyWithoutMediaInputSchema } from "./AssetCreateNestedManyWithoutMediaInputSchema";
 import { MetadataCreateNestedManyWithoutMediaInputSchema } from "./MetadataCreateNestedManyWithoutMediaInputSchema";
 
@@ -20,9 +19,6 @@ export const MediaCreateWithoutRundownItemsInputSchema: z.ZodType<Prisma.MediaCr
         .optional(),
       tasks: z
         .lazy(() => MediaProcessingTaskCreateNestedManyWithoutMediaInputSchema)
-        .optional(),
-      process_jobs: z
-        .lazy(() => ProcessMediaJobCreateNestedManyWithoutMediaInputSchema)
         .optional(),
       assets: z
         .lazy(() => AssetCreateNestedManyWithoutMediaInputSchema)

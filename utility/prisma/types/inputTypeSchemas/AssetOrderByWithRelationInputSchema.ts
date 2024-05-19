@@ -3,7 +3,6 @@ import { z } from "zod";
 import { SortOrderSchema } from "./SortOrderSchema";
 import { MediaOrderByWithRelationInputSchema } from "./MediaOrderByWithRelationInputSchema";
 import { RundownOrderByWithRelationInputSchema } from "./RundownOrderByWithRelationInputSchema";
-import { LoadAssetJobOrderByRelationAggregateInputSchema } from "./LoadAssetJobOrderByRelationAggregateInputSchema";
 
 export const AssetOrderByWithRelationInputSchema: z.ZodType<Prisma.AssetOrderByWithRelationInput> =
   z
@@ -16,9 +15,6 @@ export const AssetOrderByWithRelationInputSchema: z.ZodType<Prisma.AssetOrderByW
       mediaId: z.lazy(() => SortOrderSchema).optional(),
       media: z.lazy(() => MediaOrderByWithRelationInputSchema).optional(),
       rundown: z.lazy(() => RundownOrderByWithRelationInputSchema).optional(),
-      loadJobs: z
-        .lazy(() => LoadAssetJobOrderByRelationAggregateInputSchema)
-        .optional(),
     })
     .strict();
 

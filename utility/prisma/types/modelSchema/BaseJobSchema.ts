@@ -1,5 +1,7 @@
-import { z } from 'zod';
-import { JobStateSchema } from '../inputTypeSchemas/JobStateSchema'
+import { z } from "zod";
+import { InputJsonValue } from "../inputTypeSchemas/InputJsonValue";
+import { JobStateSchema } from "../inputTypeSchemas/JobStateSchema";
+import { JobTypeSchema } from "../inputTypeSchemas/JobTypeSchema";
 
 /////////////////////////////////////////
 // BASE JOB SCHEMA
@@ -7,6 +9,7 @@ import { JobStateSchema } from '../inputTypeSchemas/JobStateSchema'
 
 export const BaseJobSchema = z.object({
   state: JobStateSchema,
+  jobType: JobTypeSchema,
   id: z.number().int(),
   workerId: z.string().nullable(),
   createdAt: z.coerce.date(),
@@ -17,8 +20,12 @@ export const BaseJobSchema = z.object({
    * The ID of the job in the external job execution system (e.g. Nomad)
    */
   externalJobID: z.string().nullable(),
-})
+  /**
+   * [JobPayload]
+   */
+  jobPayload: InputJsonValue,
+});
 
-export type BaseJob = z.infer<typeof BaseJobSchema>
+export type BaseJob = z.infer<typeof BaseJobSchema>;
 
 export default BaseJobSchema;

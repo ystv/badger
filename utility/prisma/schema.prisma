@@ -266,7 +266,6 @@ model Asset {
 
   rundown   Rundown        @relation(fields: [rundownId], references: [id], onDelete: Cascade)
   rundownId Int
-  loadJobs  LoadAssetJob[]
   mediaId   Int
 
   // Do not be tempted to include a @@unique on the order!
@@ -285,7 +284,6 @@ model Media {
   rundownItems    RundownItem[]
   continuityItems ContinuityItem[]
   tasks           MediaProcessingTask[]
-  process_jobs    ProcessMediaJob[]
   assets          Asset[]
   metadata        Metadata[]
 
@@ -333,52 +331,21 @@ model BaseJob {
   /// The ID of the job in the external job execution system (e.g. Nomad)
   externalJobID       String?
 
-  ProcessMediaJob ProcessMediaJob?
-  LoadAssetJob    LoadAssetJob?
-  DummyTestJob    DummyTestJob?
+  jobType JobType
+  /// [JobPayload]
+  jobPayload Json
 
   @@map("base_jobs")
+}
+
+enum JobType {
+  LoadAssetJob
+  ProcessMediaJob
+  DummyTestJob
 }
 
 enum MediaFileSourceType {
   Tus
   GoogleDrive
   S3
-}
-
-model ProcessMediaJob {
-  id      Int   @id @default(autoincrement())
-  mediaId Int
-  media   Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
-
-  sourceType MediaFileSourceType
-  source     String
-
-  base_job_id Int     @unique
-  base_job    BaseJob @relation(fields: [base_job_id], references: [id], onDelete: Cascade)
-
-  @@map("process_media_jobs")
-}
-
-model LoadAssetJob {
-  id         Int                 @id @default(autoincrement())
-  sourceType MediaFileSourceType
-  source     String
-  asset_id   Int
-
-  asset Asset @relation(fields: [asset_id], references: [id], onDelete: Cascade)
-
-  base_job_id Int     @unique
-  base_job    BaseJob @relation(fields: [base_job_id], references: [id], onDelete: Cascade)
-
-  @@map("load_asset_jobs")
-}
-
-/// Only used for testing.
-model DummyTestJob {
-  id        Int     @id @default(autoincrement())
-  base_job  BaseJob @relation(fields: [baseJobId], references: [id])
-  baseJobId Int     @unique
-
-  @@map("dummy_test_jobs")
 }

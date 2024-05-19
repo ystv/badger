@@ -5,6 +5,10 @@ import { JobStateSchema } from "./JobStateSchema";
 import { EnumJobStateFieldUpdateOperationsInputSchema } from "./EnumJobStateFieldUpdateOperationsInputSchema";
 import { DateTimeFieldUpdateOperationsInputSchema } from "./DateTimeFieldUpdateOperationsInputSchema";
 import { NullableDateTimeFieldUpdateOperationsInputSchema } from "./NullableDateTimeFieldUpdateOperationsInputSchema";
+import { JobTypeSchema } from "./JobTypeSchema";
+import { EnumJobTypeFieldUpdateOperationsInputSchema } from "./EnumJobTypeFieldUpdateOperationsInputSchema";
+import { JsonNullValueInputSchema } from "./JsonNullValueInputSchema";
+import { InputJsonValue } from "./InputJsonValue";
 
 export const BaseJobUpdateManyMutationInputSchema: z.ZodType<Prisma.BaseJobUpdateManyMutationInput> =
   z
@@ -56,6 +60,15 @@ export const BaseJobUpdateManyMutationInputSchema: z.ZodType<Prisma.BaseJobUpdat
         ])
         .optional()
         .nullable(),
+      jobType: z
+        .union([
+          z.lazy(() => JobTypeSchema),
+          z.lazy(() => EnumJobTypeFieldUpdateOperationsInputSchema),
+        ])
+        .optional(),
+      jobPayload: z
+        .union([z.lazy(() => JsonNullValueInputSchema), InputJsonValue])
+        .optional(),
     })
     .strict();
 

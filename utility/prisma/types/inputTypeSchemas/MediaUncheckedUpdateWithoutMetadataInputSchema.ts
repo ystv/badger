@@ -8,7 +8,6 @@ import { EnumMediaStateFieldUpdateOperationsInputSchema } from "./EnumMediaState
 import { RundownItemUncheckedUpdateManyWithoutMediaNestedInputSchema } from "./RundownItemUncheckedUpdateManyWithoutMediaNestedInputSchema";
 import { ContinuityItemUncheckedUpdateManyWithoutMediaNestedInputSchema } from "./ContinuityItemUncheckedUpdateManyWithoutMediaNestedInputSchema";
 import { MediaProcessingTaskUncheckedUpdateManyWithoutMediaNestedInputSchema } from "./MediaProcessingTaskUncheckedUpdateManyWithoutMediaNestedInputSchema";
-import { ProcessMediaJobUncheckedUpdateManyWithoutMediaNestedInputSchema } from "./ProcessMediaJobUncheckedUpdateManyWithoutMediaNestedInputSchema";
 import { AssetUncheckedUpdateManyWithoutMediaNestedInputSchema } from "./AssetUncheckedUpdateManyWithoutMediaNestedInputSchema";
 
 export const MediaUncheckedUpdateWithoutMetadataInputSchema: z.ZodType<Prisma.MediaUncheckedUpdateWithoutMetadataInput> =
@@ -63,11 +62,6 @@ export const MediaUncheckedUpdateWithoutMetadataInputSchema: z.ZodType<Prisma.Me
         .lazy(
           () =>
             MediaProcessingTaskUncheckedUpdateManyWithoutMediaNestedInputSchema,
-        )
-        .optional(),
-      process_jobs: z
-        .lazy(
-          () => ProcessMediaJobUncheckedUpdateManyWithoutMediaNestedInputSchema,
         )
         .optional(),
       assets: z

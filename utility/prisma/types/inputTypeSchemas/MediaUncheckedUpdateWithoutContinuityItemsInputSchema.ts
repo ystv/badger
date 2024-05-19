@@ -7,7 +7,6 @@ import { MediaStateSchema } from "./MediaStateSchema";
 import { EnumMediaStateFieldUpdateOperationsInputSchema } from "./EnumMediaStateFieldUpdateOperationsInputSchema";
 import { RundownItemUncheckedUpdateManyWithoutMediaNestedInputSchema } from "./RundownItemUncheckedUpdateManyWithoutMediaNestedInputSchema";
 import { MediaProcessingTaskUncheckedUpdateManyWithoutMediaNestedInputSchema } from "./MediaProcessingTaskUncheckedUpdateManyWithoutMediaNestedInputSchema";
-import { ProcessMediaJobUncheckedUpdateManyWithoutMediaNestedInputSchema } from "./ProcessMediaJobUncheckedUpdateManyWithoutMediaNestedInputSchema";
 import { AssetUncheckedUpdateManyWithoutMediaNestedInputSchema } from "./AssetUncheckedUpdateManyWithoutMediaNestedInputSchema";
 import { MetadataUncheckedUpdateManyWithoutMediaNestedInputSchema } from "./MetadataUncheckedUpdateManyWithoutMediaNestedInputSchema";
 
@@ -58,11 +57,6 @@ export const MediaUncheckedUpdateWithoutContinuityItemsInputSchema: z.ZodType<Pr
         .lazy(
           () =>
             MediaProcessingTaskUncheckedUpdateManyWithoutMediaNestedInputSchema,
-        )
-        .optional(),
-      process_jobs: z
-        .lazy(
-          () => ProcessMediaJobUncheckedUpdateManyWithoutMediaNestedInputSchema,
         )
         .optional(),
       assets: z

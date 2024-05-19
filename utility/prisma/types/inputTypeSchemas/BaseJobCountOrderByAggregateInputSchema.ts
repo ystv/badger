@@ -13,6 +13,8 @@ export const BaseJobCountOrderByAggregateInputSchema: z.ZodType<Prisma.BaseJobCo
       completedAt: z.lazy(() => SortOrderSchema).optional(),
       externalJobProvider: z.lazy(() => SortOrderSchema).optional(),
       externalJobID: z.lazy(() => SortOrderSchema).optional(),
+      jobType: z.lazy(() => SortOrderSchema).optional(),
+      jobPayload: z.lazy(() => SortOrderSchema).optional(),
     })
     .strict();
 
