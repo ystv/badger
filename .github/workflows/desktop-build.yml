@@ -53,11 +53,11 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           ENVIRONMENT: ${{ inputs.prerelease && 'dev' || 'prod' }}
 
-      - run: ls desktop/out/make
+      - run: ls desktop/dist
 
       - uses: actions/upload-artifact@v3
         with:
           name: desktop
-          path: ./desktop/out/make
+          path: ./desktop/dist
         # prettier-ignore
         if: '! inputs.do_release' # because 'publish' will take care of it
