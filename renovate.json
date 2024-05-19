@@ -1,5 +1,16 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
-  "postUpdateOptions": ["yarnDedupeHighest"]
+  "extends": [
+    "config:recommended",
+    ":automergeLinters",
+    ":automergePatch",
+    ":automergePr"
+  ],
+  "postUpdateOptions": ["yarnDedupeHighest"],
+  "packageRules": [
+    {
+      "extends": ["monorepo:nextjs"],
+      "automerge": false
+    }
+  ]
 }
