@@ -42,7 +42,10 @@ jobs:
           node-version: 18.x
           cache: "yarn"
           cache-dependency-path: "yarn.lock"
-      - run: yarn install --immutable
+      
+      - name: Clean up
+        run: Remove-Item -Recurse -Force ./desktop/dist/win-unpacked
+        shell: pwsh
 
         # This is negated because a workflow_call won't have the do_release input, and we want to publish then.
       - run: "yarn package ${{ inputs.do_release && '--publish onTagOrDraft' || '' }}"
