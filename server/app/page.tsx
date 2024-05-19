@@ -33,6 +33,11 @@ export default async function ShowsPage(props: {
       where: conditions,
       take: PAGE_SIZE,
       skip: PAGE_SIZE * page,
+      orderBy: {
+        // We still need a sort here, even though we sort in the client.
+        // This is because the client-side sort is only for the current page.
+        start: "desc",
+      },
     }),
     db.showWithDuration.count({
       where: conditions,
