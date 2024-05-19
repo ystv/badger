@@ -8,7 +8,7 @@ jobs:
     container:
       image: ghcr.io/danger/danger-js:11.2.7
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Danger
         run: danger ci
         env:
