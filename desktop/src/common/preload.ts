@@ -29,5 +29,9 @@ process.once("loaded", async () => {
       );
       ipcRenderer.off(evt, callback);
     },
+
+    notifyQueueDepth: (depth: number) => {
+      ipcRenderer.send("trpc-queue-depth-warning", depth);
+    },
   });
 });

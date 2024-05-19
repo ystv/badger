@@ -13,6 +13,8 @@ interface EventBusType {
     evt: K,
     callback: (...args: Parameters<Events[K]>) => void,
   ): void;
+
+  notifyQueueDepth(depth: number): void;
 }
 
 declare global {

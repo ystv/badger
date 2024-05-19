@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 import * as path from "path";
 import { createIPCHandler } from "electron-trpc/main";
 import { emitObservable, setSender } from "./ipcEventBus";
@@ -89,6 +89,11 @@ const createWindow = async () => {
 
   logger.debug("Creating IPC handler...");
   createIPCHandler({ router: appRouter, windows: [mainWindow] });
+  ipcMain.on("trpc-queue-depth-warning", (event, queueDepth) => {
+    logger.warn(
+      `Queue depth warning: renderer reports IPC queue is ${queueDepth} (main window: ${mainWindow.id})`,
+    );
+  });
   setSender(mainWindow.webContents.send.bind(mainWindow.webContents));
   emitObservable("selectedShowChange", selectedShow);
   logger.info("Startup complete.");

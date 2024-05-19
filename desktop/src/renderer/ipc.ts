@@ -16,6 +16,8 @@ const logger = logging.getLogger("serverIPC");
 
 export const ipc = createTRPCReact<AppRouter>();
 
+let queueDepth = 0;
+
 const clientConfig: CreateTRPCClientOptions<AppRouter> = {
   links: [
     (_) =>
@@ -29,6 +31,12 @@ const clientConfig: CreateTRPCClientOptions<AppRouter> = {
             level: "trace",
             message: `<-- ${op.type} ${op.path}`,
           });
+          queueDepth++;
+          if (queueDepth >= 10) {
+            // This is done on a separate IPC channel to avoid getting stuck
+            // in the very queue we're trying to warn about
+            window.IPCEventBus.notifyQueueDepth(queueDepth);
+          }
           const unsubscribe = next(op).subscribe({
             next: (res) => {
               ipcProxy.log.mutate({
@@ -37,6 +45,7 @@ const clientConfig: CreateTRPCClientOptions<AppRouter> = {
                   res,
                 )}`,
               });
+              queueDepth--;
               observer.next(res);
             },
             error: (err) => {
@@ -44,6 +53,7 @@ const clientConfig: CreateTRPCClientOptions<AppRouter> = {
                 level: "error",
                 message: `--> ${op.type} ${op.path} ${err}`,
               });
+              queueDepth--;
               observer.error(err);
             },
             complete: () => {
