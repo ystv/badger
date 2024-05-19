@@ -4,7 +4,8 @@
     "config:recommended",
     ":automergeLinters",
     ":automergePatch",
-    ":automergePr"
+    ":automergePr",
+    ":prHourlyLimit4"
   ],
   "postUpdateOptions": ["yarnDedupeHighest"],
   "packageRules": [
