@@ -42,30 +42,25 @@ jobs:
           node-version: 18.x
           cache: "yarn"
           cache-dependency-path: "yarn.lock"
+
       - run: yarn install --immutable
 
-      - name: Set DEV label for productName
-        if: inputs.prerelease
-        uses: jossef/action-set-json-field@v2.1
-        with:
-          file: ./desktop/package.json
-          field: productName
-          value: "Badger Desktop (DEV)"
-
         # This is negated because a workflow_call won't have the do_release input, and we want to publish then.
-      - run: "yarn ${{ inputs.do_release && 'publish' || 'make' }}"
+      - run: "yarn package ${{ inputs.do_release && '--publish onTagOrDraft' || '' }}"
         working-directory: ./desktop
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DESKTOP_SENTRY_DSN: ${{ secrets.DESKTOP_SENTRY_DSN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           ENVIRONMENT: ${{ inputs.prerelease && 'dev' || 'prod' }}
 
-      - run: ls desktop/out/make
+      - name: Clean up
+        run: Remove-Item -Recurse -Force ./desktop/dist/win-unpacked
+        shell: pwsh
 
       - uses: actions/upload-artifact@v3
         with:
           name: desktop
-          path: ./desktop/out/make
+          path: ./desktop/dist
         # prettier-ignore
         if: '! inputs.do_release' # because 'publish' will take care of it

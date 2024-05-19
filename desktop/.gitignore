@@ -87,11 +87,15 @@ typings/
 # Vite
 .vite/
 
-# Electron-Forge
+# Electron
 out/
+dist/
 
 # Playwright
 /test-results/
 /playwright-report/
 /playwright/.cache/
 /traces/
+
+# Bundle visualization
+bundle-*.html

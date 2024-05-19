@@ -31,7 +31,7 @@ console.error = logger.error;
 /* eslint-enable no-console */
 
 logger.info(
-  `Badger Desktop v${global.__APP_VERSION__} (${global.__GIT_COMMIT__}) starting up.`,
+  `Badger Desktop v${global.__APP_VERSION__} ${global.__ENVIRONMENT__} (${global.__GIT_COMMIT__}) starting up.`,
 );
 logFlagState(true);
 
@@ -42,10 +42,6 @@ if (import.meta.env.VITE_DESKTOP_SENTRY_DSN) {
   });
   logger.info("[Main] Sentry enabled");
 }
-
-// https://www.electronforge.io/config/plugins/vite
-declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
-declare const MAIN_WINDOW_VITE_NAME: string;
 
 const createWindow = async () => {
   logger.debug("Pre-flight...");
@@ -68,18 +64,16 @@ const createWindow = async () => {
     height: 720,
     icon: Icon,
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
+      preload: path.join(__dirname, "..", "preload", "preload.js"),
     },
   });
 
   // and load the index.html of the app.
   logger.debug("Loading main window JS...");
-  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    await mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+  if (process.env["ELECTRON_RENDERER_URL"]) {
+    await mainWindow.loadURL(process.env["ELECTRON_RENDERER_URL"]);
   } else {
-    await mainWindow.loadFile(
-      path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`),
-    );
+    await mainWindow.loadFile(path.join(__dirname, `../renderer/index.html`));
   }
 
   // Open the DevTools.
