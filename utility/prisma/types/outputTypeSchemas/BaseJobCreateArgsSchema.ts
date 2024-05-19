@@ -4,12 +4,13 @@ import { BaseJobCreateInputSchema } from "../inputTypeSchemas/BaseJobCreateInput
 import { BaseJobUncheckedCreateInputSchema } from "../inputTypeSchemas/BaseJobUncheckedCreateInputSchema";
 
 export const BaseJobCreateArgsSchema: z.ZodType<
-  Omit<Prisma.BaseJobCreateArgs, "select" | "include">
+  Omit<Prisma.BaseJobCreateArgs, "select">
 > = z
   .object({
-    data: z
-      .union([BaseJobCreateInputSchema, BaseJobUncheckedCreateInputSchema])
-      .optional(),
+    data: z.union([
+      BaseJobCreateInputSchema,
+      BaseJobUncheckedCreateInputSchema,
+    ]),
   })
   .strict();
 

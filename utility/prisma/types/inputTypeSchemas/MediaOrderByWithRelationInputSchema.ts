@@ -5,7 +5,6 @@ import { SortOrderInputSchema } from "./SortOrderInputSchema";
 import { RundownItemOrderByRelationAggregateInputSchema } from "./RundownItemOrderByRelationAggregateInputSchema";
 import { ContinuityItemOrderByRelationAggregateInputSchema } from "./ContinuityItemOrderByRelationAggregateInputSchema";
 import { MediaProcessingTaskOrderByRelationAggregateInputSchema } from "./MediaProcessingTaskOrderByRelationAggregateInputSchema";
-import { ProcessMediaJobOrderByRelationAggregateInputSchema } from "./ProcessMediaJobOrderByRelationAggregateInputSchema";
 import { AssetOrderByRelationAggregateInputSchema } from "./AssetOrderByRelationAggregateInputSchema";
 import { MetadataOrderByRelationAggregateInputSchema } from "./MetadataOrderByRelationAggregateInputSchema";
 
@@ -31,9 +30,6 @@ export const MediaOrderByWithRelationInputSchema: z.ZodType<Prisma.MediaOrderByW
         .optional(),
       tasks: z
         .lazy(() => MediaProcessingTaskOrderByRelationAggregateInputSchema)
-        .optional(),
-      process_jobs: z
-        .lazy(() => ProcessMediaJobOrderByRelationAggregateInputSchema)
         .optional(),
       assets: z.lazy(() => AssetOrderByRelationAggregateInputSchema).optional(),
       metadata: z

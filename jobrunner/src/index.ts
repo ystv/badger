@@ -63,11 +63,6 @@ async function doJob(jobID: number) {
     where: {
       id: jobID,
     },
-    include: {
-      LoadAssetJob: true,
-      ProcessMediaJob: true,
-      DummyTestJob: true,
-    },
   });
 
   await db.baseJob.update({
@@ -80,39 +75,39 @@ async function doJob(jobID: number) {
   });
 
   let handler: AbstractJob;
-  let payload;
-  if (nextJob.ProcessMediaJob) {
-    handler = await ProcessMediaJob.init(db);
-    payload = nextJob.ProcessMediaJob;
-  } else if (nextJob.LoadAssetJob) {
-    handler = await LoadAssetJob.init(db);
-    payload = nextJob.LoadAssetJob;
-  } else if (nextJob.DummyTestJob) {
-    handler = await DummyTestJob.init(db);
-    payload = nextJob.DummyTestJob;
-  } else {
-    // TODO: This assumes that there will never be a jobrunner running that doesn't know how to handle a certain
-    //  job type. If we ever introduce heterogeneous jobrunners, this will need to be changed.
-    logger.error(`Unknown job type for job ${nextJob.id}`);
-    Sentry.captureMessage(`Unknown job type for job ${nextJob.id}`, {
-      level: "error",
-    });
-    await db.baseJob.update({
-      where: {
-        id: nextJob.id,
-      },
-      data: {
-        state: JobState.Failed,
-      },
-    });
-    return;
+  switch (nextJob.jobType) {
+    case "DummyTestJob":
+      handler = await DummyTestJob.init(db);
+      break;
+    case "LoadAssetJob":
+      handler = await LoadAssetJob.init(db);
+      break;
+    case "ProcessMediaJob":
+      handler = await ProcessMediaJob.init(db);
+      break;
+    default:
+      // TODO: This assumes that there will never be a jobrunner running that doesn't know how to handle a certain
+      //  job type. If we ever introduce heterogeneous jobrunners, this will need to be changed.
+      logger.error(`Unknown job type for job ${nextJob.id}`);
+      Sentry.captureMessage(`Unknown job type for job ${nextJob.id}`, {
+        level: "error",
+      });
+      await db.baseJob.update({
+        where: {
+          id: nextJob.id,
+        },
+        data: {
+          state: JobState.Failed,
+        },
+      });
+      return;
   }
   const transaction = Sentry.startTransaction({
     op: handler.constructor.name,
     name: `${handler.constructor.name}#${nextJob.id}`,
   });
   try {
-    await handler.run(payload);
+    await handler.run(nextJob.jobPayload);
   } catch (e) {
     logger.error(`Job ${nextJob.id} failed!`);
     logger.error(e);

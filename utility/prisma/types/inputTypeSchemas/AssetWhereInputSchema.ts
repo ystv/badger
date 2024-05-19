@@ -6,7 +6,6 @@ import { MediaRelationFilterSchema } from "./MediaRelationFilterSchema";
 import { MediaWhereInputSchema } from "./MediaWhereInputSchema";
 import { RundownRelationFilterSchema } from "./RundownRelationFilterSchema";
 import { RundownWhereInputSchema } from "./RundownWhereInputSchema";
-import { LoadAssetJobListRelationFilterSchema } from "./LoadAssetJobListRelationFilterSchema";
 
 export const AssetWhereInputSchema: z.ZodType<Prisma.AssetWhereInput> = z
   .object({
@@ -46,7 +45,6 @@ export const AssetWhereInputSchema: z.ZodType<Prisma.AssetWhereInput> = z
         z.lazy(() => RundownWhereInputSchema),
       ])
       .optional(),
-    loadJobs: z.lazy(() => LoadAssetJobListRelationFilterSchema).optional(),
   })
   .strict();
 

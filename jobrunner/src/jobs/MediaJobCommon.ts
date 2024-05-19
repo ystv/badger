@@ -1,29 +1,20 @@
-import {
-  Asset,
-  LoadAssetJob,
-  MediaFileSourceType,
-  ProcessMediaJob,
-  Rundown,
-} from "@badger/prisma/client";
 import AbstractJob from "./base";
 import * as path from "node:path";
 import * as fs from "node:fs";
 import invariant from "../invariant";
 import got from "got";
 import { GetObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
-import { expectNever } from "ts-expect";
 import EasyDL from "easydl";
 import { S3ReadStream } from "s3-readstream";
 import { pipeline as streamPipeline } from "node:stream/promises";
 import { Upload } from "@aws-sdk/lib-storage";
 
-export abstract class MediaJobCommon extends AbstractJob<
-  ProcessMediaJob | LoadAssetJob
-> {
-  protected async _downloadSourceFile(params: ProcessMediaJob | LoadAssetJob) {
+export abstract class MediaJobCommon extends AbstractJob {
+  protected async _downloadSourceFile(params: PrismaJson.JobPayload) {
+    invariant("sourceType" in params, "sourceType is required");
     const filePath = path.join(this.temporaryDir, "raw");
     switch (params.sourceType) {
-      case MediaFileSourceType.Tus: {
+      case "Tus": {
         // If Tus is running against a S3 backend, we can download directly from S3
         // for better performance and resumability support
         if (!process.env.TUS_S3_BUCKET) {
@@ -43,13 +34,13 @@ export abstract class MediaJobCommon extends AbstractJob<
         //fallthrough
       }
 
-      case MediaFileSourceType.S3: {
+      case "S3": {
         const bucket =
-          params.sourceType === MediaFileSourceType.Tus
+          params.sourceType === "Tus"
             ? process.env.TUS_S3_BUCKET
             : process.env.STORAGE_BUCKET;
         let key = params.source;
-        if (params.sourceType === MediaFileSourceType.Tus) {
+        if (params.sourceType === "Tus") {
           // The source will be in the format "<objectID>+<multipartID>"
           // (https://github.com/tus/tusd/blob/e13b64869e7920b17396fd634624ccc88b698d8b/pkg/s3store/s3store.go#L339)
           // we only want the objectID
@@ -75,7 +66,7 @@ export abstract class MediaJobCommon extends AbstractJob<
         const output = fs.createWriteStream(filePath);
         await streamPipeline(stream, output);
 
-        if (params.sourceType === MediaFileSourceType.Tus) {
+        if (params.sourceType === "Tus") {
           // Need to clean up
           await got.delete(process.env.TUS_ENDPOINT + "/" + params.source, {
             headers: {
@@ -86,13 +77,13 @@ export abstract class MediaJobCommon extends AbstractJob<
         break;
       }
 
-      case MediaFileSourceType.GoogleDrive: {
+      case "GoogleDrive": {
         invariant(false, "Google Drive not supported");
         break;
       }
 
       default:
-        expectNever(params.sourceType);
+        invariant(false, `Invalid sourceType: ${params.sourceType}`);
     }
 
     return filePath;

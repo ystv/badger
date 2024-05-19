@@ -3,7 +3,6 @@ import { z } from "zod";
 import { StringFieldUpdateOperationsInputSchema } from "./StringFieldUpdateOperationsInputSchema";
 import { IntFieldUpdateOperationsInputSchema } from "./IntFieldUpdateOperationsInputSchema";
 import { MediaUpdateOneRequiredWithoutAssetsNestedInputSchema } from "./MediaUpdateOneRequiredWithoutAssetsNestedInputSchema";
-import { LoadAssetJobUpdateManyWithoutAssetNestedInputSchema } from "./LoadAssetJobUpdateManyWithoutAssetNestedInputSchema";
 
 export const AssetUpdateWithoutRundownInputSchema: z.ZodType<Prisma.AssetUpdateWithoutRundownInput> =
   z
@@ -28,9 +27,6 @@ export const AssetUpdateWithoutRundownInputSchema: z.ZodType<Prisma.AssetUpdateW
         .optional(),
       media: z
         .lazy(() => MediaUpdateOneRequiredWithoutAssetsNestedInputSchema)
-        .optional(),
-      loadJobs: z
-        .lazy(() => LoadAssetJobUpdateManyWithoutAssetNestedInputSchema)
         .optional(),
     })
     .strict();

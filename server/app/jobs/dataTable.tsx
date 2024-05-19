@@ -6,7 +6,6 @@ import {
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuItem,
-  DropdownMenuSeparator,
 } from "@badger/components/dropdown-menu";
 import {
   Table,
@@ -16,12 +15,7 @@ import {
   TableBody,
   TableCell,
 } from "@badger/components/table";
-import {
-  BaseJob,
-  DummyTestJob,
-  LoadAssetJob,
-  ProcessMediaJob,
-} from "@badger/prisma/client";
+import { BaseJob } from "@badger/prisma/client";
 import {
   createColumnHelper,
   flexRender,
@@ -33,13 +27,7 @@ import { Button } from "@badger/components/button";
 import { LuMoreHorizontal } from "react-icons/lu";
 import { doResetJob } from "./actions";
 
-export interface ExtendedJob extends BaseJob {
-  LoadAssetJob: LoadAssetJob | null;
-  ProcessMediaJob: ProcessMediaJob | null;
-  DummyTestJob: DummyTestJob | null;
-}
-
-const ch = createColumnHelper<ExtendedJob>();
+const ch = createColumnHelper<BaseJob>();
 const columns = [
   ch.accessor("id", {
     header: "Base Job ID",
@@ -89,24 +77,10 @@ const columns = [
       header: "Executor",
     },
   ),
-  ch.accessor(
-    (row) => {
-      if (row.LoadAssetJob) {
-        return "LoadAssetJob";
-      }
-      if (row.ProcessMediaJob) {
-        return "ProcessMediaJob";
-      }
-      if (row.DummyTestJob) {
-        return "DummyTestJob";
-      }
-      return "Unknown";
-    },
-    {
-      id: "type",
-      header: "Job Type",
-    },
-  ),
+  ch.accessor("jobType", {
+    id: "type",
+    header: "Job Type",
+  }),
   ch.display({
     id: "actions",
     cell: ({ row }) => {
@@ -141,7 +115,7 @@ const columns = [
   }),
 ];
 
-export function JobsDataTable(props: { data: ExtendedJob[] }) {
+export function JobsDataTable(props: { data: BaseJob[] }) {
   const table = useReactTable({
     columns,
     data: props.data,

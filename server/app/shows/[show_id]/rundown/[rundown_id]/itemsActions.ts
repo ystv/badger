@@ -7,12 +7,7 @@ import { zodErrorResponse } from "@/components/FormServerHelpers";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
-import {
-  JobState,
-  MediaFileSourceType,
-  MediaState,
-} from "@badger/prisma/client";
-import { escapeRegExp } from "lodash";
+import { JobState, MediaState } from "@badger/prisma/client";
 
 import { dispatchJobForJobrunner } from "@/lib/jobs";
 import invariant from "@/lib/invariant";
@@ -313,7 +308,7 @@ export async function processUploadForRundownItem(
         },
       },
     });
-    const res = await $db.media.create({
+    const media = await $db.media.create({
       data: {
         name: fileName,
         durationSeconds: 0,
@@ -323,22 +318,6 @@ export async function processUploadForRundownItem(
             id: itemID,
           },
         },
-        process_jobs: {
-          create: {
-            sourceType: MediaFileSourceType.Tus,
-            source: uploadURL.replace(
-              // Strip off the Tus endpoint prefix so the source is just the ID
-              new RegExp(`^${escapeRegExp(getPublicTusEndpoint())}/?`),
-              "",
-            ),
-            base_job: {
-              create: {},
-            },
-          },
-        },
-      },
-      include: {
-        process_jobs: true,
       },
     });
     await $db.rundown.update({
@@ -355,7 +334,17 @@ export async function processUploadForRundownItem(
         },
       },
     });
-    return res.process_jobs[0].base_job_id;
+    const job = await $db.baseJob.create({
+      data: {
+        jobType: "ProcessMediaJob",
+        jobPayload: {
+          mediaId: media.id,
+          sourceType: "Tus",
+          source: uploadURL,
+        },
+      },
+    });
+    return job.id;
   });
   await dispatchJobForJobrunner(baseJobID);
   revalidatePath(`/shows/${item.rundown.showId}`);
@@ -471,24 +460,17 @@ export async function reprocessMedia(id: number) {
         state: MediaState.Pending,
       },
     });
-    const job = await $db.processMediaJob.create({
+    const job = await $db.baseJob.create({
       data: {
-        sourceType: MediaFileSourceType.S3,
-        source: media.rawPath,
-        media: {
-          connect: {
-            id,
-          },
+        jobType: "ProcessMediaJob",
+        jobPayload: {
+          mediaId: id,
+          sourceType: "S3",
+          source: media.rawPath,
         },
-        base_job: {
-          create: {},
-        },
-      },
-      include: {
-        base_job: true,
       },
     });
-    return [media, job.base_job];
+    return [media, job];
   });
   await dispatchJobForJobrunner(baseJob.id);
   revalidatePath("/media");

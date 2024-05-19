@@ -5,7 +5,6 @@ import {
   Media,
   MediaProcessingTaskState,
   MediaState,
-  ProcessMediaJob as ProcessMediaJobType,
   Rundown,
   RundownItem,
   Show,
@@ -22,6 +21,7 @@ import {
   failUploadOnQualityControlFail,
 } from "@badger/feature-flags";
 import { MediaJobCommon } from "./MediaJobCommon.js";
+import invariant from "../invariant.js";
 
 const TARGET_LOUDNESS_LUFS = -14;
 const TARGET_LOUDNESS_RANGE_LUFS = 4;
@@ -45,8 +45,9 @@ export default class ProcessMediaJob extends MediaJobCommon {
     }
   }
 
-  async run(params: ProcessMediaJobType) {
-    const media: CompleteMedia = await this.db.media.findUniqueOrThrow({
+  async run(params: PrismaJson.JobPayload) {
+    invariant("mediaId" in params, "mediaId is required");
+    const media = await this.db.media.findUniqueOrThrow({
       where: {
         id: params.mediaId,
       },

@@ -9,12 +9,10 @@ import { FormResponse } from "@/components/Form";
 import { zodErrorResponse } from "@/components/FormServerHelpers";
 import {
   JobState,
-  MediaFileSourceType,
   MediaState,
   MetadataTargetType,
   Prisma,
 } from "@badger/prisma/client";
-import { escapeRegExp } from "lodash";
 
 import { dispatchJobForJobrunner } from "@/lib/jobs";
 import invariant from "@/lib/invariant";
@@ -22,7 +20,7 @@ import type {
   MediaMetaSelectValue,
   MediaMetaUploadValue,
 } from "@/components/Metadata";
-import { getPublicTusEndpoint } from "@/lib/tus";
+import { getPublicTusEndpoint, uploadUrlToPath } from "@/lib/tus";
 
 export async function revalidateIfChanged(showID: number, version: number) {
   const show = await db.show.findUnique({
@@ -373,7 +371,7 @@ export async function setMetaValue(
               },
             });
           } else if (isMediaMetaUploadValue(newValue)) {
-            await $db.metadata.update({
+            const md = await $db.metadata.update({
               where: {
                 id: metaID,
               },
@@ -383,22 +381,17 @@ export async function setMetaValue(
                     name: newValue.fileName,
                     durationSeconds: 0,
                     rawPath: "",
-                    process_jobs: {
-                      create: {
-                        sourceType: MediaFileSourceType.Tus,
-                        source: newValue.uploadUrl.replace(
-                          // Strip off the Tus endpoint prefix so the source is just the ID
-                          new RegExp(
-                            `^${escapeRegExp(getPublicTusEndpoint())}/?`,
-                          ),
-                          "",
-                        ),
-                        base_job: {
-                          create: {},
-                        },
-                      },
-                    },
                   },
+                },
+              },
+            });
+            await $db.baseJob.create({
+              data: {
+                jobType: "ProcessMediaJob",
+                jobPayload: {
+                  sourceType: "Tus",
+                  source: uploadUrlToPath(newValue.uploadUrl),
+                  mediaId: md.mediaId,
                 },
               },
             });
@@ -463,7 +456,7 @@ export async function addMeta(
               },
             });
           } else if (isMediaMetaUploadValue(newValue)) {
-            await $db.metadata.create({
+            const md = await $db.metadata.create({
               data: {
                 field: {
                   connect: {
@@ -481,22 +474,17 @@ export async function addMeta(
                     name: newValue.fileName,
                     durationSeconds: 0,
                     rawPath: "",
-                    process_jobs: {
-                      create: {
-                        sourceType: MediaFileSourceType.Tus,
-                        source: newValue.uploadUrl.replace(
-                          // Strip off the Tus endpoint prefix so the source is just the ID
-                          new RegExp(
-                            `^${escapeRegExp(getPublicTusEndpoint())}/?`,
-                          ),
-                          "",
-                        ),
-                        base_job: {
-                          create: {},
-                        },
-                      },
-                    },
                   },
+                },
+              },
+            });
+            await $db.baseJob.create({
+              data: {
+                jobType: "ProcessMediaJob",
+                jobPayload: {
+                  sourceType: "Tus",
+                  source: uploadUrlToPath(newValue.uploadUrl),
+                  mediaId: md.mediaId,
                 },
               },
             });
@@ -599,7 +587,7 @@ export async function processUploadForContinuityItem(
         },
       },
     });
-    const res = await $db.media.create({
+    const media = await $db.media.create({
       data: {
         name: fileName,
         durationSeconds: 0,
@@ -609,22 +597,6 @@ export async function processUploadForContinuityItem(
             id: itemID,
           },
         },
-        process_jobs: {
-          create: {
-            sourceType: MediaFileSourceType.Tus,
-            source: uploadURL.replace(
-              // Strip off the Tus endpoint prefix so the source is just the ID
-              new RegExp(`^${escapeRegExp(getPublicTusEndpoint())}/?`),
-              "",
-            ),
-            base_job: {
-              create: {},
-            },
-          },
-        },
-      },
-      include: {
-        process_jobs: true,
       },
     });
     await $db.show.update({
@@ -637,7 +609,17 @@ export async function processUploadForContinuityItem(
         },
       },
     });
-    return res.process_jobs[0].base_job_id;
+    const job = await $db.baseJob.create({
+      data: {
+        jobType: "ProcessMediaJob",
+        jobPayload: {
+          sourceType: "Tus",
+          source: uploadUrlToPath(uploadURL),
+          mediaId: media.id,
+        },
+      },
+    });
+    return job.id;
   });
   await dispatchJobForJobrunner(baseJobID);
   revalidatePath(`/shows/${item.showId}`);
@@ -740,24 +722,17 @@ export async function reprocessMedia(id: number) {
         state: MediaState.Pending,
       },
     });
-    const job = await $db.processMediaJob.create({
+    const job = await $db.baseJob.create({
       data: {
-        sourceType: MediaFileSourceType.S3,
-        source: media.rawPath,
-        media: {
-          connect: {
-            id,
-          },
+        jobType: "ProcessMediaJob",
+        jobPayload: {
+          sourceType: "S3",
+          source: media.rawPath,
+          mediaId: id,
         },
-        base_job: {
-          create: {},
-        },
-      },
-      include: {
-        base_job: true,
       },
     });
-    return [media, job.base_job];
+    return [media, job];
   });
   await dispatchJobForJobrunner(baseJob.id);
   revalidatePath("/media");

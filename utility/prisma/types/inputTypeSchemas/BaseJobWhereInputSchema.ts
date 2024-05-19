@@ -6,12 +6,9 @@ import { EnumJobStateFilterSchema } from "./EnumJobStateFilterSchema";
 import { JobStateSchema } from "./JobStateSchema";
 import { DateTimeFilterSchema } from "./DateTimeFilterSchema";
 import { DateTimeNullableFilterSchema } from "./DateTimeNullableFilterSchema";
-import { ProcessMediaJobNullableRelationFilterSchema } from "./ProcessMediaJobNullableRelationFilterSchema";
-import { ProcessMediaJobWhereInputSchema } from "./ProcessMediaJobWhereInputSchema";
-import { LoadAssetJobNullableRelationFilterSchema } from "./LoadAssetJobNullableRelationFilterSchema";
-import { LoadAssetJobWhereInputSchema } from "./LoadAssetJobWhereInputSchema";
-import { DummyTestJobNullableRelationFilterSchema } from "./DummyTestJobNullableRelationFilterSchema";
-import { DummyTestJobWhereInputSchema } from "./DummyTestJobWhereInputSchema";
+import { EnumJobTypeFilterSchema } from "./EnumJobTypeFilterSchema";
+import { JobTypeSchema } from "./JobTypeSchema";
+import { JsonFilterSchema } from "./JsonFilterSchema";
 
 export const BaseJobWhereInputSchema: z.ZodType<Prisma.BaseJobWhereInput> = z
   .object({
@@ -61,27 +58,13 @@ export const BaseJobWhereInputSchema: z.ZodType<Prisma.BaseJobWhereInput> = z
       .union([z.lazy(() => StringNullableFilterSchema), z.string()])
       .optional()
       .nullable(),
-    ProcessMediaJob: z
+    jobType: z
       .union([
-        z.lazy(() => ProcessMediaJobNullableRelationFilterSchema),
-        z.lazy(() => ProcessMediaJobWhereInputSchema),
+        z.lazy(() => EnumJobTypeFilterSchema),
+        z.lazy(() => JobTypeSchema),
       ])
-      .optional()
-      .nullable(),
-    LoadAssetJob: z
-      .union([
-        z.lazy(() => LoadAssetJobNullableRelationFilterSchema),
-        z.lazy(() => LoadAssetJobWhereInputSchema),
-      ])
-      .optional()
-      .nullable(),
-    DummyTestJob: z
-      .union([
-        z.lazy(() => DummyTestJobNullableRelationFilterSchema),
-        z.lazy(() => DummyTestJobWhereInputSchema),
-      ])
-      .optional()
-      .nullable(),
+      .optional(),
+    jobPayload: z.lazy(() => JsonFilterSchema).optional(),
   })
   .strict();
 

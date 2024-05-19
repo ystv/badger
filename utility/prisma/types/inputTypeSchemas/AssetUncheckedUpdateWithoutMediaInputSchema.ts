@@ -2,7 +2,6 @@ import type { Prisma } from "../../client";
 import { z } from "zod";
 import { IntFieldUpdateOperationsInputSchema } from "./IntFieldUpdateOperationsInputSchema";
 import { StringFieldUpdateOperationsInputSchema } from "./StringFieldUpdateOperationsInputSchema";
-import { LoadAssetJobUncheckedUpdateManyWithoutAssetNestedInputSchema } from "./LoadAssetJobUncheckedUpdateManyWithoutAssetNestedInputSchema";
 
 export const AssetUncheckedUpdateWithoutMediaInputSchema: z.ZodType<Prisma.AssetUncheckedUpdateWithoutMediaInput> =
   z
@@ -36,11 +35,6 @@ export const AssetUncheckedUpdateWithoutMediaInputSchema: z.ZodType<Prisma.Asset
           z.number().int(),
           z.lazy(() => IntFieldUpdateOperationsInputSchema),
         ])
-        .optional(),
-      loadJobs: z
-        .lazy(
-          () => LoadAssetJobUncheckedUpdateManyWithoutAssetNestedInputSchema,
-        )
         .optional(),
     })
     .strict();

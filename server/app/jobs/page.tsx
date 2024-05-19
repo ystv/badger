@@ -6,11 +6,6 @@ export default async function JobsPage() {
   await requirePermission("ManageJobs");
 
   const jobs = await db.baseJob.findMany({
-    include: {
-      LoadAssetJob: true,
-      ProcessMediaJob: true,
-      DummyTestJob: true,
-    },
     orderBy: {
       createdAt: "desc",
     },
