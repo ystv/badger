@@ -253,11 +253,13 @@ function SelectMediaContainer(props: {
           <SelectValue>{show?.name ?? "Select show"}</SelectValue>
         </SelectTrigger>
         <SelectContent>
-          {showCandidates.map((show) => (
-            <SelectItem key={show.id} value={show.id.toString(10)}>
-              {show.name} ({format(show.start, "dd MMM yyyy, hh:mm a")})
-            </SelectItem>
-          ))}
+          {showCandidates
+            .sort((a, b) => b.start.valueOf() - a.start.valueOf())
+            .map((show) => (
+              <SelectItem key={show.id} value={show.id.toString(10)}>
+                {show.name} ({format(show.start, "dd MMM yyyy, hh:mm a")})
+              </SelectItem>
+            ))}
         </SelectContent>
       </Select>
       {shouldSelectRundown && (
@@ -271,11 +273,13 @@ function SelectMediaContainer(props: {
             <SelectValue>{rundown?.name ?? "Select rundown"}</SelectValue>
           </SelectTrigger>
           <SelectContent>
-            {show!.rundowns.map((rundown) => (
-              <SelectItem key={rundown.id} value={rundown.id.toString(10)}>
-                {rundown.name}
-              </SelectItem>
-            ))}
+            {show!.rundowns
+              .sort((a, b) => a.order - b.order)
+              .map((rundown) => (
+                <SelectItem key={rundown.id} value={rundown.id.toString(10)}>
+                  {rundown.name}
+                </SelectItem>
+              ))}
           </SelectContent>
         </Select>
       )}
