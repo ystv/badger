@@ -45,7 +45,7 @@ jobs:
       - run: yarn install --immutable
 
         # This is negated because a workflow_call won't have the do_release input, and we want to publish then.
-      - run: "yarn package ${{ inputs.do_release && '--publish onTagOrDraft' }}"
+      - run: "yarn package ${{ inputs.do_release && '--publish onTagOrDraft' || '' }}"
         working-directory: ./desktop
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
