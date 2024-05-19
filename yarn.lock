@@ -2006,10 +2006,10 @@ __metadata:
   linkType: hard
 
 "@hello-pangea/dnd@npm:^16.3.0":
-  version: 16.5.0
-  resolution: "@hello-pangea/dnd@npm:16.5.0"
+  version: 16.6.0
+  resolution: "@hello-pangea/dnd@npm:16.6.0"
   dependencies:
-    "@babel/runtime": ^7.23.2
+    "@babel/runtime": ^7.24.1
     css-box-model: ^1.2.1
     memoize-one: ^6.0.0
     raf-schd: ^4.0.3
@@ -2019,7 +2019,7 @@ __metadata:
   peerDependencies:
     react: ^16.8.5 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.5 || ^17.0.0 || ^18.0.0
-  checksum: 4ea3e9b541581fa94942ca7997d45ca53a47acf99b2a92dd655a7ac267fde83c210563c62055ac37a9563a647390683838e32fd1a9693e1cf2ec72b7a2330356
+  checksum: 00dcf9c2a7632e56c13e4a38c888081f65cec6bac0640b975b6cd17f2afa8995e8df02735db6f17de3a7ade3779386fc8375d7cedc884f8704e2e6c2977ebcec
   languageName: node
   linkType: hard
 
