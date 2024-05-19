@@ -2,57 +2,24 @@ import { e2eProcedure, publicProcedure, router } from "./_base";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import {
-  ExtendedMediaModel,
   CompleteRundownModel,
   CompleteShowModel,
+  CompleteMediaModel,
+  ExtendedMediaModelWithDownloadURL,
 } from "@badger/prisma/utilityTypes";
 import { getPresignedURL } from "@/lib/s3";
 import {
-  ContinuityItemSchema,
   MediaFileSourceTypeSchema,
   MediaSchema,
-  RundownItemSchema,
   ShowCreateInputSchema,
-  AssetSchema,
-  RundownSchema,
   ShowSchema,
   ShowUpdateInputSchema,
   MediaUpdateInputSchema,
   MetadataFieldCreateInputSchema,
 } from "@badger/prisma/types";
-import invariant from "@/lib/invariant";
 import { dispatchJobForJobrunner } from "@/lib/jobs";
 import { expectNever } from "ts-expect";
 import { sub } from "date-fns";
-
-const ExtendedMediaModelWithDownloadURL = ExtendedMediaModel.extend({
-  continuityItems: z.array(ContinuityItemSchema),
-  rundownItems: z.array(RundownItemSchema),
-  assets: z.array(AssetSchema),
-  downloadURL: z.string().optional().nullable(),
-});
-
-const CompleteMediaModel = ExtendedMediaModel.extend({
-  continuityItems: z.array(
-    ContinuityItemSchema.extend({
-      show: ShowSchema,
-    }),
-  ),
-  rundownItems: z.array(
-    RundownItemSchema.extend({
-      rundown: RundownSchema.extend({
-        show: ShowSchema,
-      }),
-    }),
-  ),
-  assets: z.array(
-    AssetSchema.extend({
-      rundown: RundownSchema.extend({
-        show: ShowSchema,
-      }),
-    }),
-  ),
-});
 
 export const appRouter = router({
   ping: publicProcedure.query(() => {
