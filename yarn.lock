@@ -1266,7 +1266,7 @@ __metadata:
     "@types/node": ^20.5.1
     "@types/shelljs": ^0.8.12
     debug: ^4.3.4
-    detect-port: ^1.5.1
+    detect-port: ^1.6.1
     obs-websocket-js: ^5.0.3
     p-event: ^6.0.0
     shelljs: ^0.8.5
@@ -8645,16 +8645,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"detect-port@npm:^1.5.1":
-  version: 1.5.1
-  resolution: "detect-port@npm:1.5.1"
+"detect-port@npm:^1.6.1":
+  version: 1.6.1
+  resolution: "detect-port@npm:1.6.1"
   dependencies:
     address: ^1.0.1
     debug: 4
   bin:
     detect: bin/detect-port.js
     detect-port: bin/detect-port.js
-  checksum: b48da9340481742547263d5d985e65d078592557863402ecf538511735e83575867e94f91fe74405ea19b61351feb99efccae7e55de9a151d5654e3417cea05b
+  checksum: 0429fa423abb15fc453face64e6ffa406e375f51f5b4421a7886962e680dc05824eae9b6ee4594ba273685c3add415ad00982b5da54802ac3de6f846173284c3
   languageName: node
   linkType: hard
 
