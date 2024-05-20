@@ -7140,7 +7140,7 @@ __metadata:
     electron-log: ^4.4.8
     electron-settings: ^4.0.2
     electron-squirrel-startup: ^1.0.0
-    electron-trpc: ^0.5.2
+    electron-trpc: ^0.6.0
     electron-vite: ^2.2.0
     electron-wix-msi: ^5.0.0
     eslint: ^8
@@ -8994,16 +8994,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron-trpc@npm:^0.5.2":
-  version: 0.5.2
-  resolution: "electron-trpc@npm:0.5.2"
+"electron-trpc@npm:^0.6.0":
+  version: 0.6.1
+  resolution: "electron-trpc@npm:0.6.1"
   dependencies:
     debug: ^4.3.4
   peerDependencies:
     "@trpc/client": ">10.0.0"
     "@trpc/server": ">10.0.0"
     electron: ">19.0.0"
-  checksum: a9976134d5001a812e2db8940744fa4b44fd2b61310d2f8748dfc744bb5a1ad46309d381645505536bacb5fe2525aad245fafa8e8e7474eb7dd7ce7f6d2b9b78
+  checksum: 882d5fab78894cc3b39c6bfdda598975660ec1dd39af3f9fe27dcd6588f16a46431a649a9d7cc865d9d6a1df85866c4308522d31e6acd96872b0551657b06b45
   languageName: node
   linkType: hard
 

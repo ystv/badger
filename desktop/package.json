@@ -84,7 +84,7 @@
     "electron-log": "^4.4.8",
     "electron-settings": "^4.0.2",
     "electron-squirrel-startup": "^1.0.0",
-    "electron-trpc": "^0.5.2",
+    "electron-trpc": "^0.6.0",
     "fast-xml-parser": "^4.2.7",
     "got": "^13.0.0",
     "loglevel": "^1.8.1",
