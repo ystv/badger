@@ -4505,6 +4505,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sentry/babel-plugin-component-annotate@npm:2.17.0":
+  version: 2.17.0
+  resolution: "@sentry/babel-plugin-component-annotate@npm:2.17.0"
+  checksum: 3d3d59514f0a00250e98d1852f78f13681d2dfbb5f97d1f8837988714844d7e4a44430b74422120128d2c36633ab7850916b31f119030d631a915dc82247572c
+  languageName: node
+  linkType: hard
+
 "@sentry/browser@npm:7.92.0":
   version: 7.92.0
   resolution: "@sentry/browser@npm:7.92.0"
@@ -4534,22 +4541,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/bundler-plugin-core@npm:2.10.3":
-  version: 2.10.3
-  resolution: "@sentry/bundler-plugin-core@npm:2.10.3"
-  dependencies:
-    "@sentry/cli": ^2.22.3
-    "@sentry/node": ^7.60.0
-    "@sentry/utils": ^7.60.0
-    dotenv: ^16.3.1
-    find-up: 5.0.0
-    glob: 9.3.2
-    magic-string: 0.27.0
-    unplugin: 1.0.1
-  checksum: 12c56904caca078df97e6abf19f38ee31812fd8f795f35ccadef948100614bde622710518a9e9b5fd0a985876f97d6da7a76432326fe9829ad71e6d77d32bece
-  languageName: node
-  linkType: hard
-
 "@sentry/bundler-plugin-core@npm:2.16.1":
   version: 2.16.1
   resolution: "@sentry/bundler-plugin-core@npm:2.16.1"
@@ -4563,6 +4554,22 @@ __metadata:
     magic-string: 0.30.8
     unplugin: 1.0.1
   checksum: 70ef9b3dd20e7f5f7ef38f88a975242cee7b9a7e263116df724aa9bd08e4a532e4df93afd41442a20e8bd6a658bb7491019d91a60f811c1cb082c933d8a44f9c
+  languageName: node
+  linkType: hard
+
+"@sentry/bundler-plugin-core@npm:2.17.0":
+  version: 2.17.0
+  resolution: "@sentry/bundler-plugin-core@npm:2.17.0"
+  dependencies:
+    "@babel/core": ^7.18.5
+    "@sentry/babel-plugin-component-annotate": 2.17.0
+    "@sentry/cli": ^2.22.3
+    dotenv: ^16.3.1
+    find-up: ^5.0.0
+    glob: ^9.3.2
+    magic-string: 0.30.8
+    unplugin: 1.0.1
+  checksum: 47a3c6c94488027901fab0c32bb75a194d740c9c88ecd8511f71c4e8f7d116c73d498627b056471accfb14cd5abf0b4bbfb81741e61a67653db028766158e08d
   languageName: node
   linkType: hard
 
@@ -4767,7 +4774,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/node@npm:7.98.0, @sentry/node@npm:^7.60.0, @sentry/node@npm:^7.64.0":
+"@sentry/node@npm:7.98.0, @sentry/node@npm:^7.64.0":
   version: 7.98.0
   resolution: "@sentry/node@npm:7.98.0"
   dependencies:
@@ -4841,7 +4848,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/utils@npm:7.98.0, @sentry/utils@npm:^7.60.0, @sentry/utils@npm:^7.69.0":
+"@sentry/utils@npm:7.98.0, @sentry/utils@npm:^7.69.0":
   version: 7.98.0
   resolution: "@sentry/utils@npm:7.98.0"
   dependencies:
@@ -4863,12 +4870,12 @@ __metadata:
   linkType: hard
 
 "@sentry/vite-plugin@npm:^2.7.0":
-  version: 2.10.3
-  resolution: "@sentry/vite-plugin@npm:2.10.3"
+  version: 2.17.0
+  resolution: "@sentry/vite-plugin@npm:2.17.0"
   dependencies:
-    "@sentry/bundler-plugin-core": 2.10.3
+    "@sentry/bundler-plugin-core": 2.17.0
     unplugin: 1.0.1
-  checksum: 134489630b48699ec163f079b7bca6c055902ed15b4ce4136be8402a749fc07c247d6c8529cbd705792733bf98907f871810082871b269e6976482ad4b1dc5d4
+  checksum: 3cb71a7ebbf6d84dc80eaae2a90ad2e86ccc49a22c1511dae0830d352456eaca79659d019eaefc118065c28a180b058bff38b586a005d550e0e4cadcadac4ef5
   languageName: node
   linkType: hard
 
@@ -10410,16 +10417,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"find-up@npm:5.0.0, find-up@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "find-up@npm:5.0.0"
-  dependencies:
-    locate-path: ^6.0.0
-    path-exists: ^4.0.0
-  checksum: 07955e357348f34660bde7920783204ff5a26ac2cafcaa28bace494027158a97b9f56faaf2d89a6106211a8174db650dd9f503f9c0d526b1202d5554a00b9095
-  languageName: node
-  linkType: hard
-
 "find-up@npm:^4.0.0, find-up@npm:^4.1.0":
   version: 4.1.0
   resolution: "find-up@npm:4.1.0"
@@ -10427,6 +10424,16 @@ __metadata:
     locate-path: ^5.0.0
     path-exists: ^4.0.0
   checksum: 4c172680e8f8c1f78839486e14a43ef82e9decd0e74145f40707cc42e7420506d5ec92d9a11c22bd2c48fb0c384ea05dd30e10dd152fefeec6f2f75282a8b844
+  languageName: node
+  linkType: hard
+
+"find-up@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "find-up@npm:5.0.0"
+  dependencies:
+    locate-path: ^6.0.0
+    path-exists: ^4.0.0
+  checksum: 07955e357348f34660bde7920783204ff5a26ac2cafcaa28bace494027158a97b9f56faaf2d89a6106211a8174db650dd9f503f9c0d526b1202d5554a00b9095
   languageName: node
   linkType: hard
 
@@ -10833,18 +10840,6 @@ __metadata:
   bin:
     glob: dist/esm/bin.mjs
   checksum: 4f2fe2511e157b5a3f525a54092169a5f92405f24d2aed3142f4411df328baca13059f4182f1db1bf933e2c69c0bd89e57ae87edd8950cba8c7ccbe84f721cf3
-  languageName: node
-  linkType: hard
-
-"glob@npm:9.3.2":
-  version: 9.3.2
-  resolution: "glob@npm:9.3.2"
-  dependencies:
-    fs.realpath: ^1.0.0
-    minimatch: ^7.4.1
-    minipass: ^4.2.4
-    path-scurry: ^1.6.1
-  checksum: f3d188e9f70e24fa729a63ca197bcdb36d838677abec1fb9bbfe4b7620063bf90dc0f8d195203d632abfdfa049fad0edf22f93c60076de67cef20c23bcbfaee8
   languageName: node
   linkType: hard
 
@@ -13281,21 +13276,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"magic-string@npm:0.27.0, magic-string@npm:^0.27.0":
-  version: 0.27.0
-  resolution: "magic-string@npm:0.27.0"
-  dependencies:
-    "@jridgewell/sourcemap-codec": ^1.4.13
-  checksum: 273faaa50baadb7a2df6e442eac34ad611304fc08fe16e24fe2e472fd944bfcb73ffb50d2dc972dc04e92784222002af46868cb9698b1be181c81830fd95a13e
-  languageName: node
-  linkType: hard
-
 "magic-string@npm:0.30.8":
   version: 0.30.8
   resolution: "magic-string@npm:0.30.8"
   dependencies:
     "@jridgewell/sourcemap-codec": ^1.4.15
   checksum: 79922f4500d3932bb587a04440d98d040170decf432edc0f91c0bf8d41db16d364189bf800e334170ac740918feda62cd39dcc170c337dc18050cfcf00a5f232
+  languageName: node
+  linkType: hard
+
+"magic-string@npm:^0.27.0":
+  version: 0.27.0
+  resolution: "magic-string@npm:0.27.0"
+  dependencies:
+    "@jridgewell/sourcemap-codec": ^1.4.13
+  checksum: 273faaa50baadb7a2df6e442eac34ad611304fc08fe16e24fe2e472fd944bfcb73ffb50d2dc972dc04e92784222002af46868cb9698b1be181c81830fd95a13e
   languageName: node
   linkType: hard
 
@@ -13538,15 +13533,6 @@ __metadata:
   dependencies:
     brace-expansion: ^2.0.1
   checksum: 7564208ef81d7065a370f788d337cd80a689e981042cb9a1d0e6580b6c6a8c9279eba80010516e258835a988363f99f54a6f711a315089b8b42694f5da9d0d77
-  languageName: node
-  linkType: hard
-
-"minimatch@npm:^7.4.1":
-  version: 7.4.6
-  resolution: "minimatch@npm:7.4.6"
-  dependencies:
-    brace-expansion: ^2.0.1
-  checksum: 1a6c8d22618df9d2a88aabeef1de5622eb7b558e9f8010be791cb6b0fa6e102d39b11c28d75b855a1e377b12edc7db8ff12a99c20353441caa6a05e78deb5da9
   languageName: node
   linkType: hard
 
