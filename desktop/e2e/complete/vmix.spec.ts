@@ -121,9 +121,7 @@ test("load VTs into vMix", async ({ app: [app, page] }) => {
       when(() => vmix.renameInput("123", It.isString())).thenResolve();
       when(() => vmix.clearList("123")).thenResolve();
       when(() =>
-        vmix.getPartialState(
-          `vmix/inputs/input[@shortTitle="${VMIX_NAMES.VTS_LIST}"]`,
-        ),
+        vmix.getPartialState(`vmix/inputs/input[@shortTitle="VTs"]`),
       ).thenResolve({ ["@_state"]: "Paused" });
       when(() => vmix.addInputToList("123", It.isString())).thenResolve();
       when(() => vmix.getFullState()).thenResolve({
