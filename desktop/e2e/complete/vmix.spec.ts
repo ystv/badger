@@ -149,6 +149,7 @@ test("load VTs into vMix", async ({ app: [app, page] }) => {
 
   await expect(page.getByText("Ready for load")).toBeVisible();
   await page.getByRole("button", { name: "Load All VTs" }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
 
   await expect(page.getByText("Good to go!")).toBeVisible();
 });
