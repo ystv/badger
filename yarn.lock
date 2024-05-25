@@ -4537,13 +4537,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/babel-plugin-component-annotate@npm:2.16.1":
-  version: 2.16.1
-  resolution: "@sentry/babel-plugin-component-annotate@npm:2.16.1"
-  checksum: ef756012fa5c786ad3ae7dd4db47a8d60863a37383ad1f207bacca81c92aa90bf2c99fd253515c213f3f3568f6969a1fb253e08b06fbeeaffa3d911225743426
-  languageName: node
-  linkType: hard
-
 "@sentry/babel-plugin-component-annotate@npm:2.17.0":
   version: 2.17.0
   resolution: "@sentry/babel-plugin-component-annotate@npm:2.17.0"
@@ -4579,22 +4572,6 @@ __metadata:
     "@sentry/types": 7.98.0
     "@sentry/utils": 7.98.0
   checksum: ff0c5244f01f1dd663d7f34ce0dfedb9f72dc757ed5f679274f015e5b7f5d02a34305d3c5844eed64723e794cba69104c17538acb6045e0a897143260d6c0ae5
-  languageName: node
-  linkType: hard
-
-"@sentry/bundler-plugin-core@npm:2.16.1":
-  version: 2.16.1
-  resolution: "@sentry/bundler-plugin-core@npm:2.16.1"
-  dependencies:
-    "@babel/core": ^7.18.5
-    "@sentry/babel-plugin-component-annotate": 2.16.1
-    "@sentry/cli": ^2.22.3
-    dotenv: ^16.3.1
-    find-up: ^5.0.0
-    glob: ^9.3.2
-    magic-string: 0.30.8
-    unplugin: 1.0.1
-  checksum: 70ef9b3dd20e7f5f7ef38f88a975242cee7b9a7e263116df724aa9bd08e4a532e4df93afd41442a20e8bd6a658bb7491019d91a60f811c1cb082c933d8a44f9c
   languageName: node
   linkType: hard
 
@@ -4752,13 +4729,13 @@ __metadata:
   linkType: hard
 
 "@sentry/esbuild-plugin@npm:^2.7.0":
-  version: 2.16.1
-  resolution: "@sentry/esbuild-plugin@npm:2.16.1"
+  version: 2.17.0
+  resolution: "@sentry/esbuild-plugin@npm:2.17.0"
   dependencies:
-    "@sentry/bundler-plugin-core": 2.16.1
+    "@sentry/bundler-plugin-core": 2.17.0
     unplugin: 1.0.1
     uuid: ^9.0.0
-  checksum: e8b976c970c23e01fcdc18aa7572b44ef57daef78d8041d52b0a0cb3c371579a4cee535b6cb562dd5d5ac662ed212eb27046506b4db797c93ac6e6cc5d5a6309
+  checksum: 134051c93ac326cd8ff791102e7e79546e83f6a2fa9a5262d5b216990906e85682770fedf19fc20b45e2df0ee9f4b96763b08d804a2342fc2fbb3abaed3c4ce5
   languageName: node
   linkType: hard
 
