@@ -6,7 +6,12 @@ import invariant from "../../common/invariant";
 import { serverAPI } from "../base/serverApiClient";
 import { PartialMediaModel } from "@badger/prisma/utilityTypes";
 import { TRPCError } from "@trpc/server";
-import { loadAssets, reconcileList } from "./vmixHelpers";
+import {
+  addSingleItemToList,
+  isListPlaying,
+  loadAssets,
+  reconcileList,
+} from "./vmixHelpers";
 import { VMIX_NAMES } from "../../common/constants";
 import { getLocalMedia } from "../media/mediaManagement";
 
@@ -71,9 +76,20 @@ export const vmixRouter = r({
     .input(
       z.object({
         rundownID: z.number(),
+        force: z.boolean().default(false),
       }),
     )
     .mutation(async ({ input }) => {
+      if (!input.force) {
+        const isPlaying = await isListPlaying(VMIX_NAMES.VTS_LIST);
+        if (isPlaying) {
+          return {
+            ok: false,
+            reason: "alreadyPlaying",
+          };
+        }
+      }
+
       const rundown = await serverAPI().rundowns.get.query({
         id: input.rundownID,
       });
@@ -94,6 +110,34 @@ export const vmixRouter = r({
         });
       }
       await reconcileList(VMIX_NAMES.VTS_LIST, paths as string[]);
+      return {
+        ok: true,
+      };
+    }),
+  loadSingleRundownVT: proc
+    .input(
+      z.object({
+        rundownId: z.number(),
+        itemId: z.number(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const rundown = await serverAPI().rundowns.get.query({
+        id: input.rundownId,
+      });
+      invariant(rundown, "Rundown not found");
+      const item = rundown.items.find((x) => x.id === input.itemId);
+      invariant(item, "Item not found");
+      if (!item.media || item.media.state !== "Ready") {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Media not ready",
+        });
+      }
+      const localMedia = getLocalMedia();
+      const path = localMedia.find((x) => x.mediaID === item.media!.id)?.path;
+      invariant(path, "Local path not found for media " + item.media!.id);
+      await addSingleItemToList(VMIX_NAMES.VTS_LIST, path);
     }),
   loadAssets: proc
     .input(

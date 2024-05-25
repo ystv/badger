@@ -29,7 +29,7 @@ import {
   IoDownload,
   IoPush,
 } from "react-icons/io5";
-import type { Rundown } from "@badger/prisma/types";
+import type { Rundown, RundownItem } from "@badger/prisma/types";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,6 +37,16 @@ import {
 } from "@badger/components/dropdown-menu";
 import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 import { VMIX_NAMES } from "../../common/constants";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@badger/components/alert-dialog";
 
 export function VMixConnection() {
   const [state] = ipc.vmix.getConnectionState.useSuspenseQuery();
@@ -120,11 +130,19 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
       queryClient.invalidateQueries(getQueryKey(ipc.vmix.getCompleteState));
     },
   });
+  const doLoadSingle = ipc.vmix.loadSingleRundownVT.useMutation({
+    onSuccess() {
+      queryClient.invalidateQueries(getQueryKey(ipc.vmix.getCompleteState));
+    },
+  });
   const doDownload = ipc.media.downloadMedia.useMutation({
     onSuccess() {
       queryClient.invalidateQueries(getQueryKey(ipc.media.getDownloadStatus));
     },
   });
+
+  const [pendingSingleLoadItem, setPendingSingleLoadItem] =
+    useState<RundownItem | null>(null);
 
   const vtsListState = useMemo(() => {
     if (!vmixState.data) {
@@ -283,9 +301,13 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
                   </Button>
                 )}
                 {item._state === "ready" && (
-                  <Badge variant="default" className="w-full">
+                  <Button
+                    color="default"
+                    className="w-full"
+                    onClick={() => setPendingSingleLoadItem(item)}
+                  >
                     Ready for load
-                  </Badge>
+                  </Button>
                 )}
                 {item._state === "loaded" && (
                   <Badge variant="outline" className="w-full">
@@ -312,6 +334,81 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
           </TableRow>
         </TableBody>
       </Table>
+
+      <AlertDialog
+        open={
+          doLoad.data?.ok === false &&
+          (doLoad.data as { reason: string })?.reason === "alreadyPlaying"
+        }
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>VTs Currently Playing</AlertDialogTitle>
+            <AlertDialogDescription>
+              VTs are currently playing. Loading them may interrupt playback.
+              Are you sure?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                doLoad.mutate({
+                  rundownID: props.rundown.id,
+                  force: true,
+                });
+              }}
+            >
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={pendingSingleLoadItem !== null}
+        onOpenChange={(v) => {
+          if (!v) setPendingSingleLoadItem(null);
+        }}
+      >
+        {pendingSingleLoadItem && (
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                Load {pendingSingleLoadItem.name}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to load {pendingSingleLoadItem.name}? This
+                may load it in the wrong order. To load all the VTs in the
+                correct order, click "Load All" instead.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={doLoadSingle.isLoading}>
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                disabled={doLoadSingle.isLoading}
+                onClick={(e) => {
+                  e.preventDefault();
+                  invariant(pendingSingleLoadItem, "no item to load");
+                  doLoadSingle
+                    .mutateAsync({
+                      rundownId: props.rundown.id,
+                      itemId: pendingSingleLoadItem.id,
+                    })
+                    .then(() => {
+                      setPendingSingleLoadItem(null);
+                    });
+                }}
+              >
+                Continue
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        )}
+      </AlertDialog>
     </>
   );
 }
