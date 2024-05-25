@@ -1383,6 +1383,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@electron/osx-sign@npm:1.3.0":
+  version: 1.3.0
+  resolution: "@electron/osx-sign@npm:1.3.0"
+  dependencies:
+    compare-version: ^0.1.2
+    debug: ^4.3.4
+    fs-extra: ^10.0.0
+    isbinaryfile: ^4.0.8
+    minimist: ^1.2.6
+    plist: ^3.0.5
+  bin:
+    electron-osx-flat: bin/electron-osx-flat.js
+    electron-osx-sign: bin/electron-osx-sign.js
+  checksum: 7e3400546ec8c5dbf26216d5874d7d4d94c59dc008e935d186bfe1256d8f5d4a3b74d8d3d95d5d4d7f28ae18e759985670a50b2a10ffdb03289652426c0930dd
+  languageName: node
+  linkType: hard
+
 "@electron/rebuild@npm:3.6.0":
   version: 3.6.0
   resolution: "@electron/rebuild@npm:3.6.0"
@@ -6776,13 +6793,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"app-builder-lib@npm:25.0.0-alpha.7":
-  version: 25.0.0-alpha.7
-  resolution: "app-builder-lib@npm:25.0.0-alpha.7"
+"app-builder-lib@npm:25.0.0-alpha.8":
+  version: 25.0.0-alpha.8
+  resolution: "app-builder-lib@npm:25.0.0-alpha.8"
   dependencies:
     "@develar/schema-utils": ~2.6.5
     "@electron/notarize": 2.3.0
-    "@electron/osx-sign": 1.0.5
+    "@electron/osx-sign": 1.3.0
     "@electron/rebuild": 3.6.0
     "@electron/universal": 2.0.1
     "@malept/flatpak-bundler": ^0.4.0
@@ -6803,15 +6820,15 @@ __metadata:
     js-yaml: ^4.1.0
     lazy-val: ^1.0.5
     minimatch: ^5.1.1
-    read-config-file: 6.3.2
+    read-config-file: 6.4.0
     sanitize-filename: ^1.6.3
     semver: ^7.3.8
     tar: ^6.1.12
     temp-file: ^3.4.0
   peerDependencies:
-    dmg-builder: 25.0.0-alpha.7
-    electron-builder-squirrel-windows: 25.0.0-alpha.7
-  checksum: ddf80d1c81206f7e51c762d87e09b98ff326b31f59cfcfef2e0fbd66c7f5249d29c4df4de682ae4b46119e23246e7a3c7ba55c6a9159e8e36853040bccd382e6
+    dmg-builder: 25.0.0-alpha.8
+    electron-builder-squirrel-windows: 25.0.0-alpha.8
+  checksum: 4e2164b9f9541f1de48d833ca8fd5d4766ec73b8f4d9da3fe49891429b4894d737b6019ebf048728674f92c12f5b7e675477f791f5f7343d7ab2f09a21962866
   languageName: node
   linkType: hard
 
@@ -8344,6 +8361,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"config-file-ts@npm:0.2.8-rc1":
+  version: 0.2.8-rc1
+  resolution: "config-file-ts@npm:0.2.8-rc1"
+  dependencies:
+    glob: ^10.3.12
+    typescript: ^5.4.3
+  checksum: 820547f430e6b977b0be2ff25b37b890f7541edf523017afeba5351013bd7910aa3050679e5a58cde9b8414c59ef4d5b0a215f29fa5ab74e558fa56d31b6f65e
+  languageName: node
+  linkType: hard
+
 "config-file-ts@npm:^0.2.4":
   version: 0.2.6
   resolution: "config-file-ts@npm:0.2.6"
@@ -8960,6 +8987,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dotenv-expand@npm:^11.0.6":
+  version: 11.0.6
+  resolution: "dotenv-expand@npm:11.0.6"
+  dependencies:
+    dotenv: ^16.4.4
+  checksum: dbbe1ecbdf17f4ba5556744b259801bdbc8c221c0d167f4f3ef079206ebf658f487fe96ea1fd504dc15172328d25f6c665581eb8d873298904a52d48a2004b49
+  languageName: node
+  linkType: hard
+
 "dotenv-expand@npm:^5.1.0":
   version: 5.1.0
   resolution: "dotenv-expand@npm:5.1.0"
@@ -8976,7 +9012,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv@npm:^16.3.0, dotenv@npm:^16.3.1":
+"dotenv@npm:^16.3.0, dotenv@npm:^16.3.1, dotenv@npm:^16.4.4, dotenv@npm:^16.4.5":
   version: 16.4.5
   resolution: "dotenv@npm:16.4.5"
   checksum: 301a12c3d44fd49888b74eb9ccf9f07a1f5df43f489e7fcb89647a2edcd84c42d6bc349dc8df099cd18f07c35c7b04685c1a4f3e6a6a9e6b30f8d48c15b7f49c
@@ -9056,14 +9092,14 @@ __metadata:
   linkType: hard
 
 "electron-builder-squirrel-windows@npm:^25.0.0-alpha.7":
-  version: 25.0.0-alpha.7
-  resolution: "electron-builder-squirrel-windows@npm:25.0.0-alpha.7"
+  version: 25.0.0-alpha.8
+  resolution: "electron-builder-squirrel-windows@npm:25.0.0-alpha.8"
   dependencies:
-    app-builder-lib: 25.0.0-alpha.7
+    app-builder-lib: 25.0.0-alpha.8
     archiver: ^5.3.1
     builder-util: 25.0.0-alpha.6
     fs-extra: ^10.1.0
-  checksum: 29809463f527e627f34f25bee7e110de217ad0fa91ef57fbf9fbda267dea8b36e0084048c9fea92b7fb06dfd35f0bb37eed540043ab96aca794c40cd19a09342
+  checksum: 6f93599ccb9d4b5595b1eb642f8eadcd4c76f3d56bd43f5280df2e3097a83ff4e6bfb778b1c4d12f41938398b1e6b7a9efa8dfe8d73ccc6ae9b7b2b4b59d54e0
   languageName: node
   linkType: hard
 
@@ -10812,18 +10848,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob@npm:^10.2.2, glob@npm:^10.3.10, glob@npm:^10.3.3, glob@npm:^10.3.7":
-  version: 10.3.15
-  resolution: "glob@npm:10.3.15"
+"glob@npm:^10.2.2, glob@npm:^10.3.10, glob@npm:^10.3.12, glob@npm:^10.3.3, glob@npm:^10.3.7":
+  version: 10.4.1
+  resolution: "glob@npm:10.4.1"
   dependencies:
     foreground-child: ^3.1.0
-    jackspeak: ^2.3.6
-    minimatch: ^9.0.1
-    minipass: ^7.0.4
-    path-scurry: ^1.11.0
+    jackspeak: ^3.1.2
+    minimatch: ^9.0.4
+    minipass: ^7.1.2
+    path-scurry: ^1.11.1
   bin:
     glob: dist/esm/bin.mjs
-  checksum: c7aeae0b4eea0dfedc6682b71a8ad4d1ea9dfec0f2440571f916e1918c046824c8d441bbe1965c06fede025a0726c6daab5ae8019afe667364f43776eaaf9044
+  checksum: 5d33c686c80bf6877f4284adf99a8c3cbb2a6eccbc92342943fe5d4b42c01d78c1881f2223d950c92a938d0f857e12e37b86a8e5483ab2141822e053b67d0dde
   languageName: node
   linkType: hard
 
@@ -11962,7 +11998,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jackspeak@npm:^2.3.5, jackspeak@npm:^2.3.6":
+"jackspeak@npm:^2.3.5":
   version: 2.3.6
   resolution: "jackspeak@npm:2.3.6"
   dependencies:
@@ -11972,6 +12008,19 @@ __metadata:
     "@pkgjs/parseargs":
       optional: true
   checksum: 57d43ad11eadc98cdfe7496612f6bbb5255ea69fe51ea431162db302c2a11011642f50cfad57288bd0aea78384a0612b16e131944ad8ecd09d619041c8531b54
+  languageName: node
+  linkType: hard
+
+"jackspeak@npm:^3.1.2":
+  version: 3.1.2
+  resolution: "jackspeak@npm:3.1.2"
+  dependencies:
+    "@isaacs/cliui": ^8.0.2
+    "@pkgjs/parseargs": ^0.11.0
+  dependenciesMeta:
+    "@pkgjs/parseargs":
+      optional: true
+  checksum: 134276d5f785c518930701a0dcba1f3b0e9ce3e5b1c3e300898e2ae0bbd9b5195088b77252bf2110768de072c426e9e39f47e13912b0b002da4a3f4ff6e16eac
   languageName: node
   linkType: hard
 
@@ -13510,7 +13559,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:^9.0.1, minimatch@npm:^9.0.3":
+"minimatch@npm:^9.0.1, minimatch@npm:^9.0.3, minimatch@npm:^9.0.4":
   version: 9.0.4
   resolution: "minimatch@npm:9.0.4"
   dependencies:
@@ -13631,10 +13680,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minipass@npm:^5.0.0 || ^6.0.2 || ^7.0.0, minipass@npm:^7.0.2, minipass@npm:^7.0.3, minipass@npm:^7.0.4":
-  version: 7.1.1
-  resolution: "minipass@npm:7.1.1"
-  checksum: d2c461947a7530f93de4162aa3ca0a1bed1f121626906f6ec63a5ba05fd7b1d9bee4fe89a37a43db7241c2416be98a799c1796abae583c7180be37be5c392ef6
+"minipass@npm:^5.0.0 || ^6.0.2 || ^7.0.0, minipass@npm:^7.0.2, minipass@npm:^7.0.3, minipass@npm:^7.1.2":
+  version: 7.1.2
+  resolution: "minipass@npm:7.1.2"
+  checksum: 2bfd325b95c555f2b4d2814d49325691c7bee937d753814861b0b49d5edcda55cbbf22b6b6a60bb91eddac8668771f03c5ff647dcd9d0f798e9548b9cdc46ee3
   languageName: node
   linkType: hard
 
@@ -14477,7 +14526,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"path-scurry@npm:^1.10.1, path-scurry@npm:^1.11.0, path-scurry@npm:^1.6.1":
+"path-scurry@npm:^1.10.1, path-scurry@npm:^1.11.1, path-scurry@npm:^1.6.1":
   version: 1.11.1
   resolution: "path-scurry@npm:1.11.1"
   dependencies:
@@ -15358,6 +15407,20 @@ __metadata:
     json5: ^2.2.0
     lazy-val: ^1.0.4
   checksum: bb4862851b616f905219a474fe92e37f2a65e07cda896cd3a89b3b357d38f9bfc3fd3d443e2f9c5fdd85b5166d5d09d49088dd8933cd82fd606c017a20703007
+  languageName: node
+  linkType: hard
+
+"read-config-file@npm:6.4.0":
+  version: 6.4.0
+  resolution: "read-config-file@npm:6.4.0"
+  dependencies:
+    config-file-ts: 0.2.8-rc1
+    dotenv: ^16.4.5
+    dotenv-expand: ^11.0.6
+    js-yaml: ^4.1.0
+    json5: ^2.2.3
+    lazy-val: ^1.0.5
+  checksum: 7100bcca492a8d353a44ffd3e0871b316a89f7e974ac0bd367e21d90365182fb41953ab70d58148071a7014712daecacd35d7ed3cb519ed0383b67a728ef6f98
   languageName: node
   linkType: hard
 
@@ -17139,7 +17202,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^5.1.6, typescript@npm:^5.3.3, typescript@npm:^5.4.5":
+"typescript@npm:^5.1.6, typescript@npm:^5.3.3, typescript@npm:^5.4.3, typescript@npm:^5.4.5":
   version: 5.4.5
   resolution: "typescript@npm:5.4.5"
   bin:
@@ -17159,7 +17222,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^5.1.6#~builtin<compat/typescript>, typescript@patch:typescript@^5.3.3#~builtin<compat/typescript>, typescript@patch:typescript@^5.4.5#~builtin<compat/typescript>":
+"typescript@patch:typescript@^5.1.6#~builtin<compat/typescript>, typescript@patch:typescript@^5.3.3#~builtin<compat/typescript>, typescript@patch:typescript@^5.4.3#~builtin<compat/typescript>, typescript@patch:typescript@^5.4.5#~builtin<compat/typescript>":
   version: 5.4.5
   resolution: "typescript@patch:typescript@npm%3A5.4.5#~builtin<compat/typescript>::version=5.4.5&hash=5adc0c"
   bin:
