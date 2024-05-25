@@ -136,6 +136,13 @@ export default class VMixConnection {
     return this.send("FUNCTION", fn, qs.stringify(params));
   }
 
+  public async getPartialState(
+    xpath: string,
+  ): Promise<Record<string, unknown>> {
+    const [_, result] = await this.send("XMLTEXT", xpath);
+    return this.xmlParser.parse(result);
+  }
+
   public async getFullStateRaw(): Promise<unknown> {
     const [_, result] = await this.send("XML");
     return this.xmlParser.parse(result);
