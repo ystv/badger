@@ -92,6 +92,9 @@ If in doubt, please file an issue before starting work.
 
 There are still quite a few YSTV-isms in its design, for example the semi-arbitrary distinction between rundowns and continuity items - this was borne out of our workflow. Follow [the "Public-isation" milestone](https://github.com/ystv/badger/milestone/1) for a list of tasks we're working on to make Badger more generally useful.
 
+If you're using or interested using Badger for your work, we'd love to hear from you!
+File an issue or email badger-devs-group@ystv.co.uk.
+
 ## Developing
 
 We use [Linear](https://linear.app/ystv) to track issues.
