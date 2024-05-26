@@ -7,7 +7,7 @@
     "./jobrunner",
     "./utility/*"
   ],
-  "packageManager": "yarn@3.8.2",
+  "packageManager": "yarn@4.2.2",
   "devDependencies": {
     "chalk": "^5.3.0",
     "danger": "^11.2.8",
