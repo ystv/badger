@@ -21,5 +21,7 @@ export async function register() {
     debug: false,
 
     release: process.env.NEXT_PUBLIC_SENTRY_RELEASE,
+
+    integrations: [Sentry.prismaIntegration()],
   });
 }
