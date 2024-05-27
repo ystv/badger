@@ -103,8 +103,7 @@ async function doJob(jobID: number) {
       return;
   }
 
-  let failed = false;
-  await Sentry.startSpan(
+  const failed = await Sentry.startSpan(
     {
       op: handler.constructor.name,
       name: `${handler.constructor.name}#${nextJob.id}`,
@@ -112,6 +111,7 @@ async function doJob(jobID: number) {
     async () => {
       try {
         await handler.run(nextJob.jobPayload);
+        return false;
       } catch (e) {
         logger.error(`Job ${nextJob.id} failed!`);
         logger.error(e);
@@ -124,7 +124,7 @@ async function doJob(jobID: number) {
             .setTag("job.name", handler.constructor.name)
             .setLevel("error"),
         );
-        failed = true;
+        return true;
       }
     },
   );
