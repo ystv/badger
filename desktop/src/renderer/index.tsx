@@ -38,7 +38,6 @@ if (import.meta.env.VITE_DESKTOP_SENTRY_DSN) {
       dsn: import.meta.env.VITE_DESKTOP_SENTRY_DSN,
       release: global.__SENTRY_RELEASE__,
     },
-    // @ts-expect-error something wrong with Sentry's typings
     reactInit,
   );
   logging.debug("[Renderer] Sentry enabled");

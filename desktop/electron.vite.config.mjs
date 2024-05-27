@@ -22,7 +22,7 @@ const base = defineConfig({
     "global.__BUILD_TIME__": JSON.stringify(new Date().toISOString()),
     "global.__GIT_COMMIT__": JSON.stringify(gitCommit),
     "global.__SENTRY_RELEASE__": JSON.stringify(sentryRelease),
-    "global.__ENVIRONMENT__": JSON.stringify(process.env.ENVIRONMENT)
+    "global.__ENVIRONMENT__": JSON.stringify(process.env.ENVIRONMENT),
   },
   plugins: [
     sentryVitePlugin({
@@ -32,6 +32,7 @@ const base = defineConfig({
       release: {
         name: sentryRelease,
       },
+      disable: process.env.IS_YSTV_BUILD !== "true",
     }),
   ],
   build: {
@@ -62,8 +63,8 @@ const base = defineConfig({
       },
       external: [
         // Don't bundle Prisma into Desktop
-        /prisma\/client\/runtime/
-      ]
+        /prisma\/client\/runtime/,
+      ],
     },
   },
 });
@@ -73,18 +74,25 @@ const base = defineConfig({
  */
 const config = {
   main: mergeConfig(base, {
-    plugins: [commonjs(), visualizeBundle && visualizer({
-      filename: "bundle-main.html",
-    })].filter(Boolean),
+    plugins: [
+      commonjs(),
+      visualizeBundle &&
+        visualizer({
+          filename: "bundle-main.html",
+        }),
+    ].filter(Boolean),
     resolve: {
       conditions: ["node"],
       browserField: false,
     },
   }),
   renderer: mergeConfig(base, {
-    plugins: [visualizeBundle && visualizer({
-      filename: "bundle-renderer.html",
-    })].filter(Boolean),
+    plugins: [
+      visualizeBundle &&
+        visualizer({
+          filename: "bundle-renderer.html",
+        }),
+    ].filter(Boolean),
     build: {
       rollupOptions: {
         input: "./src/renderer/index.html",
@@ -92,9 +100,12 @@ const config = {
     },
   }),
   preload: mergeConfig(base, {
-    plugins: [visualizeBundle && visualizer({
-      filename: "bundle-preload.html",
-    })].filter(Boolean),
+    plugins: [
+      visualizeBundle &&
+        visualizer({
+          filename: "bundle-preload.html",
+        }),
+    ].filter(Boolean),
     build: {
       lib: {
         entry: "./src/common/preload.ts",
