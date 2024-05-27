@@ -12,7 +12,7 @@ export function UserProvider(props: {
 }) {
   useEffect(() => {
     const user = props.value;
-    if (user && Sentry.getCurrentHub().getClient()) {
+    if (user && Sentry.isInitialized()) {
       Sentry.setUser({
         id: user.id,
         email: user.email ?? undefined,
