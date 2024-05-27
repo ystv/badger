@@ -18,6 +18,9 @@ const config = {
   extends: [],
   appId,
   productName: dev ? "Badger Desktop (DEV)" : "Badger Desktop",
+  artifactName: ystv
+    ? "${productName}-ystv-${version}.${ext}"
+    : "${productName}-${version}.${ext}",
   directories: {
     output: "dist",
   },
