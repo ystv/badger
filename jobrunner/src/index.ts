@@ -102,24 +102,34 @@ async function doJob(jobID: number) {
       });
       return;
   }
-  const transaction = Sentry.startTransaction({
-    op: handler.constructor.name,
-    name: `${handler.constructor.name}#${nextJob.id}`,
-  });
-  try {
-    await handler.run(nextJob.jobPayload);
-  } catch (e) {
-    logger.error(`Job ${nextJob.id} failed!`);
-    logger.error(e);
-    Sentry.captureException(e, (scope) =>
-      scope
-        .setContext("job", {
-          type: handler.constructor.name,
-          id: nextJob.id,
-        })
-        .setTag("job.name", handler.constructor.name)
-        .setLevel("error"),
-    );
+
+  let failed = false;
+  await Sentry.startSpan(
+    {
+      op: handler.constructor.name,
+      name: `${handler.constructor.name}#${nextJob.id}`,
+    },
+    async () => {
+      try {
+        await handler.run(nextJob.jobPayload);
+      } catch (e) {
+        logger.error(`Job ${nextJob.id} failed!`);
+        logger.error(e);
+        Sentry.captureException(e, (scope) =>
+          scope
+            .setContext("job", {
+              type: handler.constructor.name,
+              id: nextJob.id,
+            })
+            .setTag("job.name", handler.constructor.name)
+            .setLevel("error"),
+        );
+        failed = true;
+      }
+    },
+  );
+
+  if (failed) {
     await db.baseJob.update({
       where: {
         id: nextJob.id,
@@ -129,10 +139,8 @@ async function doJob(jobID: number) {
       },
     });
     return;
-  } finally {
-    // The transaction may be undefined if Sentry is not initialised
-    transaction?.finish();
   }
+
   logger.info(`Job ${nextJob.id} complete`);
   await db.baseJob.update({
     where: {
