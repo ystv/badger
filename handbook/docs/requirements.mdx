@@ -1,0 +1,50 @@
+import composeFile from "!!raw-loader!../../docker-compose-example.yml";
+import CodeBlock from "@theme/CodeBlock";
+
+export const sidebar_position = 2;
+export const sidebar_label = "Installation";
+
+# Requirements
+
+Badger has three primary components: Server, Jobrunner, and Desktop.
+
+Server must be accessible from the internet or your local network. Jobrunner runs as a stand-alone service and does not need to be accessible from the internet.
+
+Server and Jobrunner are distributed as Docker images and must be run in a Docker environment. Desktop is distributed as a Windows installer.
+
+Desktop must be installed on the same computer as OBS/vMix, and currently only officially supports Windows (it can be built for macOS and Linux, but official builds are not provided).
+
+Badger also requires a few other services to function:
+
+- A [PostgreSQL](https://www.postgresql.org/) database
+- [Minio](https://min.io/) (or other S3-compatible) file storage (which could be S3 itself)
+- [Tusd](https://github.com/tus/tusd) (or other [Tus](https://tus.io)-compatible) file upload server
+
+## Docker Installation
+
+Badger Server and Jobrunner are distributed as Docker images. You can run them using Docker Compose. Here is an example `docker-compose.yml` file:
+
+<CodeBlock language="yaml" metastring="docker-compose.yml">
+  {composeFile}
+</CodeBlock>
+
+### Access
+
+Once you have Badger running, you can access the web interface at `http://localhost:3000` (or the IP address of the server if you are running it remotely).
+
+## Desktop
+
+The Badger Desktop app is distributed as a Windows installer. You can download it from the [Badger releases page](https://github.com/ystv/badger/releases).
+
+:::note[What's a YSTV build?]
+
+On the releases page you will see `ystv` in some of the build names.
+These are builds of Badger Desktop that are connected to [YSTV](https://ystv.co.uk)'s Sentry instance.
+We'd suggest you only use these if you are a member of YSTV, otherwise use the non-`ystv` builds.
+
+:::
+
+### Configuration
+
+When running Badger Desktop, you will be asked for a server URL and a password.
+The server URL is the address of your Badger Server, and the password is the value of the `API_SHARED_SECRET` environment variable.
