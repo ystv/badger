@@ -4,6 +4,7 @@ import { execFileSync } from "node:child_process";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { mergeConfig, defineConfig } from "vite";
 import { visualizer } from "rollup-plugin-visualizer";
+import ignore from "rollup-plugin-ignore";
 
 const packageJSON = JSON.parse(fs.readFileSync("./package.json", "utf-8"));
 const gitCommit =
@@ -25,6 +26,8 @@ const base = defineConfig({
     "global.__ENVIRONMENT__": JSON.stringify(process.env.ENVIRONMENT)
   },
   plugins: [
+    // Fix Prisma runtime trying to get bundled
+    ignore(["../../client"]),
     sentryVitePlugin({
       org: "ystv",
       project: "badger-desktop",
@@ -60,10 +63,6 @@ const base = defineConfig({
         }
         handler(level, log);
       },
-      external: [
-        // Don't bundle Prisma into Desktop
-        /prisma\/client/
-      ]
     },
   },
 });
