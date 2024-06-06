@@ -46,7 +46,7 @@ export async function isListPlaying(listName: string): Promise<boolean> {
   const state = await conn.getPartialState(
     `vmix/inputs/input[@shortTitle="${listName}"]`,
   );
-  return state["@_state"] === "Playing";
+  return state["@_state"] === "Running";
 }
 
 export function getInputTypeForAsset(
