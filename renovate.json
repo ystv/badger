@@ -5,7 +5,8 @@
     ":automergeLinters",
     ":automergePatch",
     ":automergePr",
-    ":prHourlyLimit4"
+    ":prHourlyLimit4",
+    "monorepo:prisma"
   ],
   "postUpdateOptions": ["yarnDedupeHighest"],
   "packageRules": [
