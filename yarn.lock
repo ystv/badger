@@ -4315,6 +4315,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@rollup/plugin-alias@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "@rollup/plugin-alias@npm:5.1.0"
+  dependencies:
+    slash: "npm:^4.0.0"
+  peerDependencies:
+    rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
+  peerDependenciesMeta:
+    rollup:
+      optional: true
+  checksum: 10/2749f9563dba9274e4324fcd14ffe761fa66ee3baab307ba583d0348adfa2c1d2a164f59eac8c26a9ce7c713a99a991a831c072101e83697157ccf082c362310
+  languageName: node
+  linkType: hard
+
 "@rollup/plugin-commonjs@npm:24.0.0":
   version: 24.0.0
   resolution: "@rollup/plugin-commonjs@npm:24.0.0"
@@ -7504,6 +7518,7 @@ __metadata:
     "@popperjs/core": "npm:^2.11.8"
     "@radix-ui/react-alert-dialog": "npm:^1.0.4"
     "@radix-ui/react-dropdown-menu": "npm:^2.0.5"
+    "@rollup/plugin-alias": "npm:^5.1.0"
     "@sentry/electron": "npm:^4.10.0"
     "@sentry/react": "npm:^7.64.0"
     "@sentry/vite-plugin": "npm:^2.7.0"
@@ -7557,6 +7572,7 @@ __metadata:
     react-icons: "npm:^4.10.1"
     react-popper: "npm:^2.3.0"
     rimraf: "npm:^5.0.7"
+    rollup-plugin-ignore: "npm:^1.0.10"
     rollup-plugin-visualizer: "npm:^5.12.0"
     rxjs: "npm:^7.8.1"
     strong-mock: "npm:^8.0.1"
@@ -15947,6 +15963,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"rollup-plugin-ignore@npm:^1.0.10":
+  version: 1.0.10
+  resolution: "rollup-plugin-ignore@npm:1.0.10"
+  checksum: 10/a8df0b3630c00eb74ecd1ebe4e407980860d0d6865cbed444d9637bc51205ca4f1a55f8164ff68ab9997e64854c187ca34e122100186dc014f937acf97bc817a
+  languageName: node
+  linkType: hard
+
 "rollup-plugin-visualizer@npm:^5.12.0":
   version: 5.12.0
   resolution: "rollup-plugin-visualizer@npm:5.12.0"
@@ -16335,6 +16358,13 @@ __metadata:
   version: 3.0.0
   resolution: "slash@npm:3.0.0"
   checksum: 10/94a93fff615f25a999ad4b83c9d5e257a7280c90a32a7cb8b4a87996e4babf322e469c42b7f649fd5796edd8687652f3fb452a86dc97a816f01113183393f11c
+  languageName: node
+  linkType: hard
+
+"slash@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "slash@npm:4.0.0"
+  checksum: 10/da8e4af73712253acd21b7853b7e0dbba776b786e82b010a5bfc8b5051a1db38ed8aba8e1e8f400dd2c9f373be91eb1c42b66e91abb407ff42b10feece5e1d2d
   languageName: node
   linkType: hard
 
@@ -17436,9 +17466,9 @@ __metadata:
   linkType: hard
 
 "undici@npm:^6.13.0":
-  version: 6.13.0
-  resolution: "undici@npm:6.13.0"
-  checksum: 10/4ec2038e95779d4f1114a5dcf5bc74ec59c7fc76f6287f8a6bea6d69113f0190e6d41cc6e14409b5d912b0a92ce910b33bfa05808f40b6bf2b802b58b427f2cf
+  version: 6.18.1
+  resolution: "undici@npm:6.18.1"
+  checksum: 10/212b636a108bd0dd9c23cd06c802af3811897dc22c95d371636b58ba16d7864c92b663f0e5ec389a2ab197923dfae6d8fdee8e3b5caa789057e4c659845ab561
   languageName: node
   linkType: hard
 
