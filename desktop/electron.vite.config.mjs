@@ -62,7 +62,7 @@ const base = defineConfig({
       },
       external: [
         // Don't bundle Prisma into Desktop
-        /prisma\/client\/runtime/
+        /prisma\/client/
       ]
     },
   },
