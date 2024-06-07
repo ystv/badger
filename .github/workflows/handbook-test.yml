@@ -1,4 +1,4 @@
-name: Test deployment
+name: Test Handbook build
 
 on:
   pull_request:
