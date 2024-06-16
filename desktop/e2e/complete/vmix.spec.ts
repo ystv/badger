@@ -151,7 +151,7 @@ test("load VTs into vMix", async ({ app: [app, page] }) => {
     });
   }, `${tempDir}/smpte_bars_15s (#${testMedia.id}).mp4`);
 
-  await expect(page.getByText("Ready for load")).toBeVisible();
+  await expect(page.getByText("Load", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Load All VTs" }).click();
 
   await expect(page.getByText("Good to go!")).toBeVisible();
