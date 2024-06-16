@@ -33,19 +33,12 @@ describe("addOrReplaceMediaAsScene", () => {
     name: "Test.mp4",
     state: "Ready",
     path: "",
-    continuityItems: [
-      {
-        id: 1,
-        mediaId: 1,
-        name: "Test Continuity",
-        order: 1,
-        durationSeconds: 15,
-        showId: 1,
-        ytBroadcastID: null,
-      },
-    ],
     durationSeconds: 15,
     rawPath: "",
+    containerType: "continuityItem",
+    containerId: 1,
+    containerName: "Test Continuity",
+    order: 1,
   };
   let mobs: MockOBSConnection;
   beforeEach(async () => {
@@ -65,7 +58,7 @@ describe("addOrReplaceMediaAsScene", () => {
     expect(mobs.scenes).toMatchInlineSnapshot(`
       [
         {
-          "name": "1 - Test Continuity [#1]",
+          "name": "1 - Test Continuity [Continuity #1]",
           "sources": [
             {
               "inputKind": "ffmpeg_source",
@@ -80,7 +73,7 @@ describe("addOrReplaceMediaAsScene", () => {
 
   test("no change", async () => {
     mobs.scenes.push({
-      name: "1 - Test Continuity [#1]",
+      name: "1 - Test Continuity [Continuity #1]",
       sources: [
         {
           inputKind: "ffmpeg_source",
@@ -99,7 +92,7 @@ describe("addOrReplaceMediaAsScene", () => {
 
   test("add to existing empty scene", async () => {
     mobs.scenes.push({
-      name: "1 - Test Continuity [#1]",
+      name: "1 - Test Continuity [Continuity #1]",
       sources: [],
     });
     const res = await addOrReplaceMediaAsScene(testMedia, "none");
@@ -113,7 +106,7 @@ describe("addOrReplaceMediaAsScene", () => {
 
   test("replace in pre-existing scene with new media ID", async () => {
     mobs.scenes.push({
-      name: "1 - Test Continuity [#1]",
+      name: "1 - Test Continuity [Continuity #1]",
       sources: [
         {
           inputKind: "ffmpeg_source",
@@ -128,7 +121,7 @@ describe("addOrReplaceMediaAsScene", () => {
         "done": false,
         "promptReplace": "replace",
         "warnings": [
-          "Scene 1 - Test Continuity [#1] has a pre-existing Badger source for a different media file.",
+          "Scene 1 - Test Continuity [Continuity #1] has a pre-existing Badger source for a different media file.",
         ],
       }
     `);
@@ -145,7 +138,7 @@ describe("addOrReplaceMediaAsScene", () => {
 
   test("non-Badger sources present", async () => {
     mobs.scenes.push({
-      name: "1 - Test Continuity [#1]",
+      name: "1 - Test Continuity [Continuity #1]",
       sources: [
         {
           inputKind: "ffmpeg_source",
@@ -165,7 +158,7 @@ describe("addOrReplaceMediaAsScene", () => {
         "done": false,
         "promptReplace": "force",
         "warnings": [
-          "Scene 1 - Test Continuity [#1] has non-Badger sources in it. Cowardly refusing to overwrite.",
+          "Scene 1 - Test Continuity [Continuity #1] has non-Badger sources in it. Cowardly refusing to overwrite.",
         ],
       }
     `);
@@ -203,9 +196,10 @@ describe("findContinuityScenes", () => {
     expect(res).toMatchInlineSnapshot(`
       [
         {
-          "continuityItemID": 1,
+          "itemId": 1,
           "sceneName": "1 - Test [#1]",
           "sources": [],
+          "type": "rundownItem",
         },
       ]
     `);

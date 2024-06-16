@@ -71,15 +71,17 @@ export async function addOrReplaceMediaAsScene(
       : info.containerType === "continuityItem"
         ? "Continuity"
         : "Asset";
-  const sceneTitle = `${info.order} - ${info.containerName} [${containerTypeStr} #${info.containerName}]`;
+  const sceneTitle = `${info.order} - ${info.containerName} [${containerTypeStr} #${info.containerId}]`;
   // Sanity checks
   invariant(
     mediaSourceName.startsWith(MEDIA_SOURCE_PREFIX),
-    "Generated media source name that won't match our prefix checks later",
+    "Generated media source name that won't match our prefix checks later: " +
+      mediaSourceName,
   );
   invariant(
     sceneTitle.match(NEW_SCENE_NAME_REGEXP),
-    "Generated scene title that won't match our regex checks later",
+    "Generated scene title that won't match our regex checks later: " +
+      sceneTitle,
   );
 
   const scenes = await obsConnection.listScenes();
