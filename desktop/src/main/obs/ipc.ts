@@ -1,12 +1,12 @@
 import { z } from "zod";
 import { proc, r } from "../base/ipcRouter";
 import { createOBSConnection, obsConnection } from "./obs";
-import { addOrReplaceMediaAsScene, findContinuityScenes } from "./obsHelpers";
+import { addOrReplaceMediaAsScene, findScenes } from "./obsHelpers";
 import { getLogger } from "loglevel";
 import { serverAPI } from "../base/serverApiClient";
 import invariant from "../../common/invariant";
 import { selectedShow } from "../base/selectedShow";
-import { getDevToolsConfig } from "../base/settings";
+import { getDevToolsConfig, getOBSSettings } from "../base/settings";
 import { TRPCError } from "@trpc/server";
 import { getLocalMedia } from "../media/mediaManagement";
 
@@ -21,6 +21,9 @@ export const obsRouter = r({
         platform: z.string().optional(),
         error: z.string().optional(),
         availableRequests: z.array(z.string()).optional(),
+        loadContinuityItems: z.boolean().optional(),
+        loadRundownItems: z.boolean().optional(),
+        loadAssets: z.boolean().optional(),
       }),
     )
     .query(async () => {
@@ -29,12 +32,19 @@ export const obsRouter = r({
         return { connected: false };
       }
       try {
-        const version = await obsConnection.ping();
+        const [version, settings] = await Promise.all([
+          obsConnection.ping(),
+          getOBSSettings(),
+        ]);
+        invariant(settings, "connected to OBS without settings");
         return {
           connected: true,
           version: version.obsVersion,
           platform: version.platformDescription,
           availableRequests: version.availableRequests,
+          loadContinuityItems: settings.loadContinuityItems,
+          loadRundownItems: settings.loadRundownItems,
+          loadAssets: settings.loadAssets,
         };
       } catch (e) {
         logger.warn("OBS connection error", e);
@@ -55,7 +65,9 @@ export const obsRouter = r({
   addMediaAsScene: proc
     .input(
       z.object({
-        id: z.number(),
+        containerType: z.enum(["rundownItem", "continuityItem", "asset"]),
+        containerId: z.number(),
+        rundownId: z.number().optional(),
         replaceMode: z.enum(["none", "replace", "force"]).default("none"),
       }),
     )
@@ -67,12 +79,45 @@ export const obsRouter = r({
       }),
     )
     .mutation(async ({ input }) => {
-      const info = await serverAPI().media.get.query({ id: input.id });
+      const show = selectedShow.value;
+      invariant(show, "No show selected");
+      let container;
+      switch (input.containerType) {
+        case "rundownItem":
+          invariant(input.rundownId, "rundownId required for rundownItem");
+          container = show.rundowns
+            .find((x) => x.id === input.rundownId)
+            ?.items?.find((x) => x.id === input.containerId);
+          break;
+        case "continuityItem":
+          container = show.continuityItems.find(
+            (x) => x.id === input.containerId,
+          );
+          break;
+        case "asset":
+          invariant(input.rundownId, "rundownId required for rundownItem");
+          container = show.rundowns
+            .find((x) => x.id === input.rundownId)
+            ?.assets?.find((x) => x.id === input.containerId);
+          break;
+      }
+      invariant(container, "item not found");
+      invariant(container.mediaId, "tried to add item with no media");
+      const info = await serverAPI().media.get.query({ id: container.mediaId });
       invariant(
         info.continuityItems.length > 0,
         "No continuity item for media in obs.addMediaAsScene",
       );
-      return await addOrReplaceMediaAsScene(info, input.replaceMode);
+      return await addOrReplaceMediaAsScene(
+        {
+          ...info,
+          containerType: input.containerType,
+          containerId: input.containerId,
+          containerName: container.name,
+          order: container.order,
+        },
+        input.replaceMode,
+      );
     }),
   addAllSelectedShowMedia: proc
     .output(
@@ -96,7 +141,10 @@ export const obsRouter = r({
           const r = await addOrReplaceMediaAsScene(
             {
               ...item.media,
-              continuityItems: [item],
+              containerType: "continuityItem",
+              containerId: item.id,
+              containerName: item.name,
+              order: item.order,
             },
             "replace",
           );
@@ -109,12 +157,13 @@ export const obsRouter = r({
       }
       return { done, warnings };
     }),
-  listContinuityItemScenes: proc
+  listBadgerScenes: proc
     .output(
       z.array(
         z.object({
           sceneName: z.string(),
-          continuityItemID: z.number(),
+          type: z.enum(["rundownItem", "continuityItem", "asset"]),
+          itemId: z.number(),
           sources: z.array(
             z.object({
               mediaID: z.number().optional(),
@@ -124,7 +173,7 @@ export const obsRouter = r({
       ),
     )
     .query(async () => {
-      return await findContinuityScenes();
+      return await findScenes();
     }),
   dev: r({
     callArbitrary: proc

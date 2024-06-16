@@ -5,7 +5,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import {
   CompleteAssetSchema,
-  CompleteRundownItemSchema,
   CompleteRundownModel,
 } from "@badger/prisma/utilityTypes";
 import { z } from "zod";
@@ -19,7 +18,6 @@ import {
   TableCell,
   TableRow,
 } from "@badger/components/table";
-import { Badge } from "@badger/components/badge";
 import { Label } from "@badger/components/label";
 import { Input } from "@badger/components/input";
 import {
@@ -29,7 +27,7 @@ import {
   IoDownload,
   IoPush,
 } from "react-icons/io5";
-import type { Rundown, RundownItem } from "@badger/prisma/types";
+import type { Rundown } from "@badger/prisma/types";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -47,6 +45,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@badger/components/alert-dialog";
+import { ItemRow } from "../components/ItemList";
 
 export function VMixConnection() {
   const [state] = ipc.vmix.getConnectionState.useSuspenseQuery();
@@ -103,16 +102,6 @@ export function VMixConnection() {
   );
 }
 
-type ItemState =
-  | "no-media"
-  | "archived"
-  | "media-processing"
-  | "no-local"
-  | "downloading"
-  | "download-error"
-  | "ready"
-  | "loaded";
-
 function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
   const queryClient = useQueryClient();
   const vmixState = ipc.vmix.getCompleteState.useQuery();
@@ -135,14 +124,6 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
       queryClient.invalidateQueries(getQueryKey(ipc.vmix.getCompleteState));
     },
   });
-  const doDownload = ipc.media.downloadMedia.useMutation({
-    onSuccess() {
-      queryClient.invalidateQueries(getQueryKey(ipc.media.getDownloadStatus));
-    },
-  });
-
-  const [pendingSingleLoadItem, setPendingSingleLoadItem] =
-    useState<RundownItem | null>(null);
 
   const vtsListState = useMemo(() => {
     if (!vmixState.data) {
@@ -154,93 +135,6 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
       ) as ListInput) ?? null
     );
   }, [vmixState.data]);
-  const items: Array<
-    z.infer<typeof CompleteRundownItemSchema> & {
-      _state: ItemState;
-      _downloadProgress?: number;
-    }
-  > = useMemo(() => {
-    return props.rundown.items
-      .filter((item) => item.type !== "Segment")
-      .sort((a, b) => a.order - b.order)
-      .map((item) => {
-        if (!item.media) {
-          return {
-            ...item,
-            _state: "no-media",
-          };
-        }
-        // Special-case archived
-        if (item.media.state === "Archived") {
-          return {
-            ...item,
-            _state: "archived",
-          };
-        }
-        if (item.media.state !== "Ready") {
-          return {
-            ...item,
-            _state: "media-processing",
-          };
-        }
-        const local = localMedia.data?.find(
-          (x) => x.mediaID === item.media!.id,
-        );
-        if (!local) {
-          const dl = downloadState.data?.find(
-            (x) => x.mediaID === item.media!.id,
-          );
-          if (dl) {
-            switch (dl.status) {
-              case "downloading":
-                return {
-                  ...item,
-                  _state: "downloading",
-                  _downloadProgress: dl.progressPercent,
-                };
-              case "pending":
-                return {
-                  ...item,
-                  _state: "downloading",
-                  _downloadProgress: 0,
-                };
-              case "error":
-                return {
-                  ...item,
-                  _state: "download-error",
-                };
-              case "done":
-                // This should advance into "ready" as soon as the localMedia query
-                // updates, but for now it'll get stuck as no-local, which is undesirable.
-                return {
-                  ...item,
-                  _state: "downloading",
-                  _downloadProgress: 100,
-                };
-            }
-          }
-          return {
-            ...item,
-            _state: "no-local",
-          };
-        }
-        if (vtsListState?.items?.find((x) => x.source === local.path)) {
-          return {
-            ...item,
-            _state: "loaded",
-          };
-        }
-        return {
-          ...item,
-          _state: "ready",
-        };
-      });
-  }, [
-    downloadState.data,
-    localMedia.data,
-    props.rundown.items,
-    vtsListState?.items,
-  ]);
 
   return (
     <>
@@ -252,71 +146,48 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
           <col style={{ width: "12rem" }} />
         </colgroup>
         <TableBody>
-          {items.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell className="text-lg">{item.name}</TableCell>
-              <TableCell>
-                {item._state === "no-media" && (
-                  <Badge variant="dark" className="w-full">
-                    No media uploaded
-                  </Badge>
-                )}
-                {item._state === "media-processing" && (
-                  <Badge variant="purple" className="w-full">
-                    Processing on server
-                  </Badge>
-                )}
-                {item._state === "archived" && (
-                  <Badge variant="dark" className="w-full">
-                    Archived on server
-                  </Badge>
-                )}
-                {item._state === "downloading" && (
-                  <Progress value={item._downloadProgress} className="w-16" />
-                )}
-                {item._state === "download-error" && (
-                  <>
-                    <Badge variant="danger" className="w-full">
-                      Download error!
-                    </Badge>
-                  </>
-                )}
-                {(item._state === "no-local" ||
-                  item._state === "download-error") && (
-                  <Button
-                    color="primary"
-                    className="w-full"
-                    onClick={async () => {
-                      invariant(
-                        item.media,
-                        "no media for item in download button handler",
-                      );
-                      await doDownload.mutateAsync({ id: item.media.id });
-                      await queryClient.invalidateQueries(
-                        getQueryKey(ipc.media.getDownloadStatus),
-                      );
-                    }}
-                  >
-                    {item._state === "no-local" ? "Download" : "Retry"}
-                  </Button>
-                )}
-                {item._state === "ready" && (
-                  <Button
-                    color="default"
-                    className="w-full"
-                    onClick={() => setPendingSingleLoadItem(item)}
-                  >
-                    Ready for load
-                  </Button>
-                )}
-                {item._state === "loaded" && (
-                  <Badge variant="outline" className="w-full">
-                    Good to go!
-                  </Badge>
-                )}
-              </TableCell>
-            </TableRow>
-          ))}
+          {props.rundown.items
+            .filter((item) => item.type !== "Segment")
+            .sort((a, b) => a.order - b.order)
+            .map((item) => {
+              const localMediaResource = localMedia.data?.find(
+                (x) => x.mediaID === item.media?.id,
+              );
+              const present = vtsListState?.items?.some(
+                (x) => x.source === localMediaResource?.path,
+              );
+              return (
+                <ItemRow
+                  key={item.id}
+                  item={{
+                    ...item,
+                    type: "rundownItem",
+                    destinationState: present ? "loaded" : "not-present",
+                  }}
+                  doAdd={async (prompt) => {
+                    if (!prompt) {
+                      return {
+                        ok: false,
+                        warnings: [
+                          `Are you sure you want to load ${item.name}?
+                          This may load it in the wrong order.
+                          To load all the VTs in the correct order, click "Load All" instead.`.replace(
+                            /\n\s+/g,
+                            " ",
+                          ),
+                        ],
+                        prompt: "force",
+                      };
+                    }
+                    await doLoadSingle.mutateAsync({
+                      rundownId: props.rundown.id,
+                      itemId: item.id,
+                    });
+                    return { ok: true };
+                  }}
+                />
+              );
+            })}
           <TableRow>
             <TableCell />
             <TableCell>
@@ -325,7 +196,9 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
                 onClick={() => doLoad.mutate({ rundownID: props.rundown.id })}
                 className="w-full"
                 color={
-                  items.some((x) => x._state === "ready") ? "primary" : "ghost"
+                  downloadState.data?.some((x) => x.status !== "done")
+                    ? "ghost"
+                    : "primary"
                 }
               >
                 Load All <span className="sr-only">VTs</span>
@@ -363,51 +236,6 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog
-        open={pendingSingleLoadItem !== null}
-        onOpenChange={(v) => {
-          if (!v) setPendingSingleLoadItem(null);
-        }}
-      >
-        {pendingSingleLoadItem && (
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                Load {pendingSingleLoadItem.name}
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to load {pendingSingleLoadItem.name}? This
-                may load it in the wrong order. To load all the VTs in the
-                correct order, click "Load All" instead.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-
-            <AlertDialogFooter>
-              <AlertDialogCancel disabled={doLoadSingle.isLoading}>
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction
-                disabled={doLoadSingle.isLoading}
-                onClick={(e) => {
-                  e.preventDefault();
-                  invariant(pendingSingleLoadItem, "no item to load");
-                  doLoadSingle
-                    .mutateAsync({
-                      rundownId: props.rundown.id,
-                      itemId: pendingSingleLoadItem.id,
-                    })
-                    .then(() => {
-                      setPendingSingleLoadItem(null);
-                    });
-                }}
-              >
-                Continue
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        )}
       </AlertDialog>
     </>
   );

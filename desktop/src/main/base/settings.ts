@@ -80,6 +80,9 @@ const OBSSettingsSchema = z.object({
   host: z.string(),
   port: z.number(),
   password: z.string(),
+  loadRundownItems: z.boolean().default(false),
+  loadContinuityItems: z.boolean().default(true),
+  loadAssets: z.boolean().default(false),
 });
 
 export async function getOBSSettings(): Promise<z.infer<
@@ -102,6 +105,28 @@ export async function saveOBSSettings(
   const val = { ...valIn };
   val.password = safeStorage.encryptString(val.password).toString("base64");
   await settings.set("obs", val);
+}
+
+const VMixSettingsSchema = z.object({
+  loadRundownItems: z.boolean().default(true),
+  loadContinuityItems: z.boolean().default(false),
+  loadAssets: z.boolean().default(true),
+});
+
+export async function getVMixSettings(): Promise<z.infer<
+  typeof VMixSettingsSchema
+> | null> {
+  const settingsData = await settings.get("vmix");
+  if (settingsData === undefined) {
+    return null;
+  }
+  return VMixSettingsSchema.parse(settingsData);
+}
+
+export async function saveVMixSettings(
+  val: z.infer<typeof VMixSettingsSchema>,
+): Promise<void> {
+  await settings.set("vmix", val);
 }
 
 const MediaSettingsSchema = z.object({

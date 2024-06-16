@@ -1,9 +1,5 @@
 import { vi, describe, test, expect, beforeEach, afterEach } from "vitest";
-import {
-  addOrReplaceMediaAsScene,
-  findContinuityScenes,
-  MediaType,
-} from "./obsHelpers";
+import { addOrReplaceMediaAsScene, findScenes, MediaType } from "./obsHelpers";
 import { MockOBSConnection } from "./__mocks__/obs";
 
 vi.mock("./obs");
@@ -195,14 +191,14 @@ describe("findContinuityScenes", () => {
     mobs._reset();
   });
   test("empty", async () => {
-    expect(await findContinuityScenes()).toHaveLength(0);
+    expect(await findScenes()).toHaveLength(0);
   });
   test("one with no media", async () => {
     mobs.scenes.push({
       name: "1 - Test [#1]",
       sources: [],
     });
-    const res = await findContinuityScenes();
+    const res = await findScenes();
     expect(res).toHaveLength(1);
     expect(res).toMatchInlineSnapshot(`
       [
@@ -225,7 +221,7 @@ describe("findContinuityScenes", () => {
         },
       ],
     });
-    const res = await findContinuityScenes();
+    const res = await findScenes();
     expect(res).toHaveLength(1);
     expect(res[0].sources).toHaveLength(1);
     expect(res[0].sources[0]).toMatchInlineSnapshot(`

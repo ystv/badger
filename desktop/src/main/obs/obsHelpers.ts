@@ -5,9 +5,8 @@ import {
   SceneItem,
 } from "./obs";
 import invariant from "../../common/invariant";
-import type { Media, ContinuityItem } from "@badger/prisma/client";
+import type { Media } from "@badger/prisma/client";
 import { getLogger } from "../base/logging";
-import { selectedShow } from "../base/selectedShow";
 import { getLocalMedia } from "../media/mediaManagement";
 
 const logger = getLogger("obsHelpers");
@@ -17,15 +16,19 @@ const logger = getLogger("obsHelpers");
  */
 
 export type MediaType = Media & {
-  continuityItems: ContinuityItem[];
+  containerType: "rundownItem" | "continuityItem" | "asset";
+  containerId: number;
+  containerName: string;
+  order: number;
 };
 
 const MEDIA_SOURCE_PREFIX = "Badger Media ";
-export const CONTINUITY_SCENE_NAME_REGEXP = /^\d+ - .+? \[#(\d+)]$/;
+export const OLD_CONTINUITY_SCENE_NAME_REGEXP = /^\d+ - .+? \[#(\d+)]$/;
+export const NEW_SCENE_NAME_REGEXP =
+  /^\d - .*? \[(VT|Continuity|Asset) #(\d+)\]$/;
 
 /**
  * Adds a file to an OBS scene as a media source, creating the scene if it does not exist.
- * Note that this should only be called for media associated with continuity items, any other media will throw an error.
  * @param info the media to add
  * @param replaceMode how to handle OBS scenes that already exist:
  *   "none": do not replace existing sources
@@ -50,10 +53,6 @@ export async function addOrReplaceMediaAsScene(
     warnings.push(v);
   };
 
-  invariant(
-    info.continuityItems.length > 0,
-    "No continuity item for media in addMediaAsScene",
-  );
   invariant(obsConnection, "no OBS connection");
   const localMedia = getLocalMedia();
   const item = localMedia.find((x) => x.mediaID === info.id);
@@ -65,25 +64,23 @@ export async function addOrReplaceMediaAsScene(
   const videoSettings = await obsConnection.getVideoSettings();
 
   const mediaSourceName = MEDIA_SOURCE_PREFIX + info.id.toString(10);
-  const currentContinuityItem = info.continuityItems.find(
-    (x) => x.showId === selectedShow.value!.id,
+
+  const containerTypeStr =
+    info.containerType === "rundownItem"
+      ? "VT"
+      : info.containerType === "continuityItem"
+        ? "Continuity"
+        : "Asset";
+  const sceneTitle = `${info.order} - ${info.containerName} [${containerTypeStr} #${info.containerName}]`;
+  // Sanity checks
+  invariant(
+    mediaSourceName.startsWith(MEDIA_SOURCE_PREFIX),
+    "Generated media source name that won't match our prefix checks later",
   );
   invariant(
-    currentContinuityItem,
-    `No continuity item for media ${info.id} matches current show`,
+    sceneTitle.match(NEW_SCENE_NAME_REGEXP),
+    "Generated scene title that won't match our regex checks later",
   );
-  const sceneTitle = `${currentContinuityItem.order} - ${currentContinuityItem.name} [#${currentContinuityItem.id}]`;
-  // Sanity checks
-  if (import.meta.env.DEV) {
-    invariant(
-      mediaSourceName.startsWith(MEDIA_SOURCE_PREFIX),
-      "Generated media source name that won't match our prefix checks later",
-    );
-    invariant(
-      sceneTitle.match(CONTINUITY_SCENE_NAME_REGEXP),
-      "Generated scene title that won't match our regex checks later",
-    );
-  }
 
   const scenes = await obsConnection.listScenes();
   const ours = scenes.find((x) => x.sceneName === sceneTitle);
@@ -243,10 +240,11 @@ async function _doAddMediaToScene(
   });
 }
 
-export async function findContinuityScenes(): Promise<
+export async function findScenes(): Promise<
   Array<{
     sceneName: string;
-    continuityItemID: number;
+    type: "rundownItem" | "continuityItem" | "asset";
+    itemId: number;
     sources: (SceneItem & {
       mediaID?: number;
     })[];
@@ -254,8 +252,10 @@ export async function findContinuityScenes(): Promise<
 > {
   invariant(obsConnection, "no OBS connection");
   const scenes = await obsConnection.listScenes();
-  const continuityScenes = scenes.filter((x) =>
-    CONTINUITY_SCENE_NAME_REGEXP.test(x.sceneName),
+  const continuityScenes = scenes.filter(
+    (x) =>
+      OLD_CONTINUITY_SCENE_NAME_REGEXP.test(x.sceneName) ||
+      NEW_SCENE_NAME_REGEXP.test(x.sceneName),
   );
   const sceneItems = await Promise.all(
     continuityScenes.map((x) => obsConnection!.getSceneItems(x.sceneName)),
@@ -273,11 +273,29 @@ export async function findContinuityScenes(): Promise<
         ),
       };
     });
-    const continuityItemID = CONTINUITY_SCENE_NAME_REGEXP.exec(x.sceneName)![1];
-    return {
-      sceneName: x.sceneName,
-      continuityItemID: parseInt(continuityItemID, 10),
-      sources,
-    };
+    const oldRes = OLD_CONTINUITY_SCENE_NAME_REGEXP.exec(x.sceneName);
+    if (oldRes) {
+      return {
+        sceneName: x.sceneName,
+        type: "rundownItem",
+        itemId: parseInt(oldRes[1], 10),
+        sources,
+      };
+    }
+    const newRes = NEW_SCENE_NAME_REGEXP.exec(x.sceneName);
+    if (newRes) {
+      return {
+        sceneName: x.sceneName,
+        type:
+          newRes[1] === "VT"
+            ? "rundownItem"
+            : newRes[1] === "Continuity"
+              ? "continuityItem"
+              : "asset",
+        itemId: parseInt(newRes[2], 10),
+        sources,
+      };
+    }
+    invariant(false, "Scene name didn't match either regex");
   });
 }
