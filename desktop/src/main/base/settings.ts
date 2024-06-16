@@ -84,6 +84,7 @@ const OBSSettingsSchema = z.object({
   loadContinuityItems: z.boolean().default(true),
   loadAssets: z.boolean().default(false),
 });
+export type OBSSettings = z.infer<typeof OBSSettingsSchema>;
 
 export async function getOBSSettings(): Promise<z.infer<
   typeof OBSSettingsSchema

@@ -295,6 +295,10 @@ export async function createOBSConnection(
     host: obsHost,
     password: obsPassword,
     port: obsPort,
+    // FIXME[BDGR-170]
+    loadAssets: false,
+    loadRundownItems: false,
+    loadContinuityItems: true,
   });
   return obsConnection;
 }
