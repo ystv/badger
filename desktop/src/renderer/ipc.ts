@@ -25,13 +25,13 @@ const clientConfig: CreateTRPCClientOptions<AppRouter> = {
           return next(op);
         }
         return observable((observer) => {
-          ipcProxy.log.mutate({
+          ipcProxy.core.log.mutate({
             level: "trace",
             message: `<-- ${op.type} ${op.path}`,
           });
           const unsubscribe = next(op).subscribe({
             next: (res) => {
-              ipcProxy.log.mutate({
+              ipcProxy.core.log.mutate({
                 level: "trace",
                 message: `--> ${op.type} ${op.path} data ${JSON.stringify(
                   res,
@@ -40,7 +40,7 @@ const clientConfig: CreateTRPCClientOptions<AppRouter> = {
               observer.next(res);
             },
             error: (err) => {
-              ipcProxy.log.mutate({
+              ipcProxy.core.log.mutate({
                 level: "error",
                 message: `--> ${op.type} ${op.path} ${err}`,
               });
@@ -65,7 +65,7 @@ const oldFactory = logging.methodFactory;
 logging.methodFactory = function (levelName, level, logger) {
   return function (message) {
     oldFactory(levelName, level, logger)(message);
-    ipcProxy.log.mutate({
+    ipcProxy.core.log.mutate({
       level: levelName,
       logger: typeof logger === "symbol" ? String(logger) : logger,
       message,
@@ -76,19 +76,19 @@ logging.methodFactory = function (levelName, level, logger) {
 const { log, info, warn, error } = console;
 window.console.log = (...args: unknown[]) => {
   log(...args);
-  ipcProxy.log.mutate({ level: "debug", message: args.join(" ") });
+  ipcProxy.core.log.mutate({ level: "debug", message: args.join(" ") });
 };
 window.console.info = (...args: unknown[]) => {
   info(...args);
-  ipcProxy.log.mutate({ level: "info", message: args.join(" ") });
+  ipcProxy.core.log.mutate({ level: "info", message: args.join(" ") });
 };
 window.console.warn = (...args: unknown[]) => {
   warn(...args);
-  ipcProxy.log.mutate({ level: "warn", message: args.join(" ") });
+  ipcProxy.core.log.mutate({ level: "warn", message: args.join(" ") });
 };
 window.console.error = (...args: unknown[]) => {
   error(...args);
-  ipcProxy.log.mutate({ level: "error", message: args.join(" ") });
+  ipcProxy.core.log.mutate({ level: "error", message: args.join(" ") });
 };
 
 // eslint-disable-next-line no-console

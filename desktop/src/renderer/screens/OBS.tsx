@@ -98,7 +98,7 @@ export function OBSSettings() {
 
 function OBSContinuityItems() {
   const queryClient = useQueryClient();
-  const show = ipc.getSelectedShow.useQuery(undefined).data!;
+  const show = ipc.shows.getSelectedShow.useQuery(undefined).data!;
   const current = ipc.obs.listBadgerScenes.useQuery();
   const items = current.data?.filter((x) => x.type === "continuityItem") ?? [];
 

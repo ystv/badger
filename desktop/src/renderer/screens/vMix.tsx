@@ -46,6 +46,9 @@ import {
   AlertDialogTitle,
 } from "@badger/components/alert-dialog";
 import { ItemRow } from "../components/ItemList";
+import logging from "loglevel";
+
+const logger = logging.getLogger("vMix");
 
 export function VMixConnection() {
   const [state] = ipc.vmix.getConnectionState.useSuspenseQuery();
@@ -209,10 +212,7 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
       </Table>
 
       <AlertDialog
-        open={
-          doLoad.data?.ok === false &&
-          (doLoad.data as { reason: string })?.reason === "alreadyPlaying"
-        }
+        open={doLoad.data?.ok === false && doLoad.data.reason === "playing"}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -228,6 +228,167 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
               onClick={() => {
                 doLoad.mutate({
                   rundownID: props.rundown.id,
+                  force: true,
+                });
+              }}
+            >
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
+
+function ContinuityItems() {
+  const { data: show } = ipc.shows.getSelectedShow.useQuery();
+  invariant(show, "no selected show"); // this is safe because MainScreen is rendered inside a ConnectAndSelectShowGate
+  const items = show.continuityItems.sort((a, b) => a.order - b.order);
+
+  const qc = useQueryClient();
+  const connState = ipc.vmix.getConnectionState.useQuery();
+  const vmixState = ipc.vmix.getCompleteState.useQuery();
+  const downloadState = ipc.media.getDownloadStatus.useQuery(undefined, {
+    refetchInterval: (data) =>
+      data?.some((x) => x.status !== "done") ? 1_000 : false,
+  });
+  const localMedia = ipc.media.getLocalMedia.useQuery(undefined, {
+    refetchInterval: () =>
+      downloadState.data?.some((x) => x.status !== "done") ? 1_000 : 10_000,
+    staleTime: 2_500,
+  });
+  const doLoad = ipc.vmix.loadContinuityItems.useMutation({
+    onSuccess() {
+      qc.invalidateQueries(getQueryKey(ipc.vmix.getCompleteState));
+    },
+  });
+
+  if (
+    connState.isLoading ||
+    vmixState.isLoading ||
+    downloadState.isLoading ||
+    localMedia.isLoading
+  ) {
+    return <div>Loading...</div>;
+  }
+  invariant(
+    connState.data && vmixState.data && downloadState.data && localMedia.data,
+    "some query data is missing",
+  );
+
+  return (
+    <>
+      <h2 className="text-xl font-light">Continuity</h2>
+      <Table>
+        <TableBody>
+          {items.map((item) => {
+            const path = localMedia.data?.find(
+              (x) => x.mediaID === item.media?.id,
+            )?.path;
+            let isLoaded;
+            switch (connState.data.loadContinuityItems) {
+              case "list": {
+                const list = vmixState.data.inputs.find(
+                  (x) => x.title === VMIX_NAMES.CONTINUITY_LIST,
+                );
+                if (list) {
+                  if (list.type !== "VideoList") {
+                    logger.warn(`Continuity list is not a VideoList`, list);
+                    isLoaded = false;
+                    break;
+                  }
+                  isLoaded =
+                    list?.items.some((x) => x.source === path) ?? false;
+                  break;
+                }
+                isLoaded = false;
+                break;
+              }
+              case "loose":
+                isLoaded = vmixState.data.inputs.some(
+                  (x) =>
+                    x.type === "Video" &&
+                    path?.endsWith(x.title /* FIXME: not sure this is right */),
+                );
+                break;
+              case false:
+                invariant(
+                  false,
+                  "loadContinuityItems is false inside <ContinuityItems>",
+                );
+            }
+            return (
+              <ItemRow
+                item={{
+                  ...item,
+                  type: "continuityItem",
+                  destinationState: isLoaded ? "loaded" : "not-present",
+                }}
+                doAdd={async (prompt) => {
+                  const result = await doLoad.mutateAsync({
+                    items: [{ id: item.id }],
+                    force: prompt === "Force",
+                  });
+                  if (!result.ok) {
+                    invariant(
+                      result.reason === "playing",
+                      `unexpected reason ${result.reason}`,
+                    );
+                    return {
+                      ok: false,
+                      warnings: [
+                        "Continuity is currently playing. Loading may interrupt playback.",
+                      ],
+                      prompt: "Force",
+                    };
+                  }
+                  return { ok: true };
+                }}
+              />
+            );
+          })}
+          <TableRow>
+            <TableCell />
+            <TableCell>
+              <Button
+                disabled={doLoad.isLoading}
+                onClick={() =>
+                  doLoad.mutate({
+                    items,
+                  })
+                }
+                className="w-full"
+                color={
+                  downloadState.data?.some((x) => x.status !== "done")
+                    ? "ghost"
+                    : "primary"
+                }
+              >
+                Load All <span className="sr-only">Continuity Items</span>
+              </Button>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+
+      <AlertDialog
+        open={doLoad.data?.ok === false && doLoad.data.reason === "playing"}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Continuity Currently Playing</AlertDialogTitle>
+            <AlertDialogDescription>
+              Continuity is currently playing. Loading them may interrupt
+              playback. Are you sure?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                doLoad.mutate({
+                  items,
                   force: true,
                 });
               }}
@@ -555,7 +716,7 @@ function RundownAssets(props: {
   );
 }
 
-function Rundown(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
+function InnerScreen(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
   const queryClient = useQueryClient();
   const { data: downloadStatus } = ipc.media.getDownloadStatus.useQuery(
     undefined,
@@ -572,11 +733,18 @@ function Rundown(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
     }
   }, [downloadStatus, prevDownloadStatus, queryClient]);
 
+  const connectionState = ipc.vmix.getConnectionState.useQuery();
+
   return (
     <div className="space-y-4">
       <h1 className="text-2xl">{props.rundown.name}</h1>
-      <RundownVTs rundown={props.rundown} />
-      <RundownAssets rundown={props.rundown} />
+      {connectionState.data?.loadRundownItems && (
+        <RundownVTs rundown={props.rundown} />
+      )}
+      {connectionState.data?.loadAssets && (
+        <RundownAssets rundown={props.rundown} />
+      )}
+      {connectionState.data?.loadContinuityItems && <ContinuityItems />}
     </div>
   );
 }
@@ -605,5 +773,5 @@ export default function VMixScreen(props: {
       </Alert>
     );
   }
-  return <Rundown rundown={props.rundown} />;
+  return <InnerScreen rundown={props.rundown} />;
 }
