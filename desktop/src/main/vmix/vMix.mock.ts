@@ -4,7 +4,30 @@ import VMixConnection from "./vmix";
 
 const logger = getLogger("vMix.mock");
 
-let mockVmix: VMixConnection;
+const mockVmix: VMixConnection = mock<VMixConnection>();
+when(() => mockVmix.host)
+  .thenReturn("localhost")
+  .anyTimes();
+when(() => mockVmix.port)
+  .thenReturn(8099)
+  .anyTimes();
+when(() => mockVmix.getFullState()).thenResolve({
+  version: "26",
+  edition: "4k",
+  inputs: [],
+});
+
+globalThis.__MOCK_VMIX = (
+  cb: (w: typeof when, mockVmix: VMixConnection, it: typeof It) => unknown,
+) => cb(when, mockVmix, It);
+
+globalThis.__MOCK_VMIX_RESET = () => {
+  reset(mockVmix);
+};
+
+globalThis.__MOCK_VMIX_VERIFY = () => {
+  verify(mockVmix);
+};
 
 declare global {
   // If you change this, also change e2e/complete/vmix.spec.ts's copy.
@@ -24,31 +47,5 @@ declare global {
 
 export function getMockVMix() {
   logger.debug("Using mock vMix");
-  if (!mockVmix) {
-    mockVmix = mock<VMixConnection>();
-    when(() => mockVmix.host)
-      .thenReturn("localhost")
-      .anyTimes();
-    when(() => mockVmix.port)
-      .thenReturn(8099)
-      .anyTimes();
-    when(() => mockVmix.getFullState()).thenResolve({
-      version: "26",
-      edition: "4k",
-      inputs: [],
-    });
-
-    globalThis.__MOCK_VMIX = (
-      cb: (w: typeof when, mockVmix: VMixConnection, it: typeof It) => unknown,
-    ) => cb(when, mockVmix, It);
-
-    globalThis.__MOCK_VMIX_RESET = () => {
-      reset(mockVmix);
-    };
-
-    globalThis.__MOCK_VMIX_VERIFY = () => {
-      verify(mockVmix);
-    };
-  }
   return mockVmix;
 }

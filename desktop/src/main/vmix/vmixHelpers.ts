@@ -4,13 +4,20 @@ import { getVMixConnection } from "./vmix";
 import { InputType, ListInput, ListItem } from "./vmixTypes";
 import type { Asset, Media } from "@badger/prisma/client";
 
-export async function reconcileList(listName: string, elements: string[]) {
+export async function reconcileList(
+  listName: string,
+  elements: string[],
+  force?: boolean,
+): Promise<{ ok: true } | { ok: false; reason: "playing" }> {
   const conn = getVMixConnection();
   invariant(conn, "VMix connection not initialized");
   const state = await conn.getFullState();
   const existingInput = state.inputs.find((x) => x.shortTitle === listName);
   let key;
   if (existingInput) {
+    if (existingInput.state === "Running" && !force) {
+      return { ok: false, reason: "playing" };
+    }
     key = existingInput.key;
   } else {
     key = await conn.addInput("VideoList", "");
@@ -23,12 +30,18 @@ export async function reconcileList(listName: string, elements: string[]) {
   for (const el of elements) {
     await conn.addInputToList(key, el);
   }
+  return { ok: true };
 }
 
-export async function addSingleItemToList(listName: string, path: string) {
+export async function addSingleItemToList(listName: string, media: Media) {
   const conn = getVMixConnection();
   invariant(conn, "VMix connection not initialized");
   const state = await conn.getFullState();
+  const localMedia = getLocalMedia();
+  const local = localMedia.find((x) => x.mediaID === media.id);
+  if (!local) {
+    throw new Error("No local media for asset " + media.id);
+  }
   const existingInput = state.inputs.find((x) => x.shortTitle === listName);
   let key;
   if (existingInput) {
@@ -37,7 +50,7 @@ export async function addSingleItemToList(listName: string, path: string) {
     key = await conn.addInput("VideoList", "");
     await conn.renameInput(key, listName);
   }
-  await conn.addInputToList(key, path);
+  await conn.addInputToList(key, local.path);
 }
 
 export async function isListPlaying(listName: string): Promise<boolean> {
@@ -49,10 +62,8 @@ export async function isListPlaying(listName: string): Promise<boolean> {
   return state["@_state"] === "Running";
 }
 
-export function getInputTypeForAsset(
-  asset: Asset & { media: Media | null },
-): InputType {
-  const extension = asset.media!.name.split(".").pop();
+export function getInputTypeForMedia(media: Media): InputType {
+  const extension = media.name.split(".").pop();
   switch (extension) {
     case "gtxml":
     case "gtzip":
@@ -115,7 +126,7 @@ export async function loadAssets(
     if (loadType === "direct") {
       const present = state.inputs.find((x) => x.title === asset.media!.name);
       if (!present) {
-        await vmix.addInput(getInputTypeForAsset(asset), local.path);
+        await vmix.addInput(getInputTypeForMedia(asset.media), local.path);
       }
     } else if (loadType === "list") {
       const present = listMedia.some((x) => x.source === local.path);
@@ -126,5 +137,21 @@ export async function loadAssets(
     } else {
       invariant(false, "Invalid load type " + loadType);
     }
+  }
+}
+
+export async function loadSingleMedia(media: Media, name: string) {
+  const localMedia = getLocalMedia();
+  const vmix = getVMixConnection();
+  invariant(vmix, "No vMix connection");
+
+  const local = localMedia.find((x) => x.mediaID === media.id);
+  if (!local) {
+    throw new Error("No local media for asset " + media.id);
+  }
+
+  const present = await vmix.getFullState();
+  if (!present.inputs.some((x) => x.title === name)) {
+    await vmix.addInput(getInputTypeForMedia(media), local.path);
   }
 }

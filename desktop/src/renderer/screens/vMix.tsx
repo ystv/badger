@@ -117,12 +117,12 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
       downloadState.data?.some((x) => x.status !== "done") ? 1_000 : 10_000,
     staleTime: 2_500,
   });
-  const doLoad = ipc.vmix.loadRundownVTs.useMutation({
+  const doBulkLoad = ipc.vmix.bulkLoad.useMutation({
     onSuccess() {
       queryClient.invalidateQueries(getQueryKey(ipc.vmix.getCompleteState));
     },
   });
-  const doLoadSingle = ipc.vmix.loadSingleRundownVT.useMutation({
+  const doLoadSingle = ipc.vmix.loadSingleItem.useMutation({
     onSuccess() {
       queryClient.invalidateQueries(getQueryKey(ipc.vmix.getCompleteState));
     },
@@ -142,7 +142,7 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
   return (
     <>
       <h2 className="text-xl font-light">VTs</h2>
-      {doLoad.error && <Alert>{doLoad.error.message}</Alert>}
+      {doBulkLoad.error && <Alert>{doBulkLoad.error.message}</Alert>}
       <Table>
         <colgroup>
           <col />
@@ -184,7 +184,9 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
                     }
                     await doLoadSingle.mutateAsync({
                       rundownId: props.rundown.id,
-                      itemId: item.id,
+                      type: "rundownItem",
+                      id: item.id,
+                      mode: "list",
                     });
                     return { ok: true };
                   }}
@@ -195,8 +197,16 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
             <TableCell />
             <TableCell>
               <Button
-                disabled={doLoad.isLoading}
-                onClick={() => doLoad.mutate({ rundownID: props.rundown.id })}
+                disabled={doBulkLoad.isLoading}
+                onClick={() =>
+                  doBulkLoad.mutate({
+                    source: {
+                      type: "rundownItems",
+                      rundownID: props.rundown.id,
+                    },
+                    mode: "list",
+                  })
+                }
                 className="w-full"
                 color={
                   downloadState.data?.some((x) => x.status !== "done")
@@ -212,7 +222,9 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
       </Table>
 
       <AlertDialog
-        open={doLoad.data?.ok === false && doLoad.data.reason === "playing"}
+        open={
+          doBulkLoad.data?.ok === false && doBulkLoad.data.reason === "playing"
+        }
       >
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -226,8 +238,12 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                doLoad.mutate({
-                  rundownID: props.rundown.id,
+                doBulkLoad.mutate({
+                  source: {
+                    type: "rundownItems",
+                    rundownID: props.rundown.id,
+                  },
+                  mode: "list",
                   force: true,
                 });
               }}
@@ -258,7 +274,8 @@ function ContinuityItems() {
       downloadState.data?.some((x) => x.status !== "done") ? 1_000 : 10_000,
     staleTime: 2_500,
   });
-  const doLoad = ipc.vmix.loadContinuityItems.useMutation({
+  const loadSingle = ipc.vmix.loadSingleItem.useMutation();
+  const bulkLoad = ipc.vmix.bulkLoad.useMutation({
     onSuccess() {
       qc.invalidateQueries(getQueryKey(ipc.vmix.getCompleteState));
     },
@@ -325,24 +342,12 @@ function ContinuityItems() {
                   type: "continuityItem",
                   destinationState: isLoaded ? "loaded" : "not-present",
                 }}
-                doAdd={async (prompt) => {
-                  const result = await doLoad.mutateAsync({
-                    items: [{ id: item.id }],
-                    force: prompt === "Force",
+                doAdd={async () => {
+                  await loadSingle.mutateAsync({
+                    type: "continuityItem",
+                    id: item.id,
+                    mode: "list",
                   });
-                  if (!result.ok) {
-                    invariant(
-                      result.reason === "playing",
-                      `unexpected reason ${result.reason}`,
-                    );
-                    return {
-                      ok: false,
-                      warnings: [
-                        "Continuity is currently playing. Loading may interrupt playback.",
-                      ],
-                      prompt: "Force",
-                    };
-                  }
                   return { ok: true };
                 }}
               />
@@ -352,10 +357,13 @@ function ContinuityItems() {
             <TableCell />
             <TableCell>
               <Button
-                disabled={doLoad.isLoading}
+                disabled={bulkLoad.isLoading}
                 onClick={() =>
-                  doLoad.mutate({
-                    items,
+                  bulkLoad.mutate({
+                    source: {
+                      type: "continuityItems",
+                    },
+                    mode: "list",
                   })
                 }
                 className="w-full"
@@ -373,7 +381,7 @@ function ContinuityItems() {
       </Table>
 
       <AlertDialog
-        open={doLoad.data?.ok === false && doLoad.data.reason === "playing"}
+        open={bulkLoad.data?.ok === false && bulkLoad.data.reason === "playing"}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -387,8 +395,11 @@ function ContinuityItems() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                doLoad.mutate({
-                  items,
+                bulkLoad.mutate({
+                  source: {
+                    type: "continuityItems",
+                  },
+                  mode: "list",
                   force: true,
                 });
               }}
@@ -432,7 +443,7 @@ function SingleAsset({
       );
     },
   });
-  const doLoad = ipc.vmix.loadAssets.useMutation({
+  const doLoadSingle = ipc.vmix.loadSingleItem.useMutation({
     async onSuccess() {
       await queryClient.invalidateQueries(
         getQueryKey(ipc.vmix.getCompleteState),
@@ -482,9 +493,10 @@ function SingleAsset({
         {state.state === "ready" && (
           <Button
             onClick={() =>
-              doLoad.mutate({
-                rundownID: rundown.id,
-                assetID: asset.id,
+              doLoadSingle.mutate({
+                type: "asset",
+                id: asset.id,
+                mode: "loose",
               })
             }
             color="primary"
@@ -533,7 +545,7 @@ function AssetCategory(props: {
   // Just so there's *some* feedback - determining it from vMix is unreliable
   // as we don't know how it'll be loaded
   const [didLoad, setDidLoad] = useState(false);
-  const doLoad = ipc.vmix.loadAssets.useMutation({
+  const doBulkLoad = ipc.vmix.bulkLoad.useMutation({
     async onSuccess() {
       setDidLoad(true);
     },
@@ -642,10 +654,13 @@ function AssetCategory(props: {
           <DropdownMenuContent>
             <DropdownMenuItem
               onClick={() =>
-                doLoad.mutate({
-                  rundownID: props.rundown.id,
-                  category: props.category,
-                  loadType: "list",
+                doBulkLoad.mutate({
+                  source: {
+                    type: "rundownAssets",
+                    rundownID: props.rundown.id,
+                    category: props.category,
+                  },
+                  mode: "list",
                 })
               }
             >
@@ -653,10 +668,13 @@ function AssetCategory(props: {
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() =>
-                doLoad.mutate({
-                  rundownID: props.rundown.id,
-                  category: props.category,
-                  loadType: "direct",
+                doBulkLoad.mutate({
+                  source: {
+                    type: "rundownAssets",
+                    rundownID: props.rundown.id,
+                    category: props.category,
+                  },
+                  mode: "loose",
                 })
               }
             >
