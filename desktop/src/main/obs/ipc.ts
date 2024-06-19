@@ -9,6 +9,7 @@ import { selectedShow } from "../base/selectedShow";
 import { getDevToolsConfig, getOBSSettings } from "../base/settings";
 import { TRPCError } from "@trpc/server";
 import { getLocalMedia } from "../media/mediaManagement";
+import { Media } from "@badger/prisma/types";
 
 const logger = getLogger("obs/ipc");
 
@@ -42,9 +43,6 @@ export const obsRouter = r({
           version: version.obsVersion,
           platform: version.platformDescription,
           availableRequests: version.availableRequests,
-          loadContinuityItems: settings.loadContinuityItems,
-          loadRundownItems: settings.loadRundownItems,
-          loadAssets: settings.loadAssets,
         };
       } catch (e) {
         logger.warn("OBS connection error", e);
@@ -119,43 +117,81 @@ export const obsRouter = r({
         input.replaceMode,
       );
     }),
-  addAllSelectedShowMedia: proc
-    .output(
+  bulkAddMedia: proc
+    .input(
       z.object({
-        done: z.number(),
-        warnings: z.array(z.string()),
+        source: z.discriminatedUnion("type", [
+          z.object({ type: z.literal("rundownItems"), rundownID: z.number() }),
+          z.object({
+            type: z.literal("rundownAssets"),
+            rundownID: z.number(),
+            category: z.string(),
+          }),
+          z.object({ type: z.literal("continuityItems") }),
+        ]),
       }),
     )
-    .mutation(async () => {
+    .mutation(async ({ input }) => {
       const show = selectedShow.value;
       invariant(show, "No show selected");
-      const state = getLocalMedia();
-      let done = 0;
-      const warnings: string[] = [];
-      for (const item of show.continuityItems) {
+      let sources: Array<{
+        media: Media | null;
+        name: string;
+        id: number;
+        order: number;
+      }>;
+      const source = input.source;
+      switch (source.type) {
+        case "rundownItems": {
+          invariant(source.rundownID, "Rundown ID required");
+          const rundown = show.rundowns.find((x) => x.id === source.rundownID);
+          invariant(rundown, `Rundown ${source.rundownID} not found`);
+          sources = rundown.items.sort((a, b) => a.order - b.order);
+          break;
+        }
+        case "rundownAssets": {
+          invariant(source.rundownID, "Rundown ID required");
+          const rundown = show.rundowns.find((x) => x.id === source.rundownID);
+          invariant(rundown, `Rundown ${source.rundownID} not found`);
+          sources = rundown.assets
+            .filter((x) => x.category === source.category)
+            .sort((a, b) => a.order - b.order);
+          break;
+        }
+        case "continuityItems": {
+          sources = show.continuityItems.sort((a, b) => a.order - b.order);
+          break;
+        }
+        default:
+          invariant(false, "Unknown source type");
+      }
+      if (sources.some((x) => !x.media || x.media.state !== "Ready")) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Not all media is ready",
+        });
+      }
+      const locals = getLocalMedia();
+      for (const source of sources) {
         if (
-          item.media &&
-          item.media.state === "Ready" &&
-          state.some((x) => x.mediaID === item.media!.id)
+          source.media &&
+          locals.some((x) => x.mediaID === source.media!.id)
         ) {
-          const r = await addOrReplaceMediaAsScene(
+          await addOrReplaceMediaAsScene(
             {
-              ...item.media,
-              containerType: "continuityItem",
-              containerId: item.id,
-              containerName: item.name,
-              order: item.order,
+              ...source.media,
+              containerType: input.source.type.replace(/s$/, "") as
+                | "rundownItem"
+                | "continuityItem"
+                | "asset",
+              containerId: source.id,
+              containerName: source.name,
+              order: source.order,
             },
             "replace",
           );
-          if (r.done) {
-            done++;
-          } else if (r.warnings.length > 0) {
-            warnings.push(item.name + ": " + r.warnings.join(" "));
-          }
         }
       }
-      return { done, warnings };
     }),
   listBadgerScenes: proc
     .output(

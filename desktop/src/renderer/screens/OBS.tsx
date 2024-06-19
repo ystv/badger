@@ -103,7 +103,7 @@ function OBSContinuityItems() {
   const items = current.data?.filter((x) => x.type === "continuityItem") ?? [];
 
   const addToOBS = ipc.obs.addMediaAsScene.useMutation();
-  const addAll = ipc.obs.addAllSelectedShowMedia.useMutation({
+  const addAll = ipc.obs.bulkAddMedia.useMutation({
     async onSuccess() {
       await queryClient.invalidateQueries(
         getQueryKey(ipc.obs.listBadgerScenes),
@@ -161,7 +161,11 @@ function OBSContinuityItems() {
             <Button
               className="w-full"
               color="light"
-              onClick={() => addAll.mutate()}
+              onClick={() =>
+                addAll.mutate({
+                  source: { type: "continuityItems" },
+                })
+              }
             >
               Add All
             </Button>

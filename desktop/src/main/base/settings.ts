@@ -80,9 +80,6 @@ const OBSSettingsSchema = z.object({
   host: z.string(),
   port: z.number(),
   password: z.string(),
-  loadRundownItems: z.boolean().default(false),
-  loadContinuityItems: z.boolean().default(true),
-  loadAssets: z.boolean().default(false),
 });
 export type OBSSettings = z.infer<typeof OBSSettingsSchema>;
 
@@ -106,28 +103,6 @@ export async function saveOBSSettings(
   const val = { ...valIn };
   val.password = safeStorage.encryptString(val.password).toString("base64");
   await settings.set("obs", val);
-}
-
-const VMixSettingsSchema = z.object({
-  loadRundownItems: z.boolean().default(true),
-  loadContinuityItems: z.boolean().default(false),
-  loadAssets: z.boolean().default(true),
-});
-
-export async function getVMixSettings(): Promise<z.infer<
-  typeof VMixSettingsSchema
-> | null> {
-  const settingsData = await settings.get("vmix");
-  if (settingsData === undefined) {
-    return null;
-  }
-  return VMixSettingsSchema.parse(settingsData);
-}
-
-export async function saveVMixSettings(
-  val: z.infer<typeof VMixSettingsSchema>,
-): Promise<void> {
-  await settings.set("vmix", val);
 }
 
 const MediaSettingsSchema = z.object({
@@ -206,4 +181,25 @@ export async function saveDownloadsSettings(
   val: DownloadsSettings,
 ): Promise<void> {
   await settings.set("downloads", val);
+}
+
+export const itemLoadingSettingsSchema = z.object({
+  rundownItems: z.array(z.enum(["obs", "vmix"])).default(["vmix"]),
+  continuityItems: z.array(z.enum(["obs", "vmix"])).default(["obs"]),
+  assets: z.array(z.enum(["obs", "vmix"])).default(["vmix"]),
+});
+export type ItemLoadingSettings = z.infer<typeof itemLoadingSettingsSchema>;
+
+export async function getItemLoadingSettings(): Promise<ItemLoadingSettings> {
+  const settingsData = await settings.get("itemLoading");
+  if (settingsData === undefined) {
+    return itemLoadingSettingsSchema.parse({});
+  }
+  return itemLoadingSettingsSchema.parse(settingsData);
+}
+
+export async function saveItemLoadingSettings(
+  val: ItemLoadingSettings,
+): Promise<void> {
+  await settings.set("itemLoading", val);
 }

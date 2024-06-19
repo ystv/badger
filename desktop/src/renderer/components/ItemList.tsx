@@ -19,6 +19,7 @@ import { expectNever } from "ts-expect";
 export interface Item {
   type: "rundownItem" | "continuityItem";
   id: number;
+  rundownID?: number;
   name: string;
   media: Media | null;
   destinationState: "not-present" | "loaded";
@@ -26,20 +27,20 @@ export interface Item {
 
 export type DoAddResult =
   | { ok: true }
-  | { ok: false; warnings: string[]; prompt: string };
+  | { ok: false; warnings: string[]; prompt?: string };
 
 function ItemAddButton({
   item,
   doAdd,
 }: {
   item: Item;
-  doAdd: (prompt?: string) => Promise<unknown>;
+  doAdd: (prompt?: string) => Promise<DoAddResult>;
 }) {
   const queryClient = useQueryClient();
   const localMedia = ipc.media.getLocalMedia.useQuery();
   const [alert, setAlert] = useState<null | {
     warnings: string[];
-    prompt: string | "ok";
+    prompt: string;
   }>(null);
   const downloadMedia = ipc.media.downloadMedia.useMutation();
   const downloadStatus = ipc.media.getDownloadStatus.useQuery(void 0, {
@@ -150,7 +151,21 @@ function ItemAddButton({
       break;
     case "ready":
       contents = (
-        <Button color="primary" onClick={() => doAdd()} className="h-full">
+        <Button
+          color="primary"
+          onClick={() => {
+            doAdd().then((res) => {
+              if (res.ok) {
+                return;
+              }
+              setAlert({
+                warnings: res.warnings,
+                prompt: res.prompt ?? "OK",
+              });
+            });
+          }}
+          className="h-full"
+        >
           Load
         </Button>
       );
@@ -187,24 +202,22 @@ function ItemAddButton({
                   Cancel
                 </Button>
               </AlertDialogCancel>
-              {alert.prompt === "ok" ? (
-                <AlertDialogAction asChild>
-                  <Button className="h-full my-0">Confirm</Button>
-                </AlertDialogAction>
-              ) : (
-                <AlertDialogAction asChild>
-                  <Button
-                    color="warning"
-                    onClick={async () => {
-                      await doAdd(alert.prompt);
+              <AlertDialogAction asChild>
+                <Button
+                  color="warning"
+                  onClick={async () => {
+                    if (alert.prompt === "OK") {
                       setAlert(null);
-                    }}
-                    className="h-full my-0"
-                  >
-                    {alert.prompt}
-                  </Button>
-                </AlertDialogAction>
-              )}
+                      return;
+                    }
+                    await doAdd(alert.prompt);
+                    setAlert(null);
+                  }}
+                  className="h-full my-0"
+                >
+                  {alert.prompt}
+                </Button>
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         )}
@@ -218,7 +231,7 @@ export function ItemRow({
   doAdd,
 }: {
   item: Item;
-  doAdd: (prompt?: string) => Promise<unknown>;
+  doAdd: (prompt?: string) => Promise<DoAddResult>;
 }) {
   return (
     <TableRow>
