@@ -184,9 +184,9 @@ export async function saveDownloadsSettings(
 }
 
 export const itemLoadingSettingsSchema = z.object({
-  rundownItems: z.array(z.enum(["obs", "vmix"])).default(["vmix"]),
-  continuityItems: z.array(z.enum(["obs", "vmix"])).default(["obs"]),
-  assets: z.array(z.enum(["obs", "vmix"])).default(["vmix"]),
+  rundownItems: z.enum(["obs", "vmix"]).default("vmix"),
+  continuityItems: z.enum(["obs", "vmix"]).default("obs"),
+  assets: z.enum(["obs", "vmix"]).default("vmix"),
 });
 export type ItemLoadingSettings = z.infer<typeof itemLoadingSettingsSchema>;
 

@@ -16,13 +16,14 @@ import { ipc, useInvalidateQueryOnIPCEvent } from "../ipc";
 import { Media } from "@badger/prisma/types";
 import { expectNever } from "ts-expect";
 
+export type ItemLoadState = "not-present" | "loaded" | "unknown";
 export interface Item {
-  type: "rundownItem" | "continuityItem";
+  type: "rundownItem" | "continuityItem" | "asset";
   id: number;
   rundownID?: number;
   name: string;
   media: Media | null;
-  destinationState: "not-present" | "loaded";
+  destinationState: ItemLoadState;
 }
 
 export type DoAddResult =
@@ -79,6 +80,9 @@ function ItemAddButton({
     }
     if (ourDownloadStatus?.status === "error") {
       return "download-error";
+    }
+    if (item.destinationState === "unknown") {
+      return "unknown";
     }
     if (item.destinationState !== "not-present") {
       if (item.destinationState === "loaded") {
@@ -172,6 +176,9 @@ function ItemAddButton({
       break;
     case "loaded":
       contents = <Badge variant="outline">Good to go!</Badge>;
+      break;
+    case "unknown":
+      contents = <Badge variant="outline">Loading...</Badge>;
       break;
     default:
       expectNever(state);

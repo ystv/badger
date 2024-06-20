@@ -3,6 +3,7 @@ import { test } from "./desktopE2EUtils";
 import * as fsp from "node:fs/promises";
 import * as path from "node:path";
 import {
+  createAndUploadTestMedia,
   directlyCreateTestMedia,
   loadServerEnvVars,
   server,
@@ -11,7 +12,6 @@ import type { CompleteShowType } from "../../src/common/types";
 import * as os from "os";
 import type VMixConnection from "../../src/main/vmix/vmix";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { VMIX_NAMES } from "../../src/common/constants";
 
 let testShow: CompleteShowType;
 let tempDir: string;
@@ -280,4 +280,108 @@ test("load assets into vMix", async ({ app: [app, page] }) => {
   await page.getByRole("menuitem", { name: "In List" }).click();
 
   await expect(page.getByTestId("Load Success")).toBeVisible();
+});
+
+test("load continuity items into vMix [list]", async ({ app: [app, page] }) => {
+  const ts2 = await server.shows.update.mutate({
+    id: testShow.id,
+    data: {
+      continuityItems: {
+        create: {
+          name: "Test Continuity",
+          durationSeconds: 15,
+          order: 1,
+        },
+      },
+    },
+  });
+
+  const testFile = await fsp.readFile(
+    path.join(__dirname, "..", "testdata", "smpte_bars_15s.mp4"),
+  );
+  const media = await createAndUploadTestMedia(
+    "continuityItem",
+    ts2.continuityItems[0].id,
+    "smpte_bars_15s.mp4",
+    testFile,
+  );
+  await expect
+    .poll(
+      async () => {
+        const med = await server.media.get.query({ id: media.id });
+        // eslint-disable-next-line no-console
+        console.log(`Test media: ${med.state}`);
+        return med.state;
+      },
+      {
+        timeout: 30_000,
+        intervals: [500],
+      },
+    )
+    .toBe("Ready");
+
+  await app.evaluate(({ ipcMain }) => {
+    ipcMain.emit("doIPCMutation", {}, "devtools.setSettings", {
+      enabled: true,
+    });
+  });
+  await app.evaluate(({ ipcMain }) => {
+    ipcMain.emit("doIPCMutation", {}, "devtools.setEnabledIntegrations", [
+      "obs",
+      "ontime",
+      "vmix",
+    ]);
+  });
+
+  await app.evaluate((_, testMediaPath) => {
+    globalThis.__MOCK_VMIX((when, vmix, It) => {
+      when(() => vmix.getFullState())
+        .thenResolve({
+          version: "26",
+          edition: "4k",
+          inputs: [],
+        })
+        .once();
+      when(() => vmix.addInput("VideoList", It.isString())).thenResolve("123");
+      when(() => vmix.renameInput("123", It.isString())).thenResolve();
+      when(() => vmix.clearList("123")).thenResolve();
+      when(() =>
+        vmix.getPartialState(`vmix/inputs/input[@shortTitle="Continuity"]`),
+      ).thenResolve({ ["@_state"]: "Paused" });
+      when(() => vmix.addInputToList("123", It.isString())).thenResolve();
+      when(() => vmix.getFullState()).thenResolve({
+        version: "26",
+        edition: "4k",
+        inputs: [
+          {
+            key: "123",
+            number: 1,
+            type: "VideoList",
+            title: "VTs - smpte_bars_15s.mp4",
+            shortTitle: "VTs",
+            state: "Paused",
+            position: 0,
+            duration: 0,
+            loop: false,
+            selectedIndex: 1,
+            items: [
+              {
+                source: testMediaPath,
+                selected: true,
+              },
+            ],
+          },
+        ],
+      });
+    });
+  }, `${tempDir}/smpte_bars_15s (#${media.id}).mp4`);
+
+  await page.getByRole("button", { name: "Select" }).click();
+  await expect(page.getByText("Continuity")).toBeVisible();
+
+  await page.getByRole("button", { name: "Download All" }).click();
+
+  await page.getByRole("button", { name: "Load All Continuity Items" }).click();
+
+  await expect(page.getByText("Good to go!")).toBeVisible();
 });
