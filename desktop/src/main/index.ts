@@ -2,7 +2,7 @@ import { app, BrowserWindow } from "electron";
 import * as path from "path";
 import { createIPCHandler } from "electron-trpc/main";
 import { emitObservable, setSender } from "./ipcEventBus";
-import { appRouter } from "./ipcApi";
+import { appRouter } from "./coreIPC";
 import { tryCreateAPIClient } from "./base/serverApiClient";
 import { tryCreateOBSConnection } from "./obs/obs";
 import { migrateSettings } from "./base/settings";

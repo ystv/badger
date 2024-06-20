@@ -27,18 +27,20 @@ import { LogLevelNames } from "loglevel";
 export function Settings() {
   const queryClient = useQueryClient();
   const [devToolsState] = ipc.devtools.getSettings.useSuspenseQuery();
-  const [integrations] = ipc.supportedIntegrations.useSuspenseQuery();
+  const [integrations] = ipc.core.supportedIntegrations.useSuspenseQuery();
   const [availableDownloaders] =
     ipc.media.getAvailableDownloaders.useSuspenseQuery();
   const [selectedDownloader] =
     ipc.media.getSelectedDownloader.useSuspenseQuery();
-  const [logLevel] = ipc.getLogLevel.useSuspenseQuery();
+  const [logLevel] = ipc.core.getLogLevel.useSuspenseQuery();
 
   const doMainError = ipc.devtools.throwException.useMutation();
   const doMainCrash = ipc.devtools.crash.useMutation();
   const doSetIntegrations = ipc.devtools.setEnabledIntegrations.useMutation({
     onSettled() {
-      queryClient.invalidateQueries(getQueryKey(ipc.supportedIntegrations));
+      queryClient.invalidateQueries(
+        getQueryKey(ipc.core.supportedIntegrations),
+      );
     },
   });
   const doSetDownloader = ipc.media.setSelectedDownloader.useMutation({
@@ -48,9 +50,9 @@ export function Settings() {
       );
     },
   });
-  const doSetLogLevel = ipc.setLogLevel.useMutation({
+  const doSetLogLevel = ipc.core.setLogLevel.useMutation({
     onSettled() {
-      queryClient.invalidateQueries(getQueryKey(ipc.getLogLevel));
+      queryClient.invalidateQueries(getQueryKey(ipc.core.getLogLevel));
     },
   });
 

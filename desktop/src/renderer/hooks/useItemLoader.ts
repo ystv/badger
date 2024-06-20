@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { ipc } from "../ipc";
-import type { Item, DoAddResult } from "../components/ItemList";
+import type { DoAddResult } from "../components/ItemList";
 import {
   Asset,
   ContinuityItem,

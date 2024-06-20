@@ -5,9 +5,6 @@ import { getQueryKey } from "@trpc/react-query";
 import { Alert } from "@badger/components/alert";
 import { Label } from "@badger/components/label";
 import { Input } from "@badger/components/input";
-import logging from "loglevel";
-
-const logger = logging.getLogger("vMix");
 
 export function VMixConnection() {
   const [state] = ipc.vmix.getConnectionState.useSuspenseQuery();
