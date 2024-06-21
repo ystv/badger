@@ -17,9 +17,20 @@ app.use(json());
 
 app.use(rewrite("/api/trpc/*", "/default/api/trpc/$1"));
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function routerize(obj: Record<string, any>) {
+  for (const k of Object.keys(obj)) {
+    if (typeof obj[k] === "object" && !("_def" in obj[k])) {
+      obj[k] = routerize(obj[k]);
+    }
+  }
+  return t.router(obj);
+}
+
 const scenarioRouters: Record<string, ReturnType<(typeof t)["router"]>> = {};
 for (const scenario of readdirSync(path.join(__dirname, "scenarios"))) {
   console.log(`Building router for ${scenario}`);
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const scenarioResponses = require(
     `./scenarios/${scenario}/responses`,
   ).default;
@@ -32,7 +43,8 @@ for (const scenario of readdirSync(path.join(__dirname, "scenarios"))) {
       set(responses, endpoint, (defaultResponses as any)[endpoint]);
     }
   }
-  scenarioRouters[scenario] = t.router(responses);
+
+  scenarioRouters[scenario] = routerize(responses);
 }
 
 app.use("/:scenario/api/trpc", async (req, res, next) => {
