@@ -6558,19 +6558,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^20.5.1":
+"@types/node@npm:*, @types/node@npm:20.14.8, @types/node@npm:^20.5.1":
   version: 20.14.8
   resolution: "@types/node@npm:20.14.8"
   dependencies:
     undici-types: "npm:~5.26.4"
   checksum: 10/73822f66f269ce865df7e2f586787ac7444bd1169fd265cbed1e851b72787f1170517c5b616e0308ec2fbc0934ec6403b0f28d4152acbb0486071aec41167d51
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:20.4.10":
-  version: 20.4.10
-  resolution: "@types/node@npm:20.4.10"
-  checksum: 10/747a865006aaeda5cb821fa4c90e60c6035e548ec16db38e5b008d04e7a0d7599e0ac9e24ad0d2906d5dae377b3434ffbbdbd39c4e52846b5bb6b54135b51331
   languageName: node
   linkType: hard
 
@@ -8289,7 +8282,7 @@ __metadata:
     "@types/debug": "npm:^4.1.12"
     "@types/jest": "npm:^29.5.9"
     "@types/lodash": "npm:^4.14.196"
-    "@types/node": "npm:20.4.10"
+    "@types/node": "npm:20.14.8"
     "@types/react": "npm:^18.2.33"
     "@types/react-beforeunload": "npm:^2.1.5"
     "@types/react-datepicker": "npm:^4.15.0"
