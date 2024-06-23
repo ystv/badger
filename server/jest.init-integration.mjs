@@ -37,6 +37,7 @@ jest.mock("@/lib/db", () => {
       if (db) {
         return db;
       }
+      console.log(`Using new DB instance for test ${hash}`);
       db = new PrismaClient({
         datasources: {
           db: {
