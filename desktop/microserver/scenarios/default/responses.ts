@@ -44,9 +44,9 @@ export const sampleShow: z.infer<typeof CompleteShowModel> = {
   continuityItems: [
     {
       id: 1,
-      name: "Test Continuity Item",
+      name: "Test Continuity",
       durationSeconds: 15,
-      order: 1,
+      order: 0,
       media: null,
       mediaId: null,
       showId: 1,

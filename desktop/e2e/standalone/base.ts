@@ -5,6 +5,8 @@ import {
   type ElectronApplication,
   type Page,
 } from "@playwright/test";
+import { tmpdir } from "node:os";
+import { mkdtempSync } from "node:fs";
 
 const MICRO_SERVER_PORT = process.env.MICRO_SERVER_PORT
   ? parseInt(process.env.MICRO_SERVER_PORT, 10)
@@ -33,6 +35,21 @@ const test = base.extend<{
     expect(
       app.evaluate(({ ipcMain }) => ipcMain.emit("resetTestSettings")),
     ).not.toBe(false);
+
+    const tempMediaPath = mkdtempSync(tmpdir(), { encoding: "utf-8" });
+    console.log(`Using temp media path: ${tempMediaPath}`);
+    await app.evaluate(({ ipcMain }, tempPath) => {
+      ipcMain.emit(
+        "setSetting",
+        {},
+        {
+          key: "media",
+          value: {
+            mediaPath: tempPath,
+          },
+        },
+      );
+    }, tempMediaPath);
 
     const win = await app.firstWindow();
 

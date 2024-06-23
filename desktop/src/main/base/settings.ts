@@ -39,6 +39,7 @@ ipcMain.on("resetTestSettings", () => {
 });
 
 ipcMain.on("setSetting", (_, { key, value }) => {
+  logger.info(`TEST: Setting ${key} to ${value}`);
   inMemSettings.set(key, value);
 });
 
