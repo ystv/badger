@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { exec as execRaw } from "node:child_process";
 import { promisify } from "node:util";
 import { PrismaClient } from "@badger/prisma/client/index.js";
+import { vi, expect, beforeAll, beforeEach, afterEach, afterAll } from "vitest";
 
 /*
  * his file sets up and tears down a PostgreSQL database for each Jest test using Prisma.
@@ -25,7 +26,7 @@ let dbs = [];
 
 const dbInstances = new Map();
 
-jest.mock("@/lib/db", () => {
+vi.mock("@/lib/db", () => {
   const db = { db: null };
   return new Proxy(db, {
     get(target, prop) {
