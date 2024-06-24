@@ -90,9 +90,11 @@ if (danger.github.pr) {
       ticketBranchPrefixRe.test(danger.github.pr.head.ref)
     )
   ) {
-    warn(
-      "No Linear ticket found. Please include one in either the pull request title (e.g. `[BDGR-123] Fix something`), the description (`Fixes BDGR-123.`), or the branch name (`bow-123-fix-something`).",
-    );
+    if (danger.github.pr.user.type !== "Bot") {
+      warn(
+        "No Linear ticket found. Please include one in either the pull request title (e.g. `[BDGR-123] Fix something`), the description (`Fixes BDGR-123.`), or the branch name (`bow-123-fix-something`).",
+      );
+    }
   }
 
   const touchesMigrations = danger.git.modified_files.some((f) =>
