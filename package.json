@@ -32,7 +32,7 @@
     "*": "prettier --ignore-unknown --write"
   },
   "resolutions": {
-    "zod": "<=3.21.1",
+    "zod": "<=3.23.8",
     "p-event": "<5.0.0",
     "flora-colossus@^2.0.0": "patch:flora-colossus@npm%3A2.0.0#./.yarn/patches/flora-colossus-npm-2.0.0-277653bd57.patch"
   }

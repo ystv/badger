@@ -19084,10 +19084,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod@npm:<=3.21.1":
-  version: 3.21.1
-  resolution: "zod@npm:3.21.1"
-  checksum: 10/333c3f423fd63704468e08661c915da06e8b56b3b429fecc7882aa088dbe81e392fa996c42b7e0589b3724aae0a8b4654b06e959c3738f99a162103dbbaebc0e
+"zod@npm:<=3.23.8":
+  version: 3.23.8
+  resolution: "zod@npm:3.23.8"
+  checksum: 10/846fd73e1af0def79c19d510ea9e4a795544a67d5b34b7e1c4d0425bf6bfd1c719446d94cdfa1721c1987d891321d61f779e8236fde517dc0e524aa851a6eff1
   languageName: node
   linkType: hard
 
