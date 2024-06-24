@@ -2088,11 +2088,11 @@ __metadata:
   linkType: hard
 
 "@hookform/resolvers@npm:^3.1.1":
-  version: 3.4.2
-  resolution: "@hookform/resolvers@npm:3.4.2"
+  version: 3.6.0
+  resolution: "@hookform/resolvers@npm:3.6.0"
   peerDependencies:
     react-hook-form: ^7.0.0
-  checksum: 10/a7773a3c38665826f4d72183667724da49f72646e3207c36e1a89433c782b823cae9675a19756314bc1b27ac237976c77d8341d4be4641c0e7c04aef40f1a0f4
+  checksum: 10/6dd1b7ad21ed2b171470740884e0b83982c79a0d4ceddabe60b616e53eeed2b5569cdba5e91ad844e379aeda5ffa835b0c2d2525d702fcd8b263c2194895f9b7
   languageName: node
   linkType: hard
 
