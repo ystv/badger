@@ -102,7 +102,9 @@ test("download continuity media and load into OBS", async ({
 
     const [createSceneData, respondCreateScene] =
       await obs.waitForRequest("CreateScene");
-    expect(createSceneData.sceneName).toBe("0 - Test Continuity [#1]");
+    expect(createSceneData.sceneName).toBe(
+      "0 - Test Continuity [Continuity #1]",
+    );
     await respondCreateScene({
       success: true,
       code: 100,
@@ -113,7 +115,9 @@ test("download continuity media and load into OBS", async ({
 
     const [createInputData, respondCreateInput] =
       await obs.waitForRequest("CreateInput");
-    expect(createInputData.sceneName).toBe("0 - Test Continuity [#1]");
+    expect(createInputData.sceneName).toBe(
+      "0 - Test Continuity [Continuity #1]",
+    );
     expect(createInputData.inputName).toBe("Badger Media 1");
     await respondCreateInput({
       success: true,
@@ -138,11 +142,11 @@ test("download continuity media and load into OBS", async ({
       data: {
         scenes: [
           {
-            sceneName: "0 - Test Continuity [#1]",
+            sceneName: "0 - Test Continuity [Continuity #1]",
           },
         ],
-        currentProgramSceneName: "0 - Test Continuity [#1]",
-        currentPreviewSceneName: "0 - Test Continuity [#1]",
+        currentProgramSceneName: "0 - Test Continuity [Continuity #1]",
+        currentPreviewSceneName: "0 - Test Continuity [Continuity #1]",
         currentPreviewSceneUuid: "",
         currentProgramSceneUuid: "",
       },
@@ -150,7 +154,9 @@ test("download continuity media and load into OBS", async ({
 
     const [dataGetSceneItemList, respondGetSceneItemList] =
       await obs.waitForRequest("GetSceneItemList");
-    expect(dataGetSceneItemList.sceneName).toBe("0 - Test Continuity [#1]");
+    expect(dataGetSceneItemList.sceneName).toBe(
+      "0 - Test Continuity [Continuity #1]",
+    );
     await respondGetSceneItemList({
       success: true,
       code: 100,
@@ -181,11 +187,13 @@ test("download continuity media and load into OBS", async ({
 
     await page.getByRole("button", { name: "Download", exact: true }).click();
 
-    await expect(page.getByRole("button", { name: "Add to OBS" })).toBeVisible({
+    await expect(
+      page.getByRole("button", { name: "Load", exact: true }),
+    ).toBeVisible({
       timeout: 15_000,
     });
 
-    await page.getByRole("button", { name: "Add to OBS" }).click();
+    await page.getByRole("button", { name: "Load", exact: true }).click();
 
     await expect(page.getByText("Good to go!")).toBeVisible({
       timeout: 15_000,

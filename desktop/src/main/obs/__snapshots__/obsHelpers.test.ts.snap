@@ -3,7 +3,7 @@
 exports[`addOrReplaceMediaAsScene > add to existing empty scene 1`] = `
 [
   {
-    "name": "1 - Test Continuity [#1]",
+    "name": "1 - Test Continuity [Continuity #1]",
     "sources": [
       {
         "inputKind": "ffmpeg_source",
@@ -18,7 +18,7 @@ exports[`addOrReplaceMediaAsScene > add to existing empty scene 1`] = `
 exports[`addOrReplaceMediaAsScene > no change 1`] = `
 [
   {
-    "name": "1 - Test Continuity [#1]",
+    "name": "1 - Test Continuity [Continuity #1]",
     "sources": [
       {
         "inputKind": "ffmpeg_source",
@@ -33,7 +33,7 @@ exports[`addOrReplaceMediaAsScene > no change 1`] = `
 exports[`addOrReplaceMediaAsScene > non-Badger sources present 2`] = `
 [
   {
-    "name": "1 - Test Continuity [#1]",
+    "name": "1 - Test Continuity [Continuity #1]",
     "sources": [
       {
         "inputKind": "ffmpeg_source",
@@ -59,7 +59,7 @@ Map {
 exports[`addOrReplaceMediaAsScene > replace in pre-existing scene with new media ID 2`] = `
 [
   {
-    "name": "1 - Test Continuity [#1]",
+    "name": "1 - Test Continuity [Continuity #1]",
     "sources": [
       {
         "inputKind": "ffmpeg_source",
