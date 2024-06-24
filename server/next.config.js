@@ -1,3 +1,4 @@
+// @ts-check
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { PrismaPlugin } = require("@prisma/nextjs-monorepo-workaround-plugin");
 const { withSentryConfig } = require("@sentry/nextjs");
@@ -60,11 +61,13 @@ const nextConfig = {
   },
 };
 
-module.exports = withSentryConfig(
-  nextConfig,
-  {
+if (process.env.IS_PRODUCTION_BUILD !== "true") {
+  module.exports = nextConfig;
+} else {
+  module.exports = withSentryConfig(nextConfig, {
     // For all available options, see:
     // https://github.com/getsentry/sentry-webpack-plugin#options
+    // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
 
     // Suppresses source map uploading logs during build
     silent: true,
@@ -72,17 +75,14 @@ module.exports = withSentryConfig(
     org: "ystv",
     project: "badger-server",
     authToken: process.env.SENTRY_AUTH_TOKEN,
-    release: sentryRelease,
-  },
-  {
+    release: {
+      name: sentryRelease,
+    },
+
     // For all available options, see:
-    // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
     widenClientFileUpload: true,
-    transpileClientSDK: false,
     tunnelRoute: "/monitoring",
     hideSourceMaps: true,
     disableLogger: true,
-    disableClientWebpackPlugin: process.env.IS_PRODUCTION_BUILD !== "true",
-    disableServerWebpackPlugin: process.env.IS_PRODUCTION_BUILD !== "true",
-  },
-);
+  });
+}

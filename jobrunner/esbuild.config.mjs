@@ -35,7 +35,7 @@ await esbuild.build({
       release: {
         name: sentryRelease,
       },
-      disable: process.env.IS_PRODUCTION_BUILD !== "true",
+      disable: process.env.IS_YSTV_BUILD !== "true",
     }),
   ],
 });
