@@ -1,7 +1,7 @@
 {
   "name": "badger-jobrunner",
-  "version": "1.0.3-canary.1",
-  "packageManager": "yarn@4.2.2",
+  "version": "1.0.3-canary.5",
+  "packageManager": "yarn@4.3.1",
   "devDependencies": {
     "@sentry/esbuild-plugin": "^2.17.0",
     "@tsconfig/node18": "^18.2.0",

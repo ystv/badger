@@ -43,10 +43,18 @@ export async function addSingleItemToList(listName: string, path: string) {
 export async function isListPlaying(listName: string): Promise<boolean> {
   const conn = getVMixConnection();
   invariant(conn, "VMix connection not initialized");
-  const state = await conn.getPartialState(
-    `vmix/inputs/input[@shortTitle="${listName}"]`,
-  );
-  return state["@_state"] === "Playing";
+  let state;
+  try {
+    state = await conn.getPartialState(
+      `vmix/inputs/input[@shortTitle="${listName}"]`,
+    );
+  } catch (e) {
+    if (e instanceof Error && e.message.includes("Entry Not Found")) {
+      return false;
+    }
+    throw e;
+  }
+  return state["@_state"] === "Running";
 }
 
 export function getInputTypeForAsset(
