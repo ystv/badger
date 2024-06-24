@@ -45,7 +45,7 @@
     "p-event": "^6.0.0",
     "postcss": "^8.4.27",
     "prettier": "^3.0.3",
-    "prettier-plugin-tailwindcss": "^0.5.9",
+    "prettier-plugin-tailwindcss": "^0.6.0",
     "rimraf": "^5.0.7",
     "rollup-plugin-ignore": "^1.0.10",
     "rollup-plugin-visualizer": "^5.12.0",
