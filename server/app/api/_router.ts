@@ -308,17 +308,13 @@ export const appRouter = router({
           }
           let job;
           if (input.process) {
-            job = await $db.processMediaJob.create({
+            job = await $db.baseJob.create({
               data: {
-                sourceType: input.sourceType,
-                source: input.source,
-                media: {
-                  connect: {
-                    id: med.id,
-                  },
-                },
-                base_job: {
-                  create: {},
+                jobType: "ProcessMediaJob",
+                jobPayload: {
+                  sourceType: input.sourceType,
+                  source: input.source,
+                  mediaId: med.id,
                 },
               },
             });
@@ -326,7 +322,7 @@ export const appRouter = router({
           return [med, job] as const;
         });
         if (job) {
-          await dispatchJobForJobrunner(job.base_job_id);
+          await dispatchJobForJobrunner(job.id);
         }
         return media;
       }),

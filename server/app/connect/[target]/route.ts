@@ -6,7 +6,6 @@ import {
 import invariant from "@/lib/invariant";
 import { ConnectionTargetSchema } from "@badger/prisma/types";
 import { NextRequest, NextResponse } from "next/server";
-import { expectNever } from "ts-expect";
 
 export async function GET(
   req: NextRequest,
@@ -42,6 +41,7 @@ export async function GET(
       });
     }
     default:
-      expectNever(target.data);
+      // @ts-expect-error should be 'never'
+      invariant(false, `Unexpected target: ${target.data}`);
   }
 }

@@ -3,7 +3,6 @@ import { z } from "zod";
 import { MediaStateSchema } from "./MediaStateSchema";
 import { RundownItemUncheckedCreateNestedManyWithoutMediaInputSchema } from "./RundownItemUncheckedCreateNestedManyWithoutMediaInputSchema";
 import { MediaProcessingTaskUncheckedCreateNestedManyWithoutMediaInputSchema } from "./MediaProcessingTaskUncheckedCreateNestedManyWithoutMediaInputSchema";
-import { ProcessMediaJobUncheckedCreateNestedManyWithoutMediaInputSchema } from "./ProcessMediaJobUncheckedCreateNestedManyWithoutMediaInputSchema";
 import { AssetUncheckedCreateNestedManyWithoutMediaInputSchema } from "./AssetUncheckedCreateNestedManyWithoutMediaInputSchema";
 import { MetadataUncheckedCreateNestedManyWithoutMediaInputSchema } from "./MetadataUncheckedCreateNestedManyWithoutMediaInputSchema";
 
@@ -23,11 +22,6 @@ export const MediaUncheckedCreateWithoutContinuityItemsInputSchema: z.ZodType<Pr
         .lazy(
           () =>
             MediaProcessingTaskUncheckedCreateNestedManyWithoutMediaInputSchema,
-        )
-        .optional(),
-      process_jobs: z
-        .lazy(
-          () => ProcessMediaJobUncheckedCreateNestedManyWithoutMediaInputSchema,
         )
         .optional(),
       assets: z

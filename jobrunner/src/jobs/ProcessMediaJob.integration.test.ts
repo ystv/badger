@@ -1,4 +1,4 @@
-import { MediaFileSourceType, MediaState } from "@badger/prisma/client";
+import { MediaState } from "@badger/prisma/client";
 import { it, beforeEach, expect } from "vitest";
 import { db, doOneJob } from "../index.js";
 import { integrate } from "@badger/testing";
@@ -52,33 +52,34 @@ integrate("ProcessMediaJob", () => {
     await db.$executeRawUnsafe(`DELETE FROM "shows"`);
   });
   it("works", async () => {
-    const testMediaID = await uploadTestFileToTus();
-    const job = await db.processMediaJob.create({
+    const testMediaPath = await uploadTestFileToTus();
+    const media = await db.media.create({
       data: {
-        sourceType: MediaFileSourceType.Tus,
-        source: testMediaID,
-        base_job: {
-          create: {},
-        },
-        media: {
+        name: "smpte_bars_15s.mp4",
+        durationSeconds: 0,
+        rawPath: "",
+        continuityItems: {
           create: {
-            name: "smpte_bars_15s.mp4",
+            name: "Test",
             durationSeconds: 0,
-            rawPath: "",
-            continuityItems: {
+            order: 1,
+            show: {
               create: {
                 name: "Test",
-                durationSeconds: 0,
-                order: 1,
-                show: {
-                  create: {
-                    name: "Test",
-                    start: new Date(),
-                  },
-                },
+                start: new Date(),
               },
             },
           },
+        },
+      },
+    });
+    await db.baseJob.create({
+      data: {
+        jobType: "ProcessMediaJob",
+        jobPayload: {
+          mediaId: media.id,
+          sourceType: "Tus",
+          source: testMediaPath,
         },
       },
     });
@@ -86,20 +87,20 @@ integrate("ProcessMediaJob", () => {
 
     // Post-conditions:
     // 1. media state is Ready
-    const media = await db.media.findUniqueOrThrow({
+    const media2 = await db.media.findUniqueOrThrow({
       where: {
-        id: job.mediaId,
+        id: media.id,
       },
     });
-    expect(media.state).toBe(MediaState.Ready);
-    // 2. media path and rawPath is set
-    expect(media.path).not.toBe("");
-    expect(media.rawPath).not.toBe("");
+    expect(media2.state).toBe(MediaState.Ready);
+    // 2. media2 path and rawPath is set
+    expect(media2.path).not.toBe("");
+    expect(media2.rawPath).not.toBe("");
     // 3. duration is set
-    expect(media.durationSeconds).toBe(15);
+    expect(media2.durationSeconds).toBe(15);
     // 4. original file no longer exists on Tus
     const tusRes = await got.head(
-      process.env.TUS_ENDPOINT + "/" + testMediaID,
+      process.env.TUS_ENDPOINT + "/" + testMediaPath,
       {
         throwHttpErrors: false,
       },

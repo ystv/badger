@@ -5,6 +5,7 @@ export default defineConfig({
     environment: "node",
     include: ["**/*.integration.{test,spec}.?(c|m)[jt]s?(x)"],
     exclude: ["e2e/**/*", "node_modules/**/*"],
+    setupFiles: ["./vitest.init-integration.mjs"],
     coverage: {
       enabled: true,
       provider: "v8",

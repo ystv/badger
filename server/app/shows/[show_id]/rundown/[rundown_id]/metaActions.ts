@@ -7,12 +7,8 @@ import type {
 } from "@/components/Metadata";
 import { db } from "@/lib/db";
 import invariant from "@/lib/invariant";
-import { getPublicTusEndpoint } from "@/lib/tus";
-import {
-  MediaFileSourceType,
-  MetadataTargetType,
-  type Prisma,
-} from "@badger/prisma/client";
+import { getPublicTusEndpoint, uploadUrlToPath } from "@/lib/tus";
+import { MetadataTargetType, type Prisma } from "@badger/prisma/client";
 import { escapeRegExp } from "lodash";
 import { revalidatePath } from "next/cache";
 
@@ -48,7 +44,7 @@ export async function setMetaValue(
       case "Media":
         {
           if (isMediaMetaUploadValue(newValue)) {
-            await $db.metadata.update({
+            const md = await $db.metadata.update({
               where: {
                 id: metaID,
               },
@@ -59,22 +55,17 @@ export async function setMetaValue(
                     name: newValue.fileName,
                     durationSeconds: 0,
                     rawPath: "",
-                    process_jobs: {
-                      create: {
-                        sourceType: "Tus",
-                        source: newValue.uploadUrl.replace(
-                          // Strip off the Tus endpoint prefix so the source is just the ID
-                          new RegExp(
-                            `^${escapeRegExp(getPublicTusEndpoint())}/?`,
-                          ),
-                          "",
-                        ),
-                        base_job: {
-                          create: {},
-                        },
-                      },
-                    },
                   },
+                },
+              },
+            });
+            await $db.baseJob.create({
+              data: {
+                jobType: "ProcessMediaJob",
+                jobPayload: {
+                  sourceType: "Tus",
+                  source: uploadUrlToPath(newValue.uploadUrl),
+                  mediaId: md.mediaId,
                 },
               },
             });
@@ -132,7 +123,7 @@ export async function addMeta(
     switch (field.type) {
       case "Media": {
         if (isMediaMetaUploadValue(newValue)) {
-          await $db.metadata.create({
+          const md = await $db.metadata.create({
             data: {
               field: {
                 connect: {
@@ -150,22 +141,17 @@ export async function addMeta(
                   name: newValue.fileName,
                   durationSeconds: 0,
                   rawPath: "",
-                  process_jobs: {
-                    create: {
-                      sourceType: MediaFileSourceType.Tus,
-                      source: newValue.uploadUrl.replace(
-                        // Strip off the Tus endpoint prefix so the source is just the ID
-                        new RegExp(
-                          `^${escapeRegExp(getPublicTusEndpoint())}/?`,
-                        ),
-                        "",
-                      ),
-                      base_job: {
-                        create: {},
-                      },
-                    },
-                  },
                 },
+              },
+            },
+          });
+          await $db.baseJob.create({
+            data: {
+              jobType: "ProcessMediaJob",
+              jobPayload: {
+                sourceType: "Tus",
+                source: uploadUrlToPath(newValue.uploadUrl),
+                mediaId: md.mediaId,
               },
             },
           });

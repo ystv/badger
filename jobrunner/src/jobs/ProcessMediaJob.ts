@@ -5,7 +5,6 @@ import {
   Media,
   MediaProcessingTaskState,
   MediaState,
-  ProcessMediaJob as ProcessMediaJobType,
   Rundown,
   RundownItem,
   Show,
@@ -22,6 +21,7 @@ import {
   failUploadOnQualityControlFail,
 } from "@badger/feature-flags";
 import { MediaJobCommon } from "./MediaJobCommon.js";
+import invariant from "../invariant.js";
 
 const TARGET_LOUDNESS_LUFS = -14;
 const TARGET_LOUDNESS_RANGE_LUFS = 4;
@@ -45,8 +45,9 @@ export default class ProcessMediaJob extends MediaJobCommon {
     }
   }
 
-  async run(params: ProcessMediaJobType) {
-    const media: CompleteMedia = await this.db.media.findUniqueOrThrow({
+  async run(params: PrismaJson.JobPayload) {
+    invariant("mediaId" in params, "mediaId is required");
+    const media = await this.db.media.findUniqueOrThrow({
       where: {
         id: params.mediaId,
       },
@@ -357,9 +358,9 @@ export default class ProcessMediaJob extends MediaJobCommon {
 
   private async _normaliseLoudness(rawPath: string, extension: string) {
     // Step 1: determine the loudness of the file
-    const output = await exec(
-      `ffmpeg -hide_banner -nostats -loglevel info -i ${rawPath} -af loudnorm=print_format=json -f null -`,
-    );
+    const cmd1 = `${process.env.FFMPEG_PATH ?? "ffmpeg"} -hide_banner -nostats -loglevel info -i ${rawPath} -af loudnorm=print_format=json -f null -`;
+    this.logger.debug("Running: " + cmd1);
+    const output = await exec(cmd1);
     // Find the loudnorm output. It's a bit of JSON immediately after a line like `[Parsed_loudnorm_0 @ 0x600003670fd0]`
     const loudnormJSON =
       /(?<=\[Parsed_loudnorm_0 @ 0x[0-9a-f]+]\s*\n)[\s\S]*/.exec(output.stderr);
@@ -384,7 +385,7 @@ export default class ProcessMediaJob extends MediaJobCommon {
     );
     await exec(
       [
-        "ffmpeg",
+        process.env.FFMPEG_PATH ?? "ffmpeg",
         "-hide_banner",
         "-nostats",
         "-loglevel error",

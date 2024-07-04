@@ -8,11 +8,10 @@ integrate("doOneJob", () => {
     await db.$executeRawUnsafe(`DELETE FROM "base_jobs"`);
   });
   it("works", async () => {
-    await db.dummyTestJob.create({
+    await db.baseJob.create({
       data: {
-        base_job: {
-          create: {},
-        },
+        jobType: "DummyTestJob",
+        jobPayload: {},
       },
     });
     await doOneJob();

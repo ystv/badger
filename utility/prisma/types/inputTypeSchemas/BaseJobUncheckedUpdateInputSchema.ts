@@ -6,9 +6,10 @@ import { JobStateSchema } from "./JobStateSchema";
 import { EnumJobStateFieldUpdateOperationsInputSchema } from "./EnumJobStateFieldUpdateOperationsInputSchema";
 import { DateTimeFieldUpdateOperationsInputSchema } from "./DateTimeFieldUpdateOperationsInputSchema";
 import { NullableDateTimeFieldUpdateOperationsInputSchema } from "./NullableDateTimeFieldUpdateOperationsInputSchema";
-import { ProcessMediaJobUncheckedUpdateOneWithoutBase_jobNestedInputSchema } from "./ProcessMediaJobUncheckedUpdateOneWithoutBase_jobNestedInputSchema";
-import { LoadAssetJobUncheckedUpdateOneWithoutBase_jobNestedInputSchema } from "./LoadAssetJobUncheckedUpdateOneWithoutBase_jobNestedInputSchema";
-import { DummyTestJobUncheckedUpdateOneWithoutBase_jobNestedInputSchema } from "./DummyTestJobUncheckedUpdateOneWithoutBase_jobNestedInputSchema";
+import { JobTypeSchema } from "./JobTypeSchema";
+import { EnumJobTypeFieldUpdateOperationsInputSchema } from "./EnumJobTypeFieldUpdateOperationsInputSchema";
+import { JsonNullValueInputSchema } from "./JsonNullValueInputSchema";
+import { InputJsonValue } from "./InputJsonValue";
 
 export const BaseJobUncheckedUpdateInputSchema: z.ZodType<Prisma.BaseJobUncheckedUpdateInput> =
   z
@@ -66,21 +67,14 @@ export const BaseJobUncheckedUpdateInputSchema: z.ZodType<Prisma.BaseJobUnchecke
         ])
         .optional()
         .nullable(),
-      ProcessMediaJob: z
-        .lazy(
-          () =>
-            ProcessMediaJobUncheckedUpdateOneWithoutBase_jobNestedInputSchema,
-        )
+      jobType: z
+        .union([
+          z.lazy(() => JobTypeSchema),
+          z.lazy(() => EnumJobTypeFieldUpdateOperationsInputSchema),
+        ])
         .optional(),
-      LoadAssetJob: z
-        .lazy(
-          () => LoadAssetJobUncheckedUpdateOneWithoutBase_jobNestedInputSchema,
-        )
-        .optional(),
-      DummyTestJob: z
-        .lazy(
-          () => DummyTestJobUncheckedUpdateOneWithoutBase_jobNestedInputSchema,
-        )
+      jobPayload: z
+        .union([z.lazy(() => JsonNullValueInputSchema), InputJsonValue])
         .optional(),
     })
     .strict();

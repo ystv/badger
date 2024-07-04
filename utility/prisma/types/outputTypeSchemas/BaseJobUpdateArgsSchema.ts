@@ -5,7 +5,7 @@ import { BaseJobUncheckedUpdateInputSchema } from "../inputTypeSchemas/BaseJobUn
 import { BaseJobWhereUniqueInputSchema } from "../inputTypeSchemas/BaseJobWhereUniqueInputSchema";
 
 export const BaseJobUpdateArgsSchema: z.ZodType<
-  Omit<Prisma.BaseJobUpdateArgs, "select" | "include">
+  Omit<Prisma.BaseJobUpdateArgs, "select">
 > = z
   .object({
     data: z.union([

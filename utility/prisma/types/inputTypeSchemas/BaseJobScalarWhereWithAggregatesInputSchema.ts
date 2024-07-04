@@ -6,6 +6,9 @@ import { EnumJobStateWithAggregatesFilterSchema } from "./EnumJobStateWithAggreg
 import { JobStateSchema } from "./JobStateSchema";
 import { DateTimeWithAggregatesFilterSchema } from "./DateTimeWithAggregatesFilterSchema";
 import { DateTimeNullableWithAggregatesFilterSchema } from "./DateTimeNullableWithAggregatesFilterSchema";
+import { EnumJobTypeWithAggregatesFilterSchema } from "./EnumJobTypeWithAggregatesFilterSchema";
+import { JobTypeSchema } from "./JobTypeSchema";
+import { JsonWithAggregatesFilterSchema } from "./JsonWithAggregatesFilterSchema";
 
 export const BaseJobScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.BaseJobScalarWhereWithAggregatesInput> =
   z
@@ -76,6 +79,13 @@ export const BaseJobScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.BaseJ
         ])
         .optional()
         .nullable(),
+      jobType: z
+        .union([
+          z.lazy(() => EnumJobTypeWithAggregatesFilterSchema),
+          z.lazy(() => JobTypeSchema),
+        ])
+        .optional(),
+      jobPayload: z.lazy(() => JsonWithAggregatesFilterSchema).optional(),
     })
     .strict();
 

@@ -25,6 +25,38 @@ export async function reconcileList(listName: string, elements: string[]) {
   }
 }
 
+export async function addSingleItemToList(listName: string, path: string) {
+  const conn = getVMixConnection();
+  invariant(conn, "VMix connection not initialized");
+  const state = await conn.getFullState();
+  const existingInput = state.inputs.find((x) => x.shortTitle === listName);
+  let key;
+  if (existingInput) {
+    key = existingInput.key;
+  } else {
+    key = await conn.addInput("VideoList", "");
+    await conn.renameInput(key, listName);
+  }
+  await conn.addInputToList(key, path);
+}
+
+export async function isListPlaying(listName: string): Promise<boolean> {
+  const conn = getVMixConnection();
+  invariant(conn, "VMix connection not initialized");
+  let state;
+  try {
+    state = await conn.getPartialState(
+      `vmix/inputs/input[@shortTitle="${listName}"]`,
+    );
+  } catch (e) {
+    if (e instanceof Error && e.message.includes("Entry Not Found")) {
+      return false;
+    }
+    throw e;
+  }
+  return state["@_state"] === "Running";
+}
+
 export function getInputTypeForAsset(
   asset: Asset & { media: Media | null },
 ): InputType {

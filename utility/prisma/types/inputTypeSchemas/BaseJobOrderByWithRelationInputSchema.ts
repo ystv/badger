@@ -2,9 +2,6 @@ import type { Prisma } from "../../client";
 import { z } from "zod";
 import { SortOrderSchema } from "./SortOrderSchema";
 import { SortOrderInputSchema } from "./SortOrderInputSchema";
-import { ProcessMediaJobOrderByWithRelationInputSchema } from "./ProcessMediaJobOrderByWithRelationInputSchema";
-import { LoadAssetJobOrderByWithRelationInputSchema } from "./LoadAssetJobOrderByWithRelationInputSchema";
-import { DummyTestJobOrderByWithRelationInputSchema } from "./DummyTestJobOrderByWithRelationInputSchema";
 
 export const BaseJobOrderByWithRelationInputSchema: z.ZodType<Prisma.BaseJobOrderByWithRelationInput> =
   z
@@ -42,15 +39,8 @@ export const BaseJobOrderByWithRelationInputSchema: z.ZodType<Prisma.BaseJobOrde
           z.lazy(() => SortOrderInputSchema),
         ])
         .optional(),
-      ProcessMediaJob: z
-        .lazy(() => ProcessMediaJobOrderByWithRelationInputSchema)
-        .optional(),
-      LoadAssetJob: z
-        .lazy(() => LoadAssetJobOrderByWithRelationInputSchema)
-        .optional(),
-      DummyTestJob: z
-        .lazy(() => DummyTestJobOrderByWithRelationInputSchema)
-        .optional(),
+      jobType: z.lazy(() => SortOrderSchema).optional(),
+      jobPayload: z.lazy(() => SortOrderSchema).optional(),
     })
     .strict();
 

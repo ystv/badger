@@ -1,7 +1,7 @@
 {
   "name": "badger-desktop",
   "productName": "Badger Desktop",
-  "version": "1.0.2",
+  "version": "1.0.3-canary.5",
   "description": "My Electron application description",
   "main": "./out/main/index.js",
   "scripts": {
@@ -28,6 +28,7 @@
     "@aws-sdk/client-s3": "^3.474.0",
     "@badger/testing": "workspace:*",
     "@playwright/test": "^1.43.1",
+    "@rollup/plugin-alias": "^5.1.0",
     "@sentry/vite-plugin": "^2.7.0",
     "@tsconfig/vite-react": "^2.0.0",
     "@types/eslint": "^8.44.0",
@@ -37,7 +38,7 @@
     "@vitest/coverage-v8": "^1.6.0",
     "autoprefixer": "^10.4.14",
     "body-parser": "^1.20.2",
-    "electron": "26.2.4",
+    "electron": "26.6.10",
     "electron-builder": "^24.13.3",
     "electron-builder-squirrel-windows": "^25.0.0-alpha.7",
     "electron-vite": "^2.2.0",
@@ -50,8 +51,9 @@
     "p-event": "^6.0.0",
     "postcss": "^8.4.27",
     "prettier": "^3.0.3",
-    "prettier-plugin-tailwindcss": "^0.5.9",
+    "prettier-plugin-tailwindcss": "^0.6.0",
     "rimraf": "^5.0.7",
+    "rollup-plugin-ignore": "^1.0.10",
     "rollup-plugin-visualizer": "^5.12.0",
     "strong-mock": "^8.0.1",
     "tailwindcss": "^3.3.3",
@@ -70,7 +72,7 @@
     "@popperjs/core": "^2.11.8",
     "@radix-ui/react-alert-dialog": "^1.0.4",
     "@radix-ui/react-dropdown-menu": "^2.0.5",
-    "@sentry/electron": "^4.10.0",
+    "@sentry/electron": "^5.0.0",
     "@sentry/react": "^7.64.0",
     "@tailwindcss/forms": "^0.5.4",
     "@tanstack/react-query": "4",
@@ -91,7 +93,7 @@
     "electron-log": "^4.4.8",
     "electron-settings": "^4.0.2",
     "electron-squirrel-startup": "^1.0.0",
-    "electron-trpc": "^0.5.2",
+    "electron-trpc": "^0.6.0",
     "fast-xml-parser": "^4.2.7",
     "got": "^13.0.0",
     "loglevel": "^1.8.1",
@@ -112,6 +114,6 @@
     "wget-improved": "^3.4.0",
     "which": "^4.0.0",
     "ws": "^8.13.0",
-    "zod": "^3.21.4"
+    "zod": "3.23.8"
   }
 }

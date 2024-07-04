@@ -16,7 +16,7 @@
     "vitest": "^1.6.0"
   },
   "scripts": {
-    "test": "vitest"
+    "test": "vitest run"
   },
   "dependencies": {
     "@jest/globals": "^29.7.0",

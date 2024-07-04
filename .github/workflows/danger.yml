@@ -4,9 +4,17 @@ on: [pull_request]
 jobs:
   danger:
     name: Danger JS
+    permissions:
+      actions: write
+      checks: write
+      contents: read
+      # deployments: read
+      issues: write
+      pull-requests: write
+      statuses: write
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/danger/danger-js:11.2.7
+      image: ghcr.io/danger/danger-js:11.3.1
     steps:
       - uses: actions/checkout@v4
       - name: Danger

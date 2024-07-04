@@ -1,6 +1,6 @@
 import AbstractJob from "./base.js";
 
-export default class DummyTestJob extends AbstractJob<object> {
+export default class DummyTestJob extends AbstractJob {
   constructor() {
     super();
   }

@@ -3,7 +3,7 @@ import type { Prisma } from "../../client";
 import { BaseJobWhereUniqueInputSchema } from "../inputTypeSchemas/BaseJobWhereUniqueInputSchema";
 
 export const BaseJobFindUniqueArgsSchema: z.ZodType<
-  Omit<Prisma.BaseJobFindUniqueArgs, "select" | "include">
+  Omit<Prisma.BaseJobFindUniqueArgs, "select">
 > = z
   .object({
     where: BaseJobWhereUniqueInputSchema,

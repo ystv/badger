@@ -6,7 +6,7 @@ import { escapeRegExp } from "lodash";
 import { revalidatePath } from "next/cache";
 
 import { dispatchJobForJobrunner } from "@/lib/jobs";
-import { getPublicTusEndpoint } from "@/lib/tus";
+import { getPublicTusEndpoint, uploadUrlToPath } from "@/lib/tus";
 
 export async function processAssetUpload(
   rundownID: number,
@@ -19,7 +19,7 @@ export async function processAssetUpload(
     throw new Error("Invalid upload URL");
   }
 
-  const [asset, rundown] = await db.$transaction(async ($db) => {
+  const [asset, rundown, job] = await db.$transaction(async ($db) => {
     const rundown = await $db.rundown.findUniqueOrThrow({
       where: {
         id: rundownID,
@@ -34,7 +34,7 @@ export async function processAssetUpload(
         },
       })) + 1;
 
-    const res = await $db.asset.create({
+    const asset = await $db.asset.create({
       data: {
         name: fileName,
         category,
@@ -49,21 +49,16 @@ export async function processAssetUpload(
             durationSeconds: 0,
           },
         },
-        loadJobs: {
-          create: {
-            sourceType: "Tus",
-            source: uploadURL.replace(
-              new RegExp(`^${escapeRegExp(getPublicTusEndpoint())}/?`),
-              "",
-            ),
-            base_job: {
-              create: {},
-            },
-          },
-        },
       },
-      include: {
-        loadJobs: true,
+    });
+    const job = await $db.baseJob.create({
+      data: {
+        jobType: "LoadAssetJob",
+        jobPayload: {
+          assetId: asset.id,
+          sourceType: "Tus",
+          source: uploadUrlToPath(uploadURL),
+        },
       },
     });
     await $db.rundown.update({
@@ -80,10 +75,10 @@ export async function processAssetUpload(
         },
       },
     });
-    return [res, rundown];
+    return [asset, rundown, job];
   });
 
-  await dispatchJobForJobrunner(asset.loadJobs[0].base_job_id);
+  await dispatchJobForJobrunner(job.id);
   revalidatePath(`/shows/${rundown.showId}/rundown/${rundown.id}`);
   return { ok: true };
 }

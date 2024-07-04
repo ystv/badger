@@ -5,13 +5,18 @@
     ":automergeLinters",
     ":automergePatch",
     ":automergePr",
-    ":prHourlyLimit4"
+    ":prHourlyLimit4",
+    "monorepo:prisma"
   ],
   "postUpdateOptions": ["yarnDedupeHighest"],
   "packageRules": [
     {
       "extends": ["monorepo:nextjs"],
       "automerge": false
+    },
+    {
+      "matchPackagePrefixes": ["@radix-ui/"],
+      "groupName": "Radix UI"
     }
   ]
 }
