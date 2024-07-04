@@ -12,3 +12,5 @@ export const MICRO_SERVER_PORT = process.env.MICRO_SERVER_PORT
   : process.env.PORT
     ? parseInt(process.env.PORT, 10)
     : 8594;
+
+export const MICRO_SERVER_AUTH_SHARED_SECRET = "microserver";

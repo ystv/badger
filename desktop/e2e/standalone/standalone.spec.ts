@@ -1,27 +1,14 @@
 import { test, expect } from "./base";
 
-test("it works", async ({ app: [app, page] }) => {
+test("it works", async ({ app: [_, page] }) => {
   await page.getByText("Test show").click();
 });
 
 test.describe("big show", () => {
   test.use({ scenario: "big-show" });
   test("scrolling for a show with lots of rundown items", async ({
-    app: [app, page],
+    app: [_, page],
   }) => {
-    await app.evaluate(({ ipcMain }) => {
-      ipcMain.emit("doIPCMutation", {}, "devtools.setSettings", {
-        enabled: true,
-      });
-    });
-    await app.evaluate(({ ipcMain }) => {
-      ipcMain.emit("doIPCMutation", {}, "devtools.setEnabledIntegrations", [
-        "obs",
-        "ontime",
-        "vmix",
-      ]);
-    });
-
     await page.getByRole("button", { name: "Select" }).click();
 
     await page.getByText("Continuity").click();

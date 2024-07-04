@@ -18,30 +18,29 @@ interface SettingsStore {
   unset(key: string): Promise<void>;
 }
 
-const inMemSettings = new Map<string, unknown>();
-const inMemSettingsStore: SettingsStore = {
+const testSettingsBacking = new Map<string, unknown>();
+const testSettingsStore: SettingsStore = {
   async get(key: string) {
-    return inMemSettings.get(key);
+    if (process.env[`__TEST_SETTINGS_${key.toUpperCase()}`]) {
+      // TODO: validate that this matches the requisite schema
+      // Will require slightly refactoring this file to allow getting the schema
+      // by name, though as a bonus this should let us avoid duplicating the load/save code
+      return JSON.parse(
+        process.env[`__TEST_SETTINGS_${key.toUpperCase()}`] as string,
+      );
+    }
+    return testSettingsBacking.get(key);
   },
   async set(key: string, value: unknown) {
-    inMemSettings.set(key, value);
+    testSettingsBacking.set(key, value);
   },
   async unset(key: string) {
-    inMemSettings.delete(key);
+    testSettingsBacking.delete(key);
   },
 };
 
 const settings: SettingsStore =
-  process.env.E2E_TEST === "true" ? inMemSettingsStore : electronSettings;
-
-ipcMain.on("resetTestSettings", () => {
-  inMemSettings.clear();
-});
-
-ipcMain.on("setSetting", (_, { key, value }) => {
-  logger.info(`TEST: Setting ${key} to ${value}`);
-  inMemSettings.set(key, value);
-});
+  process.env.E2E_TEST === "true" ? testSettingsStore : electronSettings;
 
 export async function migrateSettings() {
   await settings.unset("localMedia");

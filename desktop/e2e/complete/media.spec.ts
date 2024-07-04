@@ -24,15 +24,6 @@ test.beforeEach(async ({ request, app: [app, page] }) => {
       },
     },
   });
-  tempDir = os.tmpdir();
-  await app.evaluate(({ ipcMain }, tempDir) => {
-    ipcMain.emit(
-      "setSetting",
-      // IpcMainEvent object (unused)
-      {},
-      { key: "media", value: { mediaPath: tempDir } },
-    );
-  }, tempDir);
   await page.reload();
   await page.waitForLoadState("domcontentloaded");
 });

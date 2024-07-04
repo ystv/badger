@@ -102,7 +102,7 @@ test("download continuity media and load into OBS", async ({
     await page.getByRole("button", { name: "Select" }).click();
 
     await page.getByLabel("Settings").click();
-    await page.getByRole("tab", { name: "OBS" }).click();
+    await page.getByRole("tab", { name: "OBS", exact: true }).click();
     await page.getByLabel("OBS Host").fill("localhost");
     await page.getByLabel("OBS WebSocket Port").fill(mows.port.toString());
     await page.getByLabel("OBS WebSocket Password").fill("aaa");

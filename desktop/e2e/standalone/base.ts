@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {
   test as base,
   _electron as electron,
@@ -6,7 +7,7 @@ import {
   type Page,
 } from "@playwright/test";
 import { tmpdir } from "node:os";
-import { mkdtempSync } from "node:fs";
+import * as fsp from "node:fs/promises";
 
 const MICRO_SERVER_PORT = process.env.MICRO_SERVER_PORT
   ? parseInt(process.env.MICRO_SERVER_PORT, 10)
@@ -17,11 +18,20 @@ const MICRO_SERVER_PASSWORD = "microserver";
 
 const test = base.extend<{
   scenario: string;
+  enabledIntegrations: ("obs" | "ontime" | "vmix")[];
+  testMediaPath: string;
   app: [ElectronApplication, Page];
 }>({
   scenario: "default",
+  enabledIntegrations: ["obs", "ontime", "vmix"],
   // eslint-disable-next-line no-empty-pattern
-  app: async ({ scenario }, use, testInfo) => {
+  testMediaPath: async ({}, use) => {
+    const dir = await fsp.mkdtemp(tmpdir());
+    await use(dir);
+    await fsp.rm(dir, { recursive: true });
+  },
+
+  app: async ({ scenario, testMediaPath }, use, testInfo) => {
     const app = await electron.launch({
       args: ["--enable-logging", "out/main/index.js"],
       env: {
@@ -29,27 +39,14 @@ const test = base.extend<{
         NODE_ENV: "test",
         E2E_TEST: "true",
         __USE_MOCK_VMIX: "true",
+        __TEST_SETTINGS_MEDIA: `{ "mediaPath": ${JSON.stringify(testMediaPath)} }`,
+        __TEST_SUPPORTED_INTEGRATIONS: JSON.stringify([
+          "obs",
+          "ontime",
+          "vmix",
+        ]),
       },
     });
-
-    expect(
-      app.evaluate(({ ipcMain }) => ipcMain.emit("resetTestSettings")),
-    ).not.toBe(false);
-
-    const tempMediaPath = mkdtempSync(tmpdir(), { encoding: "utf-8" });
-    console.log(`Using temp media path: ${tempMediaPath}`);
-    await app.evaluate(({ ipcMain }, tempPath) => {
-      ipcMain.emit(
-        "setSetting",
-        {},
-        {
-          key: "media",
-          value: {
-            mediaPath: tempPath,
-          },
-        },
-      );
-    }, tempMediaPath);
 
     const win = await app.firstWindow();
 

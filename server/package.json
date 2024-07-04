@@ -14,7 +14,8 @@
     "test:e2e:debug": "NODE_ENV=test E2E_TEST=true DEBUG='pw:browser*,pw:api*' yarn playwright test",
     "test:e2e:ui": "NODE_ENV=test E2E_TEST=true yarn playwright test --ui --project=chromium",
     "prettify": "prettier --write .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "microserver": "tsx microserver/index.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.474.0",
@@ -86,6 +87,8 @@
     "dotenv-cli": "^7.2.1",
     "dotenv-flow": "^3.2.0",
     "eslint": "^8",
+    "express": "^4.19.2",
+    "express-urlrewrite": "^2.0.2",
     "jest": "^29.7.0",
     "jsdom": "^22.1.0",
     "pg": "^8.11.3",

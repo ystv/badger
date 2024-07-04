@@ -1,21 +1,18 @@
 import { expect } from "@playwright/test";
 import { test } from "./desktopE2EUtils";
 import * as fsp from "node:fs/promises";
-import * as path from "node:path";
 import {
   directlyCreateTestMedia,
   loadServerEnvVars,
   server,
 } from "./serverAPI";
 import type { CompleteShowType } from "../../src/common/types";
-import * as os from "os";
 import type VMixConnection from "../../src/main/vmix/vmix";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 let testShow: CompleteShowType;
-let tempDir: string;
 
-test.beforeEach(async ({ request, app: [app] }, testInfo) => {
+test.beforeEach(async ({ request }) => {
   await request.post(
     "http://localhost:3000/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB",
   );
@@ -37,16 +34,6 @@ test.beforeEach(async ({ request, app: [app] }, testInfo) => {
       },
     },
   });
-  tempDir = path.join(os.tmpdir(), testInfo.title + "-" + testInfo.retry);
-  await fsp.mkdir(tempDir, { recursive: true });
-  await app.evaluate(({ ipcMain }, tempDir) => {
-    ipcMain.emit(
-      "setSetting",
-      // IpcMainEvent object (unused)
-      {},
-      { key: "media", value: { mediaPath: tempDir } },
-    );
-  }, tempDir);
 });
 
 test.use({
@@ -78,7 +65,7 @@ test.afterEach(async ({ app: [app] }) => {
   });
 });
 
-test("load VTs into vMix", async ({ app: [app, page] }) => {
+test("load VTs into vMix", async ({ app: [app, page], testMediaPath }) => {
   test.slow();
   const testMedia = await directlyCreateTestMedia(
     "smpte_bars_15s.mp4",
@@ -86,19 +73,6 @@ test("load VTs into vMix", async ({ app: [app, page] }) => {
     "rundownItem",
     testShow.rundowns[0].items[0].id,
   );
-
-  await app.evaluate(({ ipcMain }) => {
-    ipcMain.emit("doIPCMutation", {}, "devtools.setSettings", {
-      enabled: true,
-    });
-  });
-  await app.evaluate(({ ipcMain }) => {
-    ipcMain.emit("doIPCMutation", {}, "devtools.setEnabledIntegrations", [
-      "obs",
-      "ontime",
-      "vmix",
-    ]);
-  });
 
   await page.getByRole("button", { name: "Select" }).click();
 
@@ -145,7 +119,7 @@ test("load VTs into vMix", async ({ app: [app, page] }) => {
         ],
       });
     });
-  }, `${tempDir}/smpte_bars_15s (#${testMedia.id}).mp4`);
+  }, `${testMediaPath}/smpte_bars_15s (#${testMedia.id}).mp4`);
 
   await expect(page.getByText("Ready for load")).toBeVisible();
   await page.getByRole("button", { name: "Load All VTs" }).click();
@@ -153,7 +127,7 @@ test("load VTs into vMix", async ({ app: [app, page] }) => {
   await expect(page.getByText("Good to go!")).toBeVisible();
 });
 
-test("load assets into vMix", async ({ app: [app, page] }) => {
+test("load assets into vMix", async ({ app: [app, page], testMediaPath }) => {
   test.slow();
   // Unlike rundown/continuity items, Assets' media is non-nullable,
   // so we can't cheat like we normally do and do a direct upload.
@@ -209,19 +183,6 @@ test("load assets into vMix", async ({ app: [app, page] }) => {
     },
   });
 
-  await app.evaluate(({ ipcMain }) => {
-    ipcMain.emit("doIPCMutation", {}, "devtools.setSettings", {
-      enabled: true,
-    });
-  });
-  await app.evaluate(({ ipcMain }) => {
-    ipcMain.emit("doIPCMutation", {}, "devtools.setEnabledIntegrations", [
-      "obs",
-      "ontime",
-      "vmix",
-    ]);
-  });
-
   await page.getByRole("button", { name: "Select" }).click();
 
   await page.getByText("Continuity").click();
@@ -264,7 +225,7 @@ test("load assets into vMix", async ({ app: [app, page] }) => {
         ],
       });
     });
-  }, `${tempDir}/smpte_bars_15s (#${updated.rundowns[0].assets[0].media.id}).mp4`);
+  }, `${testMediaPath}/smpte_bars_15s (#${updated.rundowns[0].assets[0].media.id}).mp4`);
 
   await page
     .getByRole("button", { name: "Download All Media in Test Category" })
