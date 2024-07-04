@@ -8,6 +8,7 @@ import { MICRO_SERVER_PORT, proc } from "../../lib";
 import { add } from "date-fns";
 import { z } from "zod";
 import { ShowSchema } from "@badger/prisma/types";
+import type { AppRouter as Real } from "@/app/api/_router";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJSON = require("../../../package.json");
@@ -80,7 +81,7 @@ const responses = {
       ping: "pong",
       version: packageJSON.version,
     };
-  }),
+  }) satisfies Real["ping"],
   "shows.listUpcoming": proc
     .input(
       z
@@ -92,7 +93,7 @@ const responses = {
     .output(z.array(ShowSchema))
     .query(async () => {
       return [sampleShow];
-    }),
+    }) satisfies Real["shows"]["listUpcoming"],
   "shows.get": proc
     .input(z.object({ id: z.number() }))
     .output(CompleteShowModel)
@@ -101,7 +102,7 @@ const responses = {
         throw new Error("Not found");
       }
       return sampleShow;
-    }),
+    }) satisfies Real["shows"]["get"],
   "shows.getVersion": proc
     .input(z.object({ id: z.number() }))
     .output(z.object({ version: z.number() }))
@@ -110,7 +111,7 @@ const responses = {
         throw new Error("Not found");
       }
       return { version: sampleShow.version };
-    }),
+    }) satisfies Real["shows"]["getVersion"],
   "media.get": proc
     .input(z.object({ id: z.number() }))
     .output(ExtendedMediaModelWithDownloadURL)
@@ -119,7 +120,7 @@ const responses = {
         throw new Error("Not found");
       }
       return testMedia;
-    }),
+    }) satisfies Real["media"]["get"],
   "media.bulkGet": proc
     .input(z.array(z.number()))
     .output(z.array(CompleteMediaModel))
@@ -149,7 +150,7 @@ const responses = {
           ],
         } satisfies z.infer<typeof CompleteMediaModel>,
       ];
-    }),
+    }) satisfies Real["media"]["bulkGet"],
   "rundowns.get": proc
     .input(z.object({ id: z.number() }))
     .output(CompleteRundownModel)
@@ -158,7 +159,7 @@ const responses = {
         throw new Error("Not found");
       }
       return sampleRundown;
-    }),
+    }) satisfies Real["rundowns"]["get"],
 };
 
 export default responses;

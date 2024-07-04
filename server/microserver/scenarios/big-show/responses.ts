@@ -1,8 +1,12 @@
-import { CompleteShowModel } from "@badger/prisma/utilityTypes";
+import {
+  CompleteRundownModel,
+  CompleteShowModel,
+} from "@badger/prisma/utilityTypes";
 import { proc } from "../../lib";
 import { z } from "zod";
 import { ShowSchema } from "@badger/prisma/types";
 import { cloneDeep } from "lodash";
+import type { AppRouter as Real } from "@/app/api/_router";
 
 import { sampleShow as origSampleShow } from "../default/responses";
 
@@ -29,7 +33,7 @@ const responses = {
     .output(z.array(ShowSchema))
     .query(async () => {
       return [sampleShow];
-    }),
+    }) satisfies Real["shows"]["listUpcoming"],
   "shows.get": proc
     .input(z.object({ id: z.number() }))
     .output(CompleteShowModel)
@@ -38,7 +42,7 @@ const responses = {
         throw new Error("Not found");
       }
       return sampleShow;
-    }),
+    }) satisfies Real["shows"]["get"],
   "shows.getVersion": proc
     .input(z.object({ id: z.number() }))
     .output(z.object({ version: z.number() }))
@@ -47,16 +51,16 @@ const responses = {
         throw new Error("Not found");
       }
       return { version: sampleShow.version };
-    }),
+    }) satisfies Real["shows"]["getVersion"],
   "rundowns.get": proc
     .input(z.object({ id: z.number() }))
-    .output(z.array(z.object({ id: z.number() })))
+    .output(CompleteRundownModel)
     .query(async ({ input }) => {
       if (input.id !== sampleShow.rundowns[0].id) {
         throw new Error("Not found");
       }
-      return sampleShow.rundowns[0].items;
-    }),
+      return sampleShow.rundowns[0];
+    }) satisfies Real["rundowns"]["get"],
 };
 
 export default responses;

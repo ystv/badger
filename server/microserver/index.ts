@@ -1,5 +1,29 @@
 /* eslint-disable no-console */
 
+/**
+ * This is the Badger Testing MicroServer.
+ *
+ * It is a Node/Express HTTP server that serves API responses that match Badger Server's API, with hard-coded data.
+ * Intended for use for testing Badger Desktop (through the "standalone" Playwright suite), but could also be used
+ * for local development of Desktop without needing to run the full Badger Server.
+ *
+ * The test data is in the `scenarios` directory. Each one is expected to have a `responses.ts` file that exports
+ * an object called `responses` with tRPC procedures. If a procedure is not defined in a scenario, it will fall back
+ * to the `default` scenario. Use `default` as a reference when writing new scenarios. (You can also import the
+ * data `default` uses from `scenarios/default/responses.ts` - just make sure to not mutate it!)
+ *
+ * NB: to define a nested router's procedure, you need to use dotted object syntax, e.g. to define `shows.listUpcoming`,
+ * you would write `"shows.listUpcoming": proc.query(async () => { ... })`. This is because the recursive objects
+ * get a little too gnarly for TypeScript to infer the types correctly.
+ *
+ * If possible, write a test for your scenario. This should run against real Server, set up the same data that your
+ * scenario uses (through the Server UI), and then assert that your mock responses match the real ones from Server.
+ * This will ensure that our mocks match the real data.
+ *
+ * You can also take advantage of TypeScript: import the real AppRouter type from `@/app/api/_router` and use
+ * `satisfies` to ensure that your mock responses match the real ones. Again, see `default` for an example.
+ */
+
 import express from "express";
 import * as trpcExpress from "@trpc/server/adapters/express";
 import * as path from "node:path";
@@ -16,6 +40,11 @@ app.use(json());
 
 app.use(rewrite("/api/trpc/*", "/default/api/trpc/$1"));
 
+/**
+ * Given an object where the values are either tRPC procedures or objects themselves with tRPC procedures,
+ * convert it into a tRPC router.
+ * (Essentially poor-man's-https://github.com/trpc/trpc/pull/3744 until tRPC 11 is released)
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function routerize(obj: Record<string, any>) {
   for (const k of Object.keys(obj)) {
