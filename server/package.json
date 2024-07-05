@@ -34,7 +34,7 @@
     "@trpc/server": "^10.34.0",
     "@types/async-lock": "^1.4.2",
     "@types/lodash": "^4.14.196",
-    "@types/node": "20.14.8",
+    "@types/node": "20.14.10",
     "@types/react": "^18.2.33",
     "@types/react-beforeunload": "^2.1.5",
     "@types/react-datepicker": "^4.15.0",
