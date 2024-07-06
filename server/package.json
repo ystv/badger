@@ -99,7 +99,7 @@
     "tailwindcss": "^3.3.3",
     "tailwindcss-animate": "^1.0.7",
     "ts-node": "^10.9.1",
-    "tsx": "^3.12.7"
+    "tsx": "^4.16.2"
   },
   "prisma": {
     "schema": "../utility/prisma/schema.prisma"
