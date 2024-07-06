@@ -7,6 +7,7 @@ import {
   type Page,
 } from "@playwright/test";
 import { tmpdir } from "node:os";
+import { join } from "node:path";
 import * as fsp from "node:fs/promises";
 
 const MICRO_SERVER_PORT = process.env.MICRO_SERVER_PORT
@@ -26,7 +27,9 @@ const test = base.extend<{
   enabledIntegrations: ["obs", "ontime", "vmix"],
   // eslint-disable-next-line no-empty-pattern
   testMediaPath: async ({}, use) => {
-    const dir = await fsp.mkdtemp(tmpdir());
+    const dir = await fsp.mkdtemp(
+      join(tmpdir(), "badger-desktop-e2e-standalone"),
+    );
     await use(dir);
     await fsp.rm(dir, { recursive: true });
   },
