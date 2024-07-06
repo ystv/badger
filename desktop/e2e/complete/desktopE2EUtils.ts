@@ -7,6 +7,7 @@ import {
 } from "@playwright/test";
 import * as os from "node:os";
 import * as fs from "node:fs/promises";
+import { join } from "node:path";
 
 export const test = base.extend<{
   appEnv: Record<string, string>;
@@ -19,8 +20,11 @@ export const test = base.extend<{
   testSettings: {},
   supportedIntegrations: ["obs", "ontime", "vmix"],
 
-  testMediaPath: async (_, use) => {
-    const dir = await fs.mkdtemp(os.tmpdir());
+  // eslint-disable-next-line no-empty-pattern
+  testMediaPath: async ({}, use) => {
+    const dir = await fs.mkdtemp(
+      join(os.tmpdir(), "badger-desktop-e2e-complete"),
+    );
     await use(dir);
     await fs.rm(dir, { recursive: true });
   },
