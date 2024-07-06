@@ -22,7 +22,7 @@ const testSettingsBacking = new Map<string, unknown>();
 const testSettingsStore: SettingsStore = {
   async get(key: string) {
     if (process.env[`__TEST_SETTINGS_${key.toUpperCase()}`]) {
-      // TODO: validate that this matches the requisite schema
+      // TODO[BDGR-175]: validate that this matches the requisite schema
       // Will require slightly refactoring this file to allow getting the schema
       // by name, though as a bonus this should let us avoid duplicating the load/save code
       return JSON.parse(
