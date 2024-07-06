@@ -23,7 +23,7 @@ export const sampleRundown: z.infer<typeof CompleteRundownModel> = {
     {
       id: 1,
       rundownId: 1,
-      order: 1,
+      order: 0,
       name: "Test VT",
       type: "VT",
       durationSeconds: 15,
@@ -39,7 +39,7 @@ export const sampleShow: z.infer<typeof CompleteShowModel> = {
   id: 1,
   name: "Test Show",
   start: add(new Date(), { days: 5 }),
-  version: 1,
+  version: 0,
   ytBroadcastID: null,
   ytStreamID: null,
   continuityItems: [
@@ -60,8 +60,8 @@ export const sampleShow: z.infer<typeof CompleteShowModel> = {
 export const testMedia: z.infer<typeof ExtendedMediaModelWithDownloadURL> = {
   id: 1,
   name: "smpte_bars_15s.mp4",
-  path: "",
-  rawPath: "",
+  path: "media/1/final/smpte_bars_15s.mp4",
+  rawPath: "media/1/raw/smpte_bars_15s.mp4",
   downloadURL: `http://localhost:${MICRO_SERVER_PORT}/testMedia/smpte_bars_15s.mp4`,
   assets: [],
   continuityItems: [sampleShow.continuityItems[0]],

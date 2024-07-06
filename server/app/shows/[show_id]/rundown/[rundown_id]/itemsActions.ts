@@ -11,7 +11,7 @@ import { JobState, MediaState } from "@badger/prisma/client";
 
 import { dispatchJobForJobrunner } from "@/lib/jobs";
 import invariant from "@/lib/invariant";
-import { getPublicTusEndpoint } from "@/lib/tus";
+import { getPublicTusEndpoint, uploadUrlToPath } from "@/lib/tus";
 
 export async function addItem(
   raw: z.infer<typeof AddItemSchema>,
@@ -340,7 +340,7 @@ export async function processUploadForRundownItem(
         jobPayload: {
           mediaId: media.id,
           sourceType: "Tus",
-          source: uploadURL,
+          source: uploadUrlToPath(uploadURL),
         },
       },
     });

@@ -66,7 +66,7 @@ export async function createShow(
   time: "past" | "future" = "future",
 ) {
   await page.goto("/shows/create");
-  await page.getByLabel("Name").fill(name);
+  await page.getByLabel("Name", { exact: true }).fill(name);
   await page.getByLabel("Start").click();
   // The E2E suite doesn't care what date this is, as long as it's in the future.
   // We specifically use a day between 8 and 21, because sometimes the date picker
@@ -162,23 +162,26 @@ export async function createMedia(
   });
 }
 
-export const test = base.extend<{ showPage: Page }>({
+export const test = base.extend<{
+  showPage: Page;
+  resetDBBetweenTests: boolean;
+}>({
+  resetDBBetweenTests: true,
   showPage: async ({ page }, use) => {
     // await page.goto("/enableDebugMode?value=false");
 
     await createShow(page, "Test Show");
 
     await use(page);
-    // await request.post(
-    //   "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB"
-    // );
   },
 });
 
-test.beforeEach(async ({ request }) => {
-  await request.post(
-    "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB",
-  );
+test.beforeEach(async ({ request, resetDBBetweenTests }) => {
+  if (resetDBBetweenTests) {
+    await request.post(
+      "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB",
+    );
+  }
 });
 
 export { expect } from "@playwright/test";
