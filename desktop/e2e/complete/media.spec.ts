@@ -3,11 +3,9 @@ import * as fsp from "node:fs/promises";
 import * as path from "node:path";
 import { createAndUploadTestMedia, server } from "./serverAPI";
 import { CompleteShowType } from "../../src/common/types";
-import * as os from "node:os";
 import { test } from "./desktopE2EUtils";
 
 let testShow: CompleteShowType;
-let tempDir: string;
 
 test.beforeEach(async ({ request, app: [app, page] }) => {
   await request.post(
@@ -32,6 +30,7 @@ async function downloadMedia(
   app: ElectronApplication,
   page: Page,
   media: { id: number },
+  mediaPath: string,
 ) {
   // This test doesn't enable OBS so the UI won't display the continuity
   // items list. Instead we trigger the download manually through the IPC API,
@@ -49,7 +48,7 @@ async function downloadMedia(
 
   await expect(async () => {
     const expectedPath = path.join(
-      tempDir,
+      mediaPath,
       `smpte_bars_15s (#${media.id}).mp4`,
     );
     const stats = await fsp.stat(expectedPath);
@@ -61,7 +60,7 @@ async function downloadMedia(
   });
 }
 
-test("download media", async ({ app: [app, page] }) => {
+test("download media", async ({ app: [app, page], testMediaPath }) => {
   test.slow();
   await page.getByRole("button", { name: "Select" }).click();
 
@@ -75,10 +74,10 @@ test("download media", async ({ app: [app, page] }) => {
     testFile,
   );
 
-  await downloadMedia(app, page, media);
+  await downloadMedia(app, page, media, testMediaPath);
 });
 
-test("delete old media", async ({ app: [app, page] }) => {
+test("delete old media", async ({ app: [app, page], testMediaPath }) => {
   // Before we start, update the show to be a month ago.
   await server.shows.update.mutate({
     id: testShow.id,
@@ -106,7 +105,7 @@ test("delete old media", async ({ app: [app, page] }) => {
     testFile,
   );
 
-  await downloadMedia(app, page, media);
+  await downloadMedia(app, page, media, testMediaPath);
 
   // Now if we look in the media tab in settings it should let us delete it,
   // because it's in use in the current show.
@@ -127,7 +126,10 @@ test("delete old media", async ({ app: [app, page] }) => {
   ).toBeEnabled();
   await expect(row).not.toBeVisible();
 
-  const expectedPath = path.join(tempDir, `smpte_bars_15s (#${media.id}).mp4`);
+  const expectedPath = path.join(
+    testMediaPath,
+    `smpte_bars_15s (#${media.id}).mp4`,
+  );
   try {
     const stat = await fsp.stat(expectedPath);
     expect(stat.isFile).toBe(false);
