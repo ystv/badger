@@ -1,29 +1,51 @@
 import { produce } from "immer";
-import { test, expect } from "../../testUtils";
+import { test, expect, MICRO_SERVER_PORT } from "../../testUtils";
 import { createShow, fileToDataTransfer, getAPIClient } from "@/e2e/lib";
 import { Show } from "@badger/prisma/types";
 import { readFileSync } from "node:fs";
 import { Page } from "@playwright/test";
+import {
+  CompleteMediaModel,
+  ExtendedMediaModelWithDownloadURL,
+} from "@badger/prisma/utilityTypes";
+import { z } from "zod";
 
-test.describe.configure({ mode: "serial" });
-test.use({ resetDBBetweenTests: false });
+test("microserver/scenarios/default", async ({ page, micro, live }) => {
+  await createShow(page, "Test Show");
+  await setupTestShow(page);
 
-let page: Page;
+  // These are all soft assertions in one test, rather than separate tests.
+  // This is because we want to set up the test show once, then test all the
+  // assertions. Playwright isn't built for that, and assumes each test
+  // is isolated, so we do it all in one test.
 
-test("ping", async ({ live, micro }) => {
-  expect(await micro.ping.query()).toMatchObject(await live.ping.query());
-});
+  expect.soft(await micro.ping.query()).toMatchObject(await live.ping.query());
 
-test("shows.listUpcoming", async ({ live, micro }) => {
-  expect(cleanShows(await micro.shows.listUpcoming.query())).toMatchObject(
-    cleanShows(await live.shows.listUpcoming.query()),
-  );
-});
+  expect
+    .soft(cleanShows(await micro.shows.listUpcoming.query()))
+    .toMatchObject(cleanShows(await live.shows.listUpcoming.query()));
 
-test("shows.get", async ({ live, micro }) => {
-  expect(cleanShow(await micro.shows.get.query({ id: 1 }))).toMatchObject(
-    cleanShow(await live.shows.get.query({ id: 1 })),
-  );
+  expect
+    .soft(cleanShow(await micro.shows.get.query({ id: 1 })))
+    .toMatchObject(cleanShow(await live.shows.get.query({ id: 1 })));
+
+  expect
+    .soft(await micro.shows.getVersion.query({ id: 1 }))
+    .toMatchObject(await live.shows.getVersion.query({ id: 1 }));
+
+  expect
+    .soft(cleanMedia(await micro.media.get.query({ id: 1 })))
+    .toMatchObject(cleanMedia(await live.media.get.query({ id: 1 })));
+
+  expect
+    .soft((await micro.media.bulkGet.query([1])).map((m) => cleanMedia(m)))
+    .toMatchObject(
+      (await live.media.bulkGet.query([1])).map((m) => cleanMedia(m)),
+    );
+
+  expect
+    .soft(await micro.rundowns.get.query({ id: 1 }))
+    .toMatchObject(await live.rundowns.get.query({ id: 1 }));
 });
 
 // Helpers
@@ -39,16 +61,36 @@ function cleanShows(shows: Show[]): Show[] {
   return shows.map((s) => cleanShow(s));
 }
 
+function cleanMedia(
+  media:
+    | z.infer<typeof ExtendedMediaModelWithDownloadURL>
+    | z.infer<typeof CompleteMediaModel>,
+) {
+  return produce(media, (draft) => {
+    for (const task of draft.tasks) {
+      task.id = -1; // order is unpredictable
+    }
+    draft.tasks = draft.tasks.sort((a, b) =>
+      a.description.localeCompare(b.description),
+    );
+    if ("downloadURL" in draft) {
+      draft.downloadURL = `http://localhost:${MICRO_SERVER_PORT}/testMedia/smpte_bars_15s.mp4`;
+    }
+    for (const ci of draft.continuityItems) {
+      if ("show" in ci) {
+        ci.show = cleanShow(ci.show);
+      }
+    }
+    for (const ri of draft.rundownItems) {
+      if ("rundown" in ri) {
+        ri.rundown.show = cleanShow(ri.rundown.show);
+      }
+    }
+  });
+}
+
 // Setup
-
-test.beforeAll(async ({ browser, request }) => {
-  await request.post(
-    "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB",
-  );
-  page = await browser.newPage();
-
-  await createShow(page, "Test Show");
-
+async function setupTestShow(page: Page) {
   const testFile = readFileSync(
     __dirname + "/../../testMedia/smpte_bars_15s.mp4",
   );
@@ -120,8 +162,4 @@ test.beforeAll(async ({ browser, request }) => {
       },
     },
   });
-});
-
-test.afterAll(async () => {
-  await page.close();
-});
+}

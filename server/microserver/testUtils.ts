@@ -23,7 +23,7 @@ function createAPI(endpoint: string, password: string) {
   });
 }
 
-const MICRO_SERVER_PORT = process.env.MICRO_SERVER_PORT
+export const MICRO_SERVER_PORT = process.env.MICRO_SERVER_PORT
   ? parseInt(process.env.MICRO_SERVER_PORT, 10)
   : process.env.PORT
     ? parseInt(process.env.PORT, 10)

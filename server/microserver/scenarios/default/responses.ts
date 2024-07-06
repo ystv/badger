@@ -39,7 +39,7 @@ export const sampleShow: z.infer<typeof CompleteShowModel> = {
   id: 1,
   name: "Test Show",
   start: add(new Date(), { days: 5 }),
-  version: 0,
+  version: 5,
   ytBroadcastID: null,
   ytStreamID: null,
   continuityItems: [
@@ -68,7 +68,43 @@ export const testMedia: z.infer<typeof ExtendedMediaModelWithDownloadURL> = {
   durationSeconds: 15,
   rundownItems: [sampleRundown.items[0]],
   state: "Ready",
-  tasks: [],
+  tasks: [
+    {
+      additionalInfo: "",
+      description: "Downloading source file",
+      id: 1,
+      media_id: 1,
+      state: "Complete",
+    },
+    {
+      additionalInfo: "",
+      description: "Uploading source file to storage",
+      id: 2,
+      media_id: 1,
+      state: "Complete",
+    },
+    {
+      additionalInfo: "Duration: 0:15",
+      description: "Determining duration",
+      id: 3,
+      media_id: 1,
+      state: "Complete",
+    },
+    {
+      additionalInfo: "",
+      description: "Normalising loudness",
+      id: 4,
+      media_id: 1,
+      state: "Complete",
+    },
+    {
+      additionalInfo: "",
+      description: "Uploading processed file",
+      id: 5,
+      media_id: 1,
+      state: "Complete",
+    },
+  ],
 };
 sampleRundown.items[0].media = testMedia;
 sampleRundown.items[0].mediaId = testMedia.id;
@@ -137,7 +173,12 @@ const responses = {
           durationSeconds: testMedia.durationSeconds,
           state: "Ready",
           assets: [],
-          continuityItems: [],
+          continuityItems: [
+            {
+              ...sampleShow.continuityItems[0],
+              show: sampleShow,
+            },
+          ],
           tasks: testMedia.tasks,
           rundownItems: [
             {
