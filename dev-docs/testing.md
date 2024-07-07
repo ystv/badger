@@ -161,10 +161,10 @@ To quote the [Django testing tutorial](https://docs.djangoproject.com/en/5.0/int
 
 > Up to a certain point, ‘checking that it seems to work’ will be a satisfactory test.
 > In a more sophisticated application, you might have dozens of complex interactions between components.
-
+>
 > A change in any of those components could have unexpected consequences on the application’s behavior.
 > Checking that it still ‘seems to work’ could mean running through your code’s functionality with twenty different variations of your test data to make sure you haven’t broken something - not a good use of your time.
-
+>
 > That’s especially true when automated tests could do this for you in seconds.
 > If something’s gone wrong, tests will also assist in identifying the code that’s causing the unexpected behavior.
 
