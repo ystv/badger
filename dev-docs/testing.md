@@ -25,9 +25,9 @@ Whereas Desktop's tests use [Vitest](https://vitest.dev/) because its builds use
 
 ### Unit Tests
 
-**What:** Individual, isolated bits of code. In particular tests that don't need a working database.
-**Where:** `*.test.ts` files in `server/` / `desktop/`
-**Framework:** Jest (Server), Vitest (Desktop)
+**What:** Individual, isolated bits of code. In particular tests that don't need a working database.  
+**Where:** `*.test.ts` files in `server/` / `desktop/`  
+**Framework:** Jest (Server), Vitest (Desktop)  
 **How to run:** `yarn test`
 
 > [!WARNING]
@@ -39,9 +39,9 @@ Whereas Desktop's tests use [Vitest](https://vitest.dev/) because its builds use
 
 ### Integration Tests
 
-**What:** Tests that need to talk to a real PostgreSQL database, but don't need to serve HTTP or a webpage.
-**Where:** `*.integration.test.ts` files
-**Framework:** Jest (Server), Vitest (Jobrunner)
+**What:** Tests that need to talk to a real PostgreSQL database, but don't need to serve HTTP or a webpage.  
+**Where:** `*.integration.test.ts` files  
+**Framework:** Jest (Server), Vitest (Jobrunner)  
 **How to run:** `yarn test:integration`
 
 Integration tests are written in the same way as unit tests, with one key difference: instead of wrapping tests in the `describe` function from Jest/Vitest, they're wrapped in a `integrate` function from `@badger/testing` (`utility/testing`).
@@ -52,9 +52,9 @@ This ensures that tests don't interfere with each other.
 
 ### End-to-End Tests
 
-**What:** Tests that exercise the real UI/API, like a human would.
-**Where:** `desktop/e2e`, `server/e2e`
-**Framework**: Playwright
+**What:** Tests that exercise the real UI/API, like a human would.  
+**Where:** `desktop/e2e`, `server/e2e`  
+**Framework**: Playwright  
 **How to run:** `yarn test:e2e`
 
 These tests are the most comprehensive, and often the easiest to write, but also the slowest to run.
@@ -131,9 +131,9 @@ See [`index.ts`](../server/microserver/index.ts)'s top comment for a full descri
 
 ### Conformance Tests
 
-**What:** Tests that check that the MicroServer API conforms to the real Server API.
-**Where:** `server/microserver/scenarios/**/*.spec.ts`
-**Framework**: Playwright
+**What:** Tests that check that the MicroServer API conforms to the real Server API.  
+**Where:** `server/microserver/scenarios/**/*.spec.ts`  
+**Framework**: Playwright  
 **How to run:** `yarn test:e2e --project=microserver` (in the `server` folder)
 
 MicroServer also has its own tests, which are run as part of the Server E2E suite.
