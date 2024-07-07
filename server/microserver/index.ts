@@ -104,7 +104,7 @@ app.get("/", (req, res) => {
 Use it for testing or developing Badger Desktop.
 
 Configure your Badger Desktop with the following details:
-- Server address: http://localhost:${MICRO_SERVER_PORT}
+- Server address: http://localhost:${MICRO_SERVER_PORT}/default
 - Server password: ${MICRO_SERVER_AUTH_SHARED_SECRET}
 
 There is nothing more to see here.`);
@@ -113,7 +113,9 @@ There is nothing more to see here.`);
 app.listen(MICRO_SERVER_PORT, () => {
   console.log("MicroServer running.");
   console.log("Configure your Badger Desktop with the following details:");
-  console.log("\tServer address: http://localhost:" + MICRO_SERVER_PORT);
+  console.log(
+    "\tServer address: http://localhost:" + MICRO_SERVER_PORT + "/default",
+  );
   console.log("\tServer password: " + MICRO_SERVER_AUTH_SHARED_SECRET);
   console.log();
 });

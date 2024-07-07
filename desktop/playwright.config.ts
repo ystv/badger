@@ -18,6 +18,7 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   // Our tests aren't concurrency-safe because they modify Server state
+  // TODO: Can we up this for standalone tests?
   workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: "html",
