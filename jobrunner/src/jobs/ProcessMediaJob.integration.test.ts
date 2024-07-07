@@ -1,11 +1,12 @@
 import { MediaState } from "@badger/prisma/client";
 import { it, beforeEach, expect } from "vitest";
-import { db, doOneJob } from "../index.js";
+import { doOneJob } from "../index.js";
 import { integrate } from "@badger/testing";
 import * as fs from "fs";
 import * as fsp from "fs/promises";
 import got from "got";
 import pEvent from "p-event";
+import { db } from "../db.js";
 
 async function uploadTestFileToTus() {
   if (!process.env.TUS_ENDPOINT) {
@@ -47,10 +48,6 @@ async function uploadTestFileToTus() {
 }
 
 integrate("ProcessMediaJob", () => {
-  beforeEach(async () => {
-    await db.$executeRawUnsafe(`DELETE FROM "base_jobs"`);
-    await db.$executeRawUnsafe(`DELETE FROM "shows"`);
-  });
   it("works", async () => {
     const testMediaPath = await uploadTestFileToTus();
     const media = await db.media.create({
