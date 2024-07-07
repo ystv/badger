@@ -83,7 +83,7 @@ Note that your mileage may vary with Desktop tests, as Electron testing is still
 #### Server
 
 Note that, unlike integration tests, we can't easily run tests against a new database each time, as this would require creating a new connection for each test which is too difficult to implement.
-Instead, there's a special secret `/api/testOnlyAPIsDoNotUseOrYouWillBeFired/resetDB` endpoint, which deletes all data from the database.
+Instead, there's a special secret `/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB` endpoint, which deletes all data from the database.
 The test fixture (in `server/e2e/lib.ts`) calls it before each test.
 
 As a consequence, Server E2E tests can't run in parallel, as they'd interfere with each other.
