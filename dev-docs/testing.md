@@ -148,9 +148,32 @@ See the `default` tests for an example.
 
 When it comes to testing, the policy is "please".
 Write tests for non-trivial code and if you think it'd be valuable, but don't write tests for the sake of writing tests or just to get coverage up.
-We have unit tests (for code that can be tested on its own), integration tests (for code that _needs_ a database or object store to be meaningfully tested), and end-to-end tests (that start a browser or Electron window and click around like a real user would).
 
-The Desktop E2E suite is split into two: "standalone", where Desktop is tested in isolation (with everything else mocked out), and "complete", where it is tested with a real Server and Jobrunner.
+However, writing _regression tests_ (tests that check that a bug doesn't come back) is always a good idea.
+
+In particular, when you set out to fix a bug, it's often a good idea to first write a (failing) test that demonstrates the bug, then fix it, and then re-run your test.
+That way you can be confident that you've fixed it, and that it won't come back.
 
 Write the smallest test you can to validate your behaviour - if it can be unit tested, unit test it.
 Integration and E2E tests are slower and more prone to flake (tests failing for seemingly no reason).
+
+To quote the [Django testing tutorial](https://docs.djangoproject.com/en/5.0/intro/tutorial05/):
+
+> Up to a certain point, ‘checking that it seems to work’ will be a satisfactory test.
+> In a more sophisticated application, you might have dozens of complex interactions between components.
+
+> A change in any of those components could have unexpected consequences on the application’s behavior.
+> Checking that it still ‘seems to work’ could mean running through your code’s functionality with twenty different variations of your test data to make sure you haven’t broken something - not a good use of your time.
+
+> That’s especially true when automated tests could do this for you in seconds.
+> If something’s gone wrong, tests will also assist in identifying the code that’s causing the unexpected behavior.
+
+> It might seem that our tests are growing out of control.
+> At this rate there will soon be more code in our tests than in our application, and the repetition is unaesthetic, compared to the elegant conciseness of the rest of our code.
+>
+> It doesn’t matter.
+> Let them grow.
+> For the most part, you can write a test once and then forget about it.
+> It will continue performing its useful function as you continue to develop your program.
+
+Once you have written a test and validated that your new feature / bug fix works, it will remain useful - validating that it _still_ works even as people make changes to the code.
