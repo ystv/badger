@@ -43,7 +43,7 @@
     "electron-builder-squirrel-windows": "^25.0.0-alpha.7",
     "electron-vite": "^2.2.0",
     "electron-wix-msi": "^5.0.0",
-    "eslint": "^8",
+    "eslint": "^9.0.0",
     "eslint-plugin-react": "latest",
     "eslint-plugin-react-hooks": "^4.6.0",
     "express": "^4.19.2",
