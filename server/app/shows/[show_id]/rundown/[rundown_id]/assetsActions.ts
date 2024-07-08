@@ -2,7 +2,6 @@
 
 import { FormResponse } from "@/components/Form";
 import { db } from "@/lib/db";
-import { escapeRegExp } from "lodash";
 import { revalidatePath } from "next/cache";
 
 import { dispatchJobForJobrunner } from "@/lib/jobs";
@@ -19,7 +18,7 @@ export async function processAssetUpload(
     throw new Error("Invalid upload URL");
   }
 
-  const [asset, rundown, job] = await db.$transaction(async ($db) => {
+  const [rundown, job] = await db.$transaction(async ($db) => {
     const rundown = await $db.rundown.findUniqueOrThrow({
       where: {
         id: rundownID,
@@ -75,7 +74,7 @@ export async function processAssetUpload(
         },
       },
     });
-    return [asset, rundown, job];
+    return [rundown, job];
   });
 
   await dispatchJobForJobrunner(job.id);

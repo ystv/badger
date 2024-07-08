@@ -39,7 +39,6 @@ import {
   useTransition,
 } from "react";
 import Button from "@badger/components/button";
-import { useRouter } from "next/navigation";
 import { ItemMediaStateAndUploadDialog } from "@/components/MediaState";
 import {
   Popover,
@@ -147,7 +146,6 @@ function ItemsTable(props: {
   pastShowsPromise: Promise<PastShowsMedia>;
 }) {
   const [isPending, startTransition] = useTransition();
-  const router = useRouter();
 
   const [optimisticItems, doOptimisticMove] = useOptimistic(
     props.rundown.items,

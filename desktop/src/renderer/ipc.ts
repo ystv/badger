@@ -1,8 +1,4 @@
-import {
-  CreateTRPCClientOptions,
-  createTRPCProxyClient,
-  loggerLink,
-} from "@trpc/client";
+import { CreateTRPCClientOptions, createTRPCProxyClient } from "@trpc/client";
 import { ipcLink } from "electron-trpc/renderer";
 import { createTRPCReact } from "@trpc/react-query";
 import type { AppRouter } from "../main/ipcApi";
@@ -10,7 +6,7 @@ import { Events } from "../common/ipcEvents";
 import { QueryKey, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import logging from "loglevel";
-import { observable, tap } from "@trpc/server/observable";
+import { observable } from "@trpc/server/observable";
 
 const logger = logging.getLogger("serverIPC");
 

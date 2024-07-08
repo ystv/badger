@@ -1,11 +1,6 @@
 import electronSettings from "electron-settings";
 import { safeStorage } from "./safeStorage";
 import { z } from "zod";
-import * as fsp from "fs/promises";
-import { ipcMain } from "electron";
-import logging from "./logging";
-
-const logger = logging.getLogger("settings");
 
 /*
  * In E2E tests we don't want settings to persist between tests, so we use

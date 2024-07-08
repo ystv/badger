@@ -24,9 +24,8 @@ import {
   IoCheckmarkSharp,
   IoCog,
   IoDownloadSharp,
-  IoEllipsisVertical,
 } from "react-icons/io5";
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import OBSScreen from "./screens/OBS";
 import VMixScreen from "./screens/vMix";
 import { Settings } from "./screens/Settings";

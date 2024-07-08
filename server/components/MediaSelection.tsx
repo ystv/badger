@@ -20,11 +20,10 @@ import {
   useEffect,
   useMemo,
   useReducer,
-  useRef,
   useState,
   useTransition,
 } from "react";
-import { MediaUploader, MediaUploaderHandle } from "./MediaUpload";
+import { MediaUploader } from "./MediaUpload";
 import Button from "@badger/components/button";
 import { format } from "date-fns";
 import {
@@ -33,12 +32,7 @@ import {
   TableCell,
   TableRow,
 } from "@badger/components/table";
-import {
-  MetadataField,
-  MetadataTargetType,
-  Rundown,
-  Show,
-} from "@badger/prisma/client";
+import { MetadataField, Rundown } from "@badger/prisma/client";
 import invariant from "@/lib/invariant";
 import { expectNever } from "ts-expect";
 import { UploadSourceType } from "./Uploader";
