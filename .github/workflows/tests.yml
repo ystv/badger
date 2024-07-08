@@ -104,7 +104,7 @@ jobs:
 
       - uses: FedericoCarboni/setup-ffmpeg@v3
         with:
-          ffmpeg-version: "5.1.1" # TODO: https://linear.app/ystv/issue/BDGR-168/jobrunner-broken-under-ffmpeg-60
+          ffmpeg-version: "release"
 
       - run: docker compose up -d
 
@@ -264,7 +264,7 @@ jobs:
 
       - uses: FedericoCarboni/setup-ffmpeg@v3
         with:
-          ffmpeg-version: "5.1.1" # TODO: https://linear.app/ystv/issue/BDGR-168/jobrunner-broken-under-ffmpeg-60
+          ffmpeg-version: "release"
 
       - name: Build server
         run: |

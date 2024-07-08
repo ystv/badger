@@ -361,16 +361,28 @@ export default class ProcessMediaJob extends MediaJobCommon {
     const cmd1 = `${process.env.FFMPEG_PATH ?? "ffmpeg"} -hide_banner -nostats -loglevel info -i ${rawPath} -af loudnorm=print_format=json -f null -`;
     this.logger.debug("Running: " + cmd1);
     const output = await exec(cmd1);
-    // Find the loudnorm output. It's a bit of JSON immediately after a line like `[Parsed_loudnorm_0 @ 0x600003670fd0]`
-    const loudnormJSON =
-      /(?<=\[Parsed_loudnorm_0 @ 0x[0-9a-f]+]\s*\n)[\s\S]*/.exec(output.stderr);
-    if (!loudnormJSON) {
+    // Find the loudnorm output. This is a bit hacky.
+    // Look for a line that starts with "{" followed by a newline
+    const loudnormStart = output.stderr.indexOf("\n{\n");
+
+    if (loudnormStart === -1) {
       this.logger.warn(output.stderr);
       throw new Error(
         "Could not find loudnorm output - file may have no or corrupt audio",
       );
     }
-    const loudnormData: LoudnormOutput = JSON.parse(loudnormJSON[0]);
+    const loudnormEnd = output.stderr.indexOf("\n}\n", loudnormStart);
+    if (loudnormEnd === -1) {
+      this.logger.warn(output.stderr);
+      throw new Error(
+        "Could not find end of loudnorm output - file may have no or corrupt audio",
+      );
+    }
+    const loudnormJSON = output.stderr.slice(
+      loudnormStart + 1,
+      loudnormEnd + 2,
+    );
+    const loudnormData: LoudnormOutput = JSON.parse(loudnormJSON);
 
     // Ensure we don't fail if the file has no audio at all
     if (loudnormData.input_i === "-inf") {
