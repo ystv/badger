@@ -25,7 +25,7 @@
     "test": "yarn workspaces foreach -Atp --exclude badger-root-workspace run test",
     "test:integration": "yarn workspaces foreach -At --exclude badger-root-workspace run test:integration",
     "typecheck": "yarn workspaces foreach -Atp --include 'badger-{desktop,jobrunner,server}' run tsc --noEmit",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "lint-staged": {
     "{desktop,server,jobrunner,utility}/*.{js,jsx,ts,tsx}": "eslint --fix",
