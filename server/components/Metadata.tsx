@@ -11,7 +11,6 @@ import { FormResponse } from "./Form";
 import {
   IoCheckmarkSharp,
   IoCloseSharp,
-  IoAddCircle,
   IoChevronDownSharp,
 } from "react-icons/io5";
 import {
@@ -22,11 +21,7 @@ import {
 } from "@badger/components/dropdown-menu";
 import { twMerge } from "tailwind-merge";
 import { expectNever } from "ts-expect";
-import {
-  CompleteMedia,
-  ItemMediaStateAndUploadDialog,
-  MediaMetadata,
-} from "./MediaState";
+import { CompleteMedia, ItemMediaStateAndUploadDialog } from "./MediaState";
 import { PastShowsMedia } from "./MediaSelection";
 
 export interface MetadataWithFieldAndMedia extends Metadata {
@@ -154,7 +149,6 @@ function MetaValue(props: {
 
 function MediaMetaValue({
   field,
-  meta,
   value,
   onUploadComplete,
   onExistingSelected,
