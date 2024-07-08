@@ -102,7 +102,9 @@ jobs:
           cache: "yarn"
           cache-dependency-path: "yarn.lock"
 
-      - uses: FedericoCarboni/setup-ffmpeg@v2
+      - uses: FedericoCarboni/setup-ffmpeg@v3
+        with:
+          ffmpeg-version: "<6.0.0" # TODO: https://linear.app/ystv/issue/BDGR-168/jobrunner-broken-under-ffmpeg-60
 
       - run: docker compose up -d
 
@@ -260,7 +262,9 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable --inline-builds
 
-      - uses: FedericoCarboni/setup-ffmpeg@v2
+      - uses: FedericoCarboni/setup-ffmpeg@v3
+        with:
+          ffmpeg-version: "<6.0.0" # TODO: https://linear.app/ystv/issue/BDGR-168/jobrunner-broken-under-ffmpeg-60
 
       - name: Build server
         run: |
