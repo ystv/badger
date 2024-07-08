@@ -38,7 +38,7 @@
     "@vitest/coverage-v8": "^1.6.0",
     "autoprefixer": "^10.4.14",
     "body-parser": "^1.20.2",
-    "electron": "26.6.10",
+    "electron": "31.1.0",
     "electron-builder": "^24.13.3",
     "electron-builder-squirrel-windows": "^25.0.0-alpha.7",
     "electron-vite": "^2.2.0",
