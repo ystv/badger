@@ -93,14 +93,7 @@ When you do this, you'll probably also need to change the `@/lib/utils` import t
 
 ### Testing
 
-When it comes to testing, the policy is "please".
-Write tests for non-trivial code and if you think it'd be valuable, but don't write tests for the sake of writing tests or just to get coverage up.
-We have unit tests (for code that can be tested on its own), integration tests (for code that _needs_ a database or object store to be meaningfully tested), and end-to-end tests (that start a browser or Electron window and click around like a real user would).
-
-The Desktop E2E suite is split into two: "standalone", where Desktop is tested in isolation (with everything else mocked out), and "complete", where it is tested with a real Server and Jobrunner.
-
-Write the smallest test you can to validate your behaviour - if it can be unit tested, unit test it.
-Integration and E2E tests are slower and more prone to flake (tests failing for seemingly no reason).
+See [the testing guide](./dev-docs/testing.md) for more information.
 
 #### Running tests
 

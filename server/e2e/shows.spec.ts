@@ -1,11 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { createShow, createShowAPI } from "./lib";
-
-test.beforeAll(async ({ request }) => {
-  await request.post(
-    "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB",
-  );
-});
+import { createShowAPI } from "./lib";
 
 test("loads", async ({ page }) => {
   await page.goto("/");

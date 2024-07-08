@@ -23,8 +23,8 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Don't run tests in parallel - resetDB isn't safe */
+  workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: "html",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -49,6 +49,17 @@ export default defineConfig({
   /* Configure projects for major browsers */
   projects: [
     { name: "setup", testMatch: /.*\.setup\.ts/ },
+
+    {
+      name: "microserver",
+      testDir: "./microserver",
+      testMatch: /.*\.spec\.ts/,
+      dependencies: ["setup"],
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: "playwright/.auth/user.json",
+      },
+    },
 
     {
       name: "chromium",
@@ -123,6 +134,11 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
       stdout: "pipe",
       stderr: "pipe",
+    },
+    {
+      command: "yarn microserver",
+      port: 8594,
+      reuseExistingServer: !process.env.CI,
     },
   ],
 });

@@ -45,3 +45,32 @@ export const CompleteShowModel = ShowSchema.extend({
 export const ExtendedMediaModel = PartialMediaModel.extend({
   tasks: z.array(MediaProcessingTaskSchema),
 });
+
+export const ExtendedMediaModelWithDownloadURL = ExtendedMediaModel.extend({
+  continuityItems: z.array(ContinuityItemSchema),
+  rundownItems: z.array(RundownItemSchema),
+  assets: z.array(AssetSchema),
+  downloadURL: z.string().optional().nullable(),
+});
+
+export const CompleteMediaModel = ExtendedMediaModel.extend({
+  continuityItems: z.array(
+    ContinuityItemSchema.extend({
+      show: ShowSchema,
+    }),
+  ),
+  rundownItems: z.array(
+    RundownItemSchema.extend({
+      rundown: RundownSchema.extend({
+        show: ShowSchema,
+      }),
+    }),
+  ),
+  assets: z.array(
+    AssetSchema.extend({
+      rundown: RundownSchema.extend({
+        show: ShowSchema,
+      }),
+    }),
+  ),
+});

@@ -77,7 +77,7 @@ function MediaProcessingState({
 }) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const intervalRef = useRef<NodeJS.Timer | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   useEffect(() => {
     if (
       media.state === MediaState.Pending ||

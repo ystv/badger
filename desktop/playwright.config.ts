@@ -18,6 +18,7 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   // Our tests aren't concurrency-safe because they modify Server state
+  // TODO[BDGR-178]: Can we up this for standalone tests?
   workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: "html",
@@ -45,9 +46,10 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://127.0.0.1:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
+  webServer: {
+    command: "yarn microserver",
+    cwd: "../server",
+    url: "http://127.0.0.1:8594",
+    reuseExistingServer: !process.env.CI,
+  },
 });

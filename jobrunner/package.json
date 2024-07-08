@@ -1,18 +1,18 @@
 {
   "name": "badger-jobrunner",
-  "version": "1.0.3-canary.4",
-  "packageManager": "yarn@4.2.2",
+  "version": "1.0.3-canary.5",
+  "packageManager": "yarn@4.3.1",
   "devDependencies": {
     "@sentry/esbuild-plugin": "^2.7.0",
     "@tsconfig/node18": "^18.2.0",
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "latest",
     "dotenv": "^16.3.1",
-    "esbuild": "^0.21.0",
+    "esbuild": "^0.23.0",
     "eslint": "^8",
     "glob": "^10.3.3",
     "prettier": "^3.0.3",
-    "tsx": "^3.12.7",
+    "tsx": "^4.16.2",
     "typescript": "^5.1.6",
     "vitest": "^1.6.0"
   },
