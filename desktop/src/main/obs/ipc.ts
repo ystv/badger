@@ -70,7 +70,7 @@ export const obsRouter = r({
       const info = await serverAPI().media.get.query({ id: input.id });
       invariant(
         info.continuityItems.length > 0,
-        "No continuity item for media in obs.addMediaAsScene",
+        "obs.addMediaAsScene: No continuity item for media in obs.addMediaAsScene",
       );
       return await addOrReplaceMediaAsScene(info, input.replaceMode);
     }),

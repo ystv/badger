@@ -9,7 +9,6 @@ import type { AppRouter } from "badger-server/app/api/_router";
 import superjson from "superjson";
 import { getServerSettings, saveServerSettings } from "./settings";
 import logging from "./logging";
-import { mockServerAPIClient } from "../base/serverApiClient.mock";
 import invariant from "../../common/invariant";
 
 const logger = logging.getLogger("serverApiClient");
@@ -58,10 +57,6 @@ async function newAPIClient(endpoint: string, password: string) {
 }
 
 export async function createAPIClient(endpoint: string, password: string) {
-  if (process.env.__USE_MOCK_SERVER_API) {
-    serverApiClient = mockServerAPIClient;
-    return;
-  }
   serverApiClient = await newAPIClient(endpoint, password);
   await saveServerSettings({ endpoint, password });
 }

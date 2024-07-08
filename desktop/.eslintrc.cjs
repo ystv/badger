@@ -55,6 +55,9 @@ module.exports = {
       "warn",
       {
         varsIgnorePattern: "^_",
+        argsIgnorePattern: "^_",
+        destructuredArrayIgnorePattern: "^_",
+        caughtErrorsIgnorePattern: "^ignored",
       },
     ],
   },
