@@ -50,7 +50,7 @@
     "date-fns": "^2.30.0",
     "debug": "^4.3.4",
     "eslint-config-next": "^14.2.3",
-    "eslint-plugin-react": "latest",
+    "eslint-plugin-react": "^7.34.3",
     "google-auth-library": "^9.2.0",
     "googleapis": "^128.0.0",
     "immer": "^10.1.1",
