@@ -50,7 +50,7 @@ export const test = base.extend<{
       env[`__TEST_SETTINGS_${key.toUpperCase()}`] = JSON.stringify(value);
     }
     const app = await electron.launch({
-      args: ["--enable-logging", "out/main/index.js"],
+      args: ["--enable-logging", "out/main/index.mjs"],
       env,
     });
     const win = await app.firstWindow();

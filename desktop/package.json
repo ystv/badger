@@ -4,8 +4,10 @@
   "version": "1.0.3-canary.6",
   "description": "My Electron application description",
   "main": "./out/main/index.js",
+  "type": "module",
   "scripts": {
     "start": "electron-vite dev",
+    "dev": "electron-vite dev",
     "build": "rimraf out && electron-vite build",
     "package": "rimraf dist && yarn build && electron-builder build -c electron-builder.config.cjs",
     "lint": "eslint src/",

@@ -5,7 +5,7 @@ import {
   SceneItem,
 } from "./obs";
 import invariant from "../../common/invariant";
-import type { Media, ContinuityItem } from "@badger/prisma/client";
+import type { Media, ContinuityItem } from "@badger/prisma/types";
 import { getLogger } from "../base/logging";
 import { selectedShow } from "../base/selectedShow";
 import { getLocalMedia } from "../media/mediaManagement";

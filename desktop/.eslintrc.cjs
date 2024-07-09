@@ -38,6 +38,10 @@ module.exports = {
             message: "You probably wanted '@badger/prisma'.",
           },
           {
+            group: [`^@badger/prisma/client`],
+            message: "Use @badger/prisma/types instead",
+          },
+          {
             group: ["@"],
             message:
               "Next's @-prefixed imports won't work. Import from badger-server instead.",
