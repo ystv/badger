@@ -103,33 +103,6 @@ Where Renovate doesn't auto-merge, just merge the PR yourself.
 
 See [the testing guide](./dev-docs/testing.md) for more information.
 
-#### Running tests
-
-We use [Jest](https://jestjs.io) (in Server) and [Vitest](https://vitest.dev) (in Desktop and Jobrunner) for our unit and integration tests, and [Playwright](https://playwright.dev/) for our end-to-end tests.
-All tests are run on every pull request by CI (GitHub Actions), and the E2E tests run against Chrome, Firefox, and WebKit (Safari) to validate cross-browser compatibility.
-
-To run the tests on your machine, run these commands in the appropriate folder (`server`/`jobrunner`/`desktop`):
-
-- Unit tests: `yarn test`
-- Integration tests: `yarn test:integration`
-- E2E tests: `yarn test:e2e`
-  - You will need to run a database (see above) and Server (`NODE_ENV=test E2E_TEST=true USE_DUMMY_TEST_AUTH=true yarn dev`). For some tests you will also need to run Jobrunner (`NODE_ENV=test E2E_TEST=true yarn dev --watch`)
-  - You will need to build Desktop before running its E2E tests (`yarn package`)
-    - It may be helpful to run them as `yarn package && yarn test:e2e`
-
-To debug the E2E tests, run `yarn test:e2e --debug` (see Playwright's docs).
-For even more debugging output, run `DEBUG=pw:api,pw:browser yarn test:e2e`.
-
-GitHub is configured to not allow merging a pull request untill all tests (including E2E) are passing.
-This not only serves as a safeguard, but also means you can use the "auto-merge" button to automatically merge the PR once all tests have passed.
-
-If a test fails on your PR, fix it.
-We rely on a broad test suite to ensure that Badger remains functional.
-In some cases the E2E tests can "flake", or fail for seemingly no reason - in this case it's acceptable to re-run the test to see if it'll pass on the second run, but please file a [Linear](https://linear.app/ystv/team/BDGR) ticket, with the Playwright test trace (downloadable from the Artifacts section on the GitHub Actions summary), to remind us to track down the cause of the flake and fix it.
-Playwright's [trace](https://playwright.dev/docs/trace-viewer-intro) feature is very useful for tracking down the cause of a failure.
-
-As an absolute last resort, if the test keeps failing and you're _sure_ that the failure is unrelated to your code, @markspolakovs and @dan-wade42 can override the merge requirements - though please still file a ticket.
-
 ### Code Style
 
 We use Prettier to automatically format code. If CI fails because of formatting, just run `yarn prettify`.
