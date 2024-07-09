@@ -36,7 +36,7 @@ const test = base.extend<{
 
   app: async ({ scenario, testMediaPath }, use, testInfo) => {
     const app = await electron.launch({
-      args: ["--enable-logging", "out/main/index.mjs"],
+      args: ["--enable-logging", "out/main/index.js"],
       env: {
         ...process.env,
         NODE_ENV: "test",
