@@ -17,6 +17,10 @@
     {
       "matchPackagePrefixes": ["@radix-ui/"],
       "groupName": "Radix UI"
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "automerge": true
     }
   ]
 }
