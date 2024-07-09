@@ -30,11 +30,11 @@ export default async function GoogleLogin(props: {
       break;
     case SignInResult.CreatedInactive:
       message =
-        "Your account has been created, but is not yet active. Please contact the Computing Team.";
+        "Your account has been created, but is not yet active. Please contact your Badger administrators.";
       break;
     case SignInResult.Inactive:
       message =
-        "Your account is not active. Please contact the Computing Team.";
+        "Your account is not active. Please contact your Badger administrators.";
       break;
     default:
       message = `Unknown sign-in status: ${props.searchParams.status}`;

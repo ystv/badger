@@ -64,8 +64,9 @@ $ docker-compose up -d
 
 Go into the `server/` folder and create a file called `.env.local`.
 There you can set environment variables that you don't want to accidentally commit and make public.
-For now, the only ones you'll need are `YSTV_SSO_USERNAME` and `YSTV_SSO_PASSWORD` - these are application credentials for our internal [SSO service](https://github.com/ystv/SSO) (not your usual login) and can be acquired by asking @markspolakovs.
+You'll need to set up a Google OAuth client ID and secret for authentication.
 Alternatively, you can add `USE_DUMMY_TEST_AUTH=true` to `.env.local` and use username and password `test`.
+You'll also need to set up the database connection string, S3 (MinIO) connection string, and tusd server URL.
 
 Then, run `yarn dev` (in the `server` folder) to start the server.
 
