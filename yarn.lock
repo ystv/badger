@@ -10532,14 +10532,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron-to-chromium@npm:^1.4.668":
-  version: 1.4.774
-  resolution: "electron-to-chromium@npm:1.4.774"
-  checksum: 10/1424a1d4c89b498eaa02146ed89d79b3d9536b8c745753433b1f8b9ed12cc701aa3528e87a86c6c07ac4e35490dc1c44a3955408274a32d1446fbb56a0cffc2d
-  languageName: node
-  linkType: hard
-
-"electron-to-chromium@npm:^1.4.820":
+"electron-to-chromium@npm:^1.4.668, electron-to-chromium@npm:^1.4.820":
   version: 1.4.820
   resolution: "electron-to-chromium@npm:1.4.820"
   checksum: 10/6f283fdb22da8b18a071ffce49a181a98b68dca92b46d465026b325593bb1b49acad8926d9274fbe464f1d90006a762b3b83a71d8f1f5df4b334e2b9bd41c040
