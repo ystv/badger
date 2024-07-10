@@ -6574,7 +6574,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/express@npm:*":
+"@types/express@npm:*, @types/express@npm:^4.17.21":
   version: 4.17.21
   resolution: "@types/express@npm:4.17.21"
   dependencies:
@@ -8558,6 +8558,7 @@ __metadata:
     "@trpc/server": "npm:^10.34.0"
     "@types/async-lock": "npm:^1.4.2"
     "@types/debug": "npm:^4.1.12"
+    "@types/express": "npm:^4.17.21"
     "@types/jest": "npm:^29.5.9"
     "@types/lodash": "npm:^4.14.196"
     "@types/node": "npm:20.14.10"

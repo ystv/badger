@@ -81,6 +81,7 @@
     "@prisma/nextjs-monorepo-workaround-plugin": "toniopelo/prisma-nextjs-monorepo-workaround-plugin",
     "@trpc/client": "^10.44.1",
     "@types/debug": "^4.1.12",
+    "@types/express": "^4.17.21",
     "@types/jest": "^29.5.9",
     "@types/shelljs": "^0.8.12",
     "autoprefixer": "^10.4.14",
