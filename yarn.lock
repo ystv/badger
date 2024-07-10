@@ -5116,6 +5116,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sentry/babel-plugin-component-annotate@npm:2.21.0":
+  version: 2.21.0
+  resolution: "@sentry/babel-plugin-component-annotate@npm:2.21.0"
+  checksum: 10/26a5c45c00bd9d90735cfc7f23edb296d5fc636d1d33d42c9b41a5e534577bbc96b834bcad6deda936ca8d6ff316f990c2e31761ef74e00564172371461692d4
+  languageName: node
+  linkType: hard
+
 "@sentry/browser@npm:7.118.0":
   version: 7.118.0
   resolution: "@sentry/browser@npm:7.118.0"
@@ -5162,22 +5169,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/bundler-plugin-core@npm:2.10.3":
-  version: 2.10.3
-  resolution: "@sentry/bundler-plugin-core@npm:2.10.3"
-  dependencies:
-    "@sentry/cli": "npm:^2.22.3"
-    "@sentry/node": "npm:^7.60.0"
-    "@sentry/utils": "npm:^7.60.0"
-    dotenv: "npm:^16.3.1"
-    find-up: "npm:5.0.0"
-    glob: "npm:9.3.2"
-    magic-string: "npm:0.27.0"
-    unplugin: "npm:1.0.1"
-  checksum: 10/2da708f941977a87a8f20a50e6865f75b218ba87b7a0c26c82ff1a13ba36de3e58f114e349f8ae7defb6aa3628aad8c5db08d8a25e11b119a9330ea36589069f
-  languageName: node
-  linkType: hard
-
 "@sentry/bundler-plugin-core@npm:2.20.1":
   version: 2.20.1
   resolution: "@sentry/bundler-plugin-core@npm:2.20.1"
@@ -5191,6 +5182,22 @@ __metadata:
     magic-string: "npm:0.30.8"
     unplugin: "npm:1.0.1"
   checksum: 10/c5331fe210f3c58597609ac9de5a4f9a55f9a830f39c69dcc948e64d6d6cbe4ad14526b93f2670927d84d3c91676de1994f953c7db1dd450cf9e46b3d562dcfd
+  languageName: node
+  linkType: hard
+
+"@sentry/bundler-plugin-core@npm:2.21.0":
+  version: 2.21.0
+  resolution: "@sentry/bundler-plugin-core@npm:2.21.0"
+  dependencies:
+    "@babel/core": "npm:^7.18.5"
+    "@sentry/babel-plugin-component-annotate": "npm:2.21.0"
+    "@sentry/cli": "npm:^2.22.3"
+    dotenv: "npm:^16.3.1"
+    find-up: "npm:^5.0.0"
+    glob: "npm:^9.3.2"
+    magic-string: "npm:0.30.8"
+    unplugin: "npm:1.0.1"
+  checksum: 10/1f271ccab00969b4962845fd600ca430153f2d4cdb27208f2c727470b3bec02bea1d9d4e08ca5ca3ec704734a1e14e38eee9d52cf9b84951e5ad93bd22c9f108
   languageName: node
   linkType: hard
 
@@ -5341,13 +5348,13 @@ __metadata:
   linkType: hard
 
 "@sentry/esbuild-plugin@npm:^2.7.0":
-  version: 2.10.3
-  resolution: "@sentry/esbuild-plugin@npm:2.10.3"
+  version: 2.21.0
+  resolution: "@sentry/esbuild-plugin@npm:2.21.0"
   dependencies:
-    "@sentry/bundler-plugin-core": "npm:2.10.3"
+    "@sentry/bundler-plugin-core": "npm:2.21.0"
     unplugin: "npm:1.0.1"
     uuid: "npm:^9.0.0"
-  checksum: 10/8d4ec24764bf85cf7a0c087d50000f0d1c0e981fc735d5150f6597412f0534794250dc62fd5b0cb64b508fae0484e06136ae50d930235e0d7ffd778a0a0f1737
+  checksum: 10/fcfd7eaedc7862e1ea881605b1bbf1112d97b938bacea6cadfeb7c18ec4544c623fb1726b24e0b151e7ca6f24a1f3f9177645c55d22c62ccaf53ae8f380edcff
   languageName: node
   linkType: hard
 
@@ -5453,7 +5460,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/node@npm:^7.60.0, @sentry/node@npm:^7.64.0":
+"@sentry/node@npm:^7.64.0":
   version: 7.118.0
   resolution: "@sentry/node@npm:7.118.0"
   dependencies:
@@ -5558,7 +5565,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/utils@npm:7.118.0, @sentry/utils@npm:^7.60.0, @sentry/utils@npm:^7.69.0":
+"@sentry/utils@npm:7.118.0, @sentry/utils@npm:^7.69.0":
   version: 7.118.0
   resolution: "@sentry/utils@npm:7.118.0"
   dependencies:
@@ -11671,16 +11678,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"find-up@npm:5.0.0, find-up@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "find-up@npm:5.0.0"
-  dependencies:
-    locate-path: "npm:^6.0.0"
-    path-exists: "npm:^4.0.0"
-  checksum: 10/07955e357348f34660bde7920783204ff5a26ac2cafcaa28bace494027158a97b9f56faaf2d89a6106211a8174db650dd9f503f9c0d526b1202d5554a00b9095
-  languageName: node
-  linkType: hard
-
 "find-up@npm:^4.0.0, find-up@npm:^4.1.0":
   version: 4.1.0
   resolution: "find-up@npm:4.1.0"
@@ -11688,6 +11685,16 @@ __metadata:
     locate-path: "npm:^5.0.0"
     path-exists: "npm:^4.0.0"
   checksum: 10/4c172680e8f8c1f78839486e14a43ef82e9decd0e74145f40707cc42e7420506d5ec92d9a11c22bd2c48fb0c384ea05dd30e10dd152fefeec6f2f75282a8b844
+  languageName: node
+  linkType: hard
+
+"find-up@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "find-up@npm:5.0.0"
+  dependencies:
+    locate-path: "npm:^6.0.0"
+    path-exists: "npm:^4.0.0"
+  checksum: 10/07955e357348f34660bde7920783204ff5a26ac2cafcaa28bace494027158a97b9f56faaf2d89a6106211a8174db650dd9f503f9c0d526b1202d5554a00b9095
   languageName: node
   linkType: hard
 
@@ -12109,18 +12116,6 @@ __metadata:
   bin:
     glob: dist/esm/bin.mjs
   checksum: 10/38bdb2c9ce75eb5ed168f309d4ed05b0798f640b637034800a6bf306f39d35409bf278b0eaaffaec07591085d3acb7184a201eae791468f0f617771c2486a6a8
-  languageName: node
-  linkType: hard
-
-"glob@npm:9.3.2":
-  version: 9.3.2
-  resolution: "glob@npm:9.3.2"
-  dependencies:
-    fs.realpath: "npm:^1.0.0"
-    minimatch: "npm:^7.4.1"
-    minipass: "npm:^4.2.4"
-    path-scurry: "npm:^1.6.1"
-  checksum: 10/8b13d0ffe23b79e37659c2fb9969b57042ee203dc8da0621c8c6f651d6d0d64749f46f1021088b582faa68516b07c032d0fc45881633a2beceed39a7dcb54816
   languageName: node
   linkType: hard
 
@@ -14612,21 +14607,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"magic-string@npm:0.27.0, magic-string@npm:^0.27.0":
-  version: 0.27.0
-  resolution: "magic-string@npm:0.27.0"
-  dependencies:
-    "@jridgewell/sourcemap-codec": "npm:^1.4.13"
-  checksum: 10/10a18a48d22fb14467d6cb4204aba58d6790ae7ba023835dc7a65e310cf216f042a17fab1155ba43e47117310a9b7c3fd3bb79f40be40f5124d6b1af9e96399b
-  languageName: node
-  linkType: hard
-
 "magic-string@npm:0.30.8":
   version: 0.30.8
   resolution: "magic-string@npm:0.30.8"
   dependencies:
     "@jridgewell/sourcemap-codec": "npm:^1.4.15"
   checksum: 10/72ab63817af600e92c19dc8489c1aa4a9599da00cfd59b2319709bd48fb0cf533fdf354bf140ac86e598dbd63e6b2cc83647fe8448f864a3eb6061c62c94e784
+  languageName: node
+  linkType: hard
+
+"magic-string@npm:^0.27.0":
+  version: 0.27.0
+  resolution: "magic-string@npm:0.27.0"
+  dependencies:
+    "@jridgewell/sourcemap-codec": "npm:^1.4.13"
+  checksum: 10/10a18a48d22fb14467d6cb4204aba58d6790ae7ba023835dc7a65e310cf216f042a17fab1155ba43e47117310a9b7c3fd3bb79f40be40f5124d6b1af9e96399b
   languageName: node
   linkType: hard
 
@@ -14890,15 +14885,6 @@ __metadata:
   dependencies:
     brace-expansion: "npm:^2.0.1"
   checksum: 10/126b36485b821daf96d33b5c821dac600cc1ab36c87e7a532594f9b1652b1fa89a1eebcaad4dff17c764dce1a7ac1531327f190fed5f97d8f6e5f889c116c429
-  languageName: node
-  linkType: hard
-
-"minimatch@npm:^7.4.1":
-  version: 7.4.6
-  resolution: "minimatch@npm:7.4.6"
-  dependencies:
-    brace-expansion: "npm:^2.0.1"
-  checksum: 10/0046ba1161ac6414bde1b07c440792ebcdb2ed93e6714c85c73974332b709b7e692801550bc9da22028a8613407b3f13861e17dd0dd44f4babdeacd44950430b
   languageName: node
   linkType: hard
 
