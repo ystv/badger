@@ -9999,9 +9999,9 @@ __metadata:
   linkType: hard
 
 "easydl@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "easydl@npm:1.1.1"
-  checksum: 10/297b263d93a38776689a593b586127d91e0a13887ff9db2aa3d97ebdb549728de5379b0ac7ad8ad81ac52e230df0c521c7599cf4e52f41a73cd4f02fb8875134
+  version: 1.2.0
+  resolution: "easydl@npm:1.2.0"
+  checksum: 10/a8895b3f888b69f66b076080969d2e3da414674996b161f837915b95504e2a18d290200cdf5ccedc8ef6256a34b7e724fbdcc3a4bc648d04d2e9aee29634e9e6
   languageName: node
   linkType: hard
 
