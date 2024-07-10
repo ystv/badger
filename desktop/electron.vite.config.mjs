@@ -35,6 +35,7 @@ const base = defineConfig({
       release: {
         name: sentryRelease,
       },
+      disable: process.env.IS_YSTV_BUILD !== "true",
     }),
   ],
   build: {
@@ -63,6 +64,10 @@ const base = defineConfig({
         }
         handler(level, log);
       },
+      external: [
+        // Don't bundle Prisma into Desktop
+        /prisma\/client\/runtime/,
+      ],
     },
   },
 });

@@ -92,6 +92,14 @@ If in doubt, please file an issue before starting work.
 
 There are still quite a few YSTV-isms in its design, for example the semi-arbitrary distinction between rundowns and continuity items - this was borne out of our workflow. Follow [the "Public-isation" milestone](https://github.com/ystv/badger/milestone/1) for a list of tasks we're working on to make Badger more generally useful.
 
+Also, for instance, the Jenkinsfile in this repository is set up for our internal Jenkins instance, deploying to our own deployment.
+Public builds are done using GitHub Actions on this repo.
+
+You'll also notice an `IS_YSTV_BUILD` environment variable set as part of the build process.
+Currently the only thing this controls is whether YSTV's [Sentry](https://sentry.io) project is used for error reporting.
+We'd like to enable this for all builds in future (with appropriate privacy protections in place) and/or allow users to supply their own Sentry DSN.
+Aside from that, our internal builds are identical to the public ones.
+
 If you're using or interested using Badger for your work, we'd love to hear from you!
 File an issue or email badger-devs-group@ystv.co.uk.
 

@@ -40,7 +40,7 @@ pipeline {
                                 --build-arg GIT_REV=${env.GIT_COMMIT} \\
                                 --build-arg SERVER_SENTRY_DSN=\$SERVER_SENTRY_DSN \\
                                 --build-arg SENTRY_AUTH_TOKEN=\$SENTRY_AUTH_TOKEN \\
-                                --build-arg IS_PRODUCTION_BUILD=${env.BRANCH_NAME == 'main' ? 'true' : ''} \\
+                                --build-arg IS_YSTV_BUILD=${env.BRANCH_NAME == 'main' ? 'true' : ''} \\
                                 -t registry.comp.ystv.co.uk/ystv/badger/server:${imageTag} \\
                                 -f Dockerfile.server ."""
                     }
@@ -50,7 +50,7 @@ pipeline {
                         sh """docker build \\
                                 --build-arg GIT_REV=${env.GIT_COMMIT} \\
                                 --build-arg SENTRY_AUTH_TOKEN=\$SENTRY_AUTH_TOKEN \\
-                                --build-arg IS_PRODUCTION_BUILD=${env.BRANCH_NAME == 'main' ? 'true' : ''} \\
+                                --build-arg IS_YSTV_BUILD=${env.BRANCH_NAME == 'main' ? 'true' : ''} \\
                                 -t registry.comp.ystv.co.uk/ystv/badger/jobrunner:${imageTag} \\
                                 -f Dockerfile.jobrunner ."""
                     }
