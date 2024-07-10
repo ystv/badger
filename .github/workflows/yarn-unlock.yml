@@ -1,0 +1,64 @@
+name: Yarn Unlocker
+
+# Short-cut for the common case of a PR having a merge conflict with only `yarn.lock`.
+# Responds to a comment on a pull request containing "/yarn unlock"
+# Test-merges the PR. If there's only one conflict, that being yarn.lock,
+# it runs `yarn` (which will fix it) and pushes the merge commit.
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  merge-yarn-lock:
+    if: contains(github.event.comment.html_url, '/pull/') && contains(github.event.comment.body, '/yarn unlock')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.issue.number }}/head
+      - run: yarn install --immutable --inline-builds
+      - run: git fetch origin main
+      - id: merge
+        run: |
+          git merge origin/main > ${{ runner.temp }}/merge.log
+          # If there are no conflicts, we're done here
+          if ! grep -q 'CONFLICT' ${{ runner.temp }}/merge.log; then
+            echo needs-merge=false >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+          # Abort *unless* there is only one conflict, that being yarn.lock
+          if [ "$(grep -c 'CONFLICT' ${{ runner.temp }}/merge.log)" -ne 1 ] || ! grep -q 'yarn.lock' ${{ runner.temp }}/merge.log; then
+            echo cannot-fix=true >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+      - if: failure() && steps.merge.outputs.needs-merge == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'No conflicts found, merge normally.'
+            })
+      - if: failure() && steps.merge.outputs.cannot-fix == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Cannot automatically resolve conflicts. Please resolve them manually.'
+            })
+      - run: |
+          yarn
+          git add yarn.lock
+          git commit -m 'chore: merge yarn.lock'
+          git push origin HEAD
