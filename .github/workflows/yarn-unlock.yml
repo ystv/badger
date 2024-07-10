@@ -45,17 +45,18 @@ jobs:
         run: |
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-          git merge origin/main || true > ${{ runner.temp }}/merge.log
+          git merge origin/main > ${{ runner.temp }}/merge.log || true
           # If there are no conflicts, we're done here
           if ! grep -q 'CONFLICT' ${{ runner.temp }}/merge.log; then
             echo needs-merge=false >> "$GITHUB_OUTPUT"
             exit 1
           fi
           # Abort *unless* there is only one conflict, that being yarn.lock
-          if [ "$(grep -c 'CONFLICT' ${{ runner.temp }}/merge.log)" -ne 1 ] || ! grep -q 'yarn.lock' ${{ runner.temp }}/merge.log; then
-            echo cannot-fix=true >> "$GITHUB_OUTPUT"
-            exit 1
+          if [ "$(grep -c 'CONFLICT' ${{ runner.temp }}/merge.log)" -eq 1 ] && grep -q 'Merge conflict in yarn.lock' ${{ runner.temp }}/merge.log; then
+            exit 0
           fi
+          echo cannot-fix=true >> "$GITHUB_OUTPUT"
+          exit 1
       - if: failure() && steps.merge.outputs.needs-merge == 'false'
         uses: actions/github-script@v7
         with:
