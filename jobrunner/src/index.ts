@@ -2,7 +2,7 @@ import dotenv from "dotenv-flow";
 import { parseArgs } from "node:util";
 import * as fs from "node:fs";
 import { createServer } from "node:http";
-import { JobState, PrismaClient } from "@badger/prisma/client";
+import { JobState } from "@badger/prisma/client";
 import * as os from "os";
 import AbstractJob from "./jobs/base.js";
 import logging, { LogLevelNames } from "loglevel";
@@ -12,6 +12,7 @@ import { LoadAssetJob } from "./jobs/LoadAssetJob.js";
 import DummyTestJob from "./jobs/DummyTestJob.js";
 import * as Sentry from "@sentry/node";
 import { logFlagState } from "@badger/feature-flags";
+import { db } from "./db.js";
 
 // Set in the esbuild command line
 declare const global: {
@@ -47,9 +48,6 @@ prefix.apply(logging, {
 const hostname = os.hostname();
 const workerID = `${hostname}-${Date.now()}`;
 const logger = logging.getLogger("main");
-
-// Only exported for testing
-export const db = new PrismaClient();
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 

@@ -26,10 +26,14 @@ let dbs = [];
 
 const dbInstances = new Map();
 
-vi.mock("@/lib/db", () => {
+vi.mock("./src/db", () => {
   const db = { db: null };
   return new Proxy(db, {
     get(target, prop) {
+      // Not a clue why this is necessary
+      if (prop === "then") {
+        return Promise.resolve();
+      }
       if (prop !== "db") {
         throw new Error(`DB mock: tried to get ${String(prop)}`);
       }
@@ -38,7 +42,6 @@ vi.mock("@/lib/db", () => {
       if (db) {
         return db;
       }
-      console.log(`Using new DB instance for test ${hash}`);
       db = new PrismaClient({
         datasources: {
           db: {

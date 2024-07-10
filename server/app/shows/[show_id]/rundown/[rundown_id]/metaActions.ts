@@ -7,9 +7,8 @@ import type {
 } from "@/components/Metadata";
 import { db } from "@/lib/db";
 import invariant from "@/lib/invariant";
-import { getPublicTusEndpoint, uploadUrlToPath } from "@/lib/tus";
+import { uploadUrlToPath } from "@/lib/tus";
 import { MetadataTargetType, type Prisma } from "@badger/prisma/client";
-import { escapeRegExp } from "lodash";
 import { revalidatePath } from "next/cache";
 
 function isMediaMetaSelectValue(

@@ -1,12 +1,11 @@
 "use server";
 
-import { SignInSchema } from "@/app/login/@ystv/schema";
+import { SignInSchema } from "@/app/login/@local/schema";
 import { z } from "zod";
 import { FormResponse } from "@/components/Form";
 import { redirect } from "next/navigation";
 import { InvalidCredentials } from "@/lib/auth/types";
 import { DummyTestAuth } from "@/lib/auth/dummyTest";
-import { YSTVAuth } from "@/lib/auth/ystv";
 import invariant from "@/lib/invariant";
 import { SignInResult, doSignIn } from "@/lib/auth";
 import { useDummyTestAuth } from "@badger/feature-flags";
@@ -20,12 +19,9 @@ function determineProvider() {
     console.warn("Using dummy test auth - do *not* use this in production!");
     return DummyTestAuth;
   }
-  if (process.env.YSTV_SSO_USERNAME && process.env.YSTV_SSO_PASSWORD) {
-    return YSTVAuth;
-  }
   invariant(
     false,
-    "No authentication configured. Set USE_DUMMY_TEST_AUTH=true or set YSTV_SSO_USERNAME and YSTV_SSO_PASSWORD",
+    "No authentication configured. Either enable Google authentication or set USE_DUMMY_TEST_AUTH=true (not in production!)",
   );
 }
 
@@ -45,7 +41,7 @@ export async function handleSignIn(
         return {
           ok: false,
           errors: {
-            root: "Your account is not yet active. Please contact the Computing Team.",
+            root: "Your account is not yet active.",
           },
         };
     }

@@ -44,7 +44,6 @@ import { archiveMedia, deletMedia } from "./actions";
 import {
   IoChevronDownSharp,
   IoChevronUpSharp,
-  IoExpandSharp,
   IoFilterSharp,
 } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";

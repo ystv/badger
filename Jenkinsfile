@@ -94,6 +94,8 @@ pipeline {
                     string(name: 'JOB_FILE', value: 'badger-jobrunner-dev.nomad'),
                     text(name: 'TAG_REPLACEMENTS', value: "registry.comp.ystv.co.uk/ystv/badger/jobrunner:${imageTag}")
                 ]
+                // Run database migrations
+                sh "nomad alloc exec -task badger-server-dev -job badger-dev npx -y prisma migrate deploy --schema utility/prisma/schema.prisma"
             }
         }
 
@@ -111,6 +113,8 @@ pipeline {
                     string(name: 'JOB_FILE', value: 'badger-jobrunner-prod.nomad'),
                     text(name: 'TAG_REPLACEMENTS', value: "registry.comp.ystv.co.uk/ystv/badger/jobrunner:${imageTag}")
                 ]
+                // Run database migrations
+                sh "nomad alloc exec -task badger-server-prod -job badger-prod npx -y prisma migrate deploy --schema utility/prisma/schema.prisma"
             }
         }
     }

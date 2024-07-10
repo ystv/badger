@@ -29,7 +29,7 @@ export interface FormErrorResponse<Fields extends FieldValues = any> {
 
 export type FormResponse<
   OK extends Record<string, unknown> = Record<string, unknown>,
-  Fields extends FieldValues = any,
+  _Fields extends FieldValues = any,
 > = ({ ok: true } & OK) | FormErrorResponse;
 export type FormAction<
   OK extends Record<string, unknown> = Record<string, unknown>,

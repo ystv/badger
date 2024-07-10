@@ -1,11 +1,5 @@
 import { test, expect } from "./lib";
 
-test.beforeEach(async ({ request }) => {
-  await request.post(
-    "/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB",
-  );
-});
-
 test("Settings page works", async ({ page }) => {
   await page.goto("/settings");
 

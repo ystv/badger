@@ -9,6 +9,7 @@ const createJestConfig = nextJest.default({ dir: "./" });
 const customJestConfig = {
   testPathIgnorePatterns: [
     "<rootDir>/e2e",
+    "<rootDir>/microserver/",
     process.env.TEST_INTEGRATION !== "true" && ".test.integration",
   ].filter(Boolean),
   moduleNameMapper: {

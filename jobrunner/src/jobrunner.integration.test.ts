@@ -1,12 +1,10 @@
 import { JobState } from "@badger/prisma/client";
-import { it, beforeEach, expect } from "vitest";
-import { db, doOneJob } from "./index.js";
+import { it, expect } from "vitest";
+import { doOneJob } from "./index.js";
 import { integrate } from "@badger/testing";
+import { db } from "./db.js";
 
 integrate("doOneJob", () => {
-  beforeEach(async () => {
-    await db.$executeRawUnsafe(`DELETE FROM "base_jobs"`);
-  });
   it("works", async () => {
     await db.baseJob.create({
       data: {

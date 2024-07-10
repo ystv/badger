@@ -52,7 +52,7 @@ export async function addOrReplaceMediaAsScene(
 
   invariant(
     info.continuityItems.length > 0,
-    "No continuity item for media in addMediaAsScene",
+    "addOrReplaceMediaAsScene: No continuity item for media in addMediaAsScene",
   );
   invariant(obsConnection, "no OBS connection");
   const localMedia = getLocalMedia();
@@ -70,7 +70,7 @@ export async function addOrReplaceMediaAsScene(
   );
   invariant(
     currentContinuityItem,
-    `No continuity item for media ${info.id} matches current show`,
+    `addOrReplaceMediaAsScene: No continuity item for media ${info.id} matches current show`,
   );
   const sceneTitle = `${currentContinuityItem.order} - ${currentContinuityItem.name} [#${currentContinuityItem.id}]`;
   // Sanity checks
