@@ -1882,10 +1882,10 @@ __metadata:
   linkType: hard
 
 "@hello-pangea/dnd@npm:^16.3.0":
-  version: 16.5.0
-  resolution: "@hello-pangea/dnd@npm:16.5.0"
+  version: 16.6.0
+  resolution: "@hello-pangea/dnd@npm:16.6.0"
   dependencies:
-    "@babel/runtime": "npm:^7.23.2"
+    "@babel/runtime": "npm:^7.24.1"
     css-box-model: "npm:^1.2.1"
     memoize-one: "npm:^6.0.0"
     raf-schd: "npm:^4.0.3"
@@ -1895,7 +1895,7 @@ __metadata:
   peerDependencies:
     react: ^16.8.5 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.5 || ^17.0.0 || ^18.0.0
-  checksum: 10/ebc9014040543c519f626e545ee8a27781a34bc2fc38681941a146bfbb456a1381492e68cc4cb53a70a59e32bee6ffd6a070c382afc3a0fab3ef863e018826ab
+  checksum: 10/f377461d400c8223174745e4d7ecf4fb0146f9e807413f98120ebbcf075282e631273988d336daaf1fb8e6b6c6a1a8e4f99beefecd7a6b68ccc3bb064d38f13f
   languageName: node
   linkType: hard
 
