@@ -78,7 +78,7 @@ jobs:
               body: 'Cannot fix conflicts. Please merge manually.'
             })
       - run: |
-          yarn
+          yarn install --no-immutable
           git add yarn.lock
           git commit -m 'chore: merge yarn.lock'
           git push origin HEAD
