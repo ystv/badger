@@ -23,13 +23,13 @@ jobs:
         id: comment
         with:
           script: |
-            const comment = github.rest.issues.createComment({
+            const comment = await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: `Trying to merge yarn.lock... follow along at https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${{ github.run_id }}`
             })
-            return comment.id
+            return comment.data.id
       - uses: actions/checkout@v4
         with:
           ref: refs/pull/${{ github.event.issue.number }}/head
@@ -45,7 +45,7 @@ jobs:
         run: |
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-          git merge origin/main > ${{ runner.temp }}/merge.log
+          git merge origin/main || true > ${{ runner.temp }}/merge.log
           # If there are no conflicts, we're done here
           if ! grep -q 'CONFLICT' ${{ runner.temp }}/merge.log; then
             echo needs-merge=false >> "$GITHUB_OUTPUT"
@@ -98,5 +98,5 @@ jobs:
               comment_id: ${{ steps.comment.outputs.result }},
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Something went wrong. Please look at [the logs](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${{ github.run_id }}).'
+              body: `Something went wrong. Please look at [the logs](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${{ github.run_id }}).`
             })
