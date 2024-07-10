@@ -50,7 +50,7 @@ async function newAPIClient(endpoint: string, password: string) {
   const pingResponse = await client.ping.query();
   if (pingResponse.version !== global.__APP_VERSION__) {
     logger.warn(
-      `Warning: version skew detected: server is running ${pingResponse.version}, but client is running ${global.__APP_VERSION__}`,
+      `Warning: version skew detected: server ${endpoint} is running ${pingResponse.version}, but client is running ${global.__APP_VERSION__}`,
     );
   }
   return client;

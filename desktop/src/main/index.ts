@@ -21,6 +21,9 @@ if (isSquirrel) {
   app.quit();
 }
 
+// ESM shim
+const __dirname = import.meta.dirname;
+
 const logger = getLogger("main");
 
 /* eslint-disable no-console */
@@ -64,7 +67,7 @@ const createWindow = async () => {
     height: 720,
     icon: Icon,
     webPreferences: {
-      preload: path.join(__dirname, "..", "preload", "preload.js"),
+      preload: path.join(__dirname, "..", "preload", "preload.cjs"),
     },
   });
 

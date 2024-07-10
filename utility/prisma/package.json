@@ -1,6 +1,7 @@
 {
   "name": "@badger/prisma",
   "private": true,
+  "sideEffects": false,
   "devDependencies": {
     "dotenv-cli": "^7.2.1",
     "prisma": "5.16.2",
