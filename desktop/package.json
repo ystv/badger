@@ -82,7 +82,7 @@
     "@playwright/test": "^1.43.1",
     "@rollup/plugin-alias": "^5.1.0",
     "@sentry/vite-plugin": "^2.7.0",
-    "@tsconfig/vite-react": "^2.0.0",
+    "@tsconfig/vite-react": "^3.0.0",
     "@types/eslint": "^8.44.0",
     "@typescript-eslint/eslint-plugin": "^6.1.0",
     "@typescript-eslint/parser": "^6.1.0",
