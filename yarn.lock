@@ -8059,9 +8059,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"app-builder-lib@npm:25.0.0-alpha.11":
-  version: 25.0.0-alpha.11
-  resolution: "app-builder-lib@npm:25.0.0-alpha.11"
+"app-builder-lib@npm:25.0.0-alpha.12":
+  version: 25.0.0-alpha.12
+  resolution: "app-builder-lib@npm:25.0.0-alpha.12"
   dependencies:
     "@develar/schema-utils": "npm:~2.6.5"
     "@electron/notarize": "npm:2.3.2"
@@ -8072,12 +8072,12 @@ __metadata:
     "@types/fs-extra": "npm:9.0.13"
     async-exit-hook: "npm:^2.0.1"
     bluebird-lst: "npm:^1.0.9"
-    builder-util: "npm:25.0.0-alpha.10"
-    builder-util-runtime: "npm:9.2.5-alpha.3"
+    builder-util: "npm:25.0.0-alpha.12"
+    builder-util-runtime: "npm:9.2.5-alpha.4"
     chromium-pickle-js: "npm:^0.2.0"
     debug: "npm:^4.3.4"
     ejs: "npm:^3.1.8"
-    electron-publish: "npm:25.0.0-alpha.10"
+    electron-publish: "npm:25.0.0-alpha.12"
     form-data: "npm:^4.0.0"
     fs-extra: "npm:^10.1.0"
     hosted-git-info: "npm:^4.1.0"
@@ -8093,9 +8093,9 @@ __metadata:
     tar: "npm:^6.1.12"
     temp-file: "npm:^3.4.0"
   peerDependencies:
-    dmg-builder: 25.0.0-alpha.11
-    electron-builder-squirrel-windows: 25.0.0-alpha.11
-  checksum: 10/7bf26ab62492591ff5aad087b87ddc9cb03eb6f7941f204cfc4b6f4a413f685af4605e05aea68b9be771d8b392ab9e5c1fe36a9b1726f540dcd4c91d709cd2d6
+    dmg-builder: 25.0.0-alpha.12
+    electron-builder-squirrel-windows: 25.0.0-alpha.12
+  checksum: 10/f1d2591e810b4892079ad5b02ee02fcc1f3ffa1dfb3a28bce66c23b3dad59e2ddcf05715d9739863e2668816ef562c99147f58399bac2e62caad043ab3668861
   languageName: node
   linkType: hard
 
@@ -9037,13 +9037,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"builder-util-runtime@npm:9.2.5-alpha.3":
-  version: 9.2.5-alpha.3
-  resolution: "builder-util-runtime@npm:9.2.5-alpha.3"
+"builder-util-runtime@npm:9.2.5-alpha.4":
+  version: 9.2.5-alpha.4
+  resolution: "builder-util-runtime@npm:9.2.5-alpha.4"
   dependencies:
     debug: "npm:^4.3.4"
     sax: "npm:^1.2.4"
-  checksum: 10/59bb70659c049d9728074460369736c196bf08a508959da8214a174bd171b2500e5de02c31f78dc00661158e4fb13520fe7154b55789a66dbcb8106597f91869
+  checksum: 10/8bd7de43545a14f894086a973ed89affe0e5f240323c6c223fcc9958904ce6761b08434ef14cf289bcfaf00b3a18dd082709780ad62cfaa47aa280b89593fee1
   languageName: node
   linkType: hard
 
@@ -9071,15 +9071,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"builder-util@npm:25.0.0-alpha.10":
-  version: 25.0.0-alpha.10
-  resolution: "builder-util@npm:25.0.0-alpha.10"
+"builder-util@npm:25.0.0-alpha.12":
+  version: 25.0.0-alpha.12
+  resolution: "builder-util@npm:25.0.0-alpha.12"
   dependencies:
     7zip-bin: "npm:~5.2.0"
     "@types/debug": "npm:^4.1.6"
     app-builder-bin: "npm:v5.0.0-alpha.4"
     bluebird-lst: "npm:^1.0.9"
-    builder-util-runtime: "npm:9.2.5-alpha.3"
+    builder-util-runtime: "npm:9.2.5-alpha.4"
     chalk: "npm:^4.1.2"
     cross-spawn: "npm:^7.0.3"
     debug: "npm:^4.3.4"
@@ -9091,7 +9091,7 @@ __metadata:
     source-map-support: "npm:^0.5.19"
     stat-mode: "npm:^1.0.0"
     temp-file: "npm:^3.4.0"
-  checksum: 10/d8b6e7b2bc2733f478987c3ee4ac142501baf70379dc956b6c9c4bdc6c91d726dba1925f3af68537ac82f32d759f52954e2f08c734900eaa5291688cd3ed55f4
+  checksum: 10/4111421d0493edd61f431f33fd839d8f91d39eb93892a50efc680e0fd6e8fd7d61000ba1fe1600227c145a6fd8a96d8d40236c595ea2054d2eea6f3669f38cf0
   languageName: node
   linkType: hard
 
@@ -10492,14 +10492,14 @@ __metadata:
   linkType: hard
 
 "electron-builder-squirrel-windows@npm:^25.0.0-alpha.7":
-  version: 25.0.0-alpha.11
-  resolution: "electron-builder-squirrel-windows@npm:25.0.0-alpha.11"
+  version: 25.0.0-alpha.12
+  resolution: "electron-builder-squirrel-windows@npm:25.0.0-alpha.12"
   dependencies:
-    app-builder-lib: "npm:25.0.0-alpha.11"
+    app-builder-lib: "npm:25.0.0-alpha.12"
     archiver: "npm:^5.3.1"
-    builder-util: "npm:25.0.0-alpha.10"
+    builder-util: "npm:25.0.0-alpha.12"
     fs-extra: "npm:^10.1.0"
-  checksum: 10/33a00c7b1f334ac63fe92448fdf81f92222feae80e015461051eada62adfd6d6efe3f7c05e6d7b08148a12bfcd917a9875561cde621c6be781ee43ab375cdcfa
+  checksum: 10/6549a6d1ef4b4b366a726281772e2b1a1cb5d0ae55b6dda36b06e8217468b95a436f3fc11117f7ca88ac53bd28a59b51da22a7b30533619f571cd8ba1f02a222
   languageName: node
   linkType: hard
 
@@ -10547,18 +10547,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron-publish@npm:25.0.0-alpha.10":
-  version: 25.0.0-alpha.10
-  resolution: "electron-publish@npm:25.0.0-alpha.10"
+"electron-publish@npm:25.0.0-alpha.12":
+  version: 25.0.0-alpha.12
+  resolution: "electron-publish@npm:25.0.0-alpha.12"
   dependencies:
     "@types/fs-extra": "npm:^9.0.11"
-    builder-util: "npm:25.0.0-alpha.10"
-    builder-util-runtime: "npm:9.2.5-alpha.3"
+    builder-util: "npm:25.0.0-alpha.12"
+    builder-util-runtime: "npm:9.2.5-alpha.4"
     chalk: "npm:^4.1.2"
     fs-extra: "npm:^10.1.0"
     lazy-val: "npm:^1.0.5"
     mime: "npm:^2.5.2"
-  checksum: 10/d97e3b484742cd904c3c46da232107a709816afb0077e46b3fdf656831ba3c998adcbe6fa0411913fc94546e53c414b62cab4046c7af87d8ad145e050f58283b
+  checksum: 10/952d2243c9a7d6969764927d6572b7b7bb61b719ff1b2f5d14b6956d308be19ce59774e1198e925204ac835063f908f8d77190edaeb90c12376828312f314cb4
   languageName: node
   linkType: hard
 
