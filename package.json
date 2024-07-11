@@ -12,7 +12,7 @@
     "chalk": "^5.3.0",
     "danger": "^12.0.0",
     "husky": "^9.0.0",
-    "inquirer": "^9.2.10",
+    "inquirer": "^10.0.0",
     "lint-staged": "^14.0.1",
     "octokit": "^3.1.0",
     "prettier": "^3.0.3",
