@@ -22,7 +22,7 @@
     "@sentry/node": "^8.4.0",
     "@types/dotenv-flow": "^3.2.0",
     "@types/lodash": "^4.14.199",
-    "dotenv-flow": "^3.2.0",
+    "dotenv-flow": "^4.0.0",
     "easydl": "^1.1.1",
     "got": "^13.0.0",
     "lodash": "^4.17.21",
