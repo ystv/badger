@@ -39,7 +39,7 @@
     "@typescript-eslint/parser": "latest",
     "esbuild": "^0.23.0",
     "eslint": "^8",
-    "glob": "^10.3.3",
+    "glob": "^11.0.0",
     "prettier": "^3.0.3",
     "tsx": "^4.16.2",
     "typescript": "^5.1.6",
