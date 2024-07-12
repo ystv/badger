@@ -91,7 +91,7 @@
     "express": "^4.19.2",
     "express-urlrewrite": "^2.0.2",
     "jest": "^29.7.0",
-    "jsdom": "^22.1.0",
+    "jsdom": "^24.0.0",
     "pg": "^8.11.3",
     "postcss": "^8.4.27",
     "prettier": "^3.0.3",
