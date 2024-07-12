@@ -5121,13 +5121,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/babel-plugin-component-annotate@npm:2.21.0":
-  version: 2.21.0
-  resolution: "@sentry/babel-plugin-component-annotate@npm:2.21.0"
-  checksum: 10/26a5c45c00bd9d90735cfc7f23edb296d5fc636d1d33d42c9b41a5e534577bbc96b834bcad6deda936ca8d6ff316f990c2e31761ef74e00564172371461692d4
-  languageName: node
-  linkType: hard
-
 "@sentry/babel-plugin-component-annotate@npm:2.21.1":
   version: 2.21.1
   resolution: "@sentry/babel-plugin-component-annotate@npm:2.21.1"
@@ -5178,22 +5171,6 @@ __metadata:
     magic-string: "npm:0.27.0"
     unplugin: "npm:1.0.1"
   checksum: 10/2095d532af8b980939a17275b12a1d187fd658fd4f3b33715dadc37cc1f4210289f5b0d863392811dc6e995f54d696cddec291f7d03d7a1d9f3b77022df0476e
-  languageName: node
-  linkType: hard
-
-"@sentry/bundler-plugin-core@npm:2.21.0":
-  version: 2.21.0
-  resolution: "@sentry/bundler-plugin-core@npm:2.21.0"
-  dependencies:
-    "@babel/core": "npm:^7.18.5"
-    "@sentry/babel-plugin-component-annotate": "npm:2.21.0"
-    "@sentry/cli": "npm:^2.22.3"
-    dotenv: "npm:^16.3.1"
-    find-up: "npm:^5.0.0"
-    glob: "npm:^9.3.2"
-    magic-string: "npm:0.30.8"
-    unplugin: "npm:1.0.1"
-  checksum: 10/1f271ccab00969b4962845fd600ca430153f2d4cdb27208f2c727470b3bec02bea1d9d4e08ca5ca3ec704734a1e14e38eee9d52cf9b84951e5ad93bd22c9f108
   languageName: node
   linkType: hard
 
@@ -5542,12 +5519,12 @@ __metadata:
   linkType: hard
 
 "@sentry/vite-plugin@npm:^2.17.0":
-  version: 2.21.0
-  resolution: "@sentry/vite-plugin@npm:2.21.0"
+  version: 2.21.1
+  resolution: "@sentry/vite-plugin@npm:2.21.1"
   dependencies:
-    "@sentry/bundler-plugin-core": "npm:2.21.0"
+    "@sentry/bundler-plugin-core": "npm:2.21.1"
     unplugin: "npm:1.0.1"
-  checksum: 10/895e2bc70636cd2034d8ae8ec11e258d839499697c5eff8b05546331099b0125b39be03ed909670c4952111f2cdde013fd9b0e48d55bc074d9d33101172bc608
+  checksum: 10/04d09f9ec7785c41aae3515819eb89ebdae0bcdda58f7a0ec55fc9b7910ead6e1444a0bdd7160dc65577df8e46e1d56f7282bad344d1c36b03244ce7eb12d929
   languageName: node
   linkType: hard
 
