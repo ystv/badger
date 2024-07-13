@@ -1245,7 +1245,7 @@ __metadata:
     prisma: "npm:5.16.2"
     prisma-json-types-generator: "npm:^3.0.3"
     typescript: "npm:^5.4.5"
-    zod-prisma-types: "npm:^2.7.9"
+    zod-prisma-types: "npm:^3.0.0"
   languageName: unknown
   linkType: soft
 
@@ -3602,12 +3602,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/generator-helper@npm:5.9.1, @prisma/generator-helper@npm:^5.4.2":
+"@prisma/generator-helper@npm:5.9.1":
   version: 5.9.1
   resolution: "@prisma/generator-helper@npm:5.9.1"
   dependencies:
     "@prisma/debug": "npm:5.9.1"
   checksum: 10/e8e7dda67d041523d2db74e166b8b757dc632a0b8c069b664d8a64b6d3e1b87a0bc7c2dd02dc00bb8a0e7500d54b382e4ca9dc3ddad032a0b684615a2666182e
+  languageName: node
+  linkType: hard
+
+"@prisma/generator-helper@npm:^5.14.0":
+  version: 5.16.2
+  resolution: "@prisma/generator-helper@npm:5.16.2"
+  dependencies:
+    "@prisma/debug": "npm:5.16.2"
+  checksum: 10/9acfd4025b74eb964d66677ea2efa3c1510eaec8443e9fe4bde1df0e0312118e5acdcd684e705fac5532acba8dec10be909a7925da128438d75f9c66ea8539bb
   languageName: node
   linkType: hard
 
@@ -19587,21 +19596,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod-prisma-types@npm:^2.7.9":
-  version: 2.8.1
-  resolution: "zod-prisma-types@npm:2.8.1"
+"zod-prisma-types@npm:^3.0.0":
+  version: 3.1.8
+  resolution: "zod-prisma-types@npm:3.1.8"
   dependencies:
-    "@prisma/generator-helper": "npm:^5.4.2"
+    "@prisma/generator-helper": "npm:^5.14.0"
     code-block-writer: "npm:^12.0.0"
     lodash: "npm:^4.17.21"
-    zod: "npm:^3.21.1"
+    zod: "npm:^3.23.8"
   bin:
     zod-prisma-types: dist/bin.js
-  checksum: 10/f33d8f5a6fbb95c76c52cf114611118ec21c721f5ce0c35d97beacf86d2074b1e6476402861702e2ee029e026e577893eff791913414c351bab8d796ac9dc2e8
+  checksum: 10/38f6b2b2154267b60b7d08136229cd0084cc29e5d7ab0230893462efe1b602d3f6ed871b7fbda192d5dd1088533b8a54584c40068d4e74343ce9cdb2d04da68c
   languageName: node
   linkType: hard
 
-"zod@npm:3.23.8, zod@npm:^3.20.2, zod@npm:^3.21.1":
+"zod@npm:3.23.8, zod@npm:^3.20.2, zod@npm:^3.23.8":
   version: 3.23.8
   resolution: "zod@npm:3.23.8"
   checksum: 10/846fd73e1af0def79c19d510ea9e4a795544a67d5b34b7e1c4d0425bf6bfd1c719446d94cdfa1721c1987d891321d61f779e8236fde517dc0e524aa851a6eff1
