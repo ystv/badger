@@ -8386,7 +8386,7 @@ __metadata:
     rollup-plugin-ignore: "npm:^1.0.10"
     rollup-plugin-visualizer: "npm:^5.12.0"
     rxjs: "npm:^7.8.1"
-    strong-mock: "npm:^8.0.1"
+    strong-mock: "npm:^9.0.0"
     superjson: "npm:^1.13.1"
     tailwindcss: "npm:^3.3.3"
     ts-expect: "npm:^1.3.0"
@@ -9984,7 +9984,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"diff-sequences@npm:^29.6.3":
+"diff-sequences@npm:^29.4.3, diff-sequences@npm:^29.6.3":
   version: 29.6.3
   resolution: "diff-sequences@npm:29.6.3"
   checksum: 10/179daf9d2f9af5c57ad66d97cb902a538bcf8ed64963fa7aa0c329b3de3665ce2eb6ffdc2f69f29d445fa4af2517e5e55e5b6e00c00a9ae4f43645f97f7078cb
@@ -13307,7 +13307,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-diff@npm:^29.3.1, jest-diff@npm:^29.7.0":
+"jest-diff@npm:^29.7.0":
   version: 29.7.0
   resolution: "jest-diff@npm:29.7.0"
   dependencies:
@@ -13316,6 +13316,18 @@ __metadata:
     jest-get-type: "npm:^29.6.3"
     pretty-format: "npm:^29.7.0"
   checksum: 10/6f3a7eb9cd9de5ea9e5aa94aed535631fa6f80221832952839b3cb59dd419b91c20b73887deb0b62230d06d02d6b6cf34ebb810b88d904bb4fe1e2e4f0905c98
+  languageName: node
+  linkType: hard
+
+"jest-diff@npm:~29.4.3":
+  version: 29.4.3
+  resolution: "jest-diff@npm:29.4.3"
+  dependencies:
+    chalk: "npm:^4.0.0"
+    diff-sequences: "npm:^29.4.3"
+    jest-get-type: "npm:^29.4.3"
+    pretty-format: "npm:^29.4.3"
+  checksum: 10/d43e1228e3563a46544e38c689f1d71e274efa572e22f40846a61b99251d59218370026cd39030ce9974ba1d34a3113e67e4e49b0acfb420b2613d20e2a4d18e
   languageName: node
   linkType: hard
 
@@ -13355,7 +13367,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-get-type@npm:^29.2.0, jest-get-type@npm:^29.6.3":
+"jest-get-type@npm:^29.4.3, jest-get-type@npm:^29.6.3":
   version: 29.6.3
   resolution: "jest-get-type@npm:29.6.3"
   checksum: 10/88ac9102d4679d768accae29f1e75f592b760b44277df288ad76ce5bf038c3f5ce3719dea8aa0f035dac30e9eb034b848ce716b9183ad7cc222d029f03e92205
@@ -13395,7 +13407,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-matcher-utils@npm:^29.7.0":
+"jest-matcher-utils@npm:^29.7.0, jest-matcher-utils@npm:~29.7.0":
   version: 29.7.0
   resolution: "jest-matcher-utils@npm:29.7.0"
   dependencies:
@@ -13404,18 +13416,6 @@ __metadata:
     jest-get-type: "npm:^29.6.3"
     pretty-format: "npm:^29.7.0"
   checksum: 10/981904a494299cf1e3baed352f8a3bd8b50a8c13a662c509b6a53c31461f94ea3bfeffa9d5efcfeb248e384e318c87de7e3baa6af0f79674e987482aa189af40
-  languageName: node
-  linkType: hard
-
-"jest-matcher-utils@npm:~29.3.0":
-  version: 29.3.1
-  resolution: "jest-matcher-utils@npm:29.3.1"
-  dependencies:
-    chalk: "npm:^4.0.0"
-    jest-diff: "npm:^29.3.1"
-    jest-get-type: "npm:^29.2.0"
-    pretty-format: "npm:^29.3.1"
-  checksum: 10/996280cf128c828494e08d45282c59c210602ad5a3274055a6e24db769d337b77d2a4a16acbb03379dfa65370bf8c3f33185e53d51baa7d90b7a5c62588c28f2
   languageName: node
   linkType: hard
 
@@ -16186,7 +16186,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pretty-format@npm:^29.0.0, pretty-format@npm:^29.3.1, pretty-format@npm:^29.7.0":
+"pretty-format@npm:^29.0.0, pretty-format@npm:^29.4.3, pretty-format@npm:^29.7.0":
   version: 29.7.0
   resolution: "pretty-format@npm:29.7.0"
   dependencies:
@@ -17878,7 +17878,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"strip-ansi-cjs@npm:strip-ansi@^6.0.1, strip-ansi@npm:^6.0.0, strip-ansi@npm:^6.0.1":
+"strip-ansi-cjs@npm:strip-ansi@^6.0.1, strip-ansi@npm:^6.0.0, strip-ansi@npm:^6.0.1, strip-ansi@npm:~6.0.0":
   version: 6.0.1
   resolution: "strip-ansi@npm:6.0.1"
   dependencies:
@@ -17947,13 +17947,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"strong-mock@npm:^8.0.1":
-  version: 8.0.1
-  resolution: "strong-mock@npm:8.0.1"
+"strong-mock@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "strong-mock@npm:9.0.0"
   dependencies:
-    jest-matcher-utils: "npm:~29.3.0"
+    jest-diff: "npm:~29.4.3"
+    jest-matcher-utils: "npm:~29.7.0"
     lodash: "npm:~4.17.0"
-  checksum: 10/8d05141ff94ae04c69d71e7f47841ab6d43e6b16de9f83c58f0849e87d1a481cd48900a9a2b4d7af273c68c5d07f8ce73952031dd8d7b6d74c0c47a9ad9e74c7
+    strip-ansi: "npm:~6.0.0"
+  checksum: 10/54d2868d120ea1d62c086cb5f3bcdd31e09aa4016f894b226caa72f553ba368f652dd9ad3e8bb961ede27a093a87e539c4a71d59ee78864738fc864d8cbe2a8d
   languageName: node
   linkType: hard
 
