@@ -9,17 +9,39 @@ export async function register() {
   const { logFlagState } = await import("@badger/feature-flags");
   logFlagState();
 
-  Sentry.init({
-    dsn: process.env.NEXT_PUBLIC_SERVER_SENTRY_DSN,
+  if (process.env.NEXT_RUNTIME === "nodejs") {
+    Sentry.init({
+      dsn: process.env.NEXT_PUBLIC_SERVER_SENTRY_DSN,
 
-    environment: process.env.ENVIRONMENT,
+      environment: process.env.ENVIRONMENT,
 
-    // Adjust this value in production, or use tracesSampler for greater control
-    tracesSampleRate: 1,
+      // Adjust this value in production, or use tracesSampler for greater control
+      tracesSampleRate: 1,
 
-    // Setting this option to true will print useful information to the console while you're setting up Sentry.
-    debug: false,
+      // Setting this option to true will print useful information to the console while you're setting up Sentry.
+      debug: false,
 
-    release: process.env.NEXT_PUBLIC_SENTRY_RELEASE,
-  });
+      release: process.env.NEXT_PUBLIC_SENTRY_RELEASE,
+
+      integrations: [Sentry.prismaIntegration()],
+    });
+  }
+
+  if (process.env.NEXT_RUNTIME === "edge") {
+    Sentry.init({
+      dsn: process.env.NEXT_PUBLIC_SERVER_SENTRY_DSN,
+
+      environment: process.env.ENVIRONMENT,
+
+      // Adjust this value in production, or use tracesSampler for greater control
+      tracesSampleRate: 1,
+
+      // Setting this option to true will print useful information to the console while you're setting up Sentry.
+      debug: false,
+
+      release: process.env.NEXT_PUBLIC_SENTRY_RELEASE,
+
+      // Prisma integration isn't supported on edge
+    });
+  }
 }

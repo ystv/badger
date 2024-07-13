@@ -32,6 +32,8 @@ if (process.env.JOBRUNNER_SENTRY_DSN) {
     tracesSampleRate: 1.0,
 
     release: global.__SENTRY_RELEASE__,
+
+    integrations: [Sentry.prismaIntegration()],
   });
   console.log("[Jobrunner] Sentry enabled");
 }
