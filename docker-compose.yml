@@ -60,7 +60,7 @@ services:
       ]
 
   ontime:
-    image: getontime/ontime:v2.28.17
+    image: getontime/ontime:v3.3.3
     ports:
       - "4001:4001"
     volumes:
