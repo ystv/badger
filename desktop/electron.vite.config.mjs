@@ -17,6 +17,39 @@ const prod = process.env.ENVIRONMENT === "prod";
 
 const visualizeBundle = process.argv.includes("--visualize-bundle");
 
+/*
+ * Explanation of this gross hack:
+ * We cannot allow the Prisma runtime to get bundled into the desktop build, else it will fail
+ * to start. We do, however, need the TypeScript types of the Prisma models. This is normally
+ * not a problem because of zod-prisma-types, which generates @badger/prisma/types, which we
+ * can import (and forbid importing @badger/prisma/client).
+ * However, zod-prisma-types still needs to import the actual Prisma client in one place,
+ * transformJsonNull.ts, so that it can access Prisma.JsonNull/Prisma.DbNull.
+ * 
+ * To fix this, we stub out this one import, which thereby ensures the Prisma client runtime
+ * never gets bundled in. This is safe to do, because we will never need to interact with
+ * Prisma.{Db,Json}Null in Desktop.
+ */
+const jsonNullStub = "export const transformJsonNull = v => v; export default transformJsonNull;"
+const jsonNullStubPlaceholder = "\0ignore_prisma_placeholder"
+/** @type {import("vite").Plugin} */
+const IgnorePrismaJsonNullPlugin = {
+  name: "ignorePrismaJsonNull",
+  resolveId(importee) {
+    if (importee.includes("transformJsonNull")) {
+      return jsonNullStubPlaceholder;
+    }
+    return null;
+  },
+  load(name) {
+    return name === jsonNullStubPlaceholder ? {
+      code: jsonNullStub,
+      moduleSideEffects: false,
+    } : null;
+  },
+  enforce: "pre"
+};
+
 const base = defineConfig({
   define: {
     "global.__APP_VERSION__": JSON.stringify(packageJSON.version),
@@ -26,8 +59,6 @@ const base = defineConfig({
     "global.__ENVIRONMENT__": JSON.stringify(process.env.ENVIRONMENT),
   },
   plugins: [
-    // Fix Prisma runtime trying to get bundled
-    ignore(["../../client"]),
     sentryVitePlugin({
       org: "ystv",
       project: "badger-desktop",
@@ -76,45 +107,49 @@ const base = defineConfig({
  * @type {import('electron-vite').UserConfig}
  */
 const config = {
-  main: mergeConfig(base, {
+  main: mergeConfig(base, defineConfig({
     plugins: [
+      IgnorePrismaJsonNullPlugin,
       commonjs(),
       visualizeBundle &&
-        visualizer({
-          filename: "bundle-main.html",
-        }),
+      visualizer({
+        filename: "bundle-main.html",
+      }),
     ].filter(Boolean),
     resolve: {
       conditions: ["node"],
       browserField: false,
     },
-  }),
-  renderer: mergeConfig(base, {
+    build: {
+      sourcemap: true,
+    }
+  })),
+  renderer: mergeConfig(base, defineConfig({
     plugins: [
       visualizeBundle &&
-        visualizer({
-          filename: "bundle-renderer.html",
-        }),
+      visualizer({
+        filename: "bundle-renderer.html",
+      }),
     ].filter(Boolean),
     build: {
       rollupOptions: {
         input: "./src/renderer/index.html",
       },
     },
-  }),
-  preload: mergeConfig(base, {
+  })),
+  preload: mergeConfig(base, defineConfig({
     plugins: [
       visualizeBundle &&
-        visualizer({
-          filename: "bundle-preload.html",
-        }),
+      visualizer({
+        filename: "bundle-preload.html",
+      }),
     ].filter(Boolean),
     build: {
       lib: {
         entry: "./src/common/preload.ts",
       },
     },
-  }),
+  })),
 };
 
 export default config;
