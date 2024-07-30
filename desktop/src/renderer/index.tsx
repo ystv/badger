@@ -33,14 +33,19 @@ import App from "./App";
 import logging from "loglevel";
 
 if (import.meta.env.VITE_DESKTOP_SENTRY_DSN) {
-  Sentry.init(
-    {
-      dsn: import.meta.env.VITE_DESKTOP_SENTRY_DSN,
-      release: global.__SENTRY_RELEASE__,
-    },
-    reactInit,
-  );
-  logging.debug("[Renderer] Sentry enabled");
+  try {
+    Sentry.init(
+      {
+        dsn: import.meta.env.VITE_DESKTOP_SENTRY_DSN,
+        release: global.__SENTRY_RELEASE__,
+      },
+      reactInit,
+    );
+    logging.debug("[Renderer] Sentry enabled");
+  } catch (e) {
+    logging.error("[Renderer] Failed to initialise Sentry, continuing");
+    logging.error(e);
+  }
 }
 
 ReactDOM.createRoot(document.getElementById("root")!).render(<App />);
