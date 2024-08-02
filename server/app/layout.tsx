@@ -43,7 +43,7 @@ export default async function RootLayout({
             value={
               Object.fromEntries(
                 Object.entries(flags).filter(
-                  ([k, v]) => typeof v === "boolean",
+                  ([_, v]) => typeof v === "boolean",
                 ),
               ) as Record<string, boolean>
             }

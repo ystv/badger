@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, forwardRef, ReactNode, useContext } from "react";
+import { createContext, ReactNode, useContext } from "react";
 import { useDropzone } from "react-dropzone";
 import { UploadSourceType, useUploadsStore } from "./Uploader";
 
@@ -40,10 +40,7 @@ interface MediaUploaderProps {
   disabled?: boolean;
 }
 
-export const MediaUploader = forwardRef<
-  Record<string, never>,
-  MediaUploaderProps
->(function MediaUploader(props, ref) {
+export function MediaUploader(props: MediaUploaderProps) {
   const uploads = useUploadsStore();
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -74,4 +71,4 @@ export const MediaUploader = forwardRef<
       </div>
     </>
   );
-});
+}

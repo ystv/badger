@@ -23,6 +23,13 @@ Whereas Desktop's tests use [Vitest](https://vitest.dev/) because its builds use
 > The test suite has naturally grown as the project's scaled.
 > If someone wants to try to consolidate it I'll be a very happy bunny.
 
+### Running Tests
+
+Run one of the "how to run" commands below.
+
+If you run it in the root of the project, it'll run those tests for all the components (Desktop, Server, Jobrunner, and the utility packages, as appropriate).
+If you only want to run tests for a specific component, `cd` into that component's folder first.
+
 ### Unit Tests
 
 **What:** Individual, isolated bits of code. In particular tests that don't need a working database.  
@@ -56,6 +63,10 @@ This ensures that tests don't interfere with each other.
 **Where:** `desktop/e2e`, `server/e2e`  
 **Framework**: Playwright  
 **How to run:** `yarn test:e2e`
+
+- You will need to run a database (see [the dev docs](./README.md)) and Server (`NODE_ENV=test E2E_TEST=true yarn dev`, Playwright will run it for you if it isn't already). For some tests you will also need to run Jobrunner (`NODE_ENV=test E2E_TEST=true yarn dev --watch`)
+- You will need to build Desktop before running its E2E tests (`yarn build`)
+  - It may be helpful to run them as `yarn build && yarn test:e2e`
 
 These tests are the most comprehensive, and often the easiest to write, but also the slowest to run.
 They start up a real server/desktop app and interact with it as if they were a user.
@@ -177,3 +188,15 @@ To quote the [Django testing tutorial](https://docs.djangoproject.com/en/5.0/int
 > It will continue performing its useful function as you continue to develop your program.
 
 Once you have written a test and validated that your new feature / bug fix works, it will remain useful - validating that it _still_ works even as people make changes to the code.
+
+## My tests broke!
+
+GitHub is configured to not allow merging a pull request untill all tests (including E2E) are passing.
+This not only serves as a safeguard, but also means you can use the "auto-merge" button to automatically merge the PR once all tests have passed.
+
+If a test fails on your PR, fix it.
+We rely on a broad test suite to ensure that Badger remains functional.
+In some cases the E2E tests can "flake", or fail for seemingly no reason - in this case it's acceptable to re-run the test to see if it'll pass on the second run, but please file a [Linear](https://linear.app/ystv/team/BDGR) ticket, with the Playwright test trace (downloadable from the Artifacts section on the GitHub Actions summary), to remind us to track down the cause of the flake and fix it.
+Playwright's [trace](https://playwright.dev/docs/trace-viewer-intro) feature is very useful for tracking down the cause of a failure.
+
+As an absolute last resort, if the test keeps failing and you're _sure_ that the failure is unrelated to your code, ask a GitHub admin override the merge requirements - though please still file a ticket.

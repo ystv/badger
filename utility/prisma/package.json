@@ -3,10 +3,10 @@
   "private": true,
   "devDependencies": {
     "dotenv-cli": "^7.2.1",
-    "prisma": "5.16.1",
+    "prisma": "5.16.2",
     "prisma-json-types-generator": "^3.0.3",
     "typescript": "^5.4.5",
-    "zod-prisma-types": "^2.7.9"
+    "zod-prisma-types": "^3.0.0"
   },
   "scripts": {
     "prisma:generate": "SKIP_ZOD_PRISMA=true prisma generate",

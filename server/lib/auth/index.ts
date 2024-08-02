@@ -101,7 +101,7 @@ export async function doSignIn(
   cookies().set(cookieName, token, {
     maxAge: 60 * 60 * 24 * 7,
   });
-  if (Sentry.getCurrentHub().getClient()) {
+  if (Sentry.isInitialized()) {
     Sentry.setUser({
       id: user.id,
       email: user.email ?? undefined,
@@ -157,7 +157,7 @@ export async function checkSession(req?: NextRequest) {
     return null;
   }
   const user = UserSchema.parse(rawUser);
-  if (Sentry.getCurrentHub().getClient()) {
+  if (Sentry.getClient()) {
     Sentry.setUser({
       id: user.id,
       email: user.email ?? undefined,

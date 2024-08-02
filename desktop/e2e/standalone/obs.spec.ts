@@ -50,7 +50,9 @@ test("download continuity media and load into OBS", async ({
     await respondCreateScene({
       success: true,
       code: 100,
-      data: undefined,
+      data: {
+        sceneUuid: "",
+      },
     });
 
     const [createInputData, respondCreateInput] =
@@ -64,6 +66,7 @@ test("download continuity media and load into OBS", async ({
       code: 100,
       data: {
         sceneItemId: 1,
+        inputUuid: "",
       },
     });
 
@@ -86,6 +89,8 @@ test("download continuity media and load into OBS", async ({
         ],
         currentProgramSceneName: "0 - Test Continuity [#1]",
         currentPreviewSceneName: "0 - Test Continuity [#1]",
+        currentPreviewSceneUuid: "",
+        currentProgramSceneUuid: "",
       },
     });
 

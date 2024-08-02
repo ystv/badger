@@ -6,8 +6,6 @@ import { z } from "zod";
 import { createStreamsPayloadSchema } from "./schema";
 import { FormResponse } from "@/components/Form";
 import { checkSession, requirePermission } from "@/lib/auth";
-import { cookies } from "next/headers";
-import { OAuth2Client } from "google-auth-library";
 import { ConnectionTarget } from "@badger/prisma/client";
 import { redirect } from "next/navigation";
 import invariant from "@/lib/invariant";
@@ -16,44 +14,6 @@ import {
   makeGoogleOauthClient,
 } from "@/lib/connections";
 import { revalidatePath } from "next/cache";
-
-async function getAccessTokenForCurrentUser() {
-  // If we already have an access token in cookies, use that
-  const cookie = await cookies().get("google_access_token");
-  if (cookie?.value) {
-    return cookie.value;
-  }
-  // Now check if we already have a refresh token, and if so, use that to get an access token.
-  const user = await checkSession();
-  const connection = await db.connection.findFirst({
-    where: {
-      target: ConnectionTarget.google,
-      userId: user!.id,
-    },
-  });
-  if (!connection) {
-    // Damn and blast.
-    redirect("/connect/google");
-  }
-
-  const client = new OAuth2Client({
-    clientId: process.env.GOOGLE_CLIENT_ID!,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    redirectUri: process.env.GOOGLE_CONNECT_REDIRECT_URI!,
-    credentials: {
-      refresh_token: connection.refreshToken,
-    },
-  });
-  const accessToken = await client.getAccessToken();
-  invariant(accessToken.token, "failed to refresh token");
-  await cookies().set("google_access_token", accessToken.token, {
-    secure: process.env.NODE_ENV === "production",
-    httpOnly: true,
-    expires: new Date(Date.now() + 60 * 60 * 1000),
-    sameSite: "strict",
-  });
-  return accessToken.token;
-}
 
 export async function doCreateStreams(
   dataRaw: z.infer<typeof createStreamsPayloadSchema>,

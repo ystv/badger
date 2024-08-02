@@ -36,11 +36,16 @@ logger.info(
 logFlagState(true);
 
 if (import.meta.env.VITE_DESKTOP_SENTRY_DSN) {
-  Sentry.init({
-    dsn: import.meta.env.VITE_DESKTOP_SENTRY_DSN,
-    release: global.__SENTRY_RELEASE__,
-  });
-  logger.info("[Main] Sentry enabled");
+  try {
+    Sentry.init({
+      dsn: import.meta.env.VITE_DESKTOP_SENTRY_DSN,
+      release: global.__SENTRY_RELEASE__,
+    });
+    logger.info("[Main] Sentry enabled");
+  } catch (e) {
+    logger.error("[Main] Failed to initialise Sentry, continuing");
+    logger.error(e);
+  }
 }
 
 const createWindow = async () => {

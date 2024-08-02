@@ -40,7 +40,6 @@ import Form from "@/components/Form";
 import { editContinuityItemSchema } from "./schema";
 import { DurationField, Field, HiddenField } from "@/components/FormFields";
 import { ItemMediaStateAndUploadDialog } from "@/components/MediaState";
-import { Input } from "@badger/components/input";
 import {
   Popover,
   PopoverContent,
@@ -360,7 +359,7 @@ export function ShowItemsList(props: {
           index={i}
           isDragDisabled={isPending}
         >
-          {(provided, snapshot) =>
+          {(provided) =>
             item._type === "rundown" ? (
               <RundownRow
                 ref={provided.innerRef}
@@ -388,7 +387,7 @@ export function ShowItemsList(props: {
       time = new Date(time.getTime() + duration * 1000);
     }
     return [rows, durationTotalSeconds];
-  }, [optimisticItems, isPending, props.show.start]);
+  }, [optimisticItems, isPending, props.show.start, props.pastShowsPromise]);
 
   return (
     <>
@@ -397,7 +396,7 @@ export function ShowItemsList(props: {
           <Image src={Spinner} alt="" data-testid="reorderPending" />
         )}
         <Droppable droppableId="0" isDropDisabled={isPending}>
-          {(provided, snapshot) => (
+          {(provided) => (
             <Table ref={provided.innerRef} {...provided.droppableProps}>
               <TableHeader>
                 <TableRow>

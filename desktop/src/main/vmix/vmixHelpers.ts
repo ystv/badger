@@ -2,7 +2,7 @@ import invariant from "../../common/invariant";
 import { getLocalMedia } from "../media/mediaManagement";
 import { getVMixConnection } from "./vmix";
 import { InputType, ListInput, ListItem } from "./vmixTypes";
-import type { Asset, Media } from "@badger/prisma/client";
+import type { Asset, Media } from "@badger/prisma/types";
 
 export async function reconcileList(
   listName: string,

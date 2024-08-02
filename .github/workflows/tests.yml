@@ -102,7 +102,9 @@ jobs:
           cache: "yarn"
           cache-dependency-path: "yarn.lock"
 
-      - uses: FedericoCarboni/setup-ffmpeg@v2
+      - uses: FedericoCarboni/setup-ffmpeg@v3
+        with:
+          ffmpeg-version: "release"
 
       - run: docker compose up -d
 
@@ -260,7 +262,9 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable --inline-builds
 
-      - uses: FedericoCarboni/setup-ffmpeg@v2
+      - uses: FedericoCarboni/setup-ffmpeg@v3
+        with:
+          ffmpeg-version: "release"
 
       - name: Build server
         run: |

@@ -9,6 +9,7 @@
     "monorepo:prisma"
   ],
   "postUpdateOptions": ["yarnDedupeHighest"],
+  "branchTopic": "{{{manager}}}-{{{depNameSanitized}}}-{{{newVersion}}}",
   "packageRules": [
     {
       "extends": ["monorepo:nextjs"],
@@ -17,6 +18,10 @@
     {
       "matchPackagePrefixes": ["@radix-ui/"],
       "groupName": "Radix UI"
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "automerge": true
     }
   ]
 }
