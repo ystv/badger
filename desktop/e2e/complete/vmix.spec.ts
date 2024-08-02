@@ -1,6 +1,7 @@
 import { expect } from "@playwright/test";
 import { test } from "./desktopE2EUtils";
 import * as fsp from "node:fs/promises";
+import * as path from "node:path";
 import {
   createAndUploadTestMedia,
   directlyCreateTestMedia,
@@ -243,7 +244,10 @@ test("load assets into vMix", async ({ app: [app, page], testMediaPath }) => {
   await expect(page.getByTestId("Load Success")).toBeVisible();
 });
 
-test("load continuity items into vMix [list]", async ({ app: [app, page] }) => {
+test("load continuity items into vMix [list]", async ({
+  app: [app, page],
+  testMediaPath,
+}) => {
   const ts2 = await server.shows.update.mutate({
     id: testShow.id,
     data: {
@@ -335,7 +339,7 @@ test("load continuity items into vMix [list]", async ({ app: [app, page] }) => {
         ],
       });
     });
-  }, `${tempDir}/smpte_bars_15s (#${media.id}).mp4`);
+  }, `${testMediaPath}/smpte_bars_15s (#${media.id}).mp4`);
 
   await page.getByRole("button", { name: "Select" }).click();
   await expect(page.getByText("Continuity")).toBeVisible();
