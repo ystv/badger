@@ -88,7 +88,7 @@
     "@typescript-eslint/parser": "^7.0.0",
     "@vitest/coverage-v8": "^2.0.0",
     "autoprefixer": "^10.4.14",
-    "electron": "31.2.1",
+    "electron": "31.3.1",
     "electron-builder": "^24.13.3",
     "electron-builder-squirrel-windows": "^25.0.0-alpha.7",
     "electron-vite": "^2.2.0",
