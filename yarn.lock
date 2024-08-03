@@ -6535,10 +6535,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tsconfig/vite-react@npm:^2.0.0":
-  version: 2.0.1
-  resolution: "@tsconfig/vite-react@npm:2.0.1"
-  checksum: 10/5715563bf293484c8b5ad36a0328159b11de9bde507b96dcde1d72243d02dcd8eb0383c1676e319cfb03e8f79d96891103d480c7157177f4d7a0b368ede4a46d
+"@tsconfig/vite-react@npm:^3.0.0":
+  version: 3.0.2
+  resolution: "@tsconfig/vite-react@npm:3.0.2"
+  checksum: 10/6ef9ff7f9ce921b9ae7e7d2b6b716d15fd8645ab5cc1e065cbcf770d57e8bac6092b414019181a32dd08021194e8f84f3d081d08a5cc2afcae7804ab8a3421a5
   languageName: node
   linkType: hard
 
@@ -8580,7 +8580,7 @@ __metadata:
     "@trpc/client": "npm:latest"
     "@trpc/react-query": "npm:latest"
     "@trpc/server": "npm:latest"
-    "@tsconfig/vite-react": "npm:^2.0.0"
+    "@tsconfig/vite-react": "npm:^3.0.0"
     "@types/eslint": "npm:^8.44.0"
     "@types/progress-stream": "npm:^2.0.2"
     "@types/qs": "npm:^6.9.9"
