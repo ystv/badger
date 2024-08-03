@@ -96,7 +96,11 @@ export const Field = forwardRef(function Field<
         // Ensure that both hook-form and the parent component get a ref to the element
         regRef(e);
         if (ref) {
-          "current" in ref ? (ref.current = e) : ref(e);
+          if ("current" in ref) {
+            ref.current = e;
+          } else {
+            ref(e);
+          }
         }
       }}
     />

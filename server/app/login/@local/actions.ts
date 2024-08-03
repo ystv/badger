@@ -1,6 +1,6 @@
 "use server";
 
-import { SignInSchema } from "@/app/login/@local/schema";
+import type { SignInSchema } from "@/app/login/@local/schema";
 import { z } from "zod";
 import { FormResponse } from "@/components/Form";
 import { redirect } from "next/navigation";
