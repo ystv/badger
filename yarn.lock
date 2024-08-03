@@ -5477,6 +5477,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sentry/babel-plugin-component-annotate@npm:2.21.1":
+  version: 2.21.1
+  resolution: "@sentry/babel-plugin-component-annotate@npm:2.21.1"
+  checksum: 10/e0b254739690fad4df3830550abfa71b535ec578d7a478a15bef6e78150a613d1655c315c01be8f25109e40b812abf83cb3ebb5f0b3cd444db876861e1084e37
+  languageName: node
+  linkType: hard
+
 "@sentry/browser@npm:8.16.0":
   version: 8.16.0
   resolution: "@sentry/browser@npm:8.16.0"
@@ -5551,6 +5558,22 @@ __metadata:
     magic-string: "npm:0.30.8"
     unplugin: "npm:1.0.1"
   checksum: 10/558c098e0a21fb6cf3cd7b1d7db0f360bf77f286793af2bb613790cb4735ebd6e0fd51616781424f704e31b7350fdd50bd0c2b0cf9b57531d9bb10fb6f01e255
+  languageName: node
+  linkType: hard
+
+"@sentry/bundler-plugin-core@npm:2.21.1":
+  version: 2.21.1
+  resolution: "@sentry/bundler-plugin-core@npm:2.21.1"
+  dependencies:
+    "@babel/core": "npm:^7.18.5"
+    "@sentry/babel-plugin-component-annotate": "npm:2.21.1"
+    "@sentry/cli": "npm:^2.22.3"
+    dotenv: "npm:^16.3.1"
+    find-up: "npm:^5.0.0"
+    glob: "npm:^9.3.2"
+    magic-string: "npm:0.30.8"
+    unplugin: "npm:1.0.1"
+  checksum: 10/347daac8c8d112d287c4ef1a0f51a74ef8115fbd109b559815baa546cb7af73e731dc31b719bfcf952128e41601df6778bf6687f9f2d722be4e298851f1e9cb7
   languageName: node
   linkType: hard
 
@@ -5685,13 +5708,13 @@ __metadata:
   linkType: hard
 
 "@sentry/esbuild-plugin@npm:^2.17.0":
-  version: 2.17.0
-  resolution: "@sentry/esbuild-plugin@npm:2.17.0"
+  version: 2.21.1
+  resolution: "@sentry/esbuild-plugin@npm:2.21.1"
   dependencies:
-    "@sentry/bundler-plugin-core": "npm:2.17.0"
+    "@sentry/bundler-plugin-core": "npm:2.21.1"
     unplugin: "npm:1.0.1"
     uuid: "npm:^9.0.0"
-  checksum: 10/c6d8a3efe2da6416c0d295a53af07b28da6e47ee920f00ac79937ac3f7a301b3194981d9ada1add7bb35094327a1667efbf6834f48e71e3ef3c3d7e89dcd1304
+  checksum: 10/3d2f090161e3ede8d90629cff268db302b752cf9dcfd6a63207989a91a19f1fa6cd49d14a2606f2c6ac792d61b1090dbe45efce674b70981e9d48aa209ceab69
   languageName: node
   linkType: hard
 
