@@ -8,7 +8,7 @@ import { CompleteShowType } from "./types";
  */
 
 export const Events = {
-  selectedShowChange(newShow: CompleteShowType | null) {},
+  selectedShowChange(_newShow: CompleteShowType | null) {},
   assetsSettingsChange() {},
   devToolsSettingsChange() {},
   downloadStatusChange() {},

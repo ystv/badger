@@ -98,7 +98,7 @@ export class MockOBSConnection {
   public async setSceneItemTransform() {}
 
   public async replaceMediaSourceInScene(
-    scene: string,
+    _scene: string,
     inputName: string,
     path: string,
   ) {

@@ -6,7 +6,7 @@ import VMixConnection from "./vmix";
 
 class MockSocket extends EventEmitter {
   write = vi.fn(
-    (payload: unknown, encoding: string, cb: (err?: Error) => void) =>
+    (_payload: unknown, _encoding: string, cb: (err?: Error) => void) =>
       cb(undefined),
   );
   setEncoding = vi.fn();
