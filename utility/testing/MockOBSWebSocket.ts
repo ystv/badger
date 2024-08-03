@@ -327,7 +327,7 @@ export default class MockOBSWebSocket {
       server,
       (server.address() as AddressInfo).port,
     );
-    server.on("connection", async (rawSocket, request) => {
+    server.on("connection", async (rawSocket, _request) => {
       let socket: OBSSocket;
       switch (rawSocket.protocol) {
         case "obswebsocket.json":

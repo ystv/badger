@@ -9,7 +9,6 @@ import {
 import type { CompleteShowType } from "../../src/common/types";
 import type VMixConnection from "../../src/main/vmix/vmix";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { VMIX_NAMES } from "../../src/common/constants";
 
 let testShow: CompleteShowType;
 

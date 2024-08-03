@@ -218,7 +218,7 @@ export default class OBSConnection {
   }
 
   public async replaceMediaSourceInScene(
-    scene: string,
+    _scene: string,
     inputName: string,
     path: string,
   ) {
