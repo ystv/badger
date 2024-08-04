@@ -7,6 +7,8 @@ import {
   Media,
   RundownItem,
 } from "@badger/prisma/types";
+import { useQueryClient } from "@tanstack/react-query";
+import { getQueryKey } from "@trpc/react-query";
 
 type WithMedia<T> = T & { media: Media | null };
 type SingleItemType =
@@ -15,6 +17,7 @@ type SingleItemType =
   | ({ _type: "asset" } & WithMedia<Asset>);
 
 export function useItemLoader() {
+  const queryClient = useQueryClient();
   const loadSingleOBS = ipc.obs.addMediaAsScene.useMutation();
   const loadSingleVMix = ipc.vmix.loadSingleItem.useMutation();
   const loadFn: (
@@ -30,6 +33,7 @@ export function useItemLoader() {
             rundownId:
               item._type === "rundownItem" ? item.rundownId : undefined,
           });
+          queryClient.invalidateQueries(getQueryKey(ipc.obs.listBadgerScenes));
           if (result.done) {
             return { ok: true };
           }
@@ -48,11 +52,12 @@ export function useItemLoader() {
               item._type === "rundownItem" ? item.rundownId : undefined,
             mode: target === "vmix-list" ? "list" : "loose",
           });
+          queryClient.invalidateQueries(getQueryKey(ipc.vmix.getCompleteState));
           return { ok: true };
         }
       }
     },
-    [loadSingleOBS, loadSingleVMix],
+    [loadSingleOBS, loadSingleVMix, queryClient],
   );
 
   return [

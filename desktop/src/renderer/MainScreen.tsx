@@ -98,15 +98,16 @@ export default function MainScreen() {
   const [selectedRundownId, setSelectedRundownId] = useState<
     "continuity" | number
   >(integrations.includes("obs") ? "continuity" : show.rundowns[0].id);
-  const selectedRundown = show.rundowns.find(
-    (rd) => rd.id === selectedRundownId,
-  )!; // ACHTUNG: can't actually be `undefined` (guarded by the invariant below)
+  const selectedRundown =
+    selectedRundownId === "continuity"
+      ? "continuity"
+      : show.rundowns.find((rd) => rd.id === selectedRundownId)!;
   invariant(
-    selectedRundown || selectedRundownId === "continuity",
+    selectedRundown,
     `selected non-existent rundown ${selectedRundownId}`,
   );
   const selectedName =
-    selectedRundownId === "continuity" ? "Continuity" : selectedRundown.name;
+    selectedRundown === "continuity" ? "Continuity" : selectedRundown.name;
 
   const ontimeState = ipc.ontime.getConnectionStatus.useQuery();
   const [ontimePushOpen, setOntimePushOpen] = useState(false);
@@ -197,7 +198,9 @@ export default function MainScreen() {
       </nav>
       <div className="relative mb-12 px-2 max-h-[100vh] overflow-y-scroll">
         <ShowItemsScreen
-          activeRundown={selectedRundown}
+          activeRundown={
+            selectedRundown === "continuity" ? null : selectedRundown
+          }
           continuityItems={show.continuityItems}
         />
       </div>

@@ -87,8 +87,8 @@ test("download continuity media and load into OBS", async ({
             sceneName: "0 - Test Continuity [Continuity #1]",
           },
         ],
-        currentProgramSceneName: "0 - Test Continuity [#1]",
-        currentPreviewSceneName: "0 - Test Continuity [#1]",
+        currentProgramSceneName: "0 - Test Continuity [Continuity #1]",
+        currentPreviewSceneName: "0 - Test Continuity [Continuity #1]",
         currentPreviewSceneUuid: "",
         currentProgramSceneUuid: "",
       },
@@ -137,9 +137,7 @@ test("download continuity media and load into OBS", async ({
 
     await page.getByRole("button", { name: "Load", exact: true }).click();
 
-    await expect(page.getByText("Good to go!")).toBeVisible({
-      timeout: 15_000,
-    });
+    await expect(page.getByText("Good to go!")).toBeVisible();
   } finally {
     await mows.close();
   }

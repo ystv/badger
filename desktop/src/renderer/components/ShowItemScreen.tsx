@@ -217,6 +217,7 @@ function SingleShowItem({ item }: { item: SingleItemType }) {
   }, [item, loadSingle, settings, target]);
 
   return (
+    // TODO: this may merit refactoring to reduce prop-drilling
     <ItemRow
       item={{
         ...item,
