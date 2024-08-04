@@ -40,7 +40,7 @@ export default class ProcessMediaJob extends MediaJobCommon {
 
     try {
       child_process.execSync("ffprobe -version");
-    } catch (e) {
+    } catch (_ignored) {
       throw new Error("ffprobe not found");
     }
   }

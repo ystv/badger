@@ -7,7 +7,7 @@ import { test } from "./desktopE2EUtils";
 
 let testShow: CompleteShowType;
 
-test.beforeEach(async ({ request, app: [app, page] }) => {
+test.beforeEach(async ({ request, app: [_, page] }) => {
   await request.post(
     "http://localhost:3000/api/testOnlyAPIsDoNotUseOutsideOfTestsOrYouWillBeFired/resetDB",
   );

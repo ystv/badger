@@ -69,7 +69,7 @@ export function Settings() {
       );
       return { oldSettings };
     },
-    async onError(err, newSettings, context) {
+    async onError(_err, _newSettings, context) {
       if (context) {
         queryClient.setQueryData(
           getQueryKey(ipc.devtools.getSettings),

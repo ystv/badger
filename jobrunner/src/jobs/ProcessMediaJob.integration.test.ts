@@ -1,5 +1,5 @@
 import { MediaState } from "@badger/prisma/client";
-import { it, beforeEach, expect } from "vitest";
+import { it, expect } from "vitest";
 import { doOneJob } from "../index.js";
 import { integrate } from "@badger/testing";
 import * as fs from "fs";
