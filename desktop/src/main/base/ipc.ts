@@ -34,7 +34,9 @@ export const coreRouter = r({
       if (serverApiClient === null) {
         return { ok: false };
       }
+      logger.trace("Checking server connection status");
       const pingRes = await serverApiClient.ping.query();
+      logger.trace("ping response", pingRes);
       return {
         ok: pingRes.ping === "pong",
         warnings: {
