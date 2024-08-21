@@ -15596,8 +15596,8 @@ __metadata:
   linkType: hard
 
 "obs-websocket-js@npm:^5.0.3":
-  version: 5.0.5
-  resolution: "obs-websocket-js@npm:5.0.5"
+  version: 5.0.6
+  resolution: "obs-websocket-js@npm:5.0.6"
   dependencies:
     "@msgpack/msgpack": "npm:^2.7.1"
     crypto-js: "npm:^4.1.1"
@@ -15606,7 +15606,7 @@ __metadata:
     isomorphic-ws: "npm:^5.0.0"
     type-fest: "npm:^3.11.0"
     ws: "npm:^8.13.0"
-  checksum: 10/10075f057e05cddf0805b3edad9263f6c6da31c817a4cba27a2e6fd6fef20df188db0bcc929bbdd48bd6542b19f5c6e08e0acbdc062065ca7e571addd91a4601
+  checksum: 10/a48a6df46c6673b374444443cb0eb3ec14b7a1928c3c33459181a9697f93b470c72349a8619518785dcde4c5f2f2287404e086c522519a61ff3e00727c0a5d3f
   languageName: node
   linkType: hard
 
