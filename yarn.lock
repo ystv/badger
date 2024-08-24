@@ -8081,9 +8081,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"app-builder-lib@npm:25.0.4":
-  version: 25.0.4
-  resolution: "app-builder-lib@npm:25.0.4"
+"app-builder-lib@npm:25.0.5":
+  version: 25.0.5
+  resolution: "app-builder-lib@npm:25.0.5"
   dependencies:
     "@develar/schema-utils": "npm:~2.6.5"
     "@electron/notarize": "npm:2.3.2"
@@ -8115,9 +8115,9 @@ __metadata:
     tar: "npm:^6.1.12"
     temp-file: "npm:^3.4.0"
   peerDependencies:
-    dmg-builder: 25.0.4
-    electron-builder-squirrel-windows: 25.0.4
-  checksum: 10/baa3642bc392875110edc6e0ee04dbf365918cc15454eb2b457a2e0f34ec10a17a089fa7c61422593fc8835792c19899a63218f3dcc9e0fc5406d17eb3a08d2f
+    dmg-builder: 25.0.5
+    electron-builder-squirrel-windows: 25.0.5
+  checksum: 10/fa78e12fc5a56e4c536624585dcb8db26783f4c18517ff8be49259ea5e1dc39aab3cf612e577020ed3f52938505cfc297dd6a47439e8ff99dc1ca25d5620a88b
   languageName: node
   linkType: hard
 
@@ -10498,14 +10498,14 @@ __metadata:
   linkType: hard
 
 "electron-builder-squirrel-windows@npm:^25.0.0-alpha.7":
-  version: 25.0.4
-  resolution: "electron-builder-squirrel-windows@npm:25.0.4"
+  version: 25.0.5
+  resolution: "electron-builder-squirrel-windows@npm:25.0.5"
   dependencies:
-    app-builder-lib: "npm:25.0.4"
+    app-builder-lib: "npm:25.0.5"
     archiver: "npm:^5.3.1"
     builder-util: "npm:25.0.3"
     fs-extra: "npm:^10.1.0"
-  checksum: 10/09be0d9185ffeffbc530f568af76e9cc9bdefae408ea015a8a174d5dd160f06c132f0e07230e73cf8ce4986ac73bf798846a7cbf79aaf4c838d9761856f59bb8
+  checksum: 10/08698adcad476bcc6150871281e098d1b09d5df7697b5b54373f5a5ad1f6c069e35a4492b4654e5f76a6ab048772260496d691c0036fbe60906c6be3c2199ae8
   languageName: node
   linkType: hard
 
