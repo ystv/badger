@@ -80,7 +80,7 @@ jobs:
         with:
           name: badger-desktop-windows
       - name: DEBUG
-        run: ls -la
+        run: Get-ChildItem -Depth 2
         shell: pwsh
       - name: Install Badger
         run: Start-Process -FilePath "badger-desktop-windows\Badger Desktop-${{ github.ref_name }}.exe" -ArgumentList "/S","/D=${{ runner.temp }}\badger" -Wait
