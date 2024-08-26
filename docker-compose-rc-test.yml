@@ -2,7 +2,7 @@
 version: "3"
 services:
   server:
-    image: ghcr.io/ystv/badger/server:__RC_REF__
+    image: ghcr.io/ystv/badger/server:v1.0.4-rc.7
     platform: linux/amd64
     ports:
       - "3000:3000"
@@ -22,7 +22,9 @@ services:
       E2E_TEST: "true"
 
   jobrunner:
-    image: ghcr.io/ystv/badger/jobrunner:__RC_REF__
+    image: ghcr.io/ystv/badger/jobrunner:v1.0.4-rc.7
     platform: linux/amd64
     command: ["--watch", "--healthPort", "28342"] # matching server/playwright.config.ts
+    ports:
+      - "28342:28342"
     environment: *badger_env
