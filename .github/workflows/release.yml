@@ -144,6 +144,9 @@ jobs:
       contents: write
       packages: write
       statuses: write
+      deployments: write
+      issues: write
+      checks: write
     steps:
       - name: Determine version number
         run: echo "VERSION=$(echo '${{ github.ref_name }}' | sed 's/-rc.*//')" >> $GITHUB_ENV
