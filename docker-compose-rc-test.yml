@@ -1,3 +1,4 @@
+# Used by the release GitHub Actions workflow.
 version: "3"
 services:
   server:
