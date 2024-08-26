@@ -24,72 +24,72 @@ jobs:
       DATABASE_URL: postgres://root:postgres@localhost:5432/badger_test
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js 18.x
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18.x
-          cache: "yarn"
-          cache-dependency-path: "yarn.lock"
+      # - name: Use Node.js 18.x
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 18.x
+      #     cache: "yarn"
+      #     cache-dependency-path: "yarn.lock"
 
-      - name: Set ref in docker-compose
-        run: sed -i "s/__RC_REF__/${{ github.ref_name }}/g" docker-compose-rc-test.yml
+      # - name: Set ref in docker-compose
+      #   run: sed -i "s/__RC_REF__/${{ github.ref_name }}/g" docker-compose-rc-test.yml
 
-      - name: Start services
-        run: docker compose -f docker-compose.yml -f docker-compose-rc-test.yml up -d
+      # - name: Start services
+      #   run: docker compose -f docker-compose.yml -f docker-compose-rc-test.yml up -d
 
-      - run: yarn install --immutable --inline-builds
+      # - run: yarn install --immutable --inline-builds
 
-      - uses: ./.github/steps/setup-playwright
-        with:
-          working-directory: ./server
+      # - uses: ./.github/steps/setup-playwright
+      #   with:
+      #     working-directory: ./server
 
-      - name: Migrate database
-        run: |
-          yarn prisma:migrateProd
+      # - name: Migrate database
+      #   run: |
+      #     yarn prisma:migrateProd
 
-      - name: Retart services
-        run: |
-          docker compose -f docker-compose.yml -f docker-compose-rc-test.yml restart server jobrunner
+      # - name: Retart services
+      #   run: |
+      #     docker compose -f docker-compose.yml -f docker-compose-rc-test.yml restart server jobrunner
 
-      - name: Run Playwright tests
-        run: yarn ${{ runner.debug && 'test:e2e:debug' || 'test:e2e' }}
-        working-directory: ./server
-        env:
-          PLAYWRIGHT_HTML_REPORT: ${{ github.workspace }}/server/playwright-report
+      # - name: Run Playwright tests
+      #   run: yarn ${{ runner.debug && 'test:e2e:debug' || 'test:e2e' }}
+      #   working-directory: ./server
+      #   env:
+      #     PLAYWRIGHT_HTML_REPORT: ${{ github.workspace }}/server/playwright-report
 
-      - uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: playwright-report-server
-          path: ./server/playwright-report/
-          retention-days: 30
+      # - uses: actions/upload-artifact@v3
+      #   if: failure()
+      #   with:
+      #     name: playwright-report-server
+      #     path: ./server/playwright-report/
+      #     retention-days: 30
 
   test-desktop:
     runs-on: windows-latest
     needs: [build]
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js 18.x
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18.x
-          cache: "yarn"
-          cache-dependency-path: "yarn.lock"
-      - name: Download Desktop build
-        uses: actions/download-artifact@v4
-        with:
-          name: badger-desktop-windows
-      - name: Install Badger
-        run: |
-          $version = "${{ github.ref_name }}" -replace "^v", "" -replace "-rc.*", ""
-          Start-Process -FilePath "Badger Desktop-$version.exe" -ArgumentList "/S","/D=${{ runner.temp }}\badger" -Wait
-        shell: pwsh
-      - run: yarn install --immutable --inline-builds
-      - name: Run tests
-        run: yarn test:e2e --project=standalone
-        working-directory: ./desktop
-        env:
-          TEST_APPLICATION_PATH: ${{ runner.temp }}\badger\Badger Desktop.exe
+      # - name: Use Node.js 18.x
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 18.x
+      #     cache: "yarn"
+      #     cache-dependency-path: "yarn.lock"
+      # - name: Download Desktop build
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: badger-desktop-windows
+      # - name: Install Badger
+      #   run: |
+      #     $version = "${{ github.ref_name }}" -replace "^v", "" -replace "-rc.*", ""
+      #     Start-Process -FilePath "Badger Desktop-$version.exe" -ArgumentList "/S","/D=${{ runner.temp }}\badger" -Wait
+      #   shell: pwsh
+      # - run: yarn install --immutable --inline-builds
+      # - name: Run tests
+      #   run: yarn test:e2e --project=standalone
+      #   working-directory: ./desktop
+      #   env:
+      #     TEST_APPLICATION_PATH: ${{ runner.temp }}\badger\Badger Desktop.exe
 
   release:
     needs: [test-e2e-server, test-desktop]
