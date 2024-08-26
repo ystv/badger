@@ -84,6 +84,7 @@ jobs:
           $version = "${{ github.ref_name }}" -replace "^v", "" -replace "-rc.*", ""
           Start-Process -FilePath "Badger Desktop-$version.exe" -ArgumentList "/S","/D=${{ runner.temp }}\badger" -Wait
         shell: pwsh
+      - run: yarn install --immutable --inline-builds
       - name: Run tests
         run: yarn test:e2e --project=standalone
         working-directory: ./desktop
