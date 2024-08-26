@@ -140,13 +140,7 @@ jobs:
     needs: [test-e2e-server, test-desktop, linear]
     environment: release
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
-      statuses: write
-      deployments: write
-      issues: write
-      checks: write
+    permissions: write-all
     steps:
       - name: Determine version number
         run: echo "VERSION=$(echo '${{ github.ref_name }}' | sed 's/-rc.*//')" >> $GITHUB_ENV
@@ -185,7 +179,6 @@ jobs:
               name: process.env.VERSION,
               draft: true,
               generate_release_notes: true,
-              make_latest: "true"
             });
             core.setOutput('id', release.data.id)
             core.setOutput('tag_name', release.data.tag_name)
@@ -202,7 +195,7 @@ jobs:
             await github.rest.repos.updateRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              release_id: ${{ steps.release.outputs.id }},
+              release_id: "${{ steps.release.outputs.id }}",
               draft: false
             })
       - uses: actions/setup-node@v3
