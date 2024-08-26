@@ -59,8 +59,35 @@ jobs:
           path: ./server/playwright-report/
           retention-days: 30
 
+  test-desktop:
+    runs-on: windows-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
+      - name: Download Desktop build
+        uses: actions/download-artifact@v4
+        with:
+          name: badger-desktop-windows
+      - name: Unzip installer
+        run: Expand-Archive -Path badger-desktop-windows.zip -DestinationPath ${{ runner.temp }}\badger-desktop-windows
+        shell: pwsh
+      - name: Install Badger
+        run: Start-Process -FilePath "${{ runner.temp }}\badger-desktop-windows\Badger Desktop-${{ github.ref_name }}.exe" -ArgumentList "/S","/D=C:\badger" -Wait
+        shell: pwsh
+      - name: Run tests
+        run: yarn test:e2e --project=standalone
+        working-directory: ./desktop
+        env:
+          TEST_APPLICATION_PATH: C:\badger\Badger Desktop.exe
+
   release:
-    needs: [test-e2e-server, build]
+    needs: [test-e2e-server, test-desktop]
     environment: release
     runs-on: ubuntu-latest
     steps:
