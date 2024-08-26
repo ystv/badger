@@ -192,16 +192,18 @@ export const VMixRawXMLSchema = z
           }),
         }),
       }),
-      dynamic: z.object({
-        input1: z.object({}),
-        input2: z.object({}),
-        input3: z.object({}),
-        input4: z.object({}),
-        value1: z.object({}),
-        value2: z.object({}),
-        value3: z.object({}),
-        value4: z.object({}),
-      }),
+      dynamic: z
+        .object({
+          input1: z.object({}),
+          input2: z.object({}),
+          input3: z.object({}),
+          input4: z.object({}),
+          value1: z.object({}),
+          value2: z.object({}),
+          value3: z.object({}),
+          value4: z.object({}),
+        })
+        .optional(),
     }),
   })
   .passthrough();

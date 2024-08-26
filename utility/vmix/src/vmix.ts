@@ -1,14 +1,6 @@
 import { Socket, connect } from "node:net";
 import invariant from "./invariant";
-import {
-  AudioFileInput,
-  BaseInput,
-  InputObject,
-  ListInput,
-  InputType,
-  VideoInput,
-} from "./vmixTypes";
-import { z } from "zod";
+import { InputType } from "./vmixTypes";
 import * as qs from "qs";
 import { v4 as uuidV4 } from "uuid";
 import { VMixState } from "./vmixState";
@@ -68,6 +60,7 @@ export default class VMixConnection {
     sock.setEncoding("utf-8");
     await new Promise<void>((resolve, reject) => {
       sock.once("connect", () => {
+        console.log("connected");
         sock.off("error", reject);
         resolve();
       });
@@ -82,6 +75,15 @@ export default class VMixConnection {
     sock.on("close", vmix.onClose.bind(vmix));
     sock.on("error", vmix.onError.bind(vmix));
     return vmix;
+  }
+
+  private _closeHandlers = new Set<() => void>();
+
+  public async close() {
+    this.sock.end();
+    await new Promise<void>((resolve) => {
+      this._closeHandlers.add(resolve);
+    });
   }
 
   public async addInput(type: InputType, filePath: string) {
@@ -121,7 +123,7 @@ export default class VMixConnection {
 
   // Function reference: https://www.vmix.com/help26/ShortcutFunctionReference.html
   private async doFunction(fn: string, params: Record<string, string>) {
-    return this.send("FUNCTION", fn, qs.stringify(params));
+    return await this.send("FUNCTION", fn, qs.stringify(params));
   }
 
   public async getPartialState(xpath: string): Promise<ElementCompact> {
@@ -225,7 +227,7 @@ export default class VMixConnection {
     }
     const firstLine = this.buffer.slice(0, this.buffer.indexOf("\r\n"));
     const [command, status, ...rest] = firstLine.split(" ");
-    console.debug(`Received response to ${command}`);
+    console.debug(`Received response to ${command}: ${status}`);
     const reply = this.replyAwaiting.get(command as VMixCommand);
     if (status === "OK") {
       reply?.resolve([rest.join(" "), ""]);
@@ -269,9 +271,14 @@ export default class VMixConnection {
     this.requestQueue.forEach((req) => req.reject(new Error("Socket closed")));
     this.requestQueue = [];
     this.onError(new Error("Socket closed"));
+    for (const cb of this._closeHandlers) {
+      cb();
+    }
   }
 
   private onError(err: Error) {
-    console.error("VMix connection error", err);
+    if (err.message !== "Socket closed") {
+      console.error("VMix connection error", err);
+    }
   }
 }

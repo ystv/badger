@@ -1,4 +1,4 @@
-import { createServer, Socket } from "node:net";
+import { createServer, Server, Socket } from "net";
 import { promisify } from "node:util";
 import invariant from "./invariant";
 import { z } from "zod";
@@ -33,14 +33,14 @@ const defaultState: RawState = {
       },
     },
     dynamic: {
-      input1: "",
-      input2: "",
-      input3: "",
-      input4: "",
-      value1: "",
-      value2: "",
-      value3: "",
-      value4: "",
+      input1: {},
+      input2: {},
+      input3: {},
+      input4: {},
+      value1: {},
+      value2: {},
+      value3: {},
+      value4: {},
     },
     external: text(""),
     fadeToBlack: text("False"),
@@ -79,9 +79,39 @@ class MockVMixContext {
   private state: MutableVMixState;
   private functionHandlers = new Map<string, Array<VMixFnHandler>>();
   private fallbackHandlers = new Map<string, VMixFnHandler>();
+  private functionCallbacks = new Map<string, Array<() => void>>();
+  private closeCallbacks = new Set<(reason: Error) => void>();
 
   public setState(writer: (draft: Draft<RawState>) => void) {
     this.state.update(writer);
+  }
+
+  public handleFunction(fn: string, handler: VMixFnHandler) {
+    const handlers = this.functionHandlers.get(fn);
+    if (handlers) {
+      handlers.push(handler);
+    } else {
+      this.functionHandlers.set(fn, [handler]);
+    }
+  }
+
+  public functionFallback(fn: string, handler: VMixFnHandler) {
+    this.fallbackHandlers.set(fn, handler);
+  }
+
+  public waitForFunction(fn: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const handler = () => {
+        this.closeCallbacks.delete(reject);
+        resolve();
+      };
+      if (this.functionCallbacks.has(fn)) {
+        this.functionCallbacks.get(fn)!.push(handler);
+      } else {
+        this.functionCallbacks.set(fn, [handler]);
+      }
+      this.closeCallbacks.add(reject);
+    });
   }
 
   /** This method is an implementation detail and should not be used outside MockVMixAPI. */
@@ -140,32 +170,59 @@ class MockVMixContext {
   private _doFnCall(fn: string, args: ParsedQs, handler: VMixFnHandler) {
     handler(args, (res) => {
       if (res.error) {
-        this.socket.write(`${fn} ER ${res.message}\r\n`);
+        this.socket.write(`FUNCTION ER ${res.message}\r\n`);
         return;
       }
       if (res.binary) {
         if (res.message) {
-          this.socket.write(`${fn} ${res.binary.length} ${res.message}\r\n`);
+          this.socket.write(`FUNCTION ${res.binary.length} ${res.message}\r\n`);
           this.socket.write(res.binary);
         } else {
-          this.socket.write(`${fn} ${res.binary.length}\r\n`);
+          this.socket.write(`FUNCTION ${res.binary.length}\r\n`);
           this.socket.write(res.binary);
         }
         return;
       }
-      this.socket.write(`${fn} OK ${res.message}\r\n`);
+      this.socket.write(`FUNCTION OK ${res.message}\r\n`);
     });
+  }
+
+  public _handleClose() {
+    for (const cb of this.closeCallbacks) {
+      cb(new Error("VMix connection closed"));
+    }
   }
 }
 
 export default class MockVMixAPI {
-  private constructor(public readonly port: number) {}
+  private constructor(
+    private readonly _server: Server,
+    public readonly host: string,
+    public readonly port: number,
+  ) {}
 
-  static async create(initialState?: Partial<RawState>) {
+  private _ctx: MockVMixContext | null = null;
+  public get ctx(): MockVMixContext {
+    invariant(this._ctx, "MockVMixAPI not initialized");
+    return this._ctx;
+  }
+
+  private _ready!: () => void;
+  public readonly waitForConnection = new Promise<void>((resolve) => {
+    this._ready = resolve;
+  });
+
+  private _sockets = new Set<Socket>();
+
+  static async create(
+    initialState?: Partial<RawState>,
+    executor?: (ctx: MockVMixContext) => Promise<void>,
+  ) {
     let instance: MockVMixAPI;
-    const server = createServer((socket) => {
+    const server = createServer(async (socket) => {
       // https://www.vmix.com/help27/TCPAPI.html
       socket.setEncoding("utf-8");
+      instance._sockets.add(socket);
 
       const context = new MockVMixContext(socket, initialState);
 
@@ -179,16 +236,38 @@ export default class MockVMixAPI {
         buffer += data.slice(0, eod);
         context._handleRequest(buffer);
       });
+
+      socket.on("close", () => {
+        context._handleClose();
+        instance._sockets.delete(socket);
+      });
+
+      socket.on("error", (e) => {
+        console.error("VMix socket error", e);
+        instance._sockets.delete(socket);
+      });
+
+      if (executor) {
+        executor(context);
+      }
+      if (!executor) {
+        invariant(!instance._ctx, "MockVMixAPI already initialized");
+      }
+      instance._ctx = context;
+      instance._ready();
     });
+    let host: string;
     let port: number;
     await new Promise<void>((resolve, reject) => {
       try {
         server.listen(() => {
           const addr = server.address();
+          console.log(`MVX addr ${JSON.stringify(addr)}`);
           invariant(
             addr && typeof addr === "object",
             "Expected address to be an object",
           );
+          host = addr.address;
           port = addr.port;
           resolve();
         });
@@ -196,7 +275,15 @@ export default class MockVMixAPI {
         reject(e);
       }
     });
-    instance = new MockVMixAPI(port!);
+    instance = new MockVMixAPI(server, host!, port!);
     return instance;
+  }
+
+  public async close() {
+    for (const sock of this._sockets) {
+      sock.end();
+    }
+    this._sockets.clear();
+    this._server.close();
   }
 }
