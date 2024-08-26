@@ -91,6 +91,47 @@ jobs:
       #   env:
       #     TEST_APPLICATION_PATH: ${{ runner.temp }}\badger\Badger Desktop.exe
 
+  linear:
+    needs: [test-e2e-server, test-desktop]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine version number
+        run: echo "VERSION=$(echo '${{ github.ref_name }}' | sed 's/-rc.*//')" >> $GITHUB_ENV
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "20.x"
+      - run: npm install @linear/sdk
+      - name: Create Linear release ticket
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { LinearClient } = require('@linear/sdk');
+            const lin = new LinearClient({
+              accessToken: "${{ secrets.LINEAR_ACCESS_TOKEN }}"
+            });
+            const issueCreate = await lin.createIssue({
+              teamId: "${{ env.LINEAR_TEAM_ID }}",
+              templateId: "${{ env.LINEAR_RELEASE_ISSUE_TEMPLATE_ID }}",
+              stateId: "${{ env.LINEAR_TODO_STATE_ID }}",
+              title: `Release v${process.env.VERSION}`,
+            });
+            if (!issueCreate.success) {
+              throw new Error(`Failed to create issue`);
+            }
+
+            await lin.createComment({
+              issueId: issueCreate.issue.id,
+              body: `Artifacts:
+                Server Docker image: \`ghcr.io/ystv/badger/server:${{ github.ref_name }}\`    
+                Jobrunner Docker Image: \`ghcr.io/ystv/badger/jobrunner:${{ github.ref_name }}\`    
+                Desktop Windows installer: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+                Once testing is complete, please approve [this workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) and close this issue.
+              `.replace(/^\s*/gm, ''),
+            });
+
+            core.notice(`Release issue: ${issueCreate.issue.url}`);
+
   release:
     needs: [test-e2e-server, test-desktop]
     environment: release
