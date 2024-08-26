@@ -101,6 +101,7 @@ jobs:
       - name: Download Desktop build
         uses: actions/download-artifact@v4
         with:
+          pattern: badger-desktop-*
           path: artifacts
       - name: Re-tag and push Docker images
         run: |
