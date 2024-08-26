@@ -80,7 +80,9 @@ jobs:
         with:
           name: badger-desktop-windows
       - name: Install Badger
-        run: Start-Process -FilePath "Badger Desktop-${{ github.ref_name }}.exe" -ArgumentList "/S","/D=${{ runner.temp }}\badger" -Wait
+        run: |
+          $version = "${{ github.ref_name }}" -replace "^v", "" -replace "-rc.*", ""
+          Start-Process -FilePath "Badger Desktop-$version.exe" -ArgumentList "/S","/D=${{ runner.temp }}\badger" -Wait
         shell: pwsh
       - name: Run tests
         run: yarn test:e2e --project=standalone
