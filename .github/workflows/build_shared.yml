@@ -82,8 +82,9 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Set version
         run: |
+          set -x
           version=${INPUT_TAG#v}
-          if [ $INPUT_STRIP_RC = true ]; then
+          if [[ $INPUT_STRIP_RC == 'true' ]]; then
             version=$(echo $version | sed 's/-rc.*//')
           fi
           cat package.json | jq '.version = "'$version'"' | tee package.json
@@ -124,7 +125,7 @@ jobs:
       - name: Set version
         run: |
           version=${INPUT_TAG#v}
-          if [ $INPUT_STRIP_RC = true ]; then
+          if [[ $INPUT_STRIP_RC == 'true' ]]; then
             version=$(echo $version | sed 's/-rc.*//')
           fi
           cat package.json | jq '.version = "'$version'"' | tee package.json
