@@ -9,7 +9,7 @@ import {
   CompleteRundownModel,
 } from "@badger/prisma/utilityTypes";
 import { z } from "zod";
-import { ListInput } from "../../main/vmix/vmixTypes";
+import { ListInput } from "@ystv/vmix";
 import invariant from "../../common/invariant";
 import { Alert } from "@badger/components/alert";
 import { Progress } from "@badger/components/progress";

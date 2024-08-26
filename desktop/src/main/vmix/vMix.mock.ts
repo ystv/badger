@@ -1,6 +1,6 @@
 import { getLogger } from "loglevel";
 import { mock, when, It, verify, reset } from "strong-mock";
-import VMixConnection from "./vmix";
+import VMixConnection from "@ystv/vmix";
 
 const logger = getLogger("vMix.mock");
 

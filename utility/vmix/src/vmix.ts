@@ -4,6 +4,7 @@ import { InputType } from "./vmixTypes";
 import * as qs from "qs";
 import { v4 as uuidV4 } from "uuid";
 import { VMixState } from "./vmixState";
+import { VMixState as VMixStateCleanedType } from "./vmixTypes";
 import { ElementCompact, xml2js } from "xml-js";
 
 type VMixCommand =
@@ -136,9 +137,9 @@ export default class VMixConnection {
     return result;
   }
 
-  public async getFullState(): Promise<VMixState> {
+  public async getFullState(): Promise<VMixStateCleanedType> {
     const data = await this.getFullStateRaw();
-    return VMixState.fromXML(data);
+    return VMixState.fromXML(data).state;
   }
 
   private async send(command: VMixCommand, ...args: string[]) {

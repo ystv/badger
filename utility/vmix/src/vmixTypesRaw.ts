@@ -49,7 +49,7 @@ const ListItemObj = z.object({
   _attributes: z.object({ selected: z.string() }).optional(),
   _text: deEscapedString,
 });
-const ListItemType = z.union([ListItemObj, deEscapedString]);
+export const ListItemType = z.union([ListItemObj, deEscapedString]);
 
 export const VideoListObject = z.object({
   _attributes: z.object({

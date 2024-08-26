@@ -5,7 +5,9 @@
     "allowImportingTsExtensions": true,
     "downlevelIteration": true,
     "paths": {
-      "@/*": ["../server/*"],
+      "@/*": ["../server/*"]
     },
-  },
+    // https://colinhacks.com/essays/live-types-typescript-monorepo
+    "customConditions": ["badger-internal"]
+  }
 }
