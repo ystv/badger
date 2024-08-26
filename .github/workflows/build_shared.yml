@@ -106,6 +106,9 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: Dockerfile.server
+          secret-envs: SENTRY_AUTH_TOKEN=SENTRY_AUTH_TOKEN
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
   build-docker-jobrunner:
     runs-on: ubuntu-latest
@@ -146,3 +149,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: Dockerfile.jobrunner
+          secret-envs: SENTRY_AUTH_TOKEN=SENTRY_AUTH_TOKEN
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
