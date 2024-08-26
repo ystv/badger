@@ -14,7 +14,8 @@ import {
   VideoInput,
   VMixState as VMixStateCleanedType,
 } from "./vmixTypes";
-import z from "zod";
+import { z } from "zod";
+import { js2xml, xml2js } from "xml-js";
 
 type RawType = z.infer<typeof VMixRawXMLSchema>;
 
@@ -23,7 +24,7 @@ export class VMixState {
   protected _cleaned: VMixStateCleanedType | null = null;
 
   constructor(
-    data: RawType,
+    data: RawType | string,
     failOnTypeMismatch = process.env.NODE_ENV === "test",
   ) {
     const rawParseRes = VMixRawXMLSchema.safeParse(data);
@@ -32,7 +33,6 @@ export class VMixState {
       raw = rawParseRes.data;
     } else if (failOnTypeMismatch) {
       // In tests we want this to fail immediately so that we notice the changes
-      console.error(rawParseRes.error);
       throw rawParseRes.error;
     } else {
       // But in production we want to keep trying if we can, as it's possible the
@@ -47,6 +47,16 @@ export class VMixState {
     this._raw = raw;
   }
 
+  static fromXML(
+    xml: string,
+    failOnTypeMismatch = process.env.NODE_ENV === "test",
+  ) {
+    return new this(
+      xml2js(xml, { compact: true }) as RawType,
+      failOnTypeMismatch,
+    );
+  }
+
   get raw() {
     return this._raw;
   }
@@ -57,26 +67,26 @@ export class VMixState {
     }
     const raw = this._raw;
     const res: VMixStateCleanedType = {
-      version: raw.vmix.version,
-      edition: raw.vmix.edition,
-      preset: raw.vmix.preset,
+      version: raw.vmix.version._text,
+      edition: raw.vmix.edition._text,
+      preset: raw.vmix.preset?._text,
       inputs: [],
     };
     for (const input of raw.vmix.inputs.input) {
       // eslint is wrong
       // eslint-disable-next-line prefer-const
       let v: BaseInput = {
-        key: input["@_key"],
-        number: input["@_number"],
-        type: input["@_type"] as InputType,
-        title: input["@_title"],
-        shortTitle: input["@_shortTitle"],
-        loop: input["@_loop"] === "True",
-        state: input["@_state"],
-        duration: input["@_duration"],
-        position: input["@_position"],
+        key: input._attributes.key,
+        number: input._attributes.number,
+        type: input._attributes.type as InputType,
+        title: input._attributes.title,
+        shortTitle: input._attributes.shortTitle,
+        loop: input._attributes.loop === "True",
+        state: input._attributes.state,
+        duration: input._attributes.duration,
+        position: input._attributes.position,
       };
-      switch (input["@_type"]) {
+      switch (input._attributes.type) {
         case "Colour":
         case "Mix":
         case "Image":
@@ -87,12 +97,12 @@ export class VMixState {
           const r = input as VideoObject | AudioFileObject;
           (v as unknown as VideoInput | AudioFileInput) = {
             ...v,
-            type: r["@_type"] as "Video" | "AudioFile",
-            volume: r["@_volume"],
-            balance: r["@_balance"],
-            solo: r["@_solo"] === "True",
-            muted: r["@_muted"] === "True",
-            audioBusses: r["@_audiobusses"],
+            type: r._attributes.type as "Video" | "AudioFile",
+            volume: r._attributes.volume,
+            balance: r._attributes.balance,
+            solo: r._attributes.solo === "True",
+            muted: r._attributes.muted === "True",
+            audioBusses: r._attributes.audiobusses,
           };
           break;
         }
@@ -100,8 +110,8 @@ export class VMixState {
           const r = input as VideoListObject;
           (v as unknown as ListInput) = {
             ...v,
-            type: r["@_type"],
-            selectedIndex: r["@_selectedIndex"] - 1 /* 1-based index */,
+            type: r._attributes.type,
+            selectedIndex: r._attributes.selectedIndex - 1 /* 1-based index */,
             items: [],
           };
           if (Array.isArray(r.list?.item)) {
@@ -113,23 +123,25 @@ export class VMixState {
                 };
               }
               return {
-                source: item["#text"],
-                selected: item["@_selected"] === "true",
+                source: item._text,
+                selected: item._attributes?.selected === "true",
               };
             });
           } else if (r.list) {
             (v as ListInput).items.push({
-              source: r.list.item["#text"],
-              selected: r.list.item["@_selected"] === "true",
+              source: r.list.item._text,
+              selected: r.list.item._attributes?.selected === "true",
             });
           }
           break;
         }
         default:
-          console.warn(`Unrecognised input type '${input["@_type"]}'`);
+          console.warn(`Unrecognised input type '${input._attributes.type}'`);
           if (process.env.NODE_ENV === "test") {
             console.debug(input);
-            throw new Error(`Unrecognised input type ${input["@_type"]}`);
+            throw new Error(
+              `Unrecognised input type ${input._attributes.type}`,
+            );
           }
           continue;
       }
@@ -149,5 +161,11 @@ export class MutableVMixState extends VMixState {
     const result = VMixRawXMLSchema.parse(resultRaw);
     this._raw = result;
     this._cleaned = null; // invalidate cache
+  }
+
+  get xml() {
+    return js2xml(this._raw, {
+      compact: true,
+    });
   }
 }

@@ -1,27 +1,35 @@
-import { createServer } from "node:net";
+import { createServer, Socket } from "node:net";
 import { promisify } from "node:util";
 import invariant from "./invariant";
 import { z } from "zod";
 import { VMixRawXMLSchema } from "./vmixTypesRaw";
-import { VMixState } from "./vmixState";
+import { MutableVMixState, VMixState } from "./vmixState";
+import xpath from "xpath";
+import DOM from "@xmldom/xmldom";
+import { ParsedQs, parse as parseQS } from "qs";
+import { Draft } from "immer";
 
 type RawState = z.infer<typeof VMixRawXMLSchema>;
 
+const text = (t: string) => ({ _text: t });
+
 const defaultState: RawState = {
   vmix: {
-    version: "26",
-    edition: "4K",
+    version: text("26"),
+    edition: text("4K"),
     inputs: {
       input: [],
     },
-    active: -1,
+    active: text(""),
     audio: {
       master: {
-        "@_muted": "False",
-        "@_meterF1": "0.000000",
-        "@_meterF2": "0.000000",
-        "@_headphonesVolume": "0.000000",
-        "@_volume": "0.000000",
+        _attributes: {
+          muted: "False",
+          meterF1: "0.000000",
+          meterF2: "0.000000",
+          headphonesVolume: "0.000000",
+          volume: "0.000000",
+        },
       },
     },
     dynamic: {
@@ -34,37 +42,133 @@ const defaultState: RawState = {
       value3: "",
       value4: "",
     },
-    external: "",
-    fadeToBlack: "False",
-    fullscreen: "False",
-    multiCorder: "False",
+    external: text(""),
+    fadeToBlack: text("False"),
+    fullscreen: text("False"),
+    multiCorder: text("False"),
     overlays: { overlay: [] },
-    playList: "",
-    preview: -1,
-    recording: "False",
-    streaming: "False",
+    playList: text(""),
+    preview: text(""),
+    recording: text("False"),
+    streaming: text("False"),
     transitions: { transition: [] },
   },
 };
 
-export default class MockVMixAPI {
-  private state: VMixState;
-  private constructor(
-    public readonly port: number,
+type VMixFnHandler = (
+  args: ParsedQs,
+  respond: (res: {
+    message?: string;
+    binary?: string | Buffer;
+    error?: boolean;
+  }) => void,
+) => void;
+
+class MockVMixContext {
+  constructor(
+    private readonly socket: Socket,
     initialState?: Partial<RawState>,
   ) {
-    this.state = new VMixState(
+    this.state = new MutableVMixState(
       initialState
         ? { vmix: { ...initialState.vmix, ...defaultState.vmix } }
         : defaultState,
     );
   }
 
+  private state: MutableVMixState;
+  private functionHandlers = new Map<string, Array<VMixFnHandler>>();
+  private fallbackHandlers = new Map<string, VMixFnHandler>();
+
+  public setState(writer: (draft: Draft<RawState>) => void) {
+    this.state.update(writer);
+  }
+
+  /** This method is an implementation detail and should not be used outside MockVMixAPI. */
+  public async _handleRequest(buffer: string) {
+    const reqNameIdx = buffer.indexOf(" ");
+    const request = buffer.slice(0, reqNameIdx);
+    switch (request) {
+      case "XML": {
+        const xml = this.state.xml;
+        this.socket.write(`XML ${xml.length}\r\n${xml}`);
+        return;
+      }
+      case "XMLTEXT": {
+        const xml = this.state.xml;
+        const dom = new DOM.DOMParser().parseFromString(xml);
+        const nodes = xpath.select(buffer.slice(reqNameIdx + 1), dom);
+        if (!nodes) {
+          this.socket.write(`XMLTEXT ER No nodes found\r\n`);
+          return;
+        }
+        if (Array.isArray(nodes)) {
+          this.socket.write(
+            "XMLTEXT ER More than one result (not supported by MockVMixAPI)\r\n",
+          );
+          return;
+        }
+        this.socket.write(`XMLTEXT OK ${nodes.toString()}\r\n`);
+        return;
+      }
+      case "FUNCTION": {
+        const fnAndArgs = buffer.slice(reqNameIdx + 1);
+        const fn = fnAndArgs.slice(0, fnAndArgs.indexOf(" "));
+        const args = parseQS(fnAndArgs.slice(fn.length + 1));
+        const handlers = this.functionHandlers.get(fn);
+        if (handlers) {
+          const handler = handlers.shift();
+          if (handler) {
+            this._doFnCall(fn, args, handler);
+            return;
+          }
+        }
+        const fallback = this.fallbackHandlers.get(fn);
+        if (fallback) {
+          this._doFnCall(fn, args, fallback);
+          return;
+        }
+
+        this.socket.write(`FUNCTION ER No handler for ${fn}\r\n`);
+        return;
+      }
+      default:
+        this.socket.write(`${request} ER Unknown command\r\n`);
+    }
+  }
+
+  private _doFnCall(fn: string, args: ParsedQs, handler: VMixFnHandler) {
+    handler(args, (res) => {
+      if (res.error) {
+        this.socket.write(`${fn} ER ${res.message}\r\n`);
+        return;
+      }
+      if (res.binary) {
+        if (res.message) {
+          this.socket.write(`${fn} ${res.binary.length} ${res.message}\r\n`);
+          this.socket.write(res.binary);
+        } else {
+          this.socket.write(`${fn} ${res.binary.length}\r\n`);
+          this.socket.write(res.binary);
+        }
+        return;
+      }
+      this.socket.write(`${fn} OK ${res.message}\r\n`);
+    });
+  }
+}
+
+export default class MockVMixAPI {
+  private constructor(public readonly port: number) {}
+
   static async create(initialState?: Partial<RawState>) {
     let instance: MockVMixAPI;
     const server = createServer((socket) => {
       // https://www.vmix.com/help27/TCPAPI.html
       socket.setEncoding("utf-8");
+
+      const context = new MockVMixContext(socket, initialState);
+
       let buffer = "";
       socket.on("data", (data: string) => {
         const eod = data.indexOf("\r\n");
@@ -73,11 +177,7 @@ export default class MockVMixAPI {
           return;
         }
         buffer += data.slice(0, eod);
-        const request = buffer.split(" ")[0];
-        switch (request) {
-          default:
-            socket.write(`${request} ER Unknown command\r\n`);
-        }
+        context._handleRequest(buffer);
       });
     });
     let port: number;
@@ -96,7 +196,7 @@ export default class MockVMixAPI {
         reject(e);
       }
     });
-    instance = new MockVMixAPI(port!, initialState);
+    instance = new MockVMixAPI(port!);
     return instance;
   }
 }

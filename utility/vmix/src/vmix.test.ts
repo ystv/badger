@@ -1,18 +1,18 @@
-import { beforeEach, describe, test, vi, expect } from "vitest";
+import { beforeEach, describe, test, jest, expect } from "@jest/globals";
 import { EventEmitter } from "node:events";
 import * as fs from "node:fs/promises";
 import * as path from "path";
 import VMixConnection from "./vmix";
 
 class MockSocket extends EventEmitter {
-  write = vi.fn(
+  write = jest.fn(
     (payload: unknown, encoding: string, cb: (err?: Error) => void) =>
       cb(undefined),
   );
-  setEncoding = vi.fn();
+  setEncoding = jest.fn();
 }
 
-vi.mock("net", () => ({
+jest.mock("node:net", () => ({
   connect: () => {
     const sock = new MockSocket();
     process.nextTick(() => {
@@ -28,6 +28,7 @@ describe("VMixConnection", () => {
   let vmix: VMixConnection;
   let sock: MockSocket;
   beforeEach(async () => {
+    debugger;
     vmix = await VMixConnection.connect();
     sock = vmix["sock"] as unknown as MockSocket;
   });
@@ -119,6 +120,8 @@ describe("VMixConnection", () => {
       expect.any(Function),
     );
     sock.emit("data", `XML ${testXML.length}\r\n${testXML}`);
-    expect(res).resolves.toMatchSnapshot();
+    const r = await res;
+    expect(r.raw).toMatchSnapshot();
+    expect(r.state).toMatchSnapshot();
   });
 });

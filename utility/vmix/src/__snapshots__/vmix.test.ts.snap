@@ -1,6 +1,303 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+// Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`VMixConnection > getFullState 1`] = `
+exports[`VMixConnection getFullState 1`] = `
+{
+  "vmix": {
+    "active": {
+      "_text": "3",
+    },
+    "audio": {
+      "master": {
+        "_attributes": {
+          "headphonesVolume": "100",
+          "meterF1": "0",
+          "meterF2": "0",
+          "muted": "False",
+          "volume": "100",
+        },
+      },
+    },
+    "dynamic": {
+      "input1": {},
+      "input2": {},
+      "input3": {},
+      "input4": {},
+      "value1": {},
+      "value2": {},
+      "value3": {},
+      "value4": {},
+    },
+    "edition": {
+      "_text": "4K",
+    },
+    "external": {
+      "_text": "False",
+    },
+    "fadeToBlack": {
+      "_text": "False",
+    },
+    "fullscreen": {
+      "_text": "False",
+    },
+    "inputs": {
+      "input": [
+        {
+          "_attributes": {
+            "duration": 0,
+            "key": "418f6d70-ec7e-464a-8abc-92280776f5a0",
+            "loop": "False",
+            "number": 1,
+            "position": 0,
+            "shortTitle": "TV Mix",
+            "state": "Paused",
+            "title": "TV Mix",
+            "type": "Mix",
+          },
+          "_text": "TV Mix",
+        },
+        {
+          "_attributes": {
+            "duration": 0,
+            "key": "1c077daf-caf6-4371-be56-ca11736d12dd",
+            "loop": "False",
+            "number": 2,
+            "position": 0,
+            "shortTitle": "Transparent",
+            "state": "Paused",
+            "title": "Transparent",
+            "type": "Colour",
+          },
+          "_text": "Transparent",
+        },
+        {
+          "_attributes": {
+            "audiobusses": "M",
+            "balance": 0,
+            "duration": 279573,
+            "key": "705aa6bc-632e-4714-8759-0966703c154f",
+            "loop": "False",
+            "meterF1": "0",
+            "meterF2": "0",
+            "muted": "False",
+            "number": 3,
+            "position": 0,
+            "shortTitle": "VTs",
+            "solo": "False",
+            "state": "Paused",
+            "title": "VTs - Test 0.mp4",
+            "type": "VideoList",
+            "volume": 100,
+          },
+          "_text": "VTs - Test 0.mp4",
+        },
+        {
+          "_attributes": {
+            "audiobusses": "M",
+            "balance": 0,
+            "duration": 5000,
+            "key": "410bc785-3d4b-4d0d-96a0-58e0ed78edde",
+            "loop": "False",
+            "meterF1": "0",
+            "meterF2": "0",
+            "muted": "True",
+            "number": 4,
+            "position": 0,
+            "shortTitle": "YY_Transition_1.mov",
+            "solo": "False",
+            "state": "Paused",
+            "title": "YY_Transition_1.mov",
+            "type": "Video",
+            "volume": 100,
+          },
+          "_text": "YY_Transition_1.mov",
+        },
+        {
+          "_attributes": {
+            "duration": 0,
+            "key": "254bf3d2-6b74-4dc3-a46f-bac16b5c4fee",
+            "loop": "False",
+            "number": 5,
+            "position": 0,
+            "shortTitle": "Colour",
+            "state": "Paused",
+            "title": "Colour",
+            "type": "Colour",
+          },
+          "_text": "Colour",
+        },
+        {
+          "_attributes": {
+            "audiobusses": "M",
+            "balance": 0,
+            "duration": 0,
+            "key": "be25c595-60e1-49b1-873b-1c1f7fde77b4",
+            "loop": "False",
+            "meterF1": "0",
+            "meterF2": "0",
+            "muted": "True",
+            "number": 6,
+            "position": 0,
+            "shortTitle": "Stills",
+            "solo": "False",
+            "state": "Paused",
+            "title": "Stills - Test.png",
+            "type": "VideoList",
+            "volume": 100,
+          },
+          "_text": "Stills
+            - Test.png",
+        },
+        {
+          "_attributes": {
+            "duration": 0,
+            "key": "ba632fc4-90b6-42db-afd0-fbc73487fa23",
+            "loop": "False",
+            "number": 7,
+            "position": 0,
+            "shortTitle": "Test.png",
+            "state": "Paused",
+            "title": "Test.png",
+            "type": "Image",
+          },
+          "_text": "Test.png",
+        },
+        {
+          "_attributes": {
+            "audiobusses": "M",
+            "balance": 0,
+            "duration": 60899,
+            "key": "b5076d09-361c-4185-8086-9c45c9de75de",
+            "loop": "False",
+            "meterF1": "0",
+            "meterF2": "0",
+            "muted": "True",
+            "number": 8,
+            "position": 0,
+            "shortTitle": "ES_Young Mystery Detectives - Trailer Worx.wav",
+            "solo": "False",
+            "state": "Paused",
+            "title": "ES_Young Mystery Detectives - Trailer Worx.wav",
+            "type": "AudioFile",
+            "volume": 100,
+          },
+          "_text": "ES_Young Mystery Detectives - Trailer
+            Worx.wav",
+        },
+      ],
+    },
+    "mix": {
+      "_attributes": {
+        "number": "2",
+      },
+      "active": {
+        "_text": "6",
+      },
+      "preview": {
+        "_text": "0",
+      },
+    },
+    "multiCorder": {
+      "_text": "False",
+    },
+    "overlays": {
+      "overlay": [
+        {
+          "_attributes": {
+            "number": 1,
+          },
+        },
+        {
+          "_attributes": {
+            "number": 2,
+          },
+        },
+        {
+          "_attributes": {
+            "number": 3,
+          },
+        },
+        {
+          "_attributes": {
+            "number": 4,
+          },
+        },
+        {
+          "_attributes": {
+            "number": 5,
+          },
+        },
+        {
+          "_attributes": {
+            "number": 6,
+          },
+        },
+        {
+          "_attributes": {
+            "number": 7,
+          },
+        },
+        {
+          "_attributes": {
+            "number": 8,
+          },
+        },
+      ],
+    },
+    "playList": {
+      "_text": "False",
+    },
+    "preset": {
+      "_text": "C:\\Test.vmix",
+    },
+    "preview": {
+      "_text": "3",
+    },
+    "recording": {
+      "_text": "False",
+    },
+    "streaming": {
+      "_text": "False",
+    },
+    "transitions": {
+      "transition": [
+        {
+          "_attributes": {
+            "duration": 500,
+            "effect": "Fade",
+            "number": 1,
+          },
+        },
+        {
+          "_attributes": {
+            "duration": 1000,
+            "effect": "Merge",
+            "number": 2,
+          },
+        },
+        {
+          "_attributes": {
+            "duration": 1000,
+            "effect": "Wipe",
+            "number": 3,
+          },
+        },
+        {
+          "_attributes": {
+            "duration": 1000,
+            "effect": "CubeZoom",
+            "number": 4,
+          },
+        },
+      ],
+    },
+    "version": {
+      "_text": "26.0.0.44",
+    },
+  },
+}
+`;
+
+exports[`VMixConnection getFullState 2`] = `
 {
   "edition": "4K",
   "inputs": [
@@ -28,33 +325,12 @@ exports[`VMixConnection > getFullState 1`] = `
     },
     {
       "duration": 279573,
-      "items": [
-        {
-          "selected": true,
-          "source": "C:\\media\\Test 0.mp4",
-        },
-        {
-          "selected": false,
-          "source": "C:\\media\\Test 1.mp4",
-        },
-        {
-          "selected": false,
-          "source": "C:\\media\\Test 22.mp4",
-        },
-        {
-          "selected": false,
-          "source": "C:\\media\\Test 3.mov",
-        },
-        {
-          "selected": false,
-          "source": "C:\\media\\Test 4.mp4",
-        },
-      ],
+      "items": [],
       "key": "705aa6bc-632e-4714-8759-0966703c154f",
       "loop": false,
       "number": 3,
       "position": 0,
-      "selectedIndex": 0,
+      "selectedIndex": NaN,
       "shortTitle": "VTs",
       "state": "Paused",
       "title": "VTs - Test 0.mp4",
@@ -89,17 +365,12 @@ exports[`VMixConnection > getFullState 1`] = `
     },
     {
       "duration": 0,
-      "items": [
-        {
-          "selected": true,
-          "source": "C:\\media\\Test.png",
-        },
-      ],
+      "items": [],
       "key": "be25c595-60e1-49b1-873b-1c1f7fde77b4",
       "loop": false,
       "number": 6,
       "position": 0,
-      "selectedIndex": 0,
+      "selectedIndex": NaN,
       "shortTitle": "Stills",
       "state": "Paused",
       "title": "Stills - Test.png",

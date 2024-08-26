@@ -1,6 +1,5 @@
 import { Socket, connect } from "node:net";
 import invariant from "./invariant";
-import { XMLParser } from "fast-xml-parser";
 import {
   AudioFileInput,
   BaseInput,
@@ -9,16 +8,11 @@ import {
   InputType,
   VideoInput,
 } from "./vmixTypes";
-import {
-  AudioFileObject,
-  VMixRawXMLSchema,
-  VideoListObject,
-  VideoObject,
-} from "./vmixTypesRaw";
 import { z } from "zod";
 import * as qs from "qs";
 import { v4 as uuidV4 } from "uuid";
 import { VMixState } from "./vmixState";
+import { ElementCompact, xml2js } from "xml-js";
 
 type VMixCommand =
   | "TALLY"
@@ -57,11 +51,6 @@ export default class VMixConnection {
   private requestQueue: Array<ReqQueueItem> = [];
 
   private buffer: string = "";
-  private xmlParser = new XMLParser({
-    ignoreAttributes: false,
-    attributeNamePrefix: "@_",
-    allowBooleanAttributes: true,
-  });
   private constructor(
     // This is only used for display purposes, the actual connection is established in `connect()`,
     // before this constructor is called.
@@ -82,7 +71,10 @@ export default class VMixConnection {
         sock.off("error", reject);
         resolve();
       });
-      sock.on("error", reject);
+      sock.on("error", (e) => {
+        console.error("VMix connection failed", e);
+        reject(e);
+      });
     });
     const vmix = new VMixConnection(host, port);
     vmix.sock = sock;
@@ -132,22 +124,19 @@ export default class VMixConnection {
     return this.send("FUNCTION", fn, qs.stringify(params));
   }
 
-  public async getPartialState(
-    xpath: string,
-  ): Promise<Record<string, unknown>> {
+  public async getPartialState(xpath: string): Promise<ElementCompact> {
     const [_, result] = await this.send("XMLTEXT", xpath);
-    return this.xmlParser.parse(result);
+    return xml2js(result, { compact: true });
   }
 
-  public async getFullStateRaw(): Promise<unknown> {
+  public async getFullStateRaw(): Promise<string> {
     const [_, result] = await this.send("XML");
-    return this.xmlParser.parse(result);
+    return result;
   }
 
   public async getFullState(): Promise<VMixState> {
     const data = await this.getFullStateRaw();
-    // VMixState handles parsing and validation
-    return new VMixState(data as unknown as z.infer<typeof VMixRawXMLSchema>);
+    return VMixState.fromXML(data);
   }
 
   private async send(command: VMixCommand, ...args: string[]) {
