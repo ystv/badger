@@ -179,6 +179,7 @@ jobs:
               name: process.env.VERSION,
               draft: true,
               generate_release_notes: true,
+              prerelease: false
             });
             core.setOutput('id', release.data.id)
             core.setOutput('tag_name', release.data.tag_name)
