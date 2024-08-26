@@ -95,8 +95,7 @@ jobs:
           images: ghcr.io/ystv/badger/server
           flavor: latest=true
           tags: |
-            type=semver,pattern={{version}},enable=${{ github.event_name == 'workflow_dispatch' }}
-            type=raw,value=${{ inputs.tag }},enable=${{ github.event_name == 'workflow_call' }}
+            type=raw,value=${{ inputs.tag }}
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -136,8 +135,8 @@ jobs:
           images: ghcr.io/ystv/badger/jobrunner
           flavor: latest=true
           tags: |
-            type=semver,pattern={{version}},enable=${{ github.event_name == 'workflow_dispatch' }}
-            type=raw,value=${{ inputs.tag }},enable=${{ github.event_name == 'workflow_call' }}
+            type=semver,pattern={{version}},enable=${{ !inputs.tag }}
+            type=raw,value=${{ inputs.tag }},enable=${{ inputs.tag }}
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
