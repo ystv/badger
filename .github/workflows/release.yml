@@ -44,7 +44,14 @@ jobs:
           working-directory: ./server
 
       - name: Migrate database
-        run: yarn prisma:migrateProd
+        run: |
+          yarn prisma:migrateProd
+
+      - name: Retart services
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose-rc-test.yml restart server jobrunner
+          curl --connect-timeout 1 --retry 25 --retry-delay 2 -fsS -o/dev/null http://localhost:3000
+          curl --connect-timeout 1 --retry 25 --retry-delay 2 -fsS -o/dev/null http://localhost:28342
 
       - name: Run Playwright tests
         run: yarn ${{ runner.debug && 'test:e2e:debug' || 'test:e2e' }}
