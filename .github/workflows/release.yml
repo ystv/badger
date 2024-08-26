@@ -11,8 +11,8 @@ jobs:
   build:
     uses: ./.github/workflows/build_shared.yml
     with:
-      ref: ${{ github.event.before }}
-      tag: ${{ github.event.ref }}
+      ref: ${{ github.ref }}
+      tag: ${{ github.ref_name }}
 
   test-e2e-server:
     needs: [build]
@@ -31,7 +31,7 @@ jobs:
           cache-dependency-path: "yarn.lock"
 
       - name: Set ref in docker-compose
-        run: sed -i "s/__RC_REF__/${{ github.event.ref }}/g" docker-compose-rc-test.yml
+        run: sed -i "s/__RC_REF__/${{ github.ref_name }}/g" docker-compose-rc-test.yml
 
       - name: Start services
         run: docker compose up -d -f docker-compose.yml -f docker-compose-rc-test.yml
@@ -81,19 +81,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Determine version number
-        run: echo "VERSION=$(echo '${{ github.event.ref }}' | sed 's/^refs\/tags\///' | sed 's/-rc.*//')" >> $GITHUB_ENV
+        run: echo "VERSION=$(echo '${{ github.ref_name }}' sed 's/-rc.*//')" >> $GITHUB_ENV
       - name: Download Desktop build
         uses: actions/download-artifact@v4
         with:
           path: artifacts
-      - name: Pull Docker images
-        run: |
-          docker pull ghcr.io/ystv/badger/server:${{ github.event.ref }}
-          docker pull ghcr.io/ystv/badger/jobrunner:${{ github.event.ref }}
       - name: Re-tag and push Docker images
-        run:
-          docker tag ghcr.io/ystv/badger/server:${{ github.event.ref }} ghcr.io/ystv/badger/server:$VERSION
-          docker tag ghcr.io/ystv/badger/jobrunner:${{ github.event.ref }} ghcr.io/ystv/badger/jobrunner:$VERSION
+        run: docker pull ghcr.io/ystv/badger/server:${{ github.ref_name }}
+          docker pull ghcr.io/ystv/badger/jobrunner:${{ github.ref_name }}
+          docker tag ghcr.io/ystv/badger/server:${{ github.ref_name }} ghcr.io/ystv/badger/server:$VERSION
+          docker tag ghcr.io/ystv/badger/jobrunner:${{ github.ref_name }} ghcr.io/ystv/badger/jobrunner:$VERSION
           docker push ghcr.io/ystv/badger/server:$VERSION
           docker push ghcr.io/ystv/badger/jobrunner:$VERSION
       - name: Create GitHub release
@@ -112,7 +109,6 @@ jobs:
               make_latest: true
             });
             core.setOutput('id', release.data.id)
-            core.setOutput('upload_url', release.data.upload_url)
             core.setOutput('tag_name', release.data.tag_name)
       - name: Upload artifacts
         run: |

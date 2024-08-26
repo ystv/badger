@@ -8,7 +8,10 @@ on:
       tag:
         type: string
         required: true
-        description: Docker tag to push
+        description: Version to build, also the docker tag
+      strip_rc:
+        type: boolean
+        description: Strip -rc suffix from version number
 
 permissions:
   contents: read
@@ -33,6 +36,16 @@ jobs:
           cache-dependency-path: "yarn.lock"
 
       - run: yarn install --immutable
+
+      - name: Set version
+        shell: pwsh
+        run: |
+          $pkg = Get-Content ./desktop/package.json | ConvertFrom-Json
+          $pkg.version = $env:INPUT_TAG -replace "^v", ""
+          if ($env:INPUT_STRIP_RC) {
+            $pkg.version = $pkg.version -replace "-rc.*", ""
+          }
+          $pkg | ConvertTo-Json -Depth 32 | Set-Content ./desktop/package.json
 
       - run: "yarn package"
         working-directory: ./desktop
@@ -67,6 +80,14 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set version
+        run: |
+          version=${INPUT_TAG#v}
+          if [ $INPUT_STRIP_RC = true ]; then
+            version=$(echo $version | sed 's/-rc.*//')
+          fi
+          cat package.json | jq '.version = "'$version'"' | tee package.json
+        working-directory: ./jobrunner
       - name: Docker metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -101,6 +122,13 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set version
+        run: |
+          version=${INPUT_TAG#v}
+          if [ $INPUT_STRIP_RC = true ]; then
+            version=$(echo $version | sed 's/-rc.*//')
+          fi
+          cat package.json | jq '.version = "'$version'"' | tee package.json
       - name: Docker metadata
         id: jr_meta
         uses: docker/metadata-action@v5
