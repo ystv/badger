@@ -3,6 +3,7 @@ import { EventEmitter } from "node:events";
 import * as fs from "node:fs/promises";
 import * as path from "path";
 import VMixConnection from "./vmix";
+import { VMixState } from "./vmixState";
 
 class MockSocket extends EventEmitter {
   write = jest.fn(
@@ -113,15 +114,15 @@ describe("VMixConnection", () => {
       path.join(__dirname, "__testdata__", "vmix.xml"),
       { encoding: "utf-8" },
     );
-    const res = vmix.getFullState();
+    const res = vmix.getFullStateRaw();
     expect(sock.write).toHaveBeenCalledWith(
       "XML\r\n",
       "utf-8",
       expect.any(Function),
     );
     sock.emit("data", `XML ${testXML.length}\r\n${testXML}`);
-    const r = await res;
-    expect(r.raw).toMatchSnapshot();
-    expect(r.state).toMatchSnapshot();
+    const raw = await res;
+    expect(VMixState.fromXML(raw).raw).toMatchSnapshot();
+    expect(VMixState.fromXML(raw).state).toMatchSnapshot();
   });
 });
