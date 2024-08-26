@@ -6,9 +6,15 @@ on:
   pull_request:
   merge_group:
 
+env:
+  YARN_ENABLE_HARDENED_MODE: "0"
+
 jobs:
   yarn-duplicates:
     runs-on: ubuntu-latest
+    env:
+      # This one runs with YARN_ENABLE_HARDENED_MODE=1, all the others run with 0
+      YARN_ENABLE_HARDENED_MODE: "1"
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js 18.x
