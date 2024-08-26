@@ -1,0 +1,129 @@
+on:
+  push:
+    tags:
+      - "*-rc*"
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/build_shared.yml
+    with:
+      ref: ${{ github.event.before }}
+      tag: ${{ github.event.ref }}
+
+  test-e2e-server:
+    needs: [build]
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+      E2E_TEST: "true"
+      DATABASE_URL: postgres://root:postgres@localhost:5432/badger_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
+
+      - name: Set ref in docker-compose
+        run: sed -i "s/__RC_REF__/${{ github.event.ref }}/g" docker-compose-rc-test.yml
+
+      - name: Start services
+        run: docker compose up -d -f docker-compose.yml -f docker-compose-rc-test.yml
+
+      # Adapted from https://playwrightsolutions.com/playwright-github-action-to-cache-the-browser-binaries/
+      - name: Get installed Playwright version
+        id: playwright-version
+        run: echo version=$(yarn info --json @playwright/test | jq -r '.children.Version') >> $GITHUB_OUTPUT
+        working-directory: ./server
+
+      - name: Cache playwright binaries
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: |
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+
+      - name: Install Playwright Browsers
+        run: yarn playwright install --with-deps
+        working-directory: ./server
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+
+      - name: Install Playwright OS dependencies
+        run: npx playwright install-deps
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+
+      - name: Migrate database
+        run: yarn prisma:migrateProd
+
+      - name: Run Playwright tests
+        run: yarn ${{ runner.debug && 'test:e2e:debug' || 'test:e2e' }}
+        working-directory: ./server
+        env:
+          PLAYWRIGHT_HTML_REPORT: ${{ github.workspace }}/server/playwright-report
+
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: playwright-report-server
+          path: ./server/playwright-report/
+          retention-days: 30
+
+  release:
+    needs: [test-e2e-server, build]
+    environment: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine version number
+        run: echo "VERSION=$(echo '${{ github.event.ref }}' | sed 's/^refs\/tags\///' | sed 's/-rc.*//')" >> $GITHUB_ENV
+      - name: Download Desktop build
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Pull Docker images
+        run: |
+          docker pull ghcr.io/ystv/badger/server:${{ github.event.ref }}
+          docker pull ghcr.io/ystv/badger/jobrunner:${{ github.event.ref }}
+      - name: Re-tag and push Docker images
+        run:
+          docker tag ghcr.io/ystv/badger/server:${{ github.event.ref }} ghcr.io/ystv/badger/server:$VERSION
+          docker tag ghcr.io/ystv/badger/jobrunner:${{ github.event.ref }} ghcr.io/ystv/badger/jobrunner:$VERSION
+          docker push ghcr.io/ystv/badger/server:$VERSION
+          docker push ghcr.io/ystv/badger/jobrunner:$VERSION
+      - name: Create GitHub release
+        uses: actions/github-script@v7
+        id: release
+        with:
+          script: |
+            const release = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              target_commitish: context.sha,
+              tag_name: process.env.VERSION,
+              name: process.env.VERSION,
+              draft: true,
+              generate_release_notes: true,
+              make_latest: true
+            });
+            core.setOutput('id', release.data.id)
+            core.setOutput('upload_url', release.data.upload_url)
+            core.setOutput('tag_name', release.data.tag_name)
+      - name: Upload artifacts
+        run: |
+          find artifacts -type f -exec gh release upload ${{ steps.release.outputs.tag_name }} {} \;
+      - name: Publish release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.updateRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: ${{ steps.release.outputs.id }},
+              draft: false
+            })

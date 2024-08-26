@@ -1,25 +1,64 @@
-name: Docker Image builds
-
 on:
-  release:
-    types: [published]
-  workflow_dispatch:
+  workflow_call:
     inputs:
-      tag:
-        type: text
+      ref:
+        type: string
         required: true
-        description: Tag to push
+        description: "Branch, tag, or commit to build."
+      tag:
+        type: string
+        required: true
+        description: Docker tag to push
 
 permissions:
   contents: read
   packages: write
 
 jobs:
-  server:
+  build-desktop-windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        type: [public, ystv]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
+
+      - run: yarn install --immutable
+
+      - run: "yarn package"
+        working-directory: ./desktop
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DESKTOP_SENTRY_DSN: ${{ secrets.DESKTOP_SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          ENVIRONMENT: prod
+          IS_YSTV_BUILD: ${{ matrix.type == 'ystv' && 'true' || 'false' }}
+
+      - name: Clean up
+        run: Remove-Item -Recurse -Force ./desktop/dist/win-unpacked
+        shell: pwsh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          path: ./desktop/dist
+          name: badger-desktop-windows${{ matrix.type == 'ystv' && '-ystv' || '' }}
+
+  build-docker-server:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Login to GitHub Container Registry
@@ -35,8 +74,8 @@ jobs:
           images: ghcr.io/ystv/badger/server
           flavor: latest=true
           tags: |
-            type=semver,pattern={{version}}
-            type=raw,value=${{ inputs.tag }},enable=${{ github.event_name == 'workflow_dispatch' }}
+            type=semver,pattern={{version}},enable=${{ github.event_name == 'workflow_dispatch' }}
+            type=raw,value=${{ inputs.tag }},enable=${{ github.event_name == 'workflow_call' }}
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -47,11 +86,13 @@ jobs:
           cache-to: type=gha,mode=max
           file: Dockerfile.server
 
-  jobrunner:
+  build-docker-jobrunner:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Login to GitHub Container Registry
@@ -67,8 +108,8 @@ jobs:
           images: ghcr.io/ystv/badger/jobrunner
           flavor: latest=true
           tags: |
-            type=semver,pattern={{version}}
-            type=raw,value=${{ inputs.tag }},enable=${{ github.event_name == 'workflow_dispatch' }}
+            type=semver,pattern={{version}},enable=${{ github.event_name == 'workflow_dispatch' }}
+            type=raw,value=${{ inputs.tag }},enable=${{ github.event_name == 'workflow_call' }}
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
