@@ -94,6 +94,8 @@ jobs:
   linear:
     needs: [test-e2e-server, test-desktop]
     runs-on: ubuntu-latest
+    outputs:
+      issue_id: ${{ steps.issue.outputs.issue_id }}
     steps:
       - name: Determine version number
         run: echo "VERSION=$(echo '${{ github.ref_name }}' | sed 's/-rc.*//')" >> $GITHUB_ENV
@@ -102,6 +104,7 @@ jobs:
           node-version: "20.x"
       - run: npm install @linear/sdk
       - name: Create Linear release ticket
+        id: issue
         uses: actions/github-script@v7
         with:
           script: |
@@ -110,9 +113,9 @@ jobs:
               accessToken: "${{ secrets.LINEAR_ACCESS_TOKEN }}"
             });
             const issueCreate = await lin.createIssue({
-              teamId: "${{ env.LINEAR_TEAM_ID }}",
-              templateId: "${{ env.LINEAR_RELEASE_ISSUE_TEMPLATE_ID }}",
-              stateId: "${{ env.LINEAR_TODO_STATE_ID }}",
+              teamId: "${{ vars.LINEAR_TEAM_ID }}",
+              templateId: "${{ vars.LINEAR_RELEASE_ISSUE_TEMPLATE_ID }}",
+              stateId: "${{ vars.LINEAR_TODO_STATE_ID }}",
               title: `Release v${process.env.VERSION}`,
             });
             if (!issueCreate.success) {
@@ -126,14 +129,15 @@ jobs:
                 Jobrunner Docker Image: \`ghcr.io/ystv/badger/jobrunner:${{ github.ref_name }}\`    
                 Desktop Windows installer: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-                Once testing is complete, please approve [this workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) and close this issue.
+                Once testing is complete, please approve [this workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
               `.replace(/^\s*/gm, ''),
             });
 
             core.notice(`Release issue: ${issueCreate.issue.url}`);
+            core.setOutput('issue_id', issueCreate.issue.id);
 
   release:
-    needs: [test-e2e-server, test-desktop]
+    needs: [test-e2e-server, test-desktop, linear]
     environment: release
     runs-on: ubuntu-latest
     steps:
@@ -190,3 +194,19 @@ jobs:
               release_id: ${{ steps.release.outputs.id }},
               draft: false
             })
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "20.x"
+      - run: npm install @linear/sdk
+      - name: Close Linear issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { LinearClient } = require('@linear/sdk');
+            const lin = new LinearClient({
+              accessToken: "${{ secrets.LINEAR_ACCESS_TOKEN }}"
+            });
+            await lin.updateIssue({
+              issueId: ${{ needs.linear.outputs.issue_id }},
+              stateId: "${{ vars.LINEAR_DONE_STATE_ID }}",
+            });
