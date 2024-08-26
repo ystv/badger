@@ -1,3 +1,4 @@
+# Used by the release GitHub Actions workflow.
 version: "3"
 services:
   server:
@@ -14,7 +15,7 @@ services:
       AWS_SECRET_ACCESS_KEY: "rootroot"
       AWS_REGION: "us-east-1"
       STORAGE_BUCKET: "badger"
-      API_SHARED_SECRET: "password"
+      API_SHARED_SECRET: "aaa"
       PUBLIC_URL: "http://localhost:3000"
       JWT_SIGNING_KEY: "somesecret"
       NODE_ENV: "test"
@@ -24,4 +25,6 @@ services:
     image: ghcr.io/ystv/badger/jobrunner:__RC_REF__
     platform: linux/amd64
     command: ["--watch", "--healthPort", "28342"] # matching server/playwright.config.ts
+    ports:
+      - "28342:28342"
     environment: *badger_env
