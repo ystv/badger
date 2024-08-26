@@ -140,7 +140,10 @@ jobs:
     needs: [test-e2e-server, test-desktop, linear]
     environment: release
     runs-on: ubuntu-latest
-    permissions: write-all
+    permissions:
+      contents: read
+      packages: write
+      statuses: write
     steps:
       - name: Determine version number
         run: echo "VERSION=$(echo '${{ github.ref_name }}' | sed 's/-rc.*//')" >> $GITHUB_ENV
