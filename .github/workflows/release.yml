@@ -114,14 +114,15 @@ jobs:
               teamId: "${{ vars.LINEAR_TEAM_ID }}",
               templateId: "${{ vars.LINEAR_RELEASE_ISSUE_TEMPLATE_ID }}",
               stateId: "${{ vars.LINEAR_TODO_STATE_ID }}",
-              title: `Release v${process.env.VERSION}`,
+              title: `Release ${{ github.ref_name }}`,
             });
             if (!issueCreate.success) {
               throw new Error(`Failed to create issue`);
             }
+            const issue = await issueCreate.issue;
 
             await lin.createComment({
-              issueId: issueCreate.issue.id,
+              issueId: issue.id,
               body: `Artifacts:
                 Server Docker image: \`ghcr.io/ystv/badger/server:${{ github.ref_name }}\`    
                 Jobrunner Docker Image: \`ghcr.io/ystv/badger/jobrunner:${{ github.ref_name }}\`    
@@ -131,8 +132,8 @@ jobs:
               `.replace(/^\s*/gm, ''),
             });
 
-            core.notice(`Release issue: ${issueCreate.issue.url}`);
-            core.setOutput('issue_id', issueCreate.issue.id);
+            core.notice(`Release issue: ${issue.url}`);
+            core.setOutput('issue_id', issue.id);
 
   release:
     needs: [test-e2e-server, test-desktop, linear]
