@@ -3,9 +3,7 @@ on:
     tags:
       - "*-rc*"
 
-permissions:
-  contents: write
-  packages: write
+permissions: write-all
 
 jobs:
   build:
