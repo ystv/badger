@@ -47,7 +47,7 @@ jobs:
           }
           $pkg | ConvertTo-Json -Depth 32 | Set-Content ./desktop/package.json
 
-      - run: "yarn package"
+      - run: "yarn package --win --publish never"
         working-directory: ./desktop
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
