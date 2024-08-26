@@ -132,13 +132,15 @@ jobs:
               `.replace(/^\s*/gm, ''),
             });
 
-            core.notice(`Release issue: ${issue.url}`);
+            core.summary.addHeading('Linear issue');
+            core.summary.addLink(issue.identifier, issue.url);
             core.setOutput('issue_id', issue.id);
 
   release:
     needs: [test-e2e-server, test-desktop, linear]
     environment: release
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
       - name: Determine version number
         run: echo "VERSION=$(echo '${{ github.ref_name }}' | sed 's/-rc.*//')" >> $GITHUB_ENV
