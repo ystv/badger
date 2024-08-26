@@ -41,8 +41,8 @@ jobs:
         shell: pwsh
         run: |
           $pkg = Get-Content ./desktop/package.json | ConvertFrom-Json
-          $pkg.version = $env:INPUT_TAG -replace "^v", ""
-          if ($env:INPUT_STRIP_RC) {
+          $pkg.version = "${{inputs.tag }}" -replace "^v", ""
+          if ("${{ inputs.strip_rc }}" -eq "true") {
             $pkg.version = $pkg.version -replace "-rc.*", ""
           }
           $pkg | ConvertTo-Json -Depth 32 | Set-Content ./desktop/package.json
