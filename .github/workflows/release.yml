@@ -97,7 +97,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Determine version number
-        run: echo "VERSION=$(echo '${{ github.ref_name }}' sed 's/-rc.*//')" >> $GITHUB_ENV
+        run: echo "VERSION=$(echo '${{ github.ref_name }}' | sed 's/-rc.*//')" >> $GITHUB_ENV
       - name: Download Desktop build
         uses: actions/download-artifact@v4
         with:
