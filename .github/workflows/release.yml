@@ -50,8 +50,6 @@ jobs:
       - name: Retart services
         run: |
           docker compose -f docker-compose.yml -f docker-compose-rc-test.yml restart server jobrunner
-          curl --connect-timeout 1 --retry 25 --retry-delay 2 -fsS -o/dev/null http://localhost:3000
-          curl --connect-timeout 1 --retry 25 --retry-delay 2 -fsS -o/dev/null http://localhost:28342
 
       - name: Run Playwright tests
         run: yarn ${{ runner.debug && 'test:e2e:debug' || 'test:e2e' }}
@@ -81,6 +79,9 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: badger-desktop-windows
+      - name: DEBUG
+        run: ls -la
+        shell: pwsh
       - name: Install Badger
         run: Start-Process -FilePath "badger-desktop-windows\Badger Desktop-${{ github.ref_name }}.exe" -ArgumentList "/S","/D=${{ runner.temp }}\badger" -Wait
         shell: pwsh
@@ -102,12 +103,15 @@ jobs:
         with:
           path: artifacts
       - name: Re-tag and push Docker images
-        run: docker pull ghcr.io/ystv/badger/server:${{ github.ref_name }}
-          docker pull ghcr.io/ystv/badger/jobrunner:${{ github.ref_name }}
-          docker tag ghcr.io/ystv/badger/server:${{ github.ref_name }} ghcr.io/ystv/badger/server:$VERSION
-          docker tag ghcr.io/ystv/badger/jobrunner:${{ github.ref_name }} ghcr.io/ystv/badger/jobrunner:$VERSION
-          docker push ghcr.io/ystv/badger/server:$VERSION
-          docker push ghcr.io/ystv/badger/jobrunner:$VERSION
+        run: |
+          for img in server jobrunner; do
+            docker pull ghcr.io/ystv/badger/$img:${{ github.ref_name }}
+            docker tag ghcr.io/ystv/badger/$img:${{ github.ref_name }} ghcr.io/ystv/badger/$img:$VERSION
+            docker push ghcr.io/ystv/badger/$img:$VERSION
+            docker tag ghcr.io/ystv/badger/$img:${{ github.ref_name }} ghcr.io/ystv/badger/$img:latest
+            docker push ghcr.io/ystv/badger/$img:latest
+          done
+        shell: bash
       - name: Create GitHub release
         uses: actions/github-script@v7
         id: release
