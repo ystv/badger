@@ -188,8 +188,6 @@ jobs:
             });
             core.setOutput('id', release.data.id)
             core.setOutput('tag_name', release.data.tag_name)
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload artifacts
         run: |
           find artifacts -type f -exec gh release upload ${{ steps.release.outputs.tag_name }} {} \;
@@ -205,8 +203,6 @@ jobs:
               release_id: ${{ steps.release.outputs.id }},
               draft: false
             })
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-node@v3
         with:
           node-version: "20.x"
