@@ -74,17 +74,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: badger-desktop-windows
-      - name: Unzip installer
-        run: Expand-Archive -Path badger-desktop-windows.zip -DestinationPath ${{ runner.temp }}\badger-desktop-windows
-        shell: pwsh
       - name: Install Badger
-        run: Start-Process -FilePath "${{ runner.temp }}\badger-desktop-windows\Badger Desktop-${{ github.ref_name }}.exe" -ArgumentList "/S","/D=C:\badger" -Wait
+        run: Start-Process -FilePath "badger-desktop-windows\Badger Desktop-${{ github.ref_name }}.exe" -ArgumentList "/S","/D=${{ runner.temp }}\badger" -Wait
         shell: pwsh
       - name: Run tests
         run: yarn test:e2e --project=standalone
         working-directory: ./desktop
         env:
-          TEST_APPLICATION_PATH: C:\badger\Badger Desktop.exe
+          TEST_APPLICATION_PATH: ${{ runner.temp }}\badger\Badger Desktop.exe
 
   release:
     needs: [test-e2e-server, test-desktop]
