@@ -291,6 +291,7 @@ export default class ProcessMediaJob extends MediaJobCommon {
           },
         },
       });
+      await this._cleanupSourceFile(params);
     } catch (e) {
       await this.db.media.update({
         where: {

@@ -28,7 +28,7 @@ async function uploadTestFileToTus() {
     throw new Error("Tus rejected creation");
   }
 
-  const uploadReq = await got.stream.patch(createRes.headers.location!, {
+  const uploadReq = got.stream.patch(createRes.headers.location!, {
     body: sourceFile,
     headers: {
       "Tus-Resumable": "1.0.0",
@@ -103,5 +103,47 @@ integrate("ProcessMediaJob", () => {
       },
     );
     expect(tusRes.statusCode).not.toBe(200);
+  });
+
+  it("handles failure", async () => {
+    const testMediaPath = await uploadTestFileToTus();
+    const media = await db.media.create({
+      data: {
+        name: "__FAIL__smpte_bars_15s.mp4",
+        durationSeconds: 0,
+        rawPath: "",
+        continuityItems: {
+          create: {
+            name: "Test",
+            durationSeconds: 0,
+            order: 1,
+            show: {
+              create: {
+                name: "Test",
+                start: new Date(),
+              },
+            },
+          },
+        },
+      },
+    });
+    await db.baseJob.create({
+      data: {
+        jobType: "ProcessMediaJob",
+        jobPayload: {
+          mediaId: media.id,
+          sourceType: "Tus",
+          source: testMediaPath,
+        },
+      },
+    });
+    expect(doOneJob()).rejects.toThrow();
+    // Check the file is not deleted from Tus
+    const res = await got.head(process.env.TUS_ENDPOINT + "/" + testMediaPath, {
+      headers: {
+        "Tus-Resumable": "1.0.0",
+      },
+    });
+    expect(res.statusCode).toBe(200);
   });
 });
