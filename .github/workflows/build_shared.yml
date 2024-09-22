@@ -87,8 +87,8 @@ jobs:
           if [[ '${{ inputs.strip_rc }}' == 'true' ]]; then
             version=$(echo $version | sed 's/-rc.*//')
           fi
-          sed -i "s/0.0.0/$version/g" ./server/package.json
-        working-directory: ./jobrunner
+          sed -i "s/0.0.0/$version/g" package.json
+        working-directory: ./server
       - name: Docker metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -128,7 +128,8 @@ jobs:
           if [[ '${{ inputs.strip_rc }}' == 'true' ]]; then
             version=$(echo $version | sed 's/-rc.*//')
           fi
-          sed -i "s/0.0.0/$version/g" ./jobrunner/package.json
+          sed -i "s/0.0.0/$version/g" package.json
+        working-directory: ./jobrunner
       - name: Docker metadata
         id: jr_meta
         uses: docker/metadata-action@v5
