@@ -78,6 +78,13 @@ export default class ProcessMediaJob extends MediaJobCommon {
     });
 
     try {
+      // Test only: allow testing failure handling
+      if (media.name.includes("__FAIL__")) {
+        throw new Error(
+          "Failing job to test error handling (I sure do hope this is a test...)",
+        );
+      }
+
       const rawTempPath = await this._wrapTask(
         media,
         "Downloading source file",
