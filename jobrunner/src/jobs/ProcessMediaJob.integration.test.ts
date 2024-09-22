@@ -1,4 +1,4 @@
-import { MediaState } from "@badger/prisma/client";
+import { JobState, MediaState } from "@badger/prisma/client";
 import { it, expect } from "vitest";
 import { doOneJob } from "../index.js";
 import { integrate } from "@badger/testing";
@@ -127,7 +127,7 @@ integrate("ProcessMediaJob", () => {
         },
       },
     });
-    await db.baseJob.create({
+    const job = await db.baseJob.create({
       data: {
         jobType: "ProcessMediaJob",
         jobPayload: {
@@ -137,7 +137,10 @@ integrate("ProcessMediaJob", () => {
         },
       },
     });
-    expect(doOneJob()).rejects.toThrow();
+    await doOneJob();
+    await expect(
+      db.baseJob.findFirst({ where: { id: job.id } }),
+    ).resolves.toHaveProperty("state", JobState.Failed);
     // Check the file is not deleted from Tus
     const res = await got.head(process.env.TUS_ENDPOINT + "/" + testMediaPath, {
       headers: {
