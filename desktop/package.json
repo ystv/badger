@@ -1,7 +1,7 @@
 {
   "name": "badger-desktop",
   "productName": "Badger Desktop",
-  "version": "1.0.3-canary.8",
+  "version": "0.0.0",
   "description": "My Electron application description",
   "main": "./out/main/index.js",
   "scripts": {
