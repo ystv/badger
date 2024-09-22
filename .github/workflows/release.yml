@@ -128,7 +128,7 @@ jobs:
                 Jobrunner Docker Image: \`ghcr.io/ystv/badger/jobrunner:${{ github.ref_name }}\`    
                 Desktop Windows installer: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-                Once testing is complete, please approve [this workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+                Once testing is complete, please approve [this workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) to publish the release.
               `.replace(/^\s*/gm, ''),
             });
 
@@ -179,13 +179,19 @@ jobs:
               name: process.env.VERSION,
               draft: true,
               generate_release_notes: true,
-              prerelease: false
+              prerelease: false,
+              body: [
+                '## Docker images',
+                `- Server: \`ghcr.io/ystv/badger/server:${process.env.VERSION}\``,
+                `- Jobrunner: \`ghcr.io/ystv/badger/jobrunner:${process.env.VERSION}\``,
+                ''
+              ].join('\n'),
             });
             core.setOutput('id', release.data.id)
             core.setOutput('tag_name', release.data.tag_name)
       - name: Upload artifacts
         run: |
-          find artifacts -type f -exec gh release upload ${{ steps.release.outputs.tag_name }} {} \;
+          gh release upload ${{ steps.release.outputs.tag_name }} artifacts/*
         env:
           GITHUB_TOKEN: ${{ secrets.GH_RELEASE_PAT }}
       - name: Publish release
