@@ -191,7 +191,7 @@ jobs:
             core.setOutput('tag_name', release.data.tag_name)
       - name: Upload artifacts
         run: |
-          gh release upload ${{ steps.release.outputs.tag_name }} artifacts/*
+          gh release upload -R ystv/badger ${{ steps.release.outputs.tag_name }} artifacts/*
         env:
           GITHUB_TOKEN: ${{ secrets.GH_RELEASE_PAT }}
       - name: Publish release
