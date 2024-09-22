@@ -23,12 +23,6 @@ export abstract class MediaJobCommon extends AbstractJob {
             filePath,
           );
           invariant(await dl.wait(), "download did not succeed");
-
-          await got.delete(process.env.TUS_ENDPOINT + "/" + params.source, {
-            headers: {
-              "Tus-Resumable": "1.0.0",
-            },
-          });
           break;
         }
         //fallthrough
@@ -102,5 +96,22 @@ export abstract class MediaJobCommon extends AbstractJob {
     });
     await upload.done();
     return s3Path;
+  }
+
+  protected async _cleanupSourceFile(params: PrismaJson.JobPayload) {
+    invariant("sourceType" in params, "sourceType is required");
+    switch (params.sourceType) {
+      case "Tus": {
+        await got.delete(process.env.TUS_ENDPOINT + "/" + params.source, {
+          headers: {
+            "Tus-Resumable": "1.0.0",
+          },
+        });
+        break;
+      }
+      case "S3":
+        // Nothing to do here, it will already be at the expected location
+        break;
+    }
   }
 }

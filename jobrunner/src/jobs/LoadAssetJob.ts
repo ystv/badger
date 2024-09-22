@@ -83,6 +83,7 @@ export class LoadAssetJob extends MediaJobCommon {
           },
         },
       });
+      await this._cleanupSourceFile(params);
     } catch (e) {
       await this.db.asset.update({
         where: {
