@@ -1,5 +1,4 @@
-import { test, expect } from "@playwright/test";
-import { createShowAPI } from "./lib";
+import { test, expect, createShowAPI } from "./lib";
 
 test("loads", async ({ page }) => {
   await page.goto("/");

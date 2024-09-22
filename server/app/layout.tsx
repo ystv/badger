@@ -9,7 +9,7 @@ import { checkSession } from "@/lib/auth";
 import { UserProvider } from "@/components/CurrentUser";
 import Script from "next/script";
 import { FeatureFlagsProvider } from "@/components/FeatureFlags";
-import { getTusEndpoint } from "@/lib/tus";
+import { getPublicTusEndpoint } from "@/lib/tus";
 import { UploadProgress } from "@/components/Uploader";
 
 export const metadata: Metadata = {
@@ -32,7 +32,7 @@ export default async function RootLayout({
           {`window.ENVIRONMENT = ${JSON.stringify(process.env.ENVIRONMENT)};`}
         </Script>
         <Script id="tus-endpoint" strategy="beforeInteractive">
-          {`window.TUS_ENDPOINT = ${JSON.stringify(getTusEndpoint())};`}
+          {`window.TUS_ENDPOINT = ${JSON.stringify(getPublicTusEndpoint())};`}
         </Script>
       </head>
       <body>

@@ -8,7 +8,10 @@ on:
       tag:
         type: string
         required: true
-        description: Docker tag to push
+        description: Version to build, also the docker tag
+      strip_rc:
+        type: boolean
+        description: Strip -rc suffix from version number
 
 permissions:
   contents: read
@@ -34,7 +37,17 @@ jobs:
 
       - run: yarn install --immutable
 
-      - run: "yarn package"
+      - name: Set version
+        shell: pwsh
+        run: |
+          $pkg = Get-Content ./desktop/package.json | ConvertFrom-Json
+          $pkg.version = "${{inputs.tag }}" -replace "^v", ""
+          if ("${{ inputs.strip_rc }}" -eq "true") {
+            $pkg.version = $pkg.version -replace "-rc.*", ""
+          }
+          $pkg | ConvertTo-Json -Depth 32 | Set-Content ./desktop/package.json
+
+      - run: "yarn package --win --publish never"
         working-directory: ./desktop
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -67,6 +80,15 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set version
+        run: |
+          set -x
+          version=$(echo '${{ inputs.tag }}' | sed 's/^v//')
+          if [[ '${{ inputs.strip_rc }}' == 'true' ]]; then
+            version=$(echo $version | sed 's/-rc.*//')
+          fi
+          cat package.json | jq '.version = "'$version'"' | tee package.json
+        working-directory: ./jobrunner
       - name: Docker metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -74,8 +96,7 @@ jobs:
           images: ghcr.io/ystv/badger/server
           flavor: latest=true
           tags: |
-            type=semver,pattern={{version}},enable=${{ github.event_name == 'workflow_dispatch' }}
-            type=raw,value=${{ inputs.tag }},enable=${{ github.event_name == 'workflow_call' }}
+            type=raw,value=${{ inputs.tag }}
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -85,6 +106,9 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: Dockerfile.server
+          secret-envs: SENTRY_AUTH_TOKEN=SENTRY_AUTH_TOKEN
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
   build-docker-jobrunner:
     runs-on: ubuntu-latest
@@ -101,6 +125,13 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set version
+        run: |
+          version=$(echo '${{ inputs.tag }}' | sed 's/^v//')
+          if [[ '${{ inputs.strip_rc }}' == 'true' ]]; then
+            version=$(echo $version | sed 's/-rc.*//')
+          fi
+          cat package.json | jq '.version = "'$version'"' | tee package.json
       - name: Docker metadata
         id: jr_meta
         uses: docker/metadata-action@v5
@@ -108,8 +139,7 @@ jobs:
           images: ghcr.io/ystv/badger/jobrunner
           flavor: latest=true
           tags: |
-            type=semver,pattern={{version}},enable=${{ github.event_name == 'workflow_dispatch' }}
-            type=raw,value=${{ inputs.tag }},enable=${{ github.event_name == 'workflow_call' }}
+            type=raw,value=${{ inputs.tag }}
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -119,3 +149,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: Dockerfile.jobrunner
+          secret-envs: SENTRY_AUTH_TOKEN=SENTRY_AUTH_TOKEN
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
