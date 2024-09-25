@@ -191,8 +191,7 @@ jobs:
             core.setOutput('tag_name', release.data.tag_name)
       - name: Upload artifacts
         run: |
-          find artifacts -type f -exec echo {} +
-          find artifacts -type f -exec gh release upload --clobber -R ystv/badger ${{ steps.release.outputs.tag_name }} {} +
+          find artifacts -type f -not -name '*.yml' -not -name '*.yaml' -print0 | xargs -0 -I{} gh release -R ystv/badger upload --clobber ${{ steps.release.outputs.tag_name }} '{}'
         env:
           GITHUB_TOKEN: ${{ secrets.GH_RELEASE_PAT }}
       - name: Publish release
