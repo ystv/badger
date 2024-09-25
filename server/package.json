@@ -86,7 +86,7 @@
     "@types/shelljs": "^0.8.12",
     "autoprefixer": "^10.4.14",
     "dotenv-cli": "^7.2.1",
-    "dotenv-flow": "^3.2.0",
+    "dotenv-flow": "^4.0.0",
     "eslint": "^8",
     "express": "^4.19.2",
     "express-urlrewrite": "^2.0.2",
