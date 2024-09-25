@@ -4,7 +4,7 @@ import {
   PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
-import { Page, expect, test as base, Request } from "@playwright/test";
+import { Page, expect, test as base } from "@playwright/test";
 import {
   CreateTRPCProxyClient,
   createTRPCProxyClient,

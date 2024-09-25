@@ -35,8 +35,13 @@ const test = base.extend<{
   },
 
   app: async ({ scenario, testMediaPath }, use, testInfo) => {
+    // Allow running tests on a built / installed app
+    const electronPath = process.env.TEST_APPLICATION_PATH;
     const app = await electron.launch({
-      args: ["--enable-logging", "out/main/index.js"],
+      args: electronPath
+        ? ["--enable-logging"]
+        : ["--enable-logging", "out/main/index.js"],
+      executablePath: electronPath,
       env: {
         ...process.env,
         NODE_ENV: "test",
