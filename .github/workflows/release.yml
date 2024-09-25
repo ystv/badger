@@ -217,7 +217,6 @@ jobs:
             const lin = new LinearClient({
               accessToken: "${{ secrets.LINEAR_ACCESS_TOKEN }}"
             });
-            await lin.updateIssue({
-              issueId: "${{ needs.linear.outputs.issue_id }}",
+            await lin.updateIssue("${{ needs.linear.outputs.issue_id }}", {
               stateId: "${{ vars.LINEAR_DONE_STATE_ID }}",
             });
