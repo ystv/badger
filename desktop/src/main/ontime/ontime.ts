@@ -43,6 +43,7 @@ export interface OntimeEvent extends OntimeBaseEvent {
   user8: string;
   user9: string;
   delay: number;
+  cue: number;
 }
 
 export type OntimeFullEvent = OntimeEvent | OntimeBaseEvent;
