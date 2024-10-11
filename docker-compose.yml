@@ -42,7 +42,7 @@ services:
       "
 
   tusd:
-    image: tusproject/tusd:latest
+    image: tusproject/tusd:sha-b4ffdf4
     depends_on:
       - minio
     ports:
