@@ -169,8 +169,7 @@ export default class OBSConnection {
       obsConnection.logger.error("OBS error:", err);
     });
     obsConnection.logger.info(
-      "Connecting to OBS at",
-      `ws://${obsHost}:${obsPort}`,
+      "Connecting to OBS at " + `ws://${obsHost}:${obsPort}`,
     );
     await obs.connect(`ws://${obsHost}:${obsPort}`, obsPassword, {
       rpcVersion: 1,
