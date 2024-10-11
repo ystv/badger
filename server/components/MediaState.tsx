@@ -145,9 +145,10 @@ function MediaProcessingState({
                       &nbsp;
                       <small>
                         (
-                        {task.additionalInfo.substring(
-                          Math.max(0, task.additionalInfo.length - 75),
-                        ) + (task.additionalInfo.length > 75 ? "..." : "")}
+                        {(task.additionalInfo.length > 75 ? "..." : "") +
+                          task.additionalInfo.substring(
+                            Math.max(0, task.additionalInfo.length - 75),
+                          )}
                         )
                       </small>
                     </>
