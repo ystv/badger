@@ -102,6 +102,7 @@ export abstract class MediaJobCommon extends AbstractJob {
     invariant("sourceType" in params, "sourceType is required");
     switch (params.sourceType) {
       case "Tus": {
+        this.logger.info("Cleaning up Tus upload");
         await got.delete(process.env.TUS_ENDPOINT + "/" + params.source, {
           headers: {
             "Tus-Resumable": "1.0.0",

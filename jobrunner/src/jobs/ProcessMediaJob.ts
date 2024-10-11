@@ -298,6 +298,8 @@ export default class ProcessMediaJob extends MediaJobCommon {
           },
         },
       });
+      // Only delete the source file at the very end, in case anything
+      // goes wrong and we need to retry
       await this._cleanupSourceFile(params);
     } catch (e) {
       await this.db.media.update({
