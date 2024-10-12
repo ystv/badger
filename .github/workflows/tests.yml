@@ -121,19 +121,6 @@ jobs:
 
       - run: yarn test:integration -- --coverage
 
-      - name: Dump Docker logs
-        run: |
-          mkdir -p ${{ runner.temp }}/debug
-          docker compose logs > ${{ runner.temp }}/debug/docker-logs.log
-        if: failure()
-
-      - name: Collect logs
-        uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: logs
-          path: ${{ runner.temp }}/debug/
-
       - name: Upload coverage reports to Codecov
         if: success()
         uses: codecov/codecov-action@v4
