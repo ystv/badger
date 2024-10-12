@@ -1,13 +1,6 @@
 import { useCallback, useState } from "react";
 import { ipc } from "../ipc";
 import { Button } from "@badger/components/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@badger/components/select";
 
 export default function OBSDevToolsScreen() {
   const connState = ipc.obs.getConnectionState.useQuery();
