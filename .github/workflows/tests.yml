@@ -122,6 +122,7 @@ jobs:
 
       - name: Dump Docker logs
         run: |
+          mkdir -p ${{ runner.temp }}/debug
           docker compose logs > ${{ runner.temp }}/debug/docker-logs.log
         if: failure()
 
