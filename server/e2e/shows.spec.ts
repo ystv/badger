@@ -19,6 +19,33 @@ test("create show", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Test Show" })).toBeVisible();
 });
 
+test("edit show", async ({ page }) => {
+  await createShowAPI("Test Show");
+  await page.goto("/");
+  await page.getByRole("link", { name: "View/Edit" }).click();
+  await expect(page.getByRole("link", { name: "Edit" })).toBeVisible();
+  await page.getByRole("link", { name: "Edit" }).click();
+
+  await page.getByLabel("Name").fill("Edited Show");
+  await page.getByRole("button", { name: "Save" }).click();
+
+  await expect(
+    page.getByRole("heading", { name: "Edited Show" }),
+  ).toBeVisible();
+});
+
+test("delet show", async ({ page }) => {
+  await createShowAPI("Test Show that will be delet shortly");
+  await page.goto("/");
+  await page.getByRole("link", { name: "View/Edit" }).click();
+  await page.getByRole("button", { name: "Delet" }).click();
+  await page.getByRole("button", { name: "You sure boss?" }).click();
+  await expect(page.getByRole("heading", { name: "Shows" })).toBeVisible();
+  await expect(
+    page.getByText("Test Show that will be delet shortly"),
+  ).not.toBeAttached();
+});
+
 test("backwards pagination with many past shows (BDGR-154)", async ({
   page,
 }) => {

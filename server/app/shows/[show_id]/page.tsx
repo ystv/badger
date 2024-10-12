@@ -15,6 +15,7 @@ import { PermissionGate } from "@/components/PermissionGate";
 import Button from "@badger/components/button";
 import Link from "next/link";
 import { Poll } from "../../../components/Poll";
+import { ShowDeletButton } from "./DeletButton";
 
 // TODO: duplicated in rundown/id/page.ts
 const pastShowsPromise = cache(
@@ -132,6 +133,12 @@ export default async function ShowPage(props: { params: { show_id: string } }) {
           </Button>
         </PermissionGate>
       </FlagGate>
+      <PermissionGate permission="ManageShows">
+        <Button asChild>
+          <Link href={`/shows/${show.id}/edit`}>Edit</Link>
+        </Button>
+        <ShowDeletButton showID={show.id} />
+      </PermissionGate>
       <TusEndpointProvider value={getTusEndpoint()}>
         <MetadataFields
           metadata={show.metadata}
