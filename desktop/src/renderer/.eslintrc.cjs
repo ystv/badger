@@ -13,6 +13,10 @@ module.exports = {
           {
             name: "electron-settings",
           },
+          {
+            name: "@/lib/invariant",
+            message: "Use ../../common/invariant instead",
+          },
         ],
         patterns: [
           {

@@ -11,7 +11,7 @@ test.describe("big show", () => {
   }) => {
     await page.getByRole("button", { name: "Select" }).click();
 
-    await page.getByText("Continuity").click();
+    await page.getByText("Continuity", { exact: true }).click();
     await page.getByRole("menuitem", { name: "Test Rundown" }).click();
 
     await page

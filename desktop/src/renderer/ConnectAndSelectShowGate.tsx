@@ -11,13 +11,13 @@ function ServerConnectForm() {
     import.meta.env.DEV ? "http://localhost:3000" : "https://badger.ystv.co.uk",
   );
   const [password, setPassword] = useState("");
-  const doConnect = ipc.connectToServer.useMutation();
+  const doConnect = ipc.core.connectToServer.useMutation();
   const [error, setError] = useState<string | null>(null);
   const connect = useCallback(async () => {
     try {
       await doConnect.mutateAsync({ endpoint: addrEntry, password });
       await queryClient.invalidateQueries(
-        getQueryKey(ipc.serverConnectionStatus),
+        getQueryKey(ipc.core.serverConnectionStatus),
       );
     } catch (e) {
       setError(String(e));
@@ -55,10 +55,12 @@ function ServerConnectForm() {
 
 export function SelectShowForm(props: { onSelect?: () => void }) {
   const queryClient = useQueryClient();
-  const listShows = ipc.listUpcomingShows.useQuery();
-  const selectShow = ipc.setSelectedShow.useMutation({
+  const listShows = ipc.shows.listUpcomingShows.useQuery();
+  const selectShow = ipc.shows.setSelectedShow.useMutation({
     async onSuccess() {
-      await queryClient.invalidateQueries(getQueryKey(ipc.getSelectedShow));
+      await queryClient.invalidateQueries(
+        getQueryKey(ipc.shows.getSelectedShow),
+      );
       props.onSelect?.();
     },
   });
@@ -98,14 +100,16 @@ export default function ConnectAndSelectShowGate(props: {
   children: ReactNode;
 }) {
   const queryClient = useQueryClient();
-  const connState = ipc.serverConnectionStatus.useQuery(void 0, {
+  const connState = ipc.core.serverConnectionStatus.useQuery(void 0, {
     staleTime: 5000,
   });
-  const selectedShow = ipc.getSelectedShow.useQuery(void 0);
+  const selectedShow = ipc.shows.getSelectedShow.useQuery(void 0);
 
   useEffect(() => {
     const handler = async () => {
-      await queryClient.invalidateQueries(getQueryKey(ipc.getSelectedShow));
+      await queryClient.invalidateQueries(
+        getQueryKey(ipc.shows.getSelectedShow),
+      );
     };
     window.IPCEventBus.on("selectedShowChange", handler);
     return () => {

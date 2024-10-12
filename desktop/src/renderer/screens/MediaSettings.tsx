@@ -39,7 +39,7 @@ export function MediaSettings() {
     includeSize: true,
   });
   const [mediaPath] = ipc.media.getPath.useSuspenseQuery();
-  const [currentShow] = ipc.getSelectedShow.useSuspenseQuery();
+  const [currentShow] = ipc.shows.getSelectedShow.useSuspenseQuery();
   const open = ipc.media.openPath.useMutation();
   const deleteOldMedia = ipc.media.deleteOldMedia.useMutation({
     async onSuccess() {
