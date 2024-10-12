@@ -17,7 +17,7 @@ services:
       retries: 5
 
   minio:
-    image: quay.io/minio/minio:latest
+    image: quay.io/minio/minio:RELEASE.2023-09-20T22-49-55Z
     ports:
       - "9000:9000"
       - "9090:9090"
@@ -29,7 +29,7 @@ services:
     command: ["server", "/data", "--console-address", ":9090"]
 
   minio_init:
-    image: quay.io/minio/minio:latest
+    image: quay.io/minio/minio:RELEASE.2023-09-20T22-49-55Z
     depends_on:
       - minio
     entrypoint: |
