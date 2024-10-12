@@ -59,15 +59,6 @@ export abstract class MediaJobCommon extends AbstractJob {
         });
         const output = fs.createWriteStream(filePath);
         await streamPipeline(stream, output);
-
-        if (params.sourceType === "Tus") {
-          // Need to clean up
-          await got.delete(process.env.TUS_ENDPOINT + "/" + params.source, {
-            headers: {
-              "Tus-Resumable": "1.0.0",
-            },
-          });
-        }
         break;
       }
 
