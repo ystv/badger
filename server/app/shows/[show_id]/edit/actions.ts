@@ -25,5 +25,5 @@ export async function doEdit(
   });
   revalidatePath(`/`);
   revalidatePath(`/shows/${res.id}`);
-  return { ok: true, id: res.id }; // TODO: this should not be necessary, a redirect() should suffice
+  return { ok: true, id: res.id };
 }
