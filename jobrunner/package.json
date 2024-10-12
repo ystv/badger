@@ -10,7 +10,7 @@
     "build": "node esbuild.config.mjs",
     "lint": "eslint src/**/*.ts",
     "test": "vitest run",
-    "test:integration": "TEST_INTEGRATION=true vitest run --config ./vitest.config-integration.mts"
+    "test:integration": "TEST_INTEGRATION=true vitest run --config ./vitest.config-integration.mts --no-file-parallelism --silent=false"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.474.0",
