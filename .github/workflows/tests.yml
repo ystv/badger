@@ -112,7 +112,8 @@ jobs:
         with:
           ffmpeg-version: "release"
 
-      - run: docker compose up -d
+      - name: Docker Compose
+        uses: hoverkraft-tech/compose-action@v2.0.2
 
       - run: yarn install --immutable --inline-builds
 
@@ -156,8 +157,8 @@ jobs:
           cache: "yarn"
           cache-dependency-path: "yarn.lock"
 
-      - name: Start services
-        run: docker compose up -d
+      - name: Docker Compose
+        uses: hoverkraft-tech/compose-action@v2.0.2
 
       - name: Install dependencies
         run: yarn install --immutable --inline-builds
@@ -257,8 +258,8 @@ jobs:
           cache: "yarn"
           cache-dependency-path: "yarn.lock"
 
-      - name: Start services
-        run: docker compose up -d
+      - name: Docker Compose
+        uses: hoverkraft-tech/compose-action@v2.0.2
 
       - name: Install dependencies
         run: yarn install --immutable --inline-builds
