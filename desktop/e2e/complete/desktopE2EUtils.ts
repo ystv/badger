@@ -45,7 +45,7 @@ export const test = base.extend<{
     if (!testSettings.media) {
       testSettings.media = {};
     }
-    testSettings.media.mediaPath ||= testMediaPath;
+    testSettings.media.mediaPath = testMediaPath;
     for (const [key, value] of Object.entries(testSettings)) {
       env[`__TEST_SETTINGS_${key.toUpperCase()}`] = JSON.stringify(value);
     }
