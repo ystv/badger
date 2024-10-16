@@ -11,5 +11,5 @@ jobs:
     uses: ./.github/workflows/build_shared.yml
     with:
       ref: ${{ github.ref }}
-      tag: v0.0.0-${{ github.ref }}
+      tag: v0.0.0-${{ github.sha }}
       strip_rc: true
