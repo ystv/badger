@@ -81,7 +81,7 @@ jobs:
           cache-dependency-path: "yarn.lock"
       - run: yarn install --immutable --inline-builds
 
-      - run: yarn test -- --coverage
+      - run: yarn test
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
@@ -119,7 +119,7 @@ jobs:
 
       - run: yarn prisma:migrateProd
 
-      - run: yarn test:integration -- --coverage
+      - run: yarn test:integration
 
       - name: Upload coverage reports to Codecov
         if: success()
