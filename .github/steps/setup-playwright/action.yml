@@ -1,0 +1,35 @@
+name: Set Up Playwright
+description: Sets up Playwright
+inputs:
+  working-directory:
+    description: Where to run
+    required: false
+runs:
+  using: composite
+  steps:
+    # Adapted from https://playwrightsolutions.com/playwright-github-action-to-cache-the-browser-binaries/
+    - name: Get installed Playwright version
+      id: playwright-version
+      run: echo version=$(yarn info --json @playwright/test | jq -r '.children.Version') >> $GITHUB_OUTPUT
+      working-directory: ${{ inputs.working-directory }}
+      shell: bash
+
+    - name: Cache playwright binaries
+      uses: actions/cache@v4
+      id: playwright-cache
+      with:
+        path: |
+          ~/.cache/ms-playwright
+        key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+
+    - name: Install Playwright Browsers
+      run: yarn playwright install --with-deps
+      working-directory: ${{ inputs.working-directory }}
+      if: steps.playwright-cache.outputs.cache-hit != 'true'
+      shell: bash
+
+    - name: Install Playwright OS dependencies
+      run: npx playwright install-deps
+      working-directory: ${{ inputs.working-directory }}
+      if: steps.playwright-cache.outputs.cache-hit == 'true'
+      shell: bash

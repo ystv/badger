@@ -4,7 +4,7 @@ import { RundownItems } from "./RundownItems";
 import RundownAssets from "./RundownAssets";
 import Link from "next/link";
 import { TusEndpointProvider } from "@/components/MediaUpload";
-import { getTusEndpoint } from "@/lib/tus";
+import { getPublicTusEndpoint } from "@/lib/tus";
 import { Suspense, cache } from "react";
 import { Button } from "@badger/components/button";
 import { MetadataTargetType } from "@badger/prisma/client";
@@ -176,7 +176,7 @@ export default async function RundownPage(props: {
 
           <h2 className="text-xl font-bold">{rundown.name}</h2>
         </div>
-        <TusEndpointProvider value={getTusEndpoint()}>
+        <TusEndpointProvider value={getPublicTusEndpoint()}>
           <Suspense fallback={<div>Loading...</div>}>
             <RundownMetadata showID={rundown.showId} rundownID={rundown.id} />
           </Suspense>

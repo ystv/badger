@@ -1,0 +1,15 @@
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/build_shared.yml
+    with:
+      ref: ${{ github.ref }}
+      tag: ${{ github.ref_name }}
+      strip_rc: true

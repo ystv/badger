@@ -1,7 +1,12 @@
-import { expect } from "@playwright/test";
 import { readFileSync } from "fs";
 import * as path from "node:path";
-import { test, fileToDataTransfer, createShow, createMedia } from "./lib";
+import {
+  test,
+  expect,
+  fileToDataTransfer,
+  createShow,
+  createMedia,
+} from "./lib";
 
 test("add, reorder, remove items", async ({ showPage }) => {
   await expect

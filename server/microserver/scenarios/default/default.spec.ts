@@ -9,6 +9,7 @@ import {
   ExtendedMediaModelWithDownloadURL,
 } from "@badger/prisma/utilityTypes";
 import { z } from "zod";
+import { omit } from "lodash";
 
 test("microserver/scenarios/default", async ({ page, micro, live }) => {
   await createShow(page, "Test Show");
@@ -19,7 +20,11 @@ test("microserver/scenarios/default", async ({ page, micro, live }) => {
   // assertions. Playwright isn't built for that, and assumes each test
   // is isolated, so we do it all in one test.
 
-  expect.soft(await micro.ping.query()).toMatchObject(await live.ping.query());
+  // Version is determined at build time
+  const dropVersion = (o: object) => omit(o, "version");
+  expect
+    .soft(dropVersion(await micro.ping.query()))
+    .toMatchObject(dropVersion(await live.ping.query()));
 
   expect
     .soft(cleanShows(await micro.shows.listUpcoming.query()))

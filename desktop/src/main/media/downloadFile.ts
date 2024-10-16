@@ -65,7 +65,7 @@ const CurlDownloader: Downloader = async function CurlDownloader(
 ) {
   invariant(curlPath, "no curl path");
   logger.info("Using curl downloader");
-  const args = ["-f", "--compressed", "-o", outputPath, url];
+  const args = ["-f", "--compressed", "--location", "-o", outputPath, url];
   logger.info(`Curl command: ${curlPath} ${args.join(" ")}`);
   const proc = spawn(curlPath, args);
   if (progressCB) {
