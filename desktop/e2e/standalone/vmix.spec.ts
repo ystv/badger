@@ -55,7 +55,7 @@ test("load VTs into vMix", async ({ app: [app, page], testMediaPath }) => {
     });
   }, `${testMediaPath}/smpte_bars_15s (#1).mp4`);
 
-  await expect(page.getByText("Load", { exact: true })).toBeVisible();
+  await expect(page.getByText("Ready for load", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Load All VTs" }).click();
 
   await expect(page.getByText("Good to go!")).toBeVisible();
