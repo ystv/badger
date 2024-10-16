@@ -122,6 +122,14 @@ export default class VMixConnection {
     await this.doFunction("ListRemoveAll", { Input: listSource });
   }
 
+  public async setListAutoNext(listSource: string, autoNext: boolean) {
+    if (autoNext) {
+      await this.doFunction("AutoPlayNextOn", { Input: listSource });
+    } else {
+      await this.doFunction("AutoPlayNextOff", { Input: listSource });
+    }
+  }
+
   // Function reference: https://www.vmix.com/help26/ShortcutFunctionReference.html
   private async doFunction(fn: string, params: Record<string, string>) {
     return await this.send("FUNCTION", fn, qs.stringify(params));
