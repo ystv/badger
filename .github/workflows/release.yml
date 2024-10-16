@@ -1,3 +1,5 @@
+name: Release Workflow
+
 on:
   push:
     tags:
@@ -6,7 +8,23 @@ on:
 permissions: write-all
 
 jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+      - name: Determine version number
+        run: echo "VERSION=$(echo '${{ github.ref_name }}' | sed 's/-rc.*//')" >> $GITHUB_ENV
+      - name: Fail if that tag already exists
+        run: |
+          if git rev-parse $VERSION >/dev/null 2>&1; then
+            echo "Tag $VERSION already exists, please check the version number"
+            exit 1
+          fi
+
   build:
+    needs: [preflight]
     uses: ./.github/workflows/build_shared.yml
     with:
       ref: ${{ github.ref }}
