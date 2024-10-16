@@ -187,7 +187,7 @@ export default class VMixConnection {
   // is blocked we won't process any others, even if they would not be blocked.
   // However, this is unlikely to be a problem in practice.
   //
-  // TODO: With that in mind, this could be simplified even further - instead of a
+  // With that in mind, this could be simplified even further - instead of a
   // replyAwaiting map, we could just have a single boolean flag indicating whether
   // a request is in flight.
   private async doNextRequest() {

@@ -13,6 +13,7 @@ test("load VTs into vMix", async ({ app: [app, page], testMediaPath }) => {
   await page.getByRole("button", { name: "Download", exact: true }).click();
 
   await app.evaluate((_, testMediaPath) => {
+    // TODO(BDGR-215): Replace with Mock VMix API test
     globalThis.__MOCK_VMIX((when, vmix, It) => {
       when(() => vmix.getFullState())
         .thenResolve({
