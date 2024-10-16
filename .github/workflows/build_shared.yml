@@ -71,7 +71,7 @@ jobs:
 
   build-docker-server:
     runs-on: ubuntu-latest
-    if: ${{ inputs.push_docker == 'true' }}
+    if: ${{ inputs.push_docker == true }}
 
     steps:
       - uses: actions/checkout@v4
@@ -115,7 +115,7 @@ jobs:
 
   build-docker-jobrunner:
     runs-on: ubuntu-latest
-    if: ${{ inputs.push_docker == 'true' }}
+    if: ${{ inputs.push_docker == true }}
 
     steps:
       - uses: actions/checkout@v4
