@@ -8,7 +8,7 @@ import { zodErrorResponse } from "@/components/FormServerHelpers";
 import { z } from "zod";
 import { requirePermission } from "@/lib/auth";
 
-export async function create(
+export async function doEdit(
   data: z.infer<typeof schema>,
 ): Promise<FormResponse> {
   await requirePermission("ManageShows");
@@ -16,7 +16,8 @@ export async function create(
   if (!result.success) {
     return zodErrorResponse(result.error);
   }
-  const res = await db.show.create({
+  const res = await db.show.update({
+    where: { id: result.data.id },
     data: {
       name: result.data.name,
       start: result.data.start,
@@ -24,5 +25,5 @@ export async function create(
   });
   revalidatePath(`/`);
   revalidatePath(`/shows/${res.id}`);
-  return { ok: true, id: res.id }; // TODO: this should not be necessary, a redirect() should suffice
+  return { ok: true, id: res.id };
 }
