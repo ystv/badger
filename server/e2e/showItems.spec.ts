@@ -67,7 +67,7 @@ test("add rundown items + check runtime", async ({ showPage }) => {
   await showPage.getByTestId("create-rundown").click();
   await showPage.locator("body").press("Escape");
 
-  await showPage.getByRole("row").nth(1).getByText("Edit").click();
+  await showPage.getByRole("row").nth(1).getByText("Edit Rundown").click();
 
   await showPage.waitForLoadState("domcontentloaded");
 
@@ -216,7 +216,7 @@ test("media/assets for long rundowns", async ({ showPage }) => {
   await expect(showPage.getByLabel("Name")).toHaveValue("");
   await showPage.locator("body").press("Escape");
 
-  await showPage.getByRole("link", { name: "Edit" }).click();
+  await showPage.getByRole("link", { name: "Edit Rundown" }).click();
   await showPage.waitForURL("**/shows/*/rundown/*");
 
   await showPage.getByRole("button", { name: "Add Segment" }).click();
@@ -291,7 +291,7 @@ test("asset upload failure (BDGR-54)", async ({ showPage }) => {
   await expect(showPage.getByLabel("Name")).toHaveValue("");
   await showPage.locator("body").press("Escape");
 
-  await showPage.getByRole("link", { name: "Edit" }).click();
+  await showPage.getByRole("link", { name: "Edit Rundown" }).click();
   await showPage.waitForURL("**/shows/*/rundown/*");
 
   await showPage.getByRole("button", { name: "New Category" }).click();

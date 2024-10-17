@@ -125,7 +125,7 @@ async function setupTestShow(page: Page) {
   await page.getByRole("button", { name: "New Rundown" }).click();
   await page.getByTestId("name-rundown").fill("Test Rundown");
   await page.getByTestId("create-rundown").click();
-  await page.getByRole("link", { name: "Edit", exact: true }).click();
+  await page.getByRole("link", { name: "Edit Rundown", exact: true }).click();
 
   await page.getByRole("button", { name: "Add Segment" }).click();
   await page.getByLabel("Name").fill("Test VT");

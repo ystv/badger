@@ -23,8 +23,8 @@ test("edit show", async ({ page }) => {
   await createShowAPI("Test Show");
   await page.goto("/");
   await page.getByRole("link", { name: "View/Edit" }).click();
-  await expect(page.getByRole("link", { name: "Edit" })).toBeVisible();
-  await page.getByRole("link", { name: "Edit" }).click();
+  await expect(page.getByRole("link", { name: "Edit Rundown" })).toBeVisible();
+  await page.getByRole("link", { name: "Edit Rundown" }).click();
 
   await page.getByLabel("Name").fill("Edited Show");
   await page.getByRole("button", { name: "Save" }).click();

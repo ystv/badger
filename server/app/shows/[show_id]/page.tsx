@@ -135,7 +135,9 @@ export default async function ShowPage(props: { params: { show_id: string } }) {
       </FlagGate>
       <PermissionGate permission="ManageShows">
         <Button asChild>
-          <Link href={`/shows/${show.id}/edit`}>Edit</Link>
+          <Link href={`/shows/${show.id}/edit`}>
+            Edit <span className="sr-only">Show</span>
+          </Link>
         </Button>
         <ShowDeletButton showID={show.id} />
       </PermissionGate>
