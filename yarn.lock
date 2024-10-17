@@ -11586,12 +11586,12 @@ __metadata:
   linkType: hard
 
 "express-urlrewrite@npm:^2.0.2":
-  version: 2.0.2
-  resolution: "express-urlrewrite@npm:2.0.2"
+  version: 2.0.3
+  resolution: "express-urlrewrite@npm:2.0.3"
   dependencies:
     debug: "npm:^4.3.4"
-    path-to-regexp: "npm:^6.2.2"
-  checksum: 10/3c0851f6e65429cad5636c41bb0f8791bbf72cfcb4e05b09417119c13f3a4bf53f31a064fb980d9fe2051df4d6c9889808a8c74c60ccf31ccae655a65db69378
+    path-to-regexp: "npm:^6.3.0"
+  checksum: 10/23fdf23f217501b4a39c555d5c3c3a285fb969d77d694a8ae315c795bd6005f0dace5faa925b905c82d56196324f3ca38612736be41bef927a36f68d4eb8ae82
   languageName: node
   linkType: hard
 
@@ -16058,10 +16058,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"path-to-regexp@npm:^6.2.2":
-  version: 6.2.2
-  resolution: "path-to-regexp@npm:6.2.2"
-  checksum: 10/f7d11c1a9e02576ce0294f4efdc523c11b73894947afdf7b23a0d0f7c6465d7a7772166e770ddf1495a8017cc0ee99e3e8a15ed7302b6b948b89a6dd4eea895e
+"path-to-regexp@npm:^6.3.0":
+  version: 6.3.0
+  resolution: "path-to-regexp@npm:6.3.0"
+  checksum: 10/6822f686f01556d99538b350722ef761541ec0ce95ca40ce4c29e20a5b492fe8361961f57993c71b2418de12e604478dcf7c430de34b2c31a688363a7a944d9c
   languageName: node
   linkType: hard
 
