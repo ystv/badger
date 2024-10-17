@@ -14,7 +14,9 @@ export function ShowDeletButton(props: { showID: number }) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button color="danger">Delet</Button>
+        <Button color="danger">
+          Delet <span className="sr-only">Show</span>
+        </Button>
       </PopoverTrigger>
       <PopoverContent>
         <Button

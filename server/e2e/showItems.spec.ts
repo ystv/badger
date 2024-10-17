@@ -34,15 +34,21 @@ test("add, reorder, remove items", async ({ showPage }) => {
   await showPage.keyboard.press("ArrowDown");
   await showPage.keyboard.press("Space");
 
-  await showPage.getByRole("button", { name: "Delet" }).nth(2).click();
+  await showPage
+    .getByRole("button", { name: "Delet", exact: true })
+    .nth(2)
+    .click();
   await showPage.getByRole("button", { name: "You sure boss?" }).click();
   await showPage.getByRole("dialog").waitFor({ state: "hidden" });
 
-  await showPage.getByRole("button", { name: "Delet" }).nth(1).click();
+  await showPage
+    .getByRole("button", { name: "Delet", exact: true })
+    .nth(1)
+    .click();
   await showPage.getByRole("button", { name: "You sure boss?" }).click();
   await showPage.getByRole("dialog").waitFor({ state: "hidden" });
 
-  await showPage.getByRole("button", { name: "Delet" }).click();
+  await showPage.getByRole("button", { name: "Delet", exact: true }).click();
   await showPage.getByRole("button", { name: "You sure boss?" }).click();
   await showPage.getByRole("dialog").waitFor({ state: "hidden" });
 
