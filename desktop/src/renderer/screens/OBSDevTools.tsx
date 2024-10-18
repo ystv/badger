@@ -1,13 +1,6 @@
 import { useCallback, useState } from "react";
 import { ipc } from "../ipc";
 import { Button } from "@badger/components/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@badger/components/select";
 
 export default function OBSDevToolsScreen() {
   const connState = ipc.obs.getConnectionState.useQuery();
@@ -31,20 +24,19 @@ export default function OBSDevToolsScreen() {
       <div className="space-y-2">
         <label className="block border-2 p-1">
           Request
-          <Select value={req} onValueChange={setReq}>
-            <SelectTrigger className="max-w-24">
-              <SelectValue placeholder="OBS Request" />
-            </SelectTrigger>
-            <SelectContent>
-              {connState.data?.availableRequests
-                ?.sort((a, b) => a.localeCompare(b))
-                ?.map((r) => (
-                  <SelectItem key={r} value={r}>
-                    {r}
-                  </SelectItem>
-                )) || null}
-            </SelectContent>
-          </Select>
+          <select
+            value={req}
+            onChange={(e) => setReq(e.target.value)}
+            className="border-2 border-black"
+          >
+            {connState.data?.availableRequests
+              ?.sort((a, b) => a.localeCompare(b))
+              ?.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              )) || null}
+          </select>
         </label>
         <label className="blockborder-2 p-1">
           Parameters (JSON)

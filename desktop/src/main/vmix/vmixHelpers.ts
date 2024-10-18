@@ -1,8 +1,11 @@
 import invariant from "../../common/invariant";
+import { getLogger } from "../base/logging";
 import { getLocalMedia } from "../media/mediaManagement";
 import { getVMixConnection } from "./vmix";
-import { InputType, ListInput, ListItem } from "./vmixTypes";
+import { InputType, ListInput, ListItem } from "@ystv/vmix";
 import type { Asset, Media } from "@badger/prisma/types";
+
+const logger = getLogger("vmixHelpers");
 
 export async function reconcileList(
   listName: string,
@@ -22,6 +25,12 @@ export async function reconcileList(
   } else {
     key = await conn.addInput("VideoList", "");
     await conn.renameInput(key, listName);
+    try {
+      await conn.setListAutoNext(key, false);
+    } catch (e) {
+      // Don't want to block the rest if this fails
+      logger.warn("Failed to set list auto next: " + String(e));
+    }
   }
   // TODO: Can we do this without removing and adding everything?
   //  Shortcuts unfortunately don't let us reorder, only add and remove.
@@ -49,6 +58,12 @@ export async function addSingleItemToList(listName: string, media: Media) {
   } else {
     key = await conn.addInput("VideoList", "");
     await conn.renameInput(key, listName);
+    try {
+      await conn.setListAutoNext(key, false);
+    } catch (e) {
+      // Don't want to block the rest if this fails
+      logger.warn("Failed to set list auto next: " + String(e));
+    }
   }
   await conn.addInputToList(key, local.path);
 }
@@ -119,6 +134,12 @@ export async function loadAssets(
     } else {
       listKey = await vmix.addInput("VideoList", "");
       await vmix.renameInput(listKey, category);
+      try {
+        await vmix.setListAutoNext(listKey, false);
+      } catch (e) {
+        // Don't want to block the rest if this fails
+        logger.warn("Failed to set list auto next: " + String(e));
+      }
     }
   }
 

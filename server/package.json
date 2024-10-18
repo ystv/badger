@@ -1,6 +1,6 @@
 {
   "name": "badger-server",
-  "version": "1.0.3-canary.8",
+  "version": "0.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -35,7 +35,7 @@
     "@trpc/server": "^10.34.0",
     "@types/async-lock": "^1.4.2",
     "@types/lodash": "^4.14.196",
-    "@types/node": "20.14.14",
+    "@types/node": "20.16.12",
     "@types/react": "^18.2.33",
     "@types/react-beforeunload": "^2.1.5",
     "@types/react-datepicker": "^4.15.0",

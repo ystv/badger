@@ -1,0 +1,240 @@
+name: Release Workflow
+
+on:
+  push:
+    tags:
+      - "*-rc*"
+
+permissions: write-all
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Determine version number
+        run: echo "VERSION=$(echo '${{ github.ref_name }}' | sed 's/-rc.*//')" >> $GITHUB_ENV
+      - name: Fail if that tag already exists
+        run: |
+          if git rev-parse $VERSION >/dev/null 2>&1; then
+            echo "Tag $VERSION already exists, please check the version number"
+            exit 1
+          fi
+
+  build:
+    needs: [preflight]
+    uses: ./.github/workflows/build_shared.yml
+    with:
+      ref: ${{ github.ref }}
+      tag: ${{ github.ref_name }}
+      strip_rc: true
+
+  test-e2e-server:
+    needs: [build]
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+      E2E_TEST: "true"
+      DATABASE_URL: postgres://root:postgres@localhost:5432/badger_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
+
+      - name: Set ref in docker-compose
+        run: sed -i "s/__RC_REF__/${{ github.ref_name }}/g" docker-compose-rc-test.yml
+
+      - name: Start services
+        run: docker compose -f docker-compose.yml -f docker-compose-rc-test.yml up -d
+
+      - run: yarn install --immutable --inline-builds
+
+      - uses: ./.github/steps/setup-playwright
+        with:
+          working-directory: ./server
+
+      - name: Migrate database
+        run: |
+          yarn prisma:migrateProd
+
+      - name: Retart services
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose-rc-test.yml restart server jobrunner
+
+      - name: Run Playwright tests
+        run: yarn ${{ runner.debug && 'test:e2e:debug' || 'test:e2e' }}
+        working-directory: ./server
+        env:
+          PLAYWRIGHT_HTML_REPORT: ${{ github.workspace }}/server/playwright-report
+
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: playwright-report-server
+          path: ./server/playwright-report/
+          retention-days: 30
+
+  test-desktop:
+    runs-on: windows-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
+      - name: Download Desktop build
+        uses: actions/download-artifact@v4
+        with:
+          name: badger-desktop-windows
+      - name: Install Badger
+        run: |
+          $version = "${{ github.ref_name }}" -replace "^v", "" -replace "-rc.*", ""
+          Start-Process -FilePath "Badger Desktop-$version.exe" -ArgumentList "/S","/D=${{ runner.temp }}\badger" -Wait
+        shell: pwsh
+      - run: yarn install --immutable --inline-builds
+      - name: Run tests
+        run: yarn test:e2e --project=standalone
+        working-directory: ./desktop
+        env:
+          TEST_APPLICATION_PATH: ${{ runner.temp }}\badger\Badger Desktop.exe
+
+  linear:
+    needs: [test-e2e-server, test-desktop]
+    runs-on: ubuntu-latest
+    outputs:
+      issue_id: ${{ steps.issue.outputs.issue_id }}
+    steps:
+      - name: Determine version number
+        run: echo "VERSION=$(echo '${{ github.ref_name }}' | sed 's/-rc.*//')" >> $GITHUB_ENV
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "20.x"
+      - run: npm install @linear/sdk
+      - name: Create Linear release ticket
+        id: issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { LinearClient } = require('@linear/sdk');
+            const lin = new LinearClient({
+              accessToken: "${{ secrets.LINEAR_ACCESS_TOKEN }}"
+            });
+            const issueCreate = await lin.createIssue({
+              teamId: "${{ vars.LINEAR_TEAM_ID }}",
+              templateId: "${{ vars.LINEAR_RELEASE_ISSUE_TEMPLATE_ID }}",
+              stateId: "${{ vars.LINEAR_TODO_STATE_ID }}",
+              title: `Release ${{ github.ref_name }}`,
+            });
+            if (!issueCreate.success) {
+              throw new Error(`Failed to create issue`);
+            }
+            const issue = await issueCreate.issue;
+
+            await lin.createComment({
+              issueId: issue.id,
+              body: `Artifacts:
+                Server Docker image: \`ghcr.io/ystv/badger/server:${{ github.ref_name }}\`    
+                Jobrunner Docker Image: \`ghcr.io/ystv/badger/jobrunner:${{ github.ref_name }}\`    
+                Desktop Windows installer: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+                Once testing is complete, please approve [this workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) to publish the release.
+              `.replace(/^\s*/gm, ''),
+            });
+
+            core.summary.addHeading('Linear issue');
+            core.summary.addLink(issue.identifier, issue.url);
+            core.setOutput('issue_id', issue.id);
+
+  release:
+    needs: [test-e2e-server, test-desktop, linear]
+    environment: release
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Determine version number
+        run: echo "VERSION=$(echo '${{ github.ref_name }}' | sed 's/-rc.*//')" >> $GITHUB_ENV
+      - name: Download Desktop build
+        uses: actions/download-artifact@v4
+        with:
+          pattern: badger-desktop-*
+          path: artifacts
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Re-tag and push Docker images
+        run: |
+          for img in server jobrunner; do
+            docker pull ghcr.io/ystv/badger/$img:${{ github.ref_name }}
+            docker tag ghcr.io/ystv/badger/$img:${{ github.ref_name }} ghcr.io/ystv/badger/$img:$VERSION
+            docker push ghcr.io/ystv/badger/$img:$VERSION
+            docker tag ghcr.io/ystv/badger/$img:${{ github.ref_name }} ghcr.io/ystv/badger/$img:latest
+            docker push ghcr.io/ystv/badger/$img:latest
+          done
+        shell: bash
+      - name: Create GitHub release
+        uses: actions/github-script@v7
+        id: release
+        with:
+          github-token: ${{ secrets.GH_RELEASE_PAT }}
+          script: |
+            const release = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              target_commitish: context.sha,
+              tag_name: process.env.VERSION,
+              name: process.env.VERSION,
+              draft: true,
+              generate_release_notes: true,
+              prerelease: false,
+              body: [
+                '## Docker images',
+                `- Server: \`ghcr.io/ystv/badger/server:${process.env.VERSION}\``,
+                `- Jobrunner: \`ghcr.io/ystv/badger/jobrunner:${process.env.VERSION}\``,
+                ''
+              ].join('\n'),
+            });
+            core.setOutput('id', release.data.id)
+            core.setOutput('tag_name', release.data.tag_name)
+      - name: Upload artifacts
+        run: |
+          find artifacts -type f -not -name '*.yml' -not -name '*.yaml' -print0 | xargs -0 -I{} gh release -R ystv/badger upload --clobber ${{ steps.release.outputs.tag_name }} '{}'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_RELEASE_PAT }}
+      - name: Publish release
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.repos.updateRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: "${{ steps.release.outputs.id }}",
+              draft: false
+            })
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "20.x"
+      - run: npm install @linear/sdk
+      - name: Close Linear issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { LinearClient } = require('@linear/sdk');
+            const lin = new LinearClient({
+              accessToken: "${{ secrets.LINEAR_ACCESS_TOKEN }}"
+            });
+            await lin.updateIssue("${{ needs.linear.outputs.issue_id }}", {
+              stateId: "${{ vars.LINEAR_DONE_STATE_ID }}",
+            });

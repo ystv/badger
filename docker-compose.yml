@@ -11,13 +11,13 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "root"]
+      test: ["CMD", "pg_isready", "-U", "root", "-d", "badger_test"]
       interval: 5s
       timeout: 5s
       retries: 5
 
   minio:
-    image: quay.io/minio/minio:latest
+    image: quay.io/minio/minio:RELEASE.2023-09-20T22-49-55Z
     ports:
       - "9000:9000"
       - "9090:9090"
@@ -29,7 +29,7 @@ services:
     command: ["server", "/data", "--console-address", ":9090"]
 
   minio_init:
-    image: quay.io/minio/minio:latest
+    image: quay.io/minio/minio:RELEASE.2023-09-20T22-49-55Z
     depends_on:
       - minio
     entrypoint: |
@@ -42,7 +42,7 @@ services:
       "
 
   tusd:
-    image: tusproject/tusd:latest
+    image: tusproject/tusd:sha-b4ffdf4
     depends_on:
       - minio
     ports:

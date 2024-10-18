@@ -189,7 +189,9 @@ const RundownRow = forwardRef<
       </TableCell>
       <TableCell>
         <Button size="small" asChild>
-          <Link href={`/shows/${item.showId}/rundown/${item.id}`}>Edit</Link>
+          <Link href={`/shows/${item.showId}/rundown/${item.id}`}>
+            Edit <span className="sr-only">Rundown</span>
+          </Link>
         </Button>
       </TableCell>
       <TableCell>
@@ -258,7 +260,9 @@ const ContinuityItemRow = forwardRef<
       <TableCell>
         <Popover open={isEditing} onOpenChange={setIsEditing}>
           <PopoverTrigger asChild>
-            <Button color="primary">Edit</Button>
+            <Button color="primary">
+              Edit <span className="sr-only">Continuity Item</span>
+            </Button>
           </PopoverTrigger>
           <PopoverContent>
             <Form

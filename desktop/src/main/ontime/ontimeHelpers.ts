@@ -45,6 +45,7 @@ export function showToOntimeEvents(show: CompleteShowType, rundownId?: number) {
         { _type: "continuity" } & CompleteContinuityItemModel
       >(set("_type", "continuity")),
     ].sort((a, b) => a.order - b.order);
+    let i = 1;
     for (const container of contents) {
       if (container._type === "rundown") {
         events.push({
@@ -59,6 +60,7 @@ export function showToOntimeEvents(show: CompleteShowType, rundownId?: number) {
             timeStart: dateToTimeMs(startTime),
             duration: item.durationSeconds * 1000,
             timeEnd: dateToTimeMs(startTime) + item.durationSeconds * 1000,
+            cue: i++,
           } as OntimeBaseEvent & Partial<OntimeEvent>);
           startTime = new Date(
             startTime.getTime() + item.durationSeconds * 1000,
@@ -76,6 +78,7 @@ export function showToOntimeEvents(show: CompleteShowType, rundownId?: number) {
           timeStart: dateToTimeMs(startTime),
           duration: container.durationSeconds * 1000,
           timeEnd: dateToTimeMs(startTime) + container.durationSeconds * 1000,
+          cue: i++,
         } as OntimeBaseEvent & Partial<OntimeEvent>);
         startTime = new Date(
           startTime.getTime() + container.durationSeconds * 1000,

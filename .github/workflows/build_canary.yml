@@ -1,0 +1,16 @@
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/build_shared.yml
+    with:
+      ref: ${{ github.ref }}
+      tag: v0.0.0-${{ github.sha }}
+      strip_rc: true
+      push_docker: false

@@ -1,7 +1,12 @@
-import { expect } from "@playwright/test";
 import { readFileSync } from "fs";
 import * as path from "node:path";
-import { test, fileToDataTransfer, createShow, createMedia } from "./lib";
+import {
+  test,
+  expect,
+  fileToDataTransfer,
+  createShow,
+  createMedia,
+} from "./lib";
 
 test("add, reorder, remove items", async ({ showPage }) => {
   await expect
@@ -29,15 +34,21 @@ test("add, reorder, remove items", async ({ showPage }) => {
   await showPage.keyboard.press("ArrowDown");
   await showPage.keyboard.press("Space");
 
-  await showPage.getByRole("button", { name: "Delet" }).nth(2).click();
+  await showPage
+    .getByRole("button", { name: "Delet", exact: true })
+    .nth(2)
+    .click();
   await showPage.getByRole("button", { name: "You sure boss?" }).click();
   await showPage.getByRole("dialog").waitFor({ state: "hidden" });
 
-  await showPage.getByRole("button", { name: "Delet" }).nth(1).click();
+  await showPage
+    .getByRole("button", { name: "Delet", exact: true })
+    .nth(1)
+    .click();
   await showPage.getByRole("button", { name: "You sure boss?" }).click();
   await showPage.getByRole("dialog").waitFor({ state: "hidden" });
 
-  await showPage.getByRole("button", { name: "Delet" }).click();
+  await showPage.getByRole("button", { name: "Delet", exact: true }).click();
   await showPage.getByRole("button", { name: "You sure boss?" }).click();
   await showPage.getByRole("dialog").waitFor({ state: "hidden" });
 
@@ -62,7 +73,7 @@ test("add rundown items + check runtime", async ({ showPage }) => {
   await showPage.getByTestId("create-rundown").click();
   await showPage.locator("body").press("Escape");
 
-  await showPage.getByRole("row").nth(1).getByText("Edit").click();
+  await showPage.getByRole("row").nth(1).getByText("Edit Rundown").click();
 
   await showPage.waitForLoadState("domcontentloaded");
 
@@ -211,7 +222,7 @@ test("media/assets for long rundowns", async ({ showPage }) => {
   await expect(showPage.getByLabel("Name")).toHaveValue("");
   await showPage.locator("body").press("Escape");
 
-  await showPage.getByRole("link", { name: "Edit" }).click();
+  await showPage.getByRole("link", { name: "Edit Rundown" }).click();
   await showPage.waitForURL("**/shows/*/rundown/*");
 
   await showPage.getByRole("button", { name: "Add Segment" }).click();
@@ -286,7 +297,7 @@ test("asset upload failure (BDGR-54)", async ({ showPage }) => {
   await expect(showPage.getByLabel("Name")).toHaveValue("");
   await showPage.locator("body").press("Escape");
 
-  await showPage.getByRole("link", { name: "Edit" }).click();
+  await showPage.getByRole("link", { name: "Edit Rundown" }).click();
   await showPage.waitForURL("**/shows/*/rundown/*");
 
   await showPage.getByRole("button", { name: "New Category" }).click();

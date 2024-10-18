@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
 import { editContinuityItemSchema } from "./schema";
 import { FormResponse } from "@/components/Form";
@@ -21,6 +21,7 @@ import type {
   MediaMetaUploadValue,
 } from "@/components/Metadata";
 import { getPublicTusEndpoint, uploadUrlToPath } from "@/lib/tus";
+import { requirePermission } from "@/lib/auth";
 
 export async function revalidateIfChanged(showID: number, version: number) {
   const show = await db.show.findUnique({
@@ -37,6 +38,17 @@ export async function revalidateIfChanged(showID: number, version: number) {
   if (show.version !== version) {
     revalidatePath(`/shows/${showID}`);
   }
+}
+
+export async function deletShow(showID: number) {
+  await requirePermission("ManageShows");
+  await db.show.delete({
+    where: {
+      id: showID,
+    },
+  });
+  revalidatePath("/");
+  redirect("/");
 }
 
 export async function addItem(

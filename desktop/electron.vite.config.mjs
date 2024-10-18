@@ -122,7 +122,7 @@ const config = {
           }),
       ].filter(Boolean),
       resolve: {
-        conditions: ["node"],
+        conditions: ["node", "badger-internal"],
         browserField: false,
       },
       build: {

@@ -1,7 +1,7 @@
 {
   "name": "badger-desktop",
   "productName": "Badger Desktop",
-  "version": "1.0.3-canary.8",
+  "version": "0.0.0",
   "description": "My Electron application description",
   "main": "./out/main/index.js",
   "scripts": {
@@ -45,6 +45,7 @@
     "@types/react-dom": "^18.2.14",
     "@types/uuid": "^9.0.2",
     "@types/which": "^3.0.0",
+    "@ystv/vmix": "workspace:*",
     "badger-server": "workspace:*",
     "bufferutil": "^4.0.7",
     "classnames": "^2.3.2",
@@ -88,7 +89,7 @@
     "@typescript-eslint/parser": "^7.0.0",
     "@vitest/coverage-v8": "^2.0.0",
     "autoprefixer": "^10.4.14",
-    "electron": "31.3.1",
+    "electron": "31.4.0",
     "electron-builder": "^24.13.3",
     "electron-builder-squirrel-windows": "^25.0.0-alpha.7",
     "electron-vite": "^2.2.0",

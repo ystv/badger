@@ -1,7 +1,7 @@
 {
   "name": "badger-jobrunner",
-  "version": "1.0.3-canary.8",
-  "packageManager": "yarn@4.3.1",
+  "version": "0.0.0",
+  "packageManager": "yarn@4.4.1",
   "type": "commonjs",
   "scripts": {
     "dev": "tsx watch --clear-screen=false src/index.ts",
@@ -10,7 +10,7 @@
     "build": "node esbuild.config.mjs",
     "lint": "eslint src/**/*.ts",
     "test": "vitest run",
-    "test:integration": "TEST_INTEGRATION=true vitest run --config ./vitest.config-integration.mts"
+    "test:integration": "TEST_INTEGRATION=true vitest run --config ./vitest.config-integration.mts --no-file-parallelism --silent=false"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.474.0",

@@ -115,7 +115,7 @@ export default defineConfig({
       command: process.env.CI ? "node server/server.js" : "yarn dev",
       cwd: process.env.CI ? ".next/standalone" : undefined,
       url: "http://localhost:3000/api/healthz",
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: true,
       stdout: "pipe",
       stderr: "pipe",
       env: {
@@ -131,7 +131,7 @@ export default defineConfig({
       cwd: "../jobrunner",
       port: 28342,
       env: serverEnv.parsed!,
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: true,
       stdout: "pipe",
       stderr: "pipe",
     },

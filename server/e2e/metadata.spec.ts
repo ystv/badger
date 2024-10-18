@@ -1,5 +1,10 @@
-import { expect } from "@playwright/test";
-import { test, getAPIClient, fileToDataTransfer, createShow } from "./lib";
+import {
+  test,
+  expect,
+  getAPIClient,
+  fileToDataTransfer,
+  createShow,
+} from "./lib";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 

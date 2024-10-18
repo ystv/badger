@@ -56,7 +56,7 @@ export class LoadAssetJob extends MediaJobCommon {
       const path = await this._downloadSourceFile(params);
       const res = await this._uploadFileToS3(
         path,
-        `shows/${asset.rundown.showId}/rundown/${asset.rundown.id}/assets/${asset.id} - ${asset.name}`,
+        `media/${asset.mediaId}/asset/${asset.id} - ${asset.name}`,
       );
       await this.db.asset.update({
         where: {
@@ -83,6 +83,7 @@ export class LoadAssetJob extends MediaJobCommon {
           },
         },
       });
+      await this._cleanupSourceFile(params);
     } catch (e) {
       await this.db.asset.update({
         where: {

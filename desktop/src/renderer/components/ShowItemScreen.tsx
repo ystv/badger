@@ -14,7 +14,7 @@ import { useCallback, useMemo, useState } from "react";
 import { expectNever } from "ts-expect";
 import { VMIX_NAMES } from "../../common/constants";
 import { ItemLoadingSettings } from "../../main/base/settings";
-import { ListInput } from "../../main/vmix/vmixTypes";
+import { ListInput } from "@ystv/vmix";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import Button from "@badger/components/button";
