@@ -1,19 +1,18 @@
-import { beforeEach, describe, test, jest, expect } from "@jest/globals";
+import { beforeEach, describe, test, vi, expect } from "vitest";
 import { EventEmitter } from "node:events";
 import * as fs from "node:fs/promises";
 import * as path from "path";
 import VMixConnection from "./vmix";
-import { VMixState } from "./vmixState";
 
 class MockSocket extends EventEmitter {
-  write = jest.fn(
-    (payload: unknown, encoding: string, cb: (err?: Error) => void) =>
+  write = vi.fn(
+    (_payload: unknown, _encoding: string, cb: (err?: Error) => void) =>
       cb(undefined),
   );
-  setEncoding = jest.fn();
+  setEncoding = vi.fn();
 }
 
-jest.mock("node:net", () => ({
+vi.mock("net", () => ({
   connect: () => {
     const sock = new MockSocket();
     process.nextTick(() => {
@@ -29,7 +28,6 @@ describe("VMixConnection", () => {
   let vmix: VMixConnection;
   let sock: MockSocket;
   beforeEach(async () => {
-    debugger;
     vmix = await VMixConnection.connect();
     sock = vmix["sock"] as unknown as MockSocket;
   });
@@ -114,15 +112,13 @@ describe("VMixConnection", () => {
       path.join(__dirname, "__testdata__", "vmix.xml"),
       { encoding: "utf-8" },
     );
-    const res = vmix.getFullStateRaw();
+    const res = vmix.getFullState();
     expect(sock.write).toHaveBeenCalledWith(
       "XML\r\n",
       "utf-8",
       expect.any(Function),
     );
     sock.emit("data", `XML ${testXML.length}\r\n${testXML}`);
-    const raw = await res;
-    expect(VMixState.fromXML(raw).raw).toMatchSnapshot();
-    expect(VMixState.fromXML(raw).state).toMatchSnapshot();
+    expect(res).resolves.toMatchSnapshot();
   });
 });

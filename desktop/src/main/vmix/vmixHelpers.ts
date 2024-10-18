@@ -2,7 +2,7 @@ import invariant from "../../common/invariant";
 import { getLogger } from "../base/logging";
 import { getLocalMedia } from "../media/mediaManagement";
 import { getVMixConnection } from "./vmix";
-import { InputType, ListInput, ListItem } from "@ystv/vmix";
+import { InputType, ListInput, ListItem } from "./vmixTypes";
 import type { Asset, Media } from "@badger/prisma/types";
 
 const logger = getLogger("vmixHelpers");

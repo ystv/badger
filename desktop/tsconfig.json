@@ -6,8 +6,6 @@
     "downlevelIteration": true,
     "paths": {
       "@/*": ["../server/*"]
-    },
-    // https://colinhacks.com/essays/live-types-typescript-monorepo
-    "customConditions": ["badger-internal"]
+    }
   }
 }
