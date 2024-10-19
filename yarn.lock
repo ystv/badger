@@ -8590,7 +8590,7 @@ __metadata:
     classnames: "npm:^2.3.2"
     client-only: "npm:^0.0.1"
     date-fns: "npm:^2.30.0"
-    electron: "npm:31.4.0"
+    electron: "npm:31.7.1"
     electron-builder: "npm:^24.13.3"
     electron-builder-squirrel-windows: "npm:^25.0.0-alpha.7"
     electron-log: "npm:^4.4.8"
@@ -10624,16 +10624,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron@npm:31.4.0":
-  version: 31.4.0
-  resolution: "electron@npm:31.4.0"
+"electron@npm:31.7.1":
+  version: 31.7.1
+  resolution: "electron@npm:31.7.1"
   dependencies:
     "@electron/get": "npm:^2.0.0"
     "@types/node": "npm:^20.9.0"
     extract-zip: "npm:^2.0.1"
   bin:
     electron: cli.js
-  checksum: 10/445bf8b04f0f8fcc16da4832634507c01bbdd6733ef8236e2216f8f4667d070115d41b7bd28f73ca91f819a720a629e1cbea08b079fa7bde424fd24b6aef4499
+  checksum: 10/b9b045853d735c3eb9764ca656248ba7701744d71c069ca9637f0da81d529f54b4f0cf648aff8bf80125d746b3ecc719d32b237c3f24a0513131b3f648f4368b
   languageName: node
   linkType: hard
 
