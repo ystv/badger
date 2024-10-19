@@ -22,8 +22,8 @@
   "scripts": {
     "lint": "yarn workspaces foreach -Atp --exclude badger-root-workspace run lint",
     "prettify": "yarn workspaces foreach -Atp --exclude badger-root-workspace run prettify",
-    "test": "yarn workspaces foreach -Atp --exclude badger-root-workspace run test --coverage",
-    "test:integration": "yarn workspaces foreach -At --exclude badger-root-workspace run test:integration --coverage",
+    "test": "yarn workspaces foreach -Atp --exclude badger-root-workspace run test",
+    "test:integration": "yarn workspaces foreach -At --exclude badger-root-workspace run test:integration",
     "typecheck": "yarn workspaces foreach -Atp --include 'badger-{desktop,jobrunner,server}' run tsc --noEmit",
     "prepare": "husky"
   },
