@@ -1,56 +1,24 @@
-import { CreateTRPCClientOptions, createTRPCProxyClient } from "@trpc/client";
+import {
+  CreateTRPCClientOptions,
+  createTRPCProxyClient,
+  loggerLink,
+} from "@trpc/client";
 import { ipcLink } from "electron-trpc/renderer";
 import { createTRPCReact } from "@trpc/react-query";
-import type { AppRouter } from "../main/ipcApi";
+import type { AppRouter } from "../main/coreIPC";
 import { Events } from "../common/ipcEvents";
 import { QueryKey, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import logging from "loglevel";
-import { observable } from "@trpc/server/observable";
+import SuperJSON from "superjson";
 
 const logger = logging.getLogger("serverIPC");
 
 export const ipc = createTRPCReact<AppRouter>();
 
 const clientConfig: CreateTRPCClientOptions<AppRouter> = {
-  links: [
-    (_) =>
-      ({ op, next }) => {
-        // We need to be exceedingly careful here to not cause an infinite loop
-        if (op.path === "log") {
-          return next(op);
-        }
-        return observable((observer) => {
-          ipcProxy.log.mutate({
-            level: "trace",
-            message: `<-- ${op.type} ${op.path}`,
-          });
-          const unsubscribe = next(op).subscribe({
-            next: (res) => {
-              ipcProxy.log.mutate({
-                level: "trace",
-                message: `--> ${op.type} ${op.path} data ${JSON.stringify(
-                  res,
-                )}`,
-              });
-              observer.next(res);
-            },
-            error: (err) => {
-              ipcProxy.log.mutate({
-                level: "error",
-                message: `--> ${op.type} ${op.path} ${err}`,
-              });
-              observer.error(err);
-            },
-            complete: () => {
-              observer.complete();
-            },
-          });
-          return unsubscribe;
-        });
-      },
-    ipcLink(),
-  ],
+  links: [loggerLink({ logger: logger.info }), ipcLink()],
+  transformer: SuperJSON,
 };
 
 const ipcProxy = createTRPCProxyClient<AppRouter>(clientConfig);
@@ -61,7 +29,7 @@ const oldFactory = logging.methodFactory;
 logging.methodFactory = function (levelName, level, logger) {
   return function (message) {
     oldFactory(levelName, level, logger)(message);
-    ipcProxy.log.mutate({
+    ipcProxy.core.log.mutate({
       level: levelName,
       logger: typeof logger === "symbol" ? String(logger) : logger,
       message,
@@ -72,19 +40,19 @@ logging.methodFactory = function (levelName, level, logger) {
 const { log, info, warn, error } = console;
 window.console.log = (...args: unknown[]) => {
   log(...args);
-  ipcProxy.log.mutate({ level: "debug", message: args.join(" ") });
+  ipcProxy.core.log.mutate({ level: "debug", message: args.join(" ") });
 };
 window.console.info = (...args: unknown[]) => {
   info(...args);
-  ipcProxy.log.mutate({ level: "info", message: args.join(" ") });
+  ipcProxy.core.log.mutate({ level: "info", message: args.join(" ") });
 };
 window.console.warn = (...args: unknown[]) => {
   warn(...args);
-  ipcProxy.log.mutate({ level: "warn", message: args.join(" ") });
+  ipcProxy.core.log.mutate({ level: "warn", message: args.join(" ") });
 };
 window.console.error = (...args: unknown[]) => {
   error(...args);
-  ipcProxy.log.mutate({ level: "error", message: args.join(" ") });
+  ipcProxy.core.log.mutate({ level: "error", message: args.join(" ") });
 };
 
 // eslint-disable-next-line no-console

@@ -26,8 +26,6 @@ import {
   IoDownloadSharp,
 } from "react-icons/io5";
 import { Suspense, useMemo, useState } from "react";
-import OBSScreen from "./screens/OBS";
-import VMixScreen from "./screens/vMix";
 import { Settings } from "./screens/Settings";
 import { SelectShowForm } from "./ConnectAndSelectShowGate";
 import {
@@ -38,6 +36,7 @@ import {
 } from "@badger/components/table";
 import { OntimePush } from "./screens/Ontime";
 import { getQueryKey } from "@trpc/react-query";
+import { ShowItemsScreen } from "./components/ShowItemScreen";
 
 function DownloadTrackerPopup() {
   const downloadStatus = ipc.media.getDownloadStatus.useQuery(void 0, {
@@ -87,23 +86,28 @@ function DownloadTrackerPopup() {
 }
 
 export default function MainScreen() {
-  const { data: show } = ipc.getSelectedShow.useQuery();
+  const { data: show } = ipc.shows.getSelectedShow.useQuery();
   invariant(show, "no selected show"); // this is safe because MainScreen is rendered inside a ConnectAndSelectShowGate
-  const [integrations] = ipc.supportedIntegrations.useSuspenseQuery();
+  const [integrations] = ipc.core.supportedIntegrations.useSuspenseQuery();
 
   const downloadAll = ipc.media.downloadAllMediaForSelectedShow.useMutation();
 
   const [isChangeShowOpen, setIsChangeShowOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const [selectedRundown, setSelectedRundown] = useState<"continuity" | number>(
-    integrations.includes("obs") ? "continuity" : show.rundowns[0].id,
+  const [selectedRundownId, setSelectedRundownId] = useState<
+    "continuity" | number
+  >(integrations.includes("obs") ? "continuity" : show.rundowns[0].id);
+  const selectedRundown =
+    selectedRundownId === "continuity"
+      ? "continuity"
+      : show.rundowns.find((rd) => rd.id === selectedRundownId)!;
+  invariant(
+    selectedRundown,
+    `selected non-existent rundown ${selectedRundownId}`,
   );
   const selectedName =
-    selectedRundown === "continuity"
-      ? "Continuity"
-      : show.rundowns.find((rd) => rd.id === selectedRundown)?.name;
-  invariant(selectedName, "selected non-existent rundown");
+    selectedRundown === "continuity" ? "Continuity" : selectedRundown.name;
 
   const ontimeState = ipc.ontime.getConnectionStatus.useQuery();
   const [ontimePushOpen, setOntimePushOpen] = useState(false);
@@ -168,7 +172,7 @@ export default function MainScreen() {
           <DropdownMenuContent>
             {integrations.includes("obs") ? (
               <DropdownMenuItem
-                onClick={() => setSelectedRundown("continuity")}
+                onClick={() => setSelectedRundownId("continuity")}
               >
                 Continuity
               </DropdownMenuItem>
@@ -181,7 +185,7 @@ export default function MainScreen() {
                 .map((rd) => (
                   <DropdownMenuItem
                     key={rd.id}
-                    onClick={() => setSelectedRundown(rd.id)}
+                    onClick={() => setSelectedRundownId(rd.id)}
                   >
                     {rd.name}
                   </DropdownMenuItem>
@@ -193,13 +197,12 @@ export default function MainScreen() {
         </DropdownMenu>
       </nav>
       <div className="relative mb-12 px-2 max-h-[100vh] overflow-y-scroll">
-        {selectedRundown === "continuity" ? (
-          <OBSScreen />
-        ) : (
-          <VMixScreen
-            rundown={show.rundowns.find((rd) => rd.id === selectedRundown)!}
-          />
-        )}
+        <ShowItemsScreen
+          activeRundown={
+            selectedRundown === "continuity" ? null : selectedRundown
+          }
+          continuityItems={show.continuityItems}
+        />
       </div>
       <OntimePush
         show={show}

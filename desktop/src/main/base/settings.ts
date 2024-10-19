@@ -76,6 +76,7 @@ const OBSSettingsSchema = z.object({
   port: z.number(),
   password: z.string(),
 });
+export type OBSSettings = z.infer<typeof OBSSettingsSchema>;
 
 export async function getOBSSettings(): Promise<z.infer<
   typeof OBSSettingsSchema
@@ -175,4 +176,25 @@ export async function saveDownloadsSettings(
   val: DownloadsSettings,
 ): Promise<void> {
   await settings.set("downloads", val);
+}
+
+export const itemLoadingSettingsSchema = z.object({
+  rundownItems: z.enum(["obs", "vmix"]).default("vmix"),
+  continuityItems: z.enum(["obs", "vmix"]).default("obs"),
+  assets: z.enum(["obs", "vmix"]).default("vmix"),
+});
+export type ItemLoadingSettings = z.infer<typeof itemLoadingSettingsSchema>;
+
+export async function getItemLoadingSettings(): Promise<ItemLoadingSettings> {
+  const settingsData = await settings.get("itemLoading");
+  if (settingsData === undefined) {
+    return itemLoadingSettingsSchema.parse({});
+  }
+  return itemLoadingSettingsSchema.parse(settingsData);
+}
+
+export async function saveItemLoadingSettings(
+  val: ItemLoadingSettings,
+): Promise<void> {
+  await settings.set("itemLoading", val);
 }

@@ -1,21 +1,17 @@
 import { z } from "zod";
 import { proc, r } from "../base/ipcRouter";
 import { createVMixConnection, getVMixConnection } from "./vmix";
-import { getLogger } from "../base/logging";
 import invariant from "../../common/invariant";
-import { serverAPI } from "../base/serverApiClient";
-import { PartialMediaModel } from "@badger/prisma/utilityTypes";
 import { TRPCError } from "@trpc/server";
 import {
   addSingleItemToList,
-  isListPlaying,
-  loadAssets,
+  loadSingleMedia,
   reconcileList,
 } from "./vmixHelpers";
 import { VMIX_NAMES } from "../../common/constants";
 import { getLocalMedia } from "../media/mediaManagement";
-
-const logger = getLogger("vmix/ipc");
+import { selectedShow } from "../base/selectedShow";
+import { Asset, Media } from "@badger/prisma/types";
 
 export const vmixRouter = r({
   getConnectionState: proc
@@ -26,6 +22,12 @@ export const vmixRouter = r({
         port: z.number().optional(),
         version: z.string().optional(),
         edition: z.string().optional(),
+        loadRundownItems: z.boolean().optional(),
+        loadContinuityItems: z
+          .union([z.enum(["list", "loose"]), z.literal(false)])
+          .optional()
+          .default(false),
+        loadAssets: z.boolean().optional(),
       }),
     )
     .query(async () => {
@@ -35,7 +37,6 @@ export const vmixRouter = r({
         return { connected: false };
       }
       const state = await conn.getFullState();
-      logger.debug("VMix state", state);
       return {
         connected: true,
         host: conn.host,
@@ -72,101 +73,167 @@ export const vmixRouter = r({
     invariant(conn, "No vMix connection");
     return conn.getFullState();
   }),
-  loadRundownVTs: proc
+  loadSingleItem: proc
     .input(
       z.object({
-        rundownID: z.number(),
-        force: z.boolean().default(false),
+        type: z.enum(["rundownItem", "continuityItem", "asset"]),
+        id: z.number(),
+        rundownId: z.number().optional(),
+        mode: z.enum(["list", "loose"]),
       }),
     )
     .mutation(async ({ input }) => {
-      if (!input.force) {
-        const isPlaying = await isListPlaying(VMIX_NAMES.VTS_LIST);
-        if (isPlaying) {
-          return {
-            ok: false,
-            reason: "alreadyPlaying",
-          };
+      const show = selectedShow.value;
+      invariant(show, "No show selected");
+      let media: Media | null;
+      let asset: (Asset & { media: Media }) | undefined;
+      switch (input.type) {
+        case "rundownItem": {
+          invariant(input.rundownId, "Rundown ID required");
+          const rundown = show.rundowns.find((x) => x.id === input.rundownId);
+          invariant(rundown, `Rundown ${input.rundownId} not found`);
+          const item = rundown.items.find((x) => x.id === input.id);
+          invariant(item, `Item ${input.id} not found`);
+          media = item.media;
+          break;
+        }
+        case "asset": {
+          invariant(input.rundownId, "Rundown ID required");
+          const rundown = show.rundowns.find((x) => x.id === input.rundownId);
+          invariant(rundown, `Rundown ${input.rundownId} not found`);
+          asset = rundown.assets.find((x) => x.id === input.id);
+          invariant(asset, `Asset ${input.id} not found`);
+          media = asset.media;
+          break;
+        }
+        case "continuityItem": {
+          const item = show.continuityItems.find((x) => x.id === input.id);
+          invariant(item, `Continuity item ${input.id} not found`);
+          media = item.media;
+          break;
         }
       }
-
-      const rundown = await serverAPI().rundowns.get.query({
-        id: input.rundownID,
-      });
-      invariant(rundown, "Rundown not found");
-      const media = rundown.items
-        .sort((a, b) => a.order - b.order)
-        .map<z.infer<typeof PartialMediaModel> | null>((i) => i.media)
-        .filter((x) => x && x.state === "Ready");
-      const localMedia = getLocalMedia();
-      const paths = media.map(
-        (remote) =>
-          localMedia.find((local) => local.mediaID === remote?.id)?.path,
-      );
-      if (paths.some((x) => !x)) {
-        throw new TRPCError({
-          code: "PRECONDITION_FAILED",
-          message: "Not all media is downloaded locally",
-        });
-      }
-      await reconcileList(VMIX_NAMES.VTS_LIST, paths as string[]);
-      return {
-        ok: true,
-      };
-    }),
-  loadSingleRundownVT: proc
-    .input(
-      z.object({
-        rundownId: z.number(),
-        itemId: z.number(),
-      }),
-    )
-    .mutation(async ({ input }) => {
-      const rundown = await serverAPI().rundowns.get.query({
-        id: input.rundownId,
-      });
-      invariant(rundown, "Rundown not found");
-      const item = rundown.items.find((x) => x.id === input.itemId);
-      invariant(item, "Item not found");
-      if (!item.media || item.media.state !== "Ready") {
+      if (!media || media.state !== "Ready") {
         throw new TRPCError({
           code: "PRECONDITION_FAILED",
           message: "Media not ready",
         });
       }
-      const localMedia = getLocalMedia();
-      const path = localMedia.find((x) => x.mediaID === item.media!.id)?.path;
-      invariant(path, "Local path not found for media " + item.media!.id);
-      await addSingleItemToList(VMIX_NAMES.VTS_LIST, path);
+      const locals = getLocalMedia();
+      const local = locals.find((x) => x.mediaID === media.id);
+      if (!local) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Media not downloaded locally",
+        });
+      }
+
+      switch (input.mode) {
+        case "list": {
+          let list;
+          switch (input.type) {
+            case "rundownItem":
+              list = VMIX_NAMES.VTS_LIST;
+              break;
+            case "asset":
+              invariant(asset, "Asset not found");
+              list = asset.category;
+              break;
+            case "continuityItem":
+              list = VMIX_NAMES.CONTINUITY_LIST;
+              break;
+          }
+          await addSingleItemToList(list, media);
+          break;
+        }
+        case "loose":
+          await loadSingleMedia(media, media.name);
+          break;
+      }
     }),
-  loadAssets: proc
+  bulkLoad: proc
     .input(
-      z.union([
+      z.object({
+        source: z.discriminatedUnion("type", [
+          z.object({ type: z.literal("rundownItems"), rundownID: z.number() }),
+          z.object({
+            type: z.literal("rundownAssets"),
+            rundownID: z.number(),
+            category: z.string(),
+          }),
+          z.object({ type: z.literal("continuityItems") }),
+        ]),
+        mode: z.enum(["list", "loose"]),
+        force: z.boolean().default(false),
+      }),
+    )
+    .output(
+      z.discriminatedUnion("ok", [
         z.object({
-          rundownID: z.number(),
-          assetID: z.number(),
+          ok: z.literal(true),
         }),
         z.object({
-          rundownID: z.number(),
-          category: z.string(),
-          loadType: z.enum(["direct", "list"]),
+          ok: z.literal(false),
+          reason: z.enum(["playing"]),
         }),
       ]),
     )
     .mutation(async ({ input }) => {
-      const rundown = await serverAPI().rundowns.get.query({
-        id: input.rundownID,
-      });
-      invariant(rundown, "Rundown not found");
-      if ("category" in input) {
-        const assets = rundown.assets.filter(
-          (x) => x.category === input.category,
-        );
-        await loadAssets(assets, input.loadType, input.category);
-      } else {
-        const asset = rundown.assets.find((x) => x.id === input.assetID);
-        invariant(asset, "Asset not found");
-        await loadAssets([asset], "direct", asset.category);
+      const show = selectedShow.value;
+      invariant(show, "No show selected");
+      let sources: Array<{ media: Media | null; name: string }>;
+      let listName;
+      const source = input.source;
+      switch (source.type) {
+        case "rundownItems": {
+          invariant(source.rundownID, "Rundown ID required");
+          const rundown = show.rundowns.find((x) => x.id === source.rundownID);
+          invariant(rundown, `Rundown ${source.rundownID} not found`);
+          sources = rundown.items.sort((a, b) => a.order - b.order);
+          listName = VMIX_NAMES.VTS_LIST;
+          break;
+        }
+        case "rundownAssets": {
+          invariant(source.rundownID, "Rundown ID required");
+          const rundown = show.rundowns.find((x) => x.id === source.rundownID);
+          invariant(rundown, `Rundown ${source.rundownID} not found`);
+          sources = rundown.assets.filter(
+            (x) => x.category === source.category,
+          );
+          listName = source.category;
+          break;
+        }
+        case "continuityItems": {
+          sources = show.continuityItems;
+          listName = VMIX_NAMES.CONTINUITY_LIST;
+          break;
+        }
+        default:
+          invariant(false, "Unknown source type");
+      }
+      if (sources.some((x) => !x.media || x.media.state !== "Ready")) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Not all media is ready",
+        });
+      }
+      const locals = getLocalMedia();
+      switch (input.mode) {
+        case "list": {
+          const paths = sources.map((source) => {
+            const local = locals.find((x) => x.mediaID === source.media!.id);
+            invariant(local, "No local media for asset");
+            return local.path;
+          });
+          return await reconcileList(listName, paths, input.force);
+        }
+        case "loose":
+          for (const item of sources) {
+            await loadSingleMedia(item.media!, item.name);
+          }
+          return { ok: true };
+        default:
+          invariant(false, "Invalid mode");
       }
     }),
 });

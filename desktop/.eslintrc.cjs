@@ -50,8 +50,8 @@ module.exports = {
           },
           {
             group: [`@badger/prisma/client`],
-            message: "Use @badger/prisma/types instead"
-          }
+            message: "Use @badger/prisma/types instead",
+          },
         ],
       },
     ],
