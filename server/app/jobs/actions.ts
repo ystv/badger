@@ -2,7 +2,7 @@
 
 import { requirePermission } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { dispatchJobForJobrunner } from "@/lib/jobs";
+import { dispatchJobForJobrunner } from "@badger/jobs";
 import { revalidatePath } from "next/cache";
 
 export async function doResetJob(baseJobID: number) {
@@ -20,7 +20,7 @@ export async function doResetJob(baseJobID: number) {
       state: "Pending",
     },
   });
-  await dispatchJobForJobrunner(baseJobID);
+  await dispatchJobForJobrunner(db, baseJobID);
   revalidatePath("/jobs");
   return { ok: true };
 }

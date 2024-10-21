@@ -1,10 +1,5 @@
-import { z } from "zod";
+import { z } from 'zod';
 
-export const IdentityScalarFieldEnumSchema = z.enum([
-  "id",
-  "provider",
-  "identityID",
-  "userID",
-]);
+export const IdentityScalarFieldEnumSchema = z.enum(['id','provider','identityID','userID']);
 
 export default IdentityScalarFieldEnumSchema;

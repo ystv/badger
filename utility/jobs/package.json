@@ -1,0 +1,12 @@
+{
+  "name": "@badger/jobs",
+  "packageManager": "yarn@4.4.1",
+  "dependencies": {
+    "@badger/feature-flags": "workspace:*",
+    "@badger/prisma": "workspace:*",
+    "undici": "^6.20.1"
+  },
+  "devDependencies": {
+    "@tsconfig/node18": "^18.2.4"
+  }
+}

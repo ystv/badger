@@ -1,5 +1,5 @@
-import { z } from "zod";
-import { InputJsonValue } from "../inputTypeSchemas/InputJsonValue";
+import { z } from 'zod';
+import { JsonValueSchema } from '../inputTypeSchemas/JsonValueSchema'
 
 /////////////////////////////////////////
 // METADATA SCHEMA
@@ -13,13 +13,13 @@ export const MetadataSchema = z.object({
    * Media: object - see the type definition
    * [MetadataValue]
    */
-  value: InputJsonValue,
+  value: JsonValueSchema,
   fieldId: z.number().int(),
   showId: z.number().int().nullable(),
   rundownId: z.number().int().nullable(),
   mediaId: z.number().int().nullable(),
-});
+})
 
-export type Metadata = z.infer<typeof MetadataSchema>;
+export type Metadata = z.infer<typeof MetadataSchema>
 
 export default MetadataSchema;

@@ -1201,6 +1201,30 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@badger/janitor@workspace:janitor":
+  version: 0.0.0-use.local
+  resolution: "@badger/janitor@workspace:janitor"
+  dependencies:
+    "@badger/jobs": "workspace:*"
+    "@badger/prisma": "workspace:*"
+    dotenv-flow: "npm:^4.1.0"
+    esbuild: "npm:^0.24.0"
+    prom-client: "npm:^15.1.3"
+    tsx: "npm:^4.19.1"
+  languageName: unknown
+  linkType: soft
+
+"@badger/jobs@workspace:*, @badger/jobs@workspace:utility/jobs":
+  version: 0.0.0-use.local
+  resolution: "@badger/jobs@workspace:utility/jobs"
+  dependencies:
+    "@badger/feature-flags": "workspace:*"
+    "@badger/prisma": "workspace:*"
+    "@tsconfig/node18": "npm:^18.2.4"
+    undici: "npm:^6.20.1"
+  languageName: unknown
+  linkType: soft
+
 "@badger/prisma@workspace:*, @badger/prisma@workspace:utility/prisma":
   version: 0.0.0-use.local
   resolution: "@badger/prisma@workspace:utility/prisma"
@@ -3238,7 +3262,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/api@npm:^1.0.0, @opentelemetry/api@npm:^1.6.0, @opentelemetry/api@npm:^1.8, @opentelemetry/api@npm:^1.8.0, @opentelemetry/api@npm:^1.9.0":
+"@opentelemetry/api@npm:^1.0.0, @opentelemetry/api@npm:^1.4.0, @opentelemetry/api@npm:^1.6.0, @opentelemetry/api@npm:^1.8, @opentelemetry/api@npm:^1.8.0, @opentelemetry/api@npm:^1.9.0":
   version: 1.9.0
   resolution: "@opentelemetry/api@npm:1.9.0"
   checksum: 10/a607f0eef971893c4f2ee2a4c2069aade6ec3e84e2a1f5c2aac19f65c5d9eeea41aa72db917c1029faafdd71789a1a040bdc18f40d63690e22ccae5d7070f194
@@ -6700,7 +6724,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tsconfig/node18@npm:^18.2.0":
+"@tsconfig/node18@npm:^18.2.0, @tsconfig/node18@npm:^18.2.4":
   version: 18.2.4
   resolution: "@tsconfig/node18@npm:18.2.4"
   checksum: 10/80623cb9c129c78d51fe6c4a256ba986f12f02ff02dc2a1e5b33dd13a7983f767b6792cfcd51b3dd1c8256ea105f1fea31f64a2070564e37787ab3d9a1a1e7e3
@@ -8843,6 +8867,7 @@ __metadata:
   dependencies:
     chalk: "npm:^5.3.0"
     danger: "npm:^12.0.0"
+    esbuild: "npm:^0.24.0"
     husky: "npm:^9.0.0"
     inquirer: "npm:^10.0.0"
     lint-staged: "npm:^15.0.0"
@@ -8862,6 +8887,7 @@ __metadata:
     "@aws-sdk/signature-v4-crt": "npm:^3.370.0"
     "@badger/components": "workspace:*"
     "@badger/feature-flags": "workspace:*"
+    "@badger/jobs": "workspace:*"
     "@badger/prisma": "workspace:*"
     "@badger/testing": "workspace:*"
     "@hello-pangea/dnd": "npm:^16.3.0"
@@ -8933,7 +8959,6 @@ __metadata:
     tsx: "npm:^4.16.2"
     tus-js-client: "npm:^3.1.0"
     typescript: "npm:5.5.4"
-    undici: "npm:^6.13.0"
     zod: "npm:3.23.8"
     zod-error: "npm:^1.5.0"
     zod-form-data: "npm:^2.0.1"
@@ -8980,6 +9005,13 @@ __metadata:
   version: 2.2.0
   resolution: "binary-extensions@npm:2.2.0"
   checksum: 10/ccd267956c58d2315f5d3ea6757cf09863c5fc703e50fbeb13a7dc849b812ef76e3cf9ca8f35a0c48498776a7478d7b4a0418e1e2b8cb9cb9731f2922aaad7f8
+  languageName: node
+  linkType: hard
+
+"bintrees@npm:1.0.2":
+  version: 1.0.2
+  resolution: "bintrees@npm:1.0.2"
+  checksum: 10/071896cea5ea5413316c8436e95799444c208630d5c539edd8a7089fc272fc5d3634aa4a2e4847b28350dda1796162e14a34a0eda53108cc5b3c2ff6a036c1fa
   languageName: node
   linkType: hard
 
@@ -10543,7 +10575,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv@npm:^16.3.0, dotenv@npm:^16.3.1, dotenv@npm:^16.4.4, dotenv@npm:^16.4.5":
+"dotenv-flow@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "dotenv-flow@npm:4.1.0"
+  dependencies:
+    dotenv: "npm:^16.0.0"
+  checksum: 10/75c36fefbc25e8c4f2cd6cff0a161444c7f2e992ea24662c63887aa57950007355df5bf153a6acc7e20c05ff3e5b783150e255ce543464a748de32bb9c6e222c
+  languageName: node
+  linkType: hard
+
+"dotenv@npm:^16.0.0, dotenv@npm:^16.3.0, dotenv@npm:^16.3.1, dotenv@npm:^16.4.4, dotenv@npm:^16.4.5":
   version: 16.4.5
   resolution: "dotenv@npm:16.4.5"
   checksum: 10/55a3134601115194ae0f924e54473459ed0d9fc340ae610b676e248cca45aa7c680d86365318ea964e6da4e2ea80c4514c1adab5adb43d6867fb57ff068f95c8
@@ -16779,6 +16820,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"prom-client@npm:^15.1.3":
+  version: 15.1.3
+  resolution: "prom-client@npm:15.1.3"
+  dependencies:
+    "@opentelemetry/api": "npm:^1.4.0"
+    tdigest: "npm:^0.1.1"
+  checksum: 10/eba75e15ab896845d39359e3a4d6f7913ea05339b3122d8dde8c8c374669ad1a1d1ab2694ab2101c420bd98086a564e4f2a18aa29018fc14a4732e57c1c19aec
+  languageName: node
+  linkType: hard
+
 "promise-inflight@npm:^1.0.1":
   version: 1.0.1
   resolution: "promise-inflight@npm:1.0.1"
@@ -18630,6 +18681,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tdigest@npm:^0.1.1":
+  version: 0.1.2
+  resolution: "tdigest@npm:0.1.2"
+  dependencies:
+    bintrees: "npm:1.0.2"
+  checksum: 10/45be99fa52dab74b8edafe150e473cdc45aa1352c75ed516a39905f350a08c3175f6555598111042c3677ba042d7e3cae6b5ce4c663fe609bc634f326aabc9d6
+  languageName: node
+  linkType: hard
+
 "temp-file@npm:^3.4.0":
   version: 3.4.0
   resolution: "temp-file@npm:3.4.0"
@@ -18932,7 +18992,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tsx@npm:^4.16.2":
+"tsx@npm:^4.16.2, tsx@npm:^4.19.1":
   version: 4.19.1
   resolution: "tsx@npm:4.19.1"
   dependencies:
@@ -19138,10 +19198,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici@npm:^6.13.0":
-  version: 6.19.8
-  resolution: "undici@npm:6.19.8"
-  checksum: 10/19ae4ba38b029a664d99fd330935ef59136cf99edb04ed821042f27b5a9e84777265fb744c8a7abc83f2059afb019446c69a4ebef07bbc0ed6b2de8d67ef4090
+"undici@npm:^6.13.0, undici@npm:^6.20.1":
+  version: 6.20.1
+  resolution: "undici@npm:6.20.1"
+  checksum: 10/68604b53754a95ec89d52efc08fe3e70e333997300c9a5b69f2b6496f1f0f568b2e35adec6442985a7b1d2f7a5648ef5062d1736e4d68082d473cb82177674bc
   languageName: node
   linkType: hard
 

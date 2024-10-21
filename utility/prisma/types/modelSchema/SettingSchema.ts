@@ -1,6 +1,6 @@
-import { z } from "zod";
-import { InputJsonValue } from "../inputTypeSchemas/InputJsonValue";
-import { SettingKeySchema } from "../inputTypeSchemas/SettingKeySchema";
+import { z } from 'zod';
+import { JsonValueSchema } from '../inputTypeSchemas/JsonValueSchema'
+import { SettingKeySchema } from '../inputTypeSchemas/SettingKeySchema'
 
 /////////////////////////////////////////
 // SETTING SCHEMA
@@ -9,9 +9,9 @@ import { SettingKeySchema } from "../inputTypeSchemas/SettingKeySchema";
 export const SettingSchema = z.object({
   key: SettingKeySchema,
   id: z.number().int(),
-  value: InputJsonValue,
-});
+  value: JsonValueSchema,
+})
 
-export type Setting = z.infer<typeof SettingSchema>;
+export type Setting = z.infer<typeof SettingSchema>
 
 export default SettingSchema;

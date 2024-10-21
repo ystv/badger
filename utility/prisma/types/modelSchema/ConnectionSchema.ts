@@ -1,5 +1,5 @@
-import { z } from "zod";
-import { ConnectionTargetSchema } from "../inputTypeSchemas/ConnectionTargetSchema";
+import { z } from 'zod';
+import { ConnectionTargetSchema } from '../inputTypeSchemas/ConnectionTargetSchema'
 
 /////////////////////////////////////////
 // CONNECTION SCHEMA
@@ -10,8 +10,8 @@ export const ConnectionSchema = z.object({
   id: z.number().int(),
   userId: z.number().int(),
   refreshToken: z.string(),
-});
+})
 
-export type Connection = z.infer<typeof ConnectionSchema>;
+export type Connection = z.infer<typeof ConnectionSchema>
 
 export default ConnectionSchema;

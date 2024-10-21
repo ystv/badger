@@ -4,7 +4,7 @@ import { FormResponse } from "@/components/Form";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
-import { dispatchJobForJobrunner } from "@/lib/jobs";
+import { dispatchJobForJobrunner } from "@badger/jobs";
 import { getPublicTusEndpoint, uploadUrlToPath } from "@/lib/tus";
 
 export async function processAssetUpload(
@@ -77,7 +77,7 @@ export async function processAssetUpload(
     return [rundown, job];
   });
 
-  await dispatchJobForJobrunner(job.id);
+  await dispatchJobForJobrunner(db, job.id);
   revalidatePath(`/shows/${rundown.showId}/rundown/${rundown.id}`);
   return { ok: true };
 }

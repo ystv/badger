@@ -1,31 +1,17 @@
-import { z } from "zod";
-import type { Prisma } from "../../client";
-import { MetadataWhereInputSchema } from "../inputTypeSchemas/MetadataWhereInputSchema";
-import { MetadataOrderByWithRelationInputSchema } from "../inputTypeSchemas/MetadataOrderByWithRelationInputSchema";
-import { MetadataWhereUniqueInputSchema } from "../inputTypeSchemas/MetadataWhereUniqueInputSchema";
-import { MetadataScalarFieldEnumSchema } from "../inputTypeSchemas/MetadataScalarFieldEnumSchema";
+import { z } from 'zod';
+import type { Prisma } from '../../client';
+import { MetadataWhereInputSchema } from '../inputTypeSchemas/MetadataWhereInputSchema'
+import { MetadataOrderByWithRelationInputSchema } from '../inputTypeSchemas/MetadataOrderByWithRelationInputSchema'
+import { MetadataWhereUniqueInputSchema } from '../inputTypeSchemas/MetadataWhereUniqueInputSchema'
+import { MetadataScalarFieldEnumSchema } from '../inputTypeSchemas/MetadataScalarFieldEnumSchema'
 
-export const MetadataFindFirstOrThrowArgsSchema: z.ZodType<
-  Omit<Prisma.MetadataFindFirstOrThrowArgs, "select" | "include">
-> = z
-  .object({
-    where: MetadataWhereInputSchema.optional(),
-    orderBy: z
-      .union([
-        MetadataOrderByWithRelationInputSchema.array(),
-        MetadataOrderByWithRelationInputSchema,
-      ])
-      .optional(),
-    cursor: MetadataWhereUniqueInputSchema.optional(),
-    take: z.number().optional(),
-    skip: z.number().optional(),
-    distinct: z
-      .union([
-        MetadataScalarFieldEnumSchema,
-        MetadataScalarFieldEnumSchema.array(),
-      ])
-      .optional(),
-  })
-  .strict();
+export const MetadataFindFirstOrThrowArgsSchema: z.ZodType<Omit<Prisma.MetadataFindFirstOrThrowArgs, "select" | "include">> = z.object({
+  where: MetadataWhereInputSchema.optional(),
+  orderBy: z.union([ MetadataOrderByWithRelationInputSchema.array(),MetadataOrderByWithRelationInputSchema ]).optional(),
+  cursor: MetadataWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ MetadataScalarFieldEnumSchema,MetadataScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
 
 export default MetadataFindFirstOrThrowArgsSchema;

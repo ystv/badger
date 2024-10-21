@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 /////////////////////////////////////////
 // ASSET SCHEMA
@@ -11,8 +11,8 @@ export const AssetSchema = z.object({
   order: z.number().int(),
   rundownId: z.number().int(),
   mediaId: z.number().int(),
-});
+})
 
-export type Asset = z.infer<typeof AssetSchema>;
+export type Asset = z.infer<typeof AssetSchema>
 
 export default AssetSchema;

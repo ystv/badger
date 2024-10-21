@@ -1,12 +1,11 @@
-import type { Prisma } from "../../client";
-import { z } from "zod";
-import { UserWhereInputSchema } from "./UserWhereInputSchema";
+import type { Prisma } from '../../client';
 
-export const UserRelationFilterSchema: z.ZodType<Prisma.UserRelationFilter> = z
-  .object({
-    is: z.lazy(() => UserWhereInputSchema).optional(),
-    isNot: z.lazy(() => UserWhereInputSchema).optional(),
-  })
-  .strict();
+import { z } from 'zod';
+import { UserWhereInputSchema } from './UserWhereInputSchema';
+
+export const UserRelationFilterSchema: z.ZodType<Prisma.UserRelationFilter> = z.object({
+  is: z.lazy(() => UserWhereInputSchema).optional(),
+  isNot: z.lazy(() => UserWhereInputSchema).optional()
+}).strict();
 
 export default UserRelationFilterSchema;

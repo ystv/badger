@@ -1,5 +1,5 @@
 import { Client } from "undici";
-import invariant from "@/lib/invariant";
+import invariant from "./invariant";
 
 let client: Client;
 function ensureClient() {
