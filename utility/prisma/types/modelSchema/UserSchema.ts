@@ -1,5 +1,5 @@
-import { z } from "zod";
-import { PermissionSchema } from "../inputTypeSchemas/PermissionSchema";
+import { z } from 'zod';
+import { PermissionSchema } from '../inputTypeSchemas/PermissionSchema'
 
 /////////////////////////////////////////
 // USER SCHEMA
@@ -11,8 +11,8 @@ export const UserSchema = z.object({
   name: z.string(),
   email: z.string().nullable(),
   isActive: z.boolean(),
-});
+})
 
-export type User = z.infer<typeof UserSchema>;
+export type User = z.infer<typeof UserSchema>
 
 export default UserSchema;

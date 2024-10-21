@@ -1,38 +1,16 @@
-import type { Prisma } from "../../client";
-import { z } from "zod";
-import { IntFieldUpdateOperationsInputSchema } from "./IntFieldUpdateOperationsInputSchema";
-import { ConnectionTargetSchema } from "./ConnectionTargetSchema";
-import { EnumConnectionTargetFieldUpdateOperationsInputSchema } from "./EnumConnectionTargetFieldUpdateOperationsInputSchema";
-import { StringFieldUpdateOperationsInputSchema } from "./StringFieldUpdateOperationsInputSchema";
+import type { Prisma } from '../../client';
 
-export const ConnectionUncheckedUpdateInputSchema: z.ZodType<Prisma.ConnectionUncheckedUpdateInput> =
-  z
-    .object({
-      id: z
-        .union([
-          z.number().int(),
-          z.lazy(() => IntFieldUpdateOperationsInputSchema),
-        ])
-        .optional(),
-      userId: z
-        .union([
-          z.number().int(),
-          z.lazy(() => IntFieldUpdateOperationsInputSchema),
-        ])
-        .optional(),
-      target: z
-        .union([
-          z.lazy(() => ConnectionTargetSchema),
-          z.lazy(() => EnumConnectionTargetFieldUpdateOperationsInputSchema),
-        ])
-        .optional(),
-      refreshToken: z
-        .union([
-          z.string(),
-          z.lazy(() => StringFieldUpdateOperationsInputSchema),
-        ])
-        .optional(),
-    })
-    .strict();
+import { z } from 'zod';
+import { IntFieldUpdateOperationsInputSchema } from './IntFieldUpdateOperationsInputSchema';
+import { ConnectionTargetSchema } from './ConnectionTargetSchema';
+import { EnumConnectionTargetFieldUpdateOperationsInputSchema } from './EnumConnectionTargetFieldUpdateOperationsInputSchema';
+import { StringFieldUpdateOperationsInputSchema } from './StringFieldUpdateOperationsInputSchema';
+
+export const ConnectionUncheckedUpdateInputSchema: z.ZodType<Prisma.ConnectionUncheckedUpdateInput> = z.object({
+  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  userId: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  target: z.union([ z.lazy(() => ConnectionTargetSchema),z.lazy(() => EnumConnectionTargetFieldUpdateOperationsInputSchema) ]).optional(),
+  refreshToken: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
 
 export default ConnectionUncheckedUpdateInputSchema;

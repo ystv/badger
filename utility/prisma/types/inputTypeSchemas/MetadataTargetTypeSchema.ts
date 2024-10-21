@@ -1,12 +1,7 @@
-import { z } from "zod";
+import { z } from 'zod';
 
-export const MetadataTargetTypeSchema = z.enum([
-  "Show",
-  "Rundown",
-  "ShowOrRundown",
-]);
+export const MetadataTargetTypeSchema = z.enum(['Show','Rundown','ShowOrRundown']);
 
-export type MetadataTargetTypeType =
-  `${z.infer<typeof MetadataTargetTypeSchema>}`;
+export type MetadataTargetTypeType = `${z.infer<typeof MetadataTargetTypeSchema>}`
 
 export default MetadataTargetTypeSchema;

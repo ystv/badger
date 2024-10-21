@@ -1,43 +1,17 @@
-import type { Prisma } from "../../client";
-import { z } from "zod";
-import { IntFieldUpdateOperationsInputSchema } from "./IntFieldUpdateOperationsInputSchema";
-import { JsonNullValueInputSchema } from "./JsonNullValueInputSchema";
-import { InputJsonValue } from "./InputJsonValue";
-import { NullableIntFieldUpdateOperationsInputSchema } from "./NullableIntFieldUpdateOperationsInputSchema";
+import type { Prisma } from '../../client';
 
-export const MetadataUncheckedUpdateWithoutMediaInputSchema: z.ZodType<Prisma.MetadataUncheckedUpdateWithoutMediaInput> =
-  z
-    .object({
-      id: z
-        .union([
-          z.number().int(),
-          z.lazy(() => IntFieldUpdateOperationsInputSchema),
-        ])
-        .optional(),
-      value: z
-        .union([z.lazy(() => JsonNullValueInputSchema), InputJsonValue])
-        .optional(),
-      fieldId: z
-        .union([
-          z.number().int(),
-          z.lazy(() => IntFieldUpdateOperationsInputSchema),
-        ])
-        .optional(),
-      showId: z
-        .union([
-          z.number().int(),
-          z.lazy(() => NullableIntFieldUpdateOperationsInputSchema),
-        ])
-        .optional()
-        .nullable(),
-      rundownId: z
-        .union([
-          z.number().int(),
-          z.lazy(() => NullableIntFieldUpdateOperationsInputSchema),
-        ])
-        .optional()
-        .nullable(),
-    })
-    .strict();
+import { z } from 'zod';
+import { IntFieldUpdateOperationsInputSchema } from './IntFieldUpdateOperationsInputSchema';
+import { JsonNullValueInputSchema } from './JsonNullValueInputSchema';
+import { InputJsonValueSchema } from './InputJsonValueSchema';
+import { NullableIntFieldUpdateOperationsInputSchema } from './NullableIntFieldUpdateOperationsInputSchema';
+
+export const MetadataUncheckedUpdateWithoutMediaInputSchema: z.ZodType<Prisma.MetadataUncheckedUpdateWithoutMediaInput> = z.object({
+  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  value: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
+  fieldId: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  showId: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  rundownId: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+}).strict();
 
 export default MetadataUncheckedUpdateWithoutMediaInputSchema;

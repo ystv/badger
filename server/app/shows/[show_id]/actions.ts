@@ -14,7 +14,7 @@ import {
   Prisma,
 } from "@badger/prisma/client";
 
-import { dispatchJobForJobrunner } from "@/lib/jobs";
+import { dispatchJobForJobrunner } from "@badger/jobs";
 import invariant from "@/lib/invariant";
 import type {
   MediaMetaSelectValue,
@@ -633,7 +633,7 @@ export async function processUploadForContinuityItem(
     });
     return job.id;
   });
-  await dispatchJobForJobrunner(baseJobID);
+  await dispatchJobForJobrunner(db, baseJobID);
   revalidatePath(`/shows/${item.showId}`);
   return { ok: true };
 }
@@ -706,7 +706,7 @@ export async function retryProcessingMedia(mediaID: number, showID: number) {
       },
     });
   });
-  await dispatchJobForJobrunner(baseJob.id);
+  await dispatchJobForJobrunner(db, baseJob.id);
   revalidatePath(`/shows/${showID}`);
   return { ok: true };
 }
@@ -746,7 +746,7 @@ export async function reprocessMedia(id: number) {
     });
     return [media, job];
   });
-  await dispatchJobForJobrunner(baseJob.id);
+  await dispatchJobForJobrunner(db, baseJob.id);
   revalidatePath("/media");
   for (const ci of staleMedia.continuityItems) {
     revalidatePath(`/shows/${ci.showId}`);

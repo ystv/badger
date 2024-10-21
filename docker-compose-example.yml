@@ -89,6 +89,15 @@ services:
     platform: linux/amd64
     command: ["--watch"]
     environment: *badger_env
+  
+  janitor:
+    image: ghcr.io/ystv/badger/janitor:latest
+    platform: linux/amd64
+    ports:
+      - "3001:3001"
+    environment: 
+      <<: *badger_env
+      PORT: '3001'
 
 volumes:
   postgres_data: {}
