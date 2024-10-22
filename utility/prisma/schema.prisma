@@ -10,8 +10,8 @@ generator client {
 generator zod {
   provider         = "zod-prisma-types"
   output           = "./types"
-  useMultipleFiles = true
-  writeBarrelFiles = true
+  useMultipleFiles = false
+  writeBarrelFiles = false
   createInputTypes = true
   addIncludeType   = false
   addSelectType    = false
@@ -264,7 +264,7 @@ model Asset {
 
   media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
 
-  rundown   Rundown        @relation(fields: [rundownId], references: [id], onDelete: Cascade)
+  rundown   Rundown @relation(fields: [rundownId], references: [id], onDelete: Cascade)
   rundownId Int
   mediaId   Int
 
@@ -320,18 +320,19 @@ enum JobState {
 }
 
 model BaseJob {
-  id          Int       @id @default(autoincrement())
-  workerId    String?
-  state       JobState  @default(Pending)
-  createdAt   DateTime  @default(now())
-  startedAt   DateTime?
-  completedAt DateTime?
+  id                Int       @id @default(autoincrement())
+  workerId          String?
+  state             JobState  @default(Pending)
+  createdAt         DateTime  @default(now())
+  startedAt         DateTime?
+  completedAt       DateTime?
+  manuallyTriggered Boolean   @default(false)
 
   externalJobProvider String?
   /// The ID of the job in the external job execution system (e.g. Nomad)
   externalJobID       String?
 
-  jobType JobType
+  jobType    JobType
   /// [JobPayload]
   jobPayload Json
 
