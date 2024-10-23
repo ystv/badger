@@ -225,7 +225,7 @@ jobs:
             })
       - name: Trigger YSTV Jenkins
         run: |
-          curl -X POST -v ${{ secrets.YSTV_JENKINS_URL }}/buildByToken/buildWithParameters -d 'job=Badger - GitHub Trigger&token=${{ secrets.YSTV_JENKINS_TOKEN }}&VERSION=v1.0.6
+          curl -X POST -v ${{ secrets.YSTV_JENKINS_URL }}/buildByToken/buildWithParameters -d 'job=Badger - GitHub Trigger&token=${{ secrets.YSTV_JENKINS_TOKEN }}&VERSION=v1.0.6&cause=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
       - uses: actions/setup-node@v3
         with:
           node-version: "20.x"
