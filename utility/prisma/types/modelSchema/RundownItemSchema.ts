@@ -1,5 +1,5 @@
-import { z } from "zod";
-import { RundownItemTypeSchema } from "../inputTypeSchemas/RundownItemTypeSchema";
+import { z } from 'zod';
+import { RundownItemTypeSchema } from '../inputTypeSchemas/RundownItemTypeSchema'
 
 /////////////////////////////////////////
 // RUNDOWN ITEM SCHEMA
@@ -14,8 +14,8 @@ export const RundownItemSchema = z.object({
   durationSeconds: z.number().int(),
   notes: z.string(),
   mediaId: z.number().int().nullable(),
-});
+})
 
-export type RundownItem = z.infer<typeof RundownItemSchema>;
+export type RundownItem = z.infer<typeof RundownItemSchema>
 
 export default RundownItemSchema;

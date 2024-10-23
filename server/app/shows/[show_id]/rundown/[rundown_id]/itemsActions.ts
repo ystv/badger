@@ -9,7 +9,7 @@ import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
 import { JobState, MediaState } from "@badger/prisma/client";
 
-import { dispatchJobForJobrunner } from "@/lib/jobs";
+import { dispatchJobForJobrunner } from "@badger/jobs";
 import invariant from "@/lib/invariant";
 import { getPublicTusEndpoint, uploadUrlToPath } from "@/lib/tus";
 
@@ -346,7 +346,7 @@ export async function processUploadForRundownItem(
     });
     return job.id;
   });
-  await dispatchJobForJobrunner(baseJobID);
+  await dispatchJobForJobrunner(db, baseJobID);
   revalidatePath(`/shows/${item.rundown.showId}`);
   return { ok: true };
 }
@@ -428,7 +428,7 @@ export async function retryProcessingMedia(
       },
     });
   });
-  await dispatchJobForJobrunner(baseJob.id);
+  await dispatchJobForJobrunner(db, baseJob.id);
   revalidatePath(`/shows/${showID}/rundown/${rundownID}`);
   return { ok: true };
 }
@@ -472,7 +472,7 @@ export async function reprocessMedia(id: number) {
     });
     return [media, job];
   });
-  await dispatchJobForJobrunner(baseJob.id);
+  await dispatchJobForJobrunner(db, baseJob.id);
   revalidatePath("/media");
   for (const r of staleMedia.rundownItems.map((ri) => ri.rundown)) {
     revalidatePath(`/shows/${r.showId}`);

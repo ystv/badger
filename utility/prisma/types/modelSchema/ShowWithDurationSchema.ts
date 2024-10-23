@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 /////////////////////////////////////////
 // SHOW WITH DURATION SCHEMA
@@ -17,8 +17,8 @@ export const ShowWithDurationSchema = z.object({
   version: z.number().int(),
   ytStreamID: z.string().nullable(),
   ytBroadcastID: z.string().nullable(),
-});
+})
 
-export type ShowWithDuration = z.infer<typeof ShowWithDurationSchema>;
+export type ShowWithDuration = z.infer<typeof ShowWithDurationSchema>
 
 export default ShowWithDurationSchema;

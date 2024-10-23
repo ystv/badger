@@ -17,7 +17,7 @@ import {
   MediaUpdateInputSchema,
   MetadataFieldCreateInputSchema,
 } from "@badger/prisma/types";
-import { dispatchJobForJobrunner } from "@/lib/jobs";
+import { dispatchJobForJobrunner } from "@badger/jobs";
 import { expectNever } from "ts-expect";
 import { sub } from "date-fns";
 
@@ -322,7 +322,7 @@ export const appRouter = router({
           return [med, job] as const;
         });
         if (job) {
-          await dispatchJobForJobrunner(job.id);
+          await dispatchJobForJobrunner(db, job.id);
         }
         return media;
       }),
