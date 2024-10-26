@@ -9,6 +9,10 @@ on:
         type: string
         required: true
         description: Version to build, also the docker tag
+      build:
+        type: string
+        default: desktop,server,jobrunner
+        description: Comma-separated list of builds to run
       strip_rc:
         type: boolean
         description: Strip -rc suffix from version number
@@ -32,6 +36,7 @@ permissions:
 
 jobs:
   build-desktop-windows:
+    if: ${{ contains(inputs.build, 'desktop') }}
     runs-on: windows-latest
     strategy:
       matrix:
@@ -80,7 +85,7 @@ jobs:
 
   build-docker-server:
     runs-on: ubuntu-latest
-    if: ${{ inputs.push_docker == true }}
+    if: ${{ contains(inputs.build, 'server') }}
 
     steps:
       - uses: actions/checkout@v4
@@ -115,7 +120,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          push: true
+          push: ${{ inputs.push_docker }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: ${{ inputs.multi_arch && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
@@ -133,7 +138,7 @@ jobs:
 
   build-docker-jobrunner:
     runs-on: ubuntu-latest
-    if: ${{ inputs.push_docker == true }}
+    if: ${{ contains(inputs.build, 'jobrunner') }}
 
     steps:
       - uses: actions/checkout@v4
@@ -167,7 +172,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          push: true
+          push: ${{ inputs.push_docker }}
           tags: ${{ steps.jr_meta.outputs.tags }}
           labels: ${{ steps.jr_meta.outputs.labels }}
           platforms: ${{ inputs.multi_arch && 'linux/amd64,linux/arm64' || 'linux/amd64' }}

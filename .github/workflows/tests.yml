@@ -133,6 +133,7 @@ jobs:
     with:
       ref: ${{ github.ref }}
       tag: ${{ github.ref_name }}
+      build: server,jobrunner
       multi_arch: false
       push_docker: false
       export_artifacts: true
