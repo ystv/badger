@@ -9,7 +9,6 @@ import {
   getLocalMedia,
   getMediaPath,
 } from "./mediaManagement";
-import { getDownloadsSettings, saveDownloadsSettings } from "../base/settings";
 import { shell } from "electron";
 import { selectedShow } from "../base/selectedShow";
 import { serverAPI } from "../base/serverApiClient";

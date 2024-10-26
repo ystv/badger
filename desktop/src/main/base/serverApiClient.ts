@@ -7,15 +7,14 @@ import {
 } from "@trpc/client";
 import type { AppRouter } from "badger-server/app/api/_router";
 import superjson from "superjson";
-import { getServerSettings, saveServerSettings } from "./settings";
 import logging from "./logging";
 import invariant from "../../common/invariant";
 
 const logger = logging.getLogger("serverApiClient");
 
-export let serverApiClient: CreateTRPCProxyClient<AppRouter> | null = null;
+let serverApiClient: CreateTRPCProxyClient<AppRouter> | null = null;
 
-async function newAPIClient(endpoint: string, password: string) {
+export async function newAPIClient(endpoint: string, password: string) {
   const client = createTRPCProxyClient<AppRouter>({
     links: [
       loggerLink({
@@ -47,38 +46,29 @@ async function newAPIClient(endpoint: string, password: string) {
     ],
     transformer: superjson,
   });
+  return client;
+}
+
+export function _setServerApiClient(client: CreateTRPCProxyClient<AppRouter>) {
+  serverApiClient = client;
+}
+
+/**
+ * Check if the server and client are running the same version of the app.
+ * Takes in a client, rather than creating one, so that it can also be used
+ * as a check if the connection works;
+ */
+export async function checkForVersionSkew(
+  client: CreateTRPCProxyClient<AppRouter>,
+) {
   const pingResponse = await client.ping.query();
   if (pingResponse.version !== global.__APP_VERSION__) {
     logger.warn(
       `Warning: version skew detected: server is running ${pingResponse.version}, but client is running ${global.__APP_VERSION__}`,
     );
+    return true;
   }
-  return client;
-}
-
-export async function createAPIClient(endpoint: string, password: string) {
-  serverApiClient = await newAPIClient(endpoint, password);
-  await saveServerSettings({ endpoint, password });
-}
-
-export async function tryCreateAPIClient() {
-  let settings;
-  try {
-    settings = await getServerSettings();
-  } catch (e) {
-    logger.warn("Failed to load server settings", e, "Continuing anyway.");
-    return;
-  }
-  if (settings !== null) {
-    try {
-      serverApiClient = await newAPIClient(
-        settings.endpoint,
-        settings.password,
-      );
-    } catch (e) {
-      logger.warn("Failed to connect to server (will continue)", e);
-    }
-  }
+  return false;
 }
 
 export function serverAPI() {

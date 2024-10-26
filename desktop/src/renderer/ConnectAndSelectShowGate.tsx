@@ -1,28 +1,22 @@
-import { ReactNode, useCallback, useEffect, useState } from "react";
-import { ipc } from "./ipc";
+import { ReactNode, useState } from "react";
 import Button from "@badger/components/button";
-import { useQueryClient } from "@tanstack/react-query";
-import { getQueryKey } from "@trpc/react-query";
-import invariant from "../common/invariant";
+import { dispatch, useAppSelector } from "./state";
 
 function ServerConnectForm() {
-  const queryClient = useQueryClient();
   const [addrEntry, setAddrEntry] = useState(
     import.meta.env.DEV ? "http://localhost:3000" : "https://badger.ystv.co.uk",
   );
   const [password, setPassword] = useState("");
-  const doConnect = ipc.connectToServer.useMutation();
-  const [error, setError] = useState<string | null>(null);
-  const connect = useCallback(async () => {
-    try {
-      await doConnect.mutateAsync({ endpoint: addrEntry, password });
-      await queryClient.invalidateQueries(
-        getQueryKey(ipc.serverConnectionStatus),
-      );
-    } catch (e) {
-      setError(String(e));
-    }
-  }, [addrEntry, doConnect, password, queryClient]);
+  const state = useAppSelector((state) => state.serverConnection.state);
+  const error = useAppSelector((state) => state.serverConnection.error);
+
+  function connect() {
+    dispatch.connectToServer({
+      host: addrEntry,
+      password,
+    });
+  }
+
   return (
     <>
       <label>
@@ -43,7 +37,11 @@ function ServerConnectForm() {
           onChange={(e) => setPassword(e.target.value)}
         />
       </label>
-      <Button color="primary" onClick={connect}>
+      <Button
+        color="primary"
+        onClick={connect}
+        disabled={state === "connecting"}
+      >
         Connect
       </Button>
       {error && (
@@ -54,91 +52,61 @@ function ServerConnectForm() {
 }
 
 export function SelectShowForm(props: { onSelect?: () => void }) {
-  const queryClient = useQueryClient();
-  const listShows = ipc.listUpcomingShows.useQuery();
-  const selectShow = ipc.setSelectedShow.useMutation({
-    async onSuccess() {
-      await queryClient.invalidateQueries(getQueryKey(ipc.getSelectedShow));
-      props.onSelect?.();
-    },
-  });
-  if (listShows.isLoading) {
-    return <div>Please wait, loading shows list...</div>;
-  }
-  if (listShows.error) {
-    return (
-      <div>
-        <h2 className="text-2xl">Error</h2>
-        <div className="block bg-danger-4 text-light p-1 rounded">
-          {listShows.error.message}
-        </div>
-        <pre>{JSON.stringify(listShows.error, null, 2)}</pre>
-      </div>
-    );
-  }
-  invariant(listShows.data, "listShows.data is null");
-  return (
-    <div data-testid="SelectShowForm.showsList" role="list">
-      {listShows.data.map((show) => (
-        <div key={show.id} role="listitem">
-          <h3 className="text-xl">{show.name}</h3>
-          <Button
-            color="primary"
-            onClick={() => selectShow.mutate({ id: show.id })}
-          >
-            Select
-          </Button>
-        </div>
-      ))}
-    </div>
-  );
+  // const queryClient = useQueryClient();
+  // const listShows = ipc.listUpcomingShows.useQuery();
+  // const selectShow = ipc.setSelectedShow.useMutation({
+  //   async onSuccess() {
+  //     await queryClient.invalidateQueries(getQueryKey(ipc.getSelectedShow));
+  //     props.onSelect?.();
+  //   },
+  // });
+  // if (listShows.isLoading) {
+  //   return <div>Please wait, loading shows list...</div>;
+  // }
+  // if (listShows.error) {
+  //   return (
+  //     <div>
+  //       <h2 className="text-2xl">Error</h2>
+  //       <div className="block bg-danger-4 text-light p-1 rounded">
+  //         {listShows.error.message}
+  //       </div>
+  //       <pre>{JSON.stringify(listShows.error, null, 2)}</pre>
+  //     </div>
+  //   );
+  // }
+  // invariant(listShows.data, "listShows.data is null");
+  // return (
+  //   <div data-testid="SelectShowForm.showsList" role="list">
+  //     {listShows.data.map((show) => (
+  //       <div key={show.id} role="listitem">
+  //         <h3 className="text-xl">{show.name}</h3>
+  //         <Button
+  //           color="primary"
+  //           onClick={() => selectShow.mutate({ id: show.id })}
+  //         >
+  //           Select
+  //         </Button>
+  //       </div>
+  //     ))}
+  //   </div>
+  // );
+  return null;
 }
 
 export default function ConnectAndSelectShowGate(props: {
   children: ReactNode;
 }) {
-  const queryClient = useQueryClient();
-  const connState = ipc.serverConnectionStatus.useQuery(void 0, {
-    staleTime: 5000,
-  });
-  const selectedShow = ipc.getSelectedShow.useQuery(void 0);
+  const connState = useAppSelector((state) => state.serverConnection);
+  const selectedShow = useAppSelector((state) => state.selectedShow !== null);
 
-  useEffect(() => {
-    const handler = async () => {
-      await queryClient.invalidateQueries(getQueryKey(ipc.getSelectedShow));
-    };
-    window.IPCEventBus.on("selectedShowChange", handler);
-    return () => {
-      window.IPCEventBus.off("selectedShowChange", handler);
-    };
-  }, [queryClient]);
-
-  if (connState.error) {
-    return (
-      <div>
-        <h2 className="text-2xl">Error (checking serverConnectionStatus)</h2>
-        <div className="block bg-danger-4 text-light p-1 rounded">
-          {connState.error.message}
-        </div>
-        <pre>{JSON.stringify(connState.error, null, 2)}</pre>
-      </div>
-    );
-  }
-  if (connState.isLoading || selectedShow.isLoading) {
-    return <div>Please wait, getting selected show...</div>;
-  }
-  if (
-    connState.data.ok === true &&
-    typeof selectedShow.data === "object" &&
-    selectedShow.data !== null
-  ) {
+  if (connState.state === "connected" && selectedShow) {
     return props.children;
   }
   return (
     <div className="absolute bg-primary-4 w-full h-full m-0 p-0">
       <div className="w-144 h-24 m-auto p-8">
         <h1 className="text-5xl text-light">🦡 Badger</h1>
-        {connState.data.warnings?.versionSkew && (
+        {connState.versionSkew && (
           <div className="block bg-warning-4 text-light p-1 rounded">
             <strong>Server/Desktop version skew detected!</strong> Some features
             may not work correctly, if at all. Check the Desktop logs for more
@@ -146,7 +114,7 @@ export default function ConnectAndSelectShowGate(props: {
           </div>
         )}
         <div className="m-2 p-4 bg-light text-dark rounded">
-          {connState.data.ok !== true ? (
+          {(connState.state === "connected") !== true ? (
             <ServerConnectForm />
           ) : (
             <>

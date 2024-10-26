@@ -1,33 +1,32 @@
 import "@sentry/electron/preload";
 import { contextBridge, ipcRenderer } from "electron";
-import { exposeElectronTRPC } from "electron-trpc/main";
-import { Events } from "./ipcEvents";
-import invariant from "./invariant";
+import { DeepPartial } from "react-hook-form";
+import type {
+  AppDispatch,
+  AppState,
+  ExposedActionCreators,
+} from "../main/store";
 
-process.once("loaded", async () => {
-  exposeElectronTRPC();
-  contextBridge.exposeInMainWorld("IPCEventBus", {
-    on: (evt: keyof Events, callback: (...args: unknown[]) => void) => {
-      // This invariant is necessary to avoid a malicious renderer process registering arbitrary event handlers.
-      invariant(
-        evt in Events,
-        "Tried to register event handler for non-exposed event type",
-      );
-      ipcRenderer.on(evt, callback);
+const rendererAllowedActions: Set<Parameters<AppDispatch>[0]["type"]> = new Set(
+  [
+    "settings/setSetting",
+    "localMedia/queueMediaDownload",
+    "localMedia/queueMediaDownloads", // used internally by downloadAllMediaForSelectedShow
+    "serverConnection/connect",
+  ],
+);
+
+process.once("loaded", () => {
+  contextBridge.exposeInMainWorld("MainStoreAPI", {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    _dispatch: (...params: any[]) => ipcRenderer.invoke("dispatch", ...params),
+    onStateChange: (
+      callback: (actionType: string, newState: DeepPartial<AppState>) => void,
+    ) => {
+      ipcRenderer.on("stateChange", (event, actionType, newState) => {
+        callback("@@main/" + actionType, newState);
+      });
     },
-    once: (evt: keyof Events, callback: (...args: unknown[]) => void) => {
-      invariant(
-        evt in Events,
-        "Tried to register event handler for non-exposed event type",
-      );
-      ipcRenderer.once(evt, callback);
-    },
-    off: (evt: keyof Events, callback: (...args: unknown[]) => void) => {
-      invariant(
-        evt in Events,
-        "Tried to register event handler for non-exposed event type",
-      );
-      ipcRenderer.off(evt, callback);
-    },
+    getState: () => ipcRenderer.invoke("getState"),
   });
 });

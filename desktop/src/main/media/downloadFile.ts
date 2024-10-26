@@ -4,7 +4,6 @@ import * as fs from "fs/promises";
 import which from "which";
 import invariant from "../../common/invariant";
 import logging from "../base/logging";
-import { getDownloadsSettings } from "../base/settings";
 import { throttle } from "lodash";
 
 const logger = logging.getLogger("downloadFile");
@@ -108,10 +107,10 @@ export async function downloadFile(
   url: string,
   outputPath: string,
   progress?: (percent: number) => unknown,
+  downloaderType: "Node" | "Curl" | "Auto" = "Auto",
 ) {
-  const settings = await getDownloadsSettings();
   let downloader;
-  switch (settings.downloader) {
+  switch (downloaderType) {
     case "Node":
       downloader = NodeDownloader;
       break;
@@ -128,7 +127,7 @@ export async function downloadFile(
           : NodeDownloader;
       break;
     default:
-      throw new Error(`Unknown downloader ${settings.downloader}`);
+      throw new Error(`Unknown downloader ${downloaderType}`);
   }
   const downloadPath = outputPath + ".badgerdownload";
   await downloader(url, downloadPath, progress);

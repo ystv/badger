@@ -1,5 +1,5 @@
 import { CreateTRPCClientOptions, createTRPCProxyClient } from "@trpc/client";
-import { ipcLink } from "electron-trpc/renderer";
+// import { ipcLink } from "electron-trpc/renderer";
 import { createTRPCReact } from "@trpc/react-query";
 import type { AppRouter } from "../main/ipcApi";
 import { Events } from "../common/ipcEvents";
@@ -49,7 +49,12 @@ const clientConfig: CreateTRPCClientOptions<AppRouter> = {
           return unsubscribe;
         });
       },
-    ipcLink(),
+    // ipcLink(),FIXME
+    (_) => (_) => {
+      return observable((asdf) => {
+        asdf.complete();
+      });
+    },
   ],
 };
 

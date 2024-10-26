@@ -1,20 +1,15 @@
 import { app, BrowserWindow } from "electron";
 import * as path from "path";
-import { createIPCHandler } from "electron-trpc/main";
-import { emitObservable, setSender } from "./ipcEventBus";
-import { appRouter } from "./ipcApi";
-import { tryCreateAPIClient } from "./base/serverApiClient";
-import { tryCreateOBSConnection } from "./obs/obs";
-import { migrateSettings } from "./base/settings";
 import isSquirrel from "electron-squirrel-startup";
-import { selectedShow } from "./base/selectedShow";
-import { tryCreateVMixConnection } from "./vmix/vmix";
 import Icon from "../icon/png/64x64.png";
-import { tryCreateOntimeConnection } from "./ontime/ontime";
 import * as Sentry from "@sentry/electron/main";
 import { logFlagState } from "@badger/feature-flags";
 import { getLogger } from "./base/logging";
-import { scanLocalMedia } from "./media/mediaManagement";
+import { localMediaActions } from "./media/state";
+import { store } from "./store";
+import { initialiseSettings } from "./base/settings";
+import { doPreflight } from "./preflight";
+import { listenOnStore } from "./storeListener";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (isSquirrel) {
@@ -24,10 +19,10 @@ if (isSquirrel) {
 const logger = getLogger("main");
 
 /* eslint-disable no-console */
-console.log = logger.debug;
-console.info = logger.info;
-console.warn = logger.warn;
-console.error = logger.error;
+// console.log = logger.debug;
+// console.info = logger.info;
+// console.warn = logger.warn;
+// console.error = logger.error;
 /* eslint-enable no-console */
 
 logger.info(
@@ -49,19 +44,6 @@ if (import.meta.env.VITE_DESKTOP_SENTRY_DSN) {
 }
 
 const createWindow = async () => {
-  logger.debug("Pre-flight...");
-  await migrateSettings();
-  await Promise.all([
-    scanLocalMedia(),
-    tryCreateAPIClient(),
-    tryCreateOBSConnection(),
-    process.platform === "win32"
-      ? tryCreateVMixConnection()
-      : Promise.resolve(),
-    tryCreateOntimeConnection(),
-  ]);
-  logger.debug("Pre-flight complete, starting app");
-
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 900,
@@ -81,16 +63,20 @@ const createWindow = async () => {
     await mainWindow.loadFile(path.join(__dirname, `../renderer/index.html`));
   }
 
+  listenOnStore({
+    predicate: () => true,
+    effect: (action, api) => {
+      const state = api.getState();
+      mainWindow.webContents.send("stateChange", action.type, state);
+    },
+  });
+
   // Open the DevTools.
   if (process.env.BADGER_OPEN_DEVTOOLS === "true") {
     mainWindow.webContents.openDevTools();
   }
-
-  logger.debug("Creating IPC handler...");
-  createIPCHandler({ router: appRouter, windows: [mainWindow] });
-  setSender(mainWindow.webContents.send.bind(mainWindow.webContents));
-  emitObservable("selectedShowChange", selectedShow);
-  logger.info("Startup complete.");
+  logger.info("Started, doing preflight...");
+  store.dispatch(doPreflight());
 };
 
 // This method will be called when Electron has finished

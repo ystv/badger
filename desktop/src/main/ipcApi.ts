@@ -32,29 +32,6 @@ const logger = logging.getLogger("ipcApi");
 const rendererLogger = logging.getLogger("renderer");
 
 export const appRouter = r({
-  serverConnectionStatus: proc
-    .output(
-      z.object({
-        ok: z.boolean(),
-        warnings: z
-          .object({
-            versionSkew: z.boolean().optional(),
-          })
-          .optional(),
-      }),
-    )
-    .query(async () => {
-      if (serverApiClient === null) {
-        return { ok: false };
-      }
-      const pingRes = await serverApiClient.ping.query();
-      return {
-        ok: pingRes.ping === "pong",
-        warnings: {
-          versionSkew: pingRes.version !== global.__APP_VERSION__,
-        },
-      };
-    }),
   log: proc
     .input(
       z.object({
@@ -65,17 +42,6 @@ export const appRouter = r({
     )
     .mutation(({ input }) => {
       rendererLogger[input.level](input.message);
-    }),
-  connectToServer: proc
-    .input(
-      z.object({
-        endpoint: z.string().url(),
-        password: z.string(),
-      }),
-    )
-    .mutation(async ({ input }) => {
-      await createAPIClient(input.endpoint + "/api/trpc", input.password);
-      return true;
     }),
   listUpcomingShows: proc.output(z.array(ShowSchema)).query(async () => {
     return await serverAPI().shows.listUpcoming.query({

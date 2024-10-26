@@ -1209,7 +1209,7 @@ __metadata:
     dotenv-cli: "npm:^7.2.1"
     prisma: "npm:5.21.1"
     prisma-json-types-generator: "npm:^3.0.3"
-    typescript: "npm:^5.4.5"
+    typescript: "npm:^5.6.3"
     zod-prisma-types: "npm:^3.0.0"
   languageName: unknown
   linkType: soft
@@ -1230,7 +1230,7 @@ __metadata:
     p-event: "npm:^6.0.0"
     shelljs: "npm:^0.8.5"
     ts-node: "npm:^10.9.1"
-    typescript: "npm:^5.1.6"
+    typescript: "npm:^5.6.3"
     vitest: "npm:^2.0.0"
     ws: "npm:^8.13.0"
   languageName: unknown
@@ -5124,6 +5124,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@reduxjs/toolkit@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "@reduxjs/toolkit@npm:2.3.0"
+  dependencies:
+    immer: "npm:^10.0.3"
+    redux: "npm:^5.0.1"
+    redux-thunk: "npm:^3.1.0"
+    reselect: "npm:^5.1.0"
+  peerDependencies:
+    react: ^16.9.0 || ^17.0.0 || ^18
+    react-redux: ^7.2.1 || ^8.1.3 || ^9.0.0
+  peerDependenciesMeta:
+    react:
+      optional: true
+    react-redux:
+      optional: true
+  checksum: 10/3aa0bf29ce4dfe4ae75416cb5338a91ccc89f06c5a2fcdae5dc137dca02b3990c46306062696e158869ac399b50cae6476e5536902df9bd1ad1a998195221af6
+  languageName: node
+  linkType: hard
+
 "@rollup/plugin-alias@npm:^5.1.0":
   version: 5.1.1
   resolution: "@rollup/plugin-alias@npm:5.1.1"
@@ -6929,7 +6949,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/hoist-non-react-statics@npm:^3.3.1":
+"@types/hoist-non-react-statics@npm:^3.3.0, @types/hoist-non-react-statics@npm:^3.3.1":
   version: 3.3.5
   resolution: "@types/hoist-non-react-statics@npm:3.3.5"
   dependencies:
@@ -7237,6 +7257,18 @@ __metadata:
   dependencies:
     "@types/react": "npm:*"
   checksum: 10/6ff53f5a7b7fba952a68e114d3b542ebdc1e87a794234785ebab0bcd9bde7fb4885f21ebaf93d26dc0a1b5b93287f42cad68b78ae04dddf6b20da7aceff0beaf
+  languageName: node
+  linkType: hard
+
+"@types/react-redux@npm:^7.1.34":
+  version: 7.1.34
+  resolution: "@types/react-redux@npm:7.1.34"
+  dependencies:
+    "@types/hoist-non-react-statics": "npm:^3.3.0"
+    "@types/react": "npm:*"
+    hoist-non-react-statics: "npm:^3.3.0"
+    redux: "npm:^4.0.0"
+  checksum: 10/febcd1db0c83c5002c6bee0fdda9e70da0653454ffbb72d6c37cbf2f5c005e06fb5271cff344d7164c385c944526565282de9a95ff379e040476b71d27fc2512
   languageName: node
   linkType: hard
 
@@ -8724,6 +8756,7 @@ __metadata:
     "@popperjs/core": "npm:^2.11.8"
     "@radix-ui/react-alert-dialog": "npm:^1.0.4"
     "@radix-ui/react-dropdown-menu": "npm:^2.0.5"
+    "@reduxjs/toolkit": "npm:^2.3.0"
     "@rollup/plugin-alias": "npm:^5.1.0"
     "@sentry/electron": "npm:^5.2.0"
     "@sentry/react": "npm:^8.17.0"
@@ -8739,6 +8772,7 @@ __metadata:
     "@types/qs": "npm:^6.9.9"
     "@types/react": "npm:^18.2.33"
     "@types/react-dom": "npm:^18.2.14"
+    "@types/react-redux": "npm:^7.1.34"
     "@types/uuid": "npm:^9.0.2"
     "@types/which": "npm:^3.0.0"
     "@typescript-eslint/eslint-plugin": "npm:^7.0.0"
@@ -8777,6 +8811,8 @@ __metadata:
     react-hook-form: "npm:^7.45.2"
     react-icons: "npm:^4.10.1"
     react-popper: "npm:^2.3.0"
+    react-redux: "npm:^9.1.2"
+    redux: "npm:^5.0.1"
     rimraf: "npm:^6.0.0"
     rollup-plugin-ignore: "npm:^1.0.10"
     rollup-plugin-visualizer: "npm:^5.12.0"
@@ -8786,7 +8822,7 @@ __metadata:
     tailwindcss: "npm:^3.3.3"
     ts-expect: "npm:^1.3.0"
     tsx: "npm:^4.16.2"
-    typescript: "npm:^5.1.6"
+    typescript: "npm:^5.6.3"
     undici: "npm:^6.13.0"
     utf-8-validate: "npm:^6.0.3"
     uuid: "npm:^9.0.0"
@@ -8832,7 +8868,7 @@ __metadata:
     s3-readstream: "npm:^2.0.1"
     ts-expect: "npm:^1.3.0"
     tsx: "npm:^4.16.2"
-    typescript: "npm:^5.1.6"
+    typescript: "npm:^5.6.3"
     vitest: "npm:^2.0.0"
   languageName: unknown
   linkType: soft
@@ -8932,7 +8968,7 @@ __metadata:
     ts-node: "npm:^10.9.1"
     tsx: "npm:^4.16.2"
     tus-js-client: "npm:^3.1.0"
-    typescript: "npm:5.5.4"
+    typescript: "npm:^5.6.3"
     undici: "npm:^6.13.0"
     zod: "npm:3.23.8"
     zod-error: "npm:^1.5.0"
@@ -12945,7 +12981,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"immer@npm:^10.1.1":
+"immer@npm:^10.0.3, immer@npm:^10.1.1":
   version: 10.1.1
   resolution: "immer@npm:10.1.1"
   checksum: 10/9dacf1e8c201d69191ccd88dc5d733bafe166cd45a5a360c5d7c88f1de0dff974a94114d72b35f3106adfe587fcfb131c545856184a2247d89d735ad25589863
@@ -17086,6 +17122,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-redux@npm:^9.1.2":
+  version: 9.1.2
+  resolution: "react-redux@npm:9.1.2"
+  dependencies:
+    "@types/use-sync-external-store": "npm:^0.0.3"
+    use-sync-external-store: "npm:^1.0.0"
+  peerDependencies:
+    "@types/react": ^18.2.25
+    react: ^18.0
+    redux: ^5.0.0
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    redux:
+      optional: true
+  checksum: 10/319b3286f538da7e609ca90fc6762ffae007c5cf75e525a25237ac2feaee63d9cf76fe766817de1fc8f27e7bde825ca409c463037d26dd8e57c435d383f80c50
+  languageName: node
+  linkType: hard
+
 "react-remove-scroll-bar@npm:^2.3.3, react-remove-scroll-bar@npm:^2.3.6":
   version: 2.3.6
   resolution: "react-remove-scroll-bar@npm:2.3.6"
@@ -17260,12 +17315,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"redux@npm:^4.2.1":
+"redux-thunk@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "redux-thunk@npm:3.1.0"
+  peerDependencies:
+    redux: ^5.0.0
+  checksum: 10/38c563db5f0bbec90d2e65cc27f3c870c1b6102e0c071258734fac41cb0e51d31d894125815c2f4133b20aff231f51f028ad99bccc05a7e3249f1a5d5a959ed3
+  languageName: node
+  linkType: hard
+
+"redux@npm:^4.0.0, redux@npm:^4.2.1":
   version: 4.2.1
   resolution: "redux@npm:4.2.1"
   dependencies:
     "@babel/runtime": "npm:^7.9.2"
   checksum: 10/371e4833b671193303a7dea7803c8fdc8e0d566740c78f580e0a3b77b4161da25037626900a2205a5d616117fa6ad09a4232e5a110bd437186b5c6355a041750
+  languageName: node
+  linkType: hard
+
+"redux@npm:^5.0.1":
+  version: 5.0.1
+  resolution: "redux@npm:5.0.1"
+  checksum: 10/a373f9ed65693ead58bea5ef61c1d6bef39da9f2706db3be6f84815f3a1283230ecd1184efb1b3daa7f807d8211b0181564ca8f336fc6ee0b1e2fa0ba06737c2
   languageName: node
   linkType: hard
 
@@ -17354,6 +17425,13 @@ __metadata:
   dependencies:
     pe-library: "npm:^0.4.0"
   checksum: 10/73ff64b5f600efbd61ba0b478dd4e44eb753f128486dad30b96171dbb7b842257b265fdf27077cf0d194acbe0432a69baa041159d0d17b003214ae368578727b
+  languageName: node
+  linkType: hard
+
+"reselect@npm:^5.1.0":
+  version: 5.1.1
+  resolution: "reselect@npm:5.1.1"
+  checksum: 10/1fdae11a39ed9c8d85a24df19517c8372ee24fefea9cce3fae9eaad8e9cefbba5a3d4940c6fe31296b6addf76e035588c55798f7e6e147e1b7c0855f119e7fa5
   languageName: node
   linkType: hard
 
@@ -19099,7 +19177,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:5.5.4, typescript@npm:^5.1.6, typescript@npm:^5.3.3, typescript@npm:^5.4.3, typescript@npm:^5.4.5":
+"typescript@npm:^5.3.3, typescript@npm:^5.4.3":
   version: 5.5.4
   resolution: "typescript@npm:5.5.4"
   bin:
@@ -19109,13 +19187,33 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A5.5.4#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.1.6#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.3.3#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.4.3#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.4.5#optional!builtin<compat/typescript>":
+"typescript@npm:^5.6.3":
+  version: 5.6.3
+  resolution: "typescript@npm:5.6.3"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 10/c328e418e124b500908781d9f7b9b93cf08b66bf5936d94332b463822eea2f4e62973bfb3b8a745fdc038785cb66cf59d1092bac3ec2ac6a3e5854687f7833f1
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@npm%3A^5.3.3#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.4.3#optional!builtin<compat/typescript>":
   version: 5.5.4
   resolution: "typescript@patch:typescript@npm%3A5.5.4#optional!builtin<compat/typescript>::version=5.5.4&hash=379a07"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 10/746fdd0865c5ce4f15e494c57ede03a9e12ede59cfdb40da3a281807853fe63b00ef1c912d7222143499aa82f18b8b472baa1830df8804746d09b55f6cf5b1cc
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@npm%3A^5.6.3#optional!builtin<compat/typescript>":
+  version: 5.6.3
+  resolution: "typescript@patch:typescript@npm%3A5.6.3#optional!builtin<compat/typescript>::version=5.6.3&hash=8c6c40"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 10/00504c01ee42d470c23495426af07512e25e6546bce7e24572e72a9ca2e6b2e9bea63de4286c3cfea644874da1467dcfca23f4f98f7caf20f8b03c0213bb6837
   languageName: node
   linkType: hard
 
