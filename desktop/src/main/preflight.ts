@@ -19,50 +19,34 @@ const preflightSlice = createSlice({
   },
   reducers: {},
   extraReducers: (builder) => {
-    let done = 0;
-    const checkDone = (
-      state: WritableDraft<ReturnType<(typeof preflightSlice)["reducer"]>>,
-    ) => {
-      done++;
-      if (done === 2) {
-        state.done = true;
-      }
-    };
-    builder.addCase(initialiseSettings.pending, (state) => {
-      state.tasks.push({ name: "Settings", status: "pending" });
-    });
-    builder.addCase(initialiseSettings.fulfilled, (state) => {
-      state.tasks.find((t) => t.name === "Settings")!.status = "success";
-      checkDone(state);
-    });
-    builder.addCase(initialiseSettings.rejected, (state, action) => {
-      state.tasks.find((t) => t.name === "Settings")!.status = "error";
-      state.tasks.find((t) => t.name === "Settings")!.error =
-        action.error.message;
-    });
+    const TASKS = [
+      { name: "Settings", thunk: initialiseSettings },
+      { name: "Local media", thunk: localMediaActions.initialise },
+      { name: "Server connection", thunk: tryConnectToServer },
+    ];
 
-    builder.addCase(localMediaActions.initialise.pending, (state) => {
-      state.tasks.push({ name: "Local Media", status: "pending" });
-    });
-    builder.addCase(localMediaActions.initialise.fulfilled, (state) => {
-      state.tasks.find((t) => t.name === "Local Media")!.status = "success";
-      checkDone(state);
-    });
-    builder.addCase(localMediaActions.initialise.rejected, (state, action) => {
-      state.tasks.find((t) => t.name === "Local Media")!.status = "error";
-      state.tasks.find((t) => t.name === "Local Media")!.error =
-        action.error.message;
-    });
-
-    builder.addCase(tryConnectToServer.pending, (state) => {
-      state.tasks.push({ name: "Server Connection", status: "pending" });
-    });
-    // NB: this is a matcher, so must come after all addCase calls
-    builder.addMatcher(tryConnectToServer.settled, (state) => {
-      state.tasks.find((t) => t.name === "Server Connection")!.status =
-        "success";
-      checkDone(state);
-    });
+    for (const { name, thunk } of TASKS) {
+      builder.addCase(thunk.pending, (state) => {
+        state.tasks.push({ name, status: "pending" });
+      });
+      builder.addCase(thunk.fulfilled, (state) => {
+        const task = state.tasks.find(
+          (t) => t.name === name,
+        ) as WritableDraft<PreflightTask>;
+        task.status = "success";
+        const done = state.tasks.filter((t) => t.status === "success").length;
+        if (done === TASKS.length) {
+          state.done = true;
+        }
+      });
+      builder.addCase(thunk.rejected, (state, action) => {
+        const task = state.tasks.find(
+          (t) => t.name === name,
+        ) as WritableDraft<PreflightTask>;
+        task.status = "error";
+        task.error = action.error.message ?? "Unknown error";
+      });
+    }
   },
 });
 

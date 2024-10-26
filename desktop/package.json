@@ -96,6 +96,7 @@
     "electron": "31.7.1",
     "electron-builder": "^24.13.3",
     "electron-builder-squirrel-windows": "^25.0.0-alpha.7",
+    "electron-devtools-installer": "^3.2.0",
     "electron-vite": "^2.2.0",
     "electron-wix-msi": "^5.0.0",
     "eslint": "^8",

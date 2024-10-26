@@ -1,13 +1,15 @@
 import { app, BrowserWindow } from "electron";
 import * as path from "path";
 import isSquirrel from "electron-squirrel-startup";
+import installExtension, {
+  REACT_DEVELOPER_TOOLS,
+  REDUX_DEVTOOLS,
+} from "electron-devtools-installer";
 import Icon from "../icon/png/64x64.png";
 import * as Sentry from "@sentry/electron/main";
 import { logFlagState } from "@badger/feature-flags";
 import { getLogger } from "./base/logging";
-import { localMediaActions } from "./media/state";
 import { store } from "./store";
-import { initialiseSettings } from "./base/settings";
 import { doPreflight } from "./preflight";
 import { listenOnStore } from "./storeListener";
 
@@ -44,6 +46,11 @@ if (import.meta.env.VITE_DESKTOP_SENTRY_DSN) {
 }
 
 const createWindow = async () => {
+  if (import.meta.env.DEV) {
+    logger.info("Installing dev tools extensions...");
+    await installExtension([REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS]);
+  }
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 900,
