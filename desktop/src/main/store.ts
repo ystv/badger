@@ -16,9 +16,9 @@ import {
   connectToServer,
   serverConnectionReducer,
 } from "./base/serverConnectionState";
-import { createMainActionCreatorHandler } from "./actionProxies";
 import { getLogger } from "./base/logging";
 import { inspect } from "util";
+import invariant from "../common/invariant";
 
 const logger = getLogger("store");
 
@@ -59,6 +59,16 @@ ipcMain.handle("getState", () => store.getState());
 export interface ExposedActionCreators extends ActionCreatorsMapObject {
   connectToServer: typeof connectToServer;
 }
-createMainActionCreatorHandler<ExposedActionCreators>({
+const exposedActionCreators: ExposedActionCreators = {
   connectToServer,
+};
+
+ipcMain.handle("dispatch", (event, actionType, ...args) => {
+  invariant(
+    actionType in exposedActionCreators,
+    "Tried to dispatch non-exposed action " + actionType,
+  );
+  logger.info(`Dispatching action ${actionType}`);
+  const creator = exposedActionCreators[actionType];
+  globalThis.__MAIN_STORE.dispatch(creator(...args));
 });

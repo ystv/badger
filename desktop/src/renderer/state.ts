@@ -6,7 +6,7 @@ import {
 } from "@reduxjs/toolkit";
 import type { AppState, ExposedActionCreators } from "../main/store";
 import { useSelector, useStore } from "react-redux";
-import { createRendererActionCreatorsProxy } from "../common/actionProxiesRenderer";
+import { createRendererActionCreatorsProxy } from "./actionProxiesRenderer";
 
 /**
  * The Renderer store works a little bit interestingly.
