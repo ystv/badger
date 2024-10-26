@@ -1,0 +1,17 @@
+changelog:
+  categories:
+    - title: "What's Changed"
+      labels: 
+        - '*'
+      exclude:
+        authors:
+          - 'renovate'
+          - 'renovate[bot]'
+        labels:
+          - Dependencies
+    - title: "Dependency Updates"
+      authors:
+        - 'renovate'
+        - 'renovate[bot]'
+      labels:
+        - Dependencies
