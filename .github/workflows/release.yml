@@ -30,6 +30,8 @@ jobs:
       ref: ${{ github.ref }}
       tag: ${{ github.ref_name }}
       strip_rc: true
+      multi_arch: true
+      push_docker: true
 
   test-e2e-server:
     needs: [build]

@@ -16,6 +16,10 @@ on:
         type: boolean
         default: true
         description: Push docker images to registry
+      multi_arch:
+        type: boolean
+        default: false
+        description: Build multi-arch docker images
 
 permissions:
   contents: read
@@ -109,6 +113,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          platforms: ${{ inputs.multi_arch && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: Dockerfile.server
@@ -152,6 +157,7 @@ jobs:
           push: true
           tags: ${{ steps.jr_meta.outputs.tags }}
           labels: ${{ steps.jr_meta.outputs.labels }}
+          platforms: ${{ inputs.multi_arch && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: Dockerfile.jobrunner
