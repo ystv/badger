@@ -3,6 +3,8 @@ description: Imports built Docker images, starts docker-compose-test, and migrat
 inputs:
   image-from-artifacts:
     description: If true, download images from GHA artifacts
+  docker-tag:
+    description: Docker tag of Server/Jobrunner
 runs:
   using: composite
   steps:
@@ -20,7 +22,7 @@ runs:
       shell: bash
 
     - name: Set ref in docker-compose
-      run: sed -i "s/__RC_REF__/${{ github.ref_name }}/g" docker-compose-test.yml
+      run: sed -i "s/__RC_REF__/${{ inputs.docker-tag }}/g" docker-compose-test.yml
       shell: bash
 
     - name: Docker Compose

@@ -132,7 +132,7 @@ jobs:
     uses: ./.github/workflows/build_shared.yml
     with:
       ref: ${{ github.ref }}
-      tag: ${{ github.ref_name }}
+      tag: test
       build: server,jobrunner
       multi_arch: false
       push_docker: false
@@ -161,6 +161,7 @@ jobs:
       - uses: ./.github/steps/run-test-services
         with:
           image-from-artifacts: "true"
+          docker-tag: test
 
       - uses: ./.github/steps/setup-playwright
         with:
@@ -247,6 +248,7 @@ jobs:
       - uses: ./.github/steps/run-test-services
         with:
           image-from-artifacts: "true"
+          docker-tag: test
 
       - name: Build desktop
         run: yarn build

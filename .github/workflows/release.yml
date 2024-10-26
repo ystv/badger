@@ -50,6 +50,8 @@ jobs:
           cache-dependency-path: "yarn.lock"
 
       - uses: ./.github/steps/run-test-services
+        with:
+          docker-tag: ${{ github.ref_name }}
 
       - uses: ./.github/steps/setup-playwright
         with:
