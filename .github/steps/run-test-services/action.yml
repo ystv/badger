@@ -1,0 +1,43 @@
+name: Run Test Services
+description: Imports built Docker images, starts docker-compose-test, and migrates database
+inputs:
+  image-from-artifacts:
+    description: If true, download images from GHA artifacts
+  docker-tag:
+    description: Docker tag of Server/Jobrunner
+runs:
+  using: composite
+  steps:
+    - name: Download built images
+      if: ${{ inputs.image-from-artifacts == 'true' }}
+      uses: actions/download-artifact@v4
+      with:
+        pattern: docker-*
+        path: /tmp
+        merge-multiple: true
+
+    - name: Import images
+      if: ${{ inputs.image-from-artifacts == 'true' }}
+      run: for f in /tmp/*.tar; do docker load -i $f; done
+      shell: bash
+
+    - name: Set ref in docker-compose
+      run: sed -i "s/__RC_REF__/${{ inputs.docker-tag }}/g" docker-compose-test.yml
+      shell: bash
+
+    - name: Docker Compose
+      uses: hoverkraft-tech/compose-action@v2.0.2
+      with:
+        compose-file: |
+          docker-compose.yml
+          docker-compose-test.yml
+
+    - name: Migrate database
+      run: |
+        yarn prisma:migrateProd
+      shell: bash
+
+    - name: Restart services
+      run: |
+        docker compose -f docker-compose.yml -f docker-compose-test.yml restart server jobrunner
+      shell: bash

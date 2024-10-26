@@ -49,25 +49,13 @@ jobs:
           cache: "yarn"
           cache-dependency-path: "yarn.lock"
 
-      - name: Set ref in docker-compose
-        run: sed -i "s/__RC_REF__/${{ github.ref_name }}/g" docker-compose-rc-test.yml
-
-      - name: Start services
-        run: docker compose -f docker-compose.yml -f docker-compose-rc-test.yml up -d
-
-      - run: yarn install --immutable --inline-builds
+      - uses: ./.github/steps/run-test-services
+        with:
+          docker-tag: ${{ github.ref_name }}
 
       - uses: ./.github/steps/setup-playwright
         with:
           working-directory: ./server
-
-      - name: Migrate database
-        run: |
-          yarn prisma:migrateProd
-
-      - name: Retart services
-        run: |
-          docker compose -f docker-compose.yml -f docker-compose-rc-test.yml restart server jobrunner
 
       - name: Run Playwright tests
         run: yarn ${{ runner.debug && 'test:e2e:debug' || 'test:e2e' }}

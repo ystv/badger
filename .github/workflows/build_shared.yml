@@ -9,6 +9,10 @@ on:
         type: string
         required: true
         description: Version to build, also the docker tag
+      build:
+        type: string
+        default: desktop,server,jobrunner
+        description: Comma-separated list of builds to run
       strip_rc:
         type: boolean
         description: Strip -rc suffix from version number
@@ -20,6 +24,11 @@ on:
         type: boolean
         default: false
         description: Build multi-arch docker images
+      export_artifacts:
+        type: boolean
+        default: true
+        # https://docs.docker.com/build/ci/github-actions/share-image-jobs/
+        description: Export images to GitHub Actions artifacts
 
 permissions:
   contents: read
@@ -27,6 +36,7 @@ permissions:
 
 jobs:
   build-desktop-windows:
+    if: ${{ contains(inputs.build, 'desktop') }}
     runs-on: windows-latest
     strategy:
       matrix:
@@ -75,7 +85,7 @@ jobs:
 
   build-docker-server:
     runs-on: ubuntu-latest
-    if: ${{ inputs.push_docker == true }}
+    if: ${{ contains(inputs.build, 'server') }}
 
     steps:
       - uses: actions/checkout@v4
@@ -110,17 +120,25 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          push: true
+          push: ${{ inputs.push_docker }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: ${{ inputs.multi_arch && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          outputs: ${{ inputs.export_artifacts && 'type=docker,dest=/tmp/server.tar' || '' }}
           file: Dockerfile.server
+
+      - name: Upload to artifacts
+        if: ${{ inputs.export_artifacts }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-server
+          path: /tmp/server.tar
 
   build-docker-jobrunner:
     runs-on: ubuntu-latest
-    if: ${{ inputs.push_docker == true }}
+    if: ${{ contains(inputs.build, 'jobrunner') }}
 
     steps:
       - uses: actions/checkout@v4
@@ -154,10 +172,18 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          push: true
+          push: ${{ inputs.push_docker }}
           tags: ${{ steps.jr_meta.outputs.tags }}
           labels: ${{ steps.jr_meta.outputs.labels }}
           platforms: ${{ inputs.multi_arch && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          outputs: ${{ inputs.export_artifacts && 'type=docker,dest=/tmp/jobrunner.tar' || '' }}
           file: Dockerfile.jobrunner
+
+      - name: Upload to artifacts
+        if: ${{ inputs.export_artifacts }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-jobrunner
+          path: /tmp/jobrunner.tar

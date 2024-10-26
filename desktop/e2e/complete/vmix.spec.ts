@@ -231,11 +231,17 @@ test("load assets into vMix", async ({ app: [app, page], testMediaPath }) => {
   }, `${testMediaPath}/smpte_bars_15s (#${updated.rundowns[0].assets[0].media.id}).mp4`);
 
   await page
-    .getByRole("button", { name: "Download All Media in Test Category" })
+    .getByRole("button", {
+      name: "Download All Media in Test Category",
+      exact: true,
+    })
     .click();
   await page.getByRole("button", { name: "Expand Test Category" }).click();
   await page
-    .getByRole("button", { name: "Load All Media in Test Category" })
+    .getByRole("button", {
+      name: "Load All Media in Test Category",
+      exact: true,
+    })
     .click();
   await page.getByRole("menuitem", { name: "In List" }).click();
 
