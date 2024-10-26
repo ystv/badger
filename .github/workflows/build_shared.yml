@@ -20,6 +20,11 @@ on:
         type: boolean
         default: false
         description: Build multi-arch docker images
+      export_artifacts:
+        type: boolean
+        default: true
+        # https://docs.docker.com/build/ci/github-actions/share-image-jobs/
+        description: Export images to GitHub Actions artifacts
 
 permissions:
   contents: read
@@ -116,7 +121,15 @@ jobs:
           platforms: ${{ inputs.multi_arch && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          outputs: ${{ inputs.export_artifacts && 'type=docker,dest=/tmp/server.tar' || '' }}
           file: Dockerfile.server
+
+      - name: Upload to artifacts
+        if: ${{ inputs.export_artifacts }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-server
+          path: /tmp/server.tar
 
   build-docker-jobrunner:
     runs-on: ubuntu-latest
@@ -160,4 +173,12 @@ jobs:
           platforms: ${{ inputs.multi_arch && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          outputs: ${{ inputs.export_artifacts && 'type=docker,dest=/tmp/jobrunner.tar' || '' }}
           file: Dockerfile.jobrunner
+
+      - name: Upload to artifacts
+        if: ${{ inputs.export_artifacts }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-jobrunner
+          path: /tmp/jobrunner.tar

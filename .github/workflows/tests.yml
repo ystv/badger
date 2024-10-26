@@ -128,9 +128,19 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./server/coverage/coverage-final.json,./jobrunner/coverage/coverage-final.json
 
+  build:
+    uses: ./.github/workflows/build_shared.yml
+    with:
+      ref: ${{ github.ref }}
+      tag: ${{ github.ref_name }}
+      multi_arch: false
+      push_docker: false
+      export_artifacts: true
+
   test-e2e-server:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    needs: [build]
     env:
       NODE_ENV: test
       E2E_TEST: "true"
@@ -144,32 +154,16 @@ jobs:
           cache: "yarn"
           cache-dependency-path: "yarn.lock"
 
-      - name: Docker Compose
-        uses: hoverkraft-tech/compose-action@v2.0.2
-
       - name: Install dependencies
         run: yarn install --immutable --inline-builds
 
-      - name: Build server
-        run: |
-          yarn build
-          cp -r public .next/standalone/server/public
-          mkdir -p .next/standalone/server/.next
-          cp -r .next/static .next/standalone/server/.next/static
-        working-directory: ./server
-
-      - name: Build Jobrunner
-        run: |
-          yarn build
-          cp ../utility/prisma/schema.prisma .
-        working-directory: ./jobrunner
+      - uses: ./.github/steps/run-test-services
+        with:
+          image-from-artifacts: "true"
 
       - uses: ./.github/steps/setup-playwright
         with:
           working-directory: ./server
-
-      - name: Migrate database
-        run: yarn prisma:migrateProd
 
       - name: Run Playwright tests
         run: yarn ${{ runner.debug && 'test:e2e:debug' || 'test:e2e' }}
@@ -231,6 +225,7 @@ jobs:
   test-e2e-desktop-complete:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    needs: [build]
     env:
       NODE_ENV: test
       E2E_TEST: "true"
@@ -245,51 +240,19 @@ jobs:
           cache: "yarn"
           cache-dependency-path: "yarn.lock"
 
-      - name: Docker Compose
-        uses: hoverkraft-tech/compose-action@v2.0.2
-
       - name: Install dependencies
         run: yarn install --immutable --inline-builds
 
-      - uses: FedericoCarboni/setup-ffmpeg@v3
+      - uses: ./.github/steps/run-test-services
         with:
-          ffmpeg-version: "release"
-
-      - name: Build server
-        run: |
-          yarn build
-          cp -r public .next/standalone/server/public
-          mkdir -p .next/standalone/server/.next
-          cp -r .next/static .next/standalone/server/.next/static
-        working-directory: ./server
-
-      - name: Build Jobrunner
-        run: |
-          yarn build
-          cp ../utility/prisma/schema.prisma .
-        working-directory: ./jobrunner
+          image-from-artifacts: "true"
 
       - name: Build desktop
         run: yarn build
         working-directory: ./desktop
 
-      - name: Migrate database
-        run: yarn prisma:migrateProd
-
       - name: Make logs folder
         run: mkdir -p ${{ runner.temp }}/logs
-
-      - name: Start Jobrunner
-        run: |
-          node --enable-source-maps dist/index.cjs --watch --pidFile ${{ runner.temp }}/jobrunner.pid > ${{ runner.temp }}/logs/jobrunner.log 2>&1 &
-          npx -y wait-on file:/${{ runner.temp }}/jobrunner.pid
-        working-directory: ./jobrunner
-
-      - name: Start server
-        run: |
-          HOSTNAME=localhost node server/server.js > ${{ runner.temp }}/logs/server.log 2>&1 &
-          npx -y wait-on -v -t 120000 http://localhost:3000/api/healthz
-        working-directory: ./server/.next/standalone
 
       - name: Run Playwright tests
         run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn ${{ runner.debug && 'test:e2e:debug' || 'test:e2e' }} --project complete
