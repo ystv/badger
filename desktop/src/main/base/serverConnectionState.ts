@@ -17,6 +17,15 @@ const serverConnectionSlice = createSlice({
   },
   reducers: {},
   extraReducers: (builder) => {
+    builder.addCase(tryConnectToServer.pending, (state) => {
+      state.state = "connecting";
+    });
+
+    builder.addCase(tryConnectToServer.rejected, (state) => {
+      state.state = "disconnected";
+      // no error here
+    });
+
     builder.addCase(connectToServer.pending, (state) => {
       state.state = "connecting";
     });
@@ -26,16 +35,13 @@ const serverConnectionSlice = createSlice({
       state.error = action.error.message ?? "Unknown error";
     });
 
-    builder.addMatcher(
-      isAnyOf(connectToServer.fulfilled, tryConnectToServer.fulfilled),
-      (state, action) => {
-        if (action.payload) {
-          state.state = "connected";
-          state.error = null;
-          state.versionSkew = action.payload.versionSkew;
-        }
-      },
-    );
+    builder.addMatcher(serverConnected, (state, action) => {
+      if (action.payload) {
+        state.state = "connected";
+        state.error = null;
+        state.versionSkew = action.payload.versionSkew;
+      }
+    });
 
     builder.addMatcher(tryConnectToServer.settled, (state) => {
       state.preflightComplete = true;
@@ -76,4 +82,9 @@ export const tryConnectToServer = createAsyncThunk(
       settings.server.password,
     );
   },
+);
+
+export const serverConnected = isAnyOf(
+  connectToServer.fulfilled,
+  tryConnectToServer.fulfilled,
 );

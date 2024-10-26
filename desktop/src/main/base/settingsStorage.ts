@@ -34,7 +34,7 @@ export async function saveSettings(val: AppSettings) {
       // @ts-expect-error typing is complicated
       const encrypted = safeStorage.encryptString(nv[group][field]);
       // @ts-expect-error typing is complicated
-      nv[group][field] = encrypted;
+      nv[group][field] = encrypted.toString("base64");
     }
   }
   const data = JSON.stringify(nv, null, 2);
@@ -65,7 +65,10 @@ export async function loadSettings(): Promise<AppSettings> {
   for (const [group, fields] of Object.entries(encryptedFields)) {
     for (const field of Object.keys(fields)) {
       // @ts-expect-error typing is complicated
-      const decrypted = safeStorage.decryptString(settings.data[group][field]);
+      const encrypted = settings.data[group][field];
+      const decrypted = safeStorage.decryptString(
+        Buffer.from(encrypted, "base64"),
+      );
       // @ts-expect-error typing is complicated
       settings.data[group][field] = decrypted;
     }

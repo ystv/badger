@@ -13,16 +13,24 @@ const logger = getLogger("selectedShow");
 
 const selectedShowState = createSlice({
   name: "selectedShow",
-  initialState: null as CompleteShowType | null,
+  initialState: {
+    show: null as CompleteShowType | null,
+    isLoading: false,
+  },
   reducers: {
-    _updateShowData: (_, action: PayloadAction<CompleteShowType>) =>
-      action.payload,
+    _updateShowData: (state, action: PayloadAction<CompleteShowType>) => {
+      state.show = action.payload;
+    },
   },
   extraReducers: (builder) => {
-    builder.addCase(
-      changeSelectedShow.fulfilled,
-      (_, action) => action.payload,
-    );
+    builder.addCase(changeSelectedShow.pending, (state) => {
+      state.isLoading = true;
+    });
+    builder.addCase(changeSelectedShow.fulfilled, (state, action) => {
+      state.show = action.payload;
+      state.isLoading = false;
+    });
+    // TODO handle error? (Probably want some kind of global handler)
   },
 });
 
@@ -40,10 +48,11 @@ listenOnStore({
   effect: async (initialShowState, api) => {
     api.cancelActiveListeners();
     api.fork(async (forkAPI) => {
+      logger.debug("Starting show data update loop");
       for (;;) {
         try {
           await forkAPI.delay(10_000); // TODO configurable
-          const current = api.getState().selectedShow;
+          const { show: current } = api.getState().selectedShow;
           if (current === null || current.id !== initialShowState.payload.id) {
             return;
           }
@@ -68,5 +77,6 @@ listenOnStore({
     // Cancel as soon as a new show is selected
     await api.condition(changeSelectedShow.pending.match);
     api.cancel();
+    logger.debug("Cancelled show data update loop");
   },
 });

@@ -5,13 +5,17 @@ module.exports = {
       {
         paths: [
           {
-            name: "../main/ipcEventBus",
-            message:
-              "You can't access the main process's EventBus. Use window.EventBus instead.",
-            allowTypeImports: false,
+            name: "electron-settings",
           },
           {
-            name: "electron-settings",
+            name: "react-redux",
+            importNames: ["useSelector"],
+            message: "Use typed hook `useAppSelector` instead.",
+          },
+          {
+            name: "react-redux",
+            importNames: ["useDispatch"],
+            message: "Use state.ts dispatch export.",
           },
         ],
         patterns: [

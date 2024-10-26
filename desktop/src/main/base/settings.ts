@@ -1,9 +1,10 @@
 import { createAction, createAsyncThunk, isAnyOf } from "@reduxjs/toolkit";
 import { AnyZodObject, z, ZodType } from "zod";
 import { createAppSlice } from "./reduxHelpers";
-import { set, throttle } from "lodash";
+import { set, throttle, isEqual } from "lodash";
 import { loadSettings, saveSettings } from "./settingsStorage";
 import { listenOnStore } from "../storeListener";
+import { connectToServer } from "./serverConnectionState";
 
 export const AppSettingsSchema = z.object({
   server: z.object({
@@ -76,6 +77,12 @@ const settings = createAppSlice({
         _loaded: true,
       };
     });
+
+    // Save server connection details when we connect
+    builder.addCase(connectToServer.fulfilled, (state, action) => {
+      state.server.endpoint = action.meta.arg.host;
+      state.server.password = action.meta.arg.password;
+    });
   },
 });
 
@@ -89,7 +96,9 @@ export const initialiseSettings = createAsyncThunk(
 const doSaveSettings = throttle(saveSettings, 500);
 
 listenOnStore({
-  predicate: isAnyOf(setSetting.match),
+  predicate: (action, newState, oldState) =>
+    !isEqual(newState.settings, oldState.settings) &&
+    !initialiseSettings.fulfilled.match(action),
   effect: (_, api) => {
     const newSettings = api.getState().settings;
     // TODO: feedback?

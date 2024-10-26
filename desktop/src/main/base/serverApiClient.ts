@@ -38,7 +38,7 @@ export async function newAPIClient(endpoint: string, password: string) {
       }),
       // We disable batching in E2E tests to make mocking easier
       (process.env.E2E_TEST === "true" ? httpLink : httpBatchLink)({
-        url: endpoint,
+        url: endpoint + "/api/trpc",
         headers: () => ({
           authorization: `Bearer ${password}`,
         }),

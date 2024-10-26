@@ -2,15 +2,14 @@ import {
   Action,
   ActionCreatorsMapObject,
   configureStore,
-  createListenerMiddleware,
   Middleware,
   ThunkAction,
 } from "@reduxjs/toolkit";
-import { AppSettings, settingsReducer } from "./base/settings";
+import { settingsReducer } from "./base/settings";
 import { ipcMain } from "electron/main";
 import { listener } from "./storeListener";
 import { localMediaReducer } from "./media/state";
-import { selectedShowReducer } from "./base/selectedShow";
+import { changeSelectedShow, selectedShowReducer } from "./base/selectedShow";
 import { preflightReducer } from "./preflight";
 import {
   connectToServer,
@@ -19,6 +18,7 @@ import {
 import { getLogger } from "./base/logging";
 import { inspect } from "util";
 import invariant from "../common/invariant";
+import { serverDataSlice } from "./base/serverDataState";
 
 const logger = getLogger("store");
 
@@ -38,10 +38,10 @@ export const store = configureStore({
     selectedShow: selectedShowReducer,
     preflight: preflightReducer,
     serverConnection: serverConnectionReducer,
+    serverData: serverDataSlice.reducer,
   },
   middleware: (def) => def().concat(listener.middleware, loggerMiddleware),
 });
-globalThis.__MAIN_STORE = store;
 
 export type AppStore = typeof store;
 export type AppState = ReturnType<typeof store.getState>;
@@ -58,9 +58,11 @@ ipcMain.handle("getState", () => store.getState());
 
 export interface ExposedActionCreators extends ActionCreatorsMapObject {
   connectToServer: typeof connectToServer;
+  changeSelectedShow: typeof changeSelectedShow;
 }
 const exposedActionCreators: ExposedActionCreators = {
   connectToServer,
+  changeSelectedShow,
 };
 
 ipcMain.handle("dispatch", (event, actionType, ...args) => {
@@ -70,5 +72,5 @@ ipcMain.handle("dispatch", (event, actionType, ...args) => {
   );
   logger.info(`Dispatching action ${actionType}`);
   const creator = exposedActionCreators[actionType];
-  globalThis.__MAIN_STORE.dispatch(creator(...args));
+  store.dispatch(creator(...args));
 });

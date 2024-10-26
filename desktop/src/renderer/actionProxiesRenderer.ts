@@ -1,5 +1,9 @@
 import { ActionCreatorsMapObject } from "redux";
 
+/**
+ * This function creates a proxy object that can be used to dispatch actions
+ * to the main process store from the renderer process.
+ */
 export function createRendererActionCreatorsProxy<
   T extends ActionCreatorsMapObject,
 >(): T {
@@ -17,5 +21,6 @@ export function createRendererActionCreatorsProxy<
         return Reflect.get(target, prop, receiver);
       },
     },
+    // SHENANIGANS ARE AFOOT! This is what lets us do `dispatch.yourActionType` as if it were a function call.
   ) as T;
 }

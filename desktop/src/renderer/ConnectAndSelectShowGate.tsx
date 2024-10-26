@@ -1,6 +1,7 @@
 import { ReactNode, useState } from "react";
 import Button from "@badger/components/button";
 import { dispatch, useAppSelector } from "./state";
+import invariant from "../common/invariant";
 
 function ServerConnectForm() {
   const [addrEntry, setAddrEntry] = useState(
@@ -51,45 +52,40 @@ function ServerConnectForm() {
   );
 }
 
-export function SelectShowForm(props: { onSelect?: () => void }) {
-  // const queryClient = useQueryClient();
-  // const listShows = ipc.listUpcomingShows.useQuery();
-  // const selectShow = ipc.setSelectedShow.useMutation({
-  //   async onSuccess() {
-  //     await queryClient.invalidateQueries(getQueryKey(ipc.getSelectedShow));
-  //     props.onSelect?.();
-  //   },
-  // });
-  // if (listShows.isLoading) {
-  //   return <div>Please wait, loading shows list...</div>;
-  // }
-  // if (listShows.error) {
-  //   return (
-  //     <div>
-  //       <h2 className="text-2xl">Error</h2>
-  //       <div className="block bg-danger-4 text-light p-1 rounded">
-  //         {listShows.error.message}
-  //       </div>
-  //       <pre>{JSON.stringify(listShows.error, null, 2)}</pre>
-  //     </div>
-  //   );
-  // }
-  // invariant(listShows.data, "listShows.data is null");
-  // return (
-  //   <div data-testid="SelectShowForm.showsList" role="list">
-  //     {listShows.data.map((show) => (
-  //       <div key={show.id} role="listitem">
-  //         <h3 className="text-xl">{show.name}</h3>
-  //         <Button
-  //           color="primary"
-  //           onClick={() => selectShow.mutate({ id: show.id })}
-  //         >
-  //           Select
-  //         </Button>
-  //       </div>
-  //     ))}
-  //   </div>
-  // );
+export function SelectShowForm() {
+  const { upcomingShows, upcomingShowsError, upcomingShowsLoading } =
+    useAppSelector((state) => state.serverData);
+  const pending = useAppSelector((state) => state.selectedShow.isLoading);
+  if (upcomingShowsLoading) {
+    return <div>Please wait, loading shows list...</div>;
+  }
+  if (upcomingShowsError) {
+    return (
+      <div>
+        <h2 className="text-2xl">Error</h2>
+        <div className="block bg-danger-4 text-light p-1 rounded">
+          {upcomingShowsError}
+        </div>
+      </div>
+    );
+  }
+  invariant(upcomingShows, "upcomingShows is null");
+  return (
+    <div data-testid="SelectShowForm.showsList" role="list">
+      {upcomingShows.map((show) => (
+        <div key={show.id} role="listitem">
+          <h3 className="text-xl">{show.name}</h3>
+          <Button
+            color="primary"
+            onClick={() => dispatch.changeSelectedShow(show.id)}
+            disabled={pending}
+          >
+            Select
+          </Button>
+        </div>
+      ))}
+    </div>
+  );
   return null;
 }
 
@@ -97,7 +93,9 @@ export default function ConnectAndSelectShowGate(props: {
   children: ReactNode;
 }) {
   const connState = useAppSelector((state) => state.serverConnection);
-  const selectedShow = useAppSelector((state) => state.selectedShow !== null);
+  const selectedShow = useAppSelector(
+    (state) => state.selectedShow.show !== null,
+  );
 
   if (connState.state === "connected" && selectedShow) {
     return props.children;
