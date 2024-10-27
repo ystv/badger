@@ -13,45 +13,6 @@ import { getLocalMedia } from "../media/mediaManagement";
 const logger = getLogger("obs/ipc");
 
 export const obsRouter = r({
-  getConnectionState: proc
-    .output(
-      z.object({
-        connected: z.boolean(),
-        version: z.string().optional(),
-        platform: z.string().optional(),
-        error: z.string().optional(),
-        availableRequests: z.array(z.string()).optional(),
-      }),
-    )
-    .query(async () => {
-      // TODO[BDGR-136]: don't use the connection for this
-      if (obsConnection === null) {
-        return { connected: false };
-      }
-      try {
-        const version = await obsConnection.ping();
-        return {
-          connected: true,
-          version: version.obsVersion,
-          platform: version.platformDescription,
-          availableRequests: version.availableRequests,
-        };
-      } catch (e) {
-        logger.warn("OBS connection error", e);
-        return { connected: false, error: String(e) };
-      }
-    }),
-  connect: proc
-    .input(
-      z.object({
-        host: z.string(),
-        port: z.coerce.number(),
-        password: z.string(),
-      }),
-    )
-    .mutation(async ({ input }) => {
-      await createOBSConnection(input.host, input.password, input.port);
-    }),
   addMediaAsScene: proc
     .input(
       z.object({

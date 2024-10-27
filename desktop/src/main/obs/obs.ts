@@ -2,9 +2,9 @@ import OBSWebSocket, {
   OBSRequestTypes,
   OBSResponseTypes,
 } from "obs-websocket-js";
-import { getOBSSettings, saveOBSSettings } from "../base/settings";
 import { getLogger } from "../base/logging";
 import { inspect } from "node:util";
+import { DEFAULT_OBS_PORT } from "./constants";
 
 const logger = getLogger("obs");
 
@@ -286,30 +286,10 @@ export let obsConnection: OBSConnection | null = null;
 export async function createOBSConnection(
   obsHost: string,
   obsPassword: string,
-  obsPort = 4455,
+  obsPort = DEFAULT_OBS_PORT,
 ) {
-  obsConnection = await OBSConnection.create(obsHost, obsPassword, obsPort);
-  await obsConnection.ping();
-  await saveOBSSettings({
-    host: obsHost,
-    password: obsPassword,
-    port: obsPort,
-  });
-  return obsConnection;
-}
-
-export async function tryCreateOBSConnection() {
-  const settings = await getOBSSettings();
-  if (settings !== null) {
-    try {
-      obsConnection = await OBSConnection.create(
-        settings.host,
-        settings.password,
-        settings.port,
-      );
-      logger.info("Successfully connected to OBS using saved credentials");
-    } catch (e) {
-      logger.warn("Failed to connect to OBS (will ignore)", e);
-    }
-  }
+  const oc = await OBSConnection.create(obsHost, obsPassword, obsPort);
+  const pingResult = await oc.ping();
+  obsConnection = oc;
+  return pingResult;
 }

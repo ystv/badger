@@ -1,4 +1,3 @@
-import { ipc, useInvalidateQueryOnIPCEvent } from "./ipc";
 import invariant from "../common/invariant";
 import {
   Dialog,
@@ -18,42 +17,28 @@ import {
   DropdownMenuTrigger,
 } from "@badger/components/dropdown-menu";
 import { Button } from "@badger/components/button";
-import {
-  IoAlertSharp,
-  IoCaretDownOutline,
-  IoCheckmarkSharp,
-  IoCog,
-  IoDownloadSharp,
-} from "react-icons/io5";
-import { Suspense, useMemo, useState } from "react";
+import { IoCaretDownOutline, IoCog, IoDownloadSharp } from "react-icons/io5";
+import { Suspense, useState } from "react";
 import OBSScreen from "./screens/OBS";
 import VMixScreen from "./screens/vMix";
 import { Settings } from "./screens/Settings";
-import { SelectShowForm } from "./ConnectAndSelectShowGate";
 import {
   Table,
   TableBody,
   TableCell,
   TableRow,
 } from "@badger/components/table";
-import { OntimePush } from "./screens/Ontime";
-import { getQueryKey } from "@trpc/react-query";
+import { useAppSelector } from "./state";
 
 function DownloadTrackerPopup() {
-  const downloadStatus = ipc.media.getDownloadStatus.useQuery(void 0, {
-    refetchInterval: 1000,
-  });
-  useInvalidateQueryOnIPCEvent(
-    getQueryKey(ipc.media.getDownloadStatus),
-    "downloadStatusChange",
+  const downloads = useAppSelector((state) =>
+    (state.localMedia.currentDownload
+      ? [state.localMedia.currentDownload]
+      : []
+    ).concat(state.localMedia.downloadQueue),
   );
 
-  const downloads = useMemo(
-    () => downloadStatus.data?.filter((x) => x.status !== "done"),
-    [downloadStatus.data],
-  );
-
-  if (!downloads?.length) {
+  if (!downloads.length) {
     return null;
   }
 
@@ -87,11 +72,9 @@ function DownloadTrackerPopup() {
 }
 
 export default function MainScreen() {
-  const { data: show } = ipc.getSelectedShow.useQuery();
+  const show = useAppSelector((state) => state.selectedShow.show);
   invariant(show, "no selected show"); // this is safe because MainScreen is rendered inside a ConnectAndSelectShowGate
-  const [integrations] = ipc.supportedIntegrations.useSuspenseQuery();
-
-  const downloadAll = ipc.media.downloadAllMediaForSelectedShow.useMutation();
+  const integrations = useAppSelector((state) => state.integrations.supported);
 
   const [isChangeShowOpen, setIsChangeShowOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -105,13 +88,13 @@ export default function MainScreen() {
       : show.rundowns.find((rd) => rd.id === selectedRundown)?.name;
   invariant(selectedName, "selected non-existent rundown");
 
-  const ontimeState = ipc.ontime.getConnectionStatus.useQuery();
-  const [ontimePushOpen, setOntimePushOpen] = useState(false);
+  // const ontimeState = ipc.ontime.getConnectionStatus.useQuery();
+  // const [ontimePushOpen, setOntimePushOpen] = useState(false);
 
   return (
     <div>
       <nav className="relative top-0 left-0 w-full h-12 px-4 bg-dark text-light flex flex-nowrap items-center justify-between">
-        <Button onClick={() => downloadAll.mutate()} color="ghost">
+        {/* <Button onClick={() => downloadAll.mutate()} color="ghost">
           {downloadAll.status === "success" && (
             <IoCheckmarkSharp className="h-4 w-4 inline-block" size={24} />
           )}
@@ -119,21 +102,21 @@ export default function MainScreen() {
             <IoAlertSharp className="h-4 w-4 inline-block" size={24} />
           )}
           Download all media
-        </Button>
+        </Button> */}
         <Button onClick={() => setIsChangeShowOpen(true)} color="ghost">
           Change selected show
         </Button>
-        <Button
+        {/* <Button
           onClick={() => setOntimePushOpen(true)}
           disabled={!ontimeState.isSuccess || ontimeState.data === null}
           color="ghost"
         >
           Push to Ontime
-        </Button>
+        </Button> */}
         <Dialog open={isChangeShowOpen} onOpenChange={setIsChangeShowOpen}>
           <DialogContent>
             <DialogHeader className="text-3xl">Change Show</DialogHeader>
-            <SelectShowForm onSelect={() => setIsChangeShowOpen(false)} />
+            {/* <SelectShowForm onSelect={() => setIsChangeShowOpen(false)} /> */}
           </DialogContent>
         </Dialog>
         <div className="ml-auto flex flex-row flex-nowrap">
@@ -201,11 +184,11 @@ export default function MainScreen() {
           />
         )}
       </div>
-      <OntimePush
+      {/* <OntimePush
         show={show}
         dialogOpen={ontimePushOpen}
         setDialogOpen={setOntimePushOpen}
-      />
+      /> */}
     </div>
   );
 }

@@ -35,7 +35,11 @@ export type MediaDownloadState = "pending" | "downloading" | "done" | "error";
 export async function doDownloadMedia(
   task: { mediaID: number },
   mediaPath: string,
-  onProgress: (state: MediaDownloadState, progress: number) => void,
+  onProgress: (
+    state: MediaDownloadState,
+    progress: number,
+    fileName: string,
+  ) => void,
 ) {
   const serverApiClient = serverAPI();
   const info = await serverApiClient.media.get.query({ id: task.mediaID });
@@ -53,11 +57,11 @@ export async function doDownloadMedia(
   logger.info(
     `Starting to download media ${info.id} [${newFileName}] to ${outputPath}`,
   );
-  onProgress("downloading", 0);
+  onProgress("downloading", 0, newFileName);
 
   try {
     await downloadFile(urlRaw, outputPath, (progress: number) => {
-      onProgress("downloading", progress);
+      onProgress("downloading", progress, newFileName);
     });
   } catch (e) {
     throw new Error(`Failed to download media ${info.id} [${newFileName}]`, {
@@ -66,7 +70,7 @@ export async function doDownloadMedia(
   }
 
   logger.info(`Downloaded media ${info.id} [${newFileName}] to ${outputPath}`);
-  onProgress("done", 100);
+  onProgress("done", 100, newFileName);
   const stat = await fsp.stat(outputPath);
   return {
     outputPath,

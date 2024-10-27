@@ -5,11 +5,17 @@ import {
   Middleware,
   ThunkAction,
 } from "@reduxjs/toolkit";
+import { combineReducers } from "redux";
 import { settingsReducer } from "./base/settings";
 import { ipcMain } from "electron/main";
 import { listener } from "./storeListener";
-import { localMediaReducer } from "./media/state";
-import { changeSelectedShow, selectedShowReducer } from "./base/selectedShow";
+import { localMediaActions, localMediaReducer } from "./media/state";
+import {
+  _enterReducer,
+  _exitReducer,
+  changeSelectedShow,
+  selectedShowReducer,
+} from "./base/selectedShow";
 import { preflightReducer } from "./preflight";
 import {
   connectToServer,
@@ -19,6 +25,8 @@ import { getLogger } from "./base/logging";
 import { inspect } from "util";
 import invariant from "../common/invariant";
 import { serverDataSlice } from "./base/serverDataState";
+import { addContinuityItemAsScene, obsConnect, obsSlice } from "./obs/state";
+import { integrationsReducer } from "./base/integrations";
 
 const logger = getLogger("store");
 
@@ -31,20 +39,52 @@ const loggerMiddleware: Middleware = (store) => (next) => (action) => {
   return next(action);
 };
 
+const topReducer = combineReducers({
+  settings: settingsReducer,
+  localMedia: localMediaReducer,
+  preflight: preflightReducer,
+  serverConnection: serverConnectionReducer,
+  serverData: serverDataSlice.reducer,
+  obs: obsSlice.reducer,
+  integrations: integrationsReducer,
+});
+
+export interface AppState extends ReturnType<typeof topReducer> {
+  selectedShow: ReturnType<typeof selectedShowReducer>;
+}
+
 export const store = configureStore({
-  reducer: {
-    settings: settingsReducer,
-    localMedia: localMediaReducer,
-    selectedShow: selectedShowReducer,
-    preflight: preflightReducer,
-    serverConnection: serverConnectionReducer,
-    serverData: serverDataSlice.reducer,
+  reducer: (state: AppState | undefined, action) => {
+    // Since nearly every other bit of the application depends on the selected show,
+    // we have a shortcut to allow all the other reducers to access it without embedding
+    // it in their state. In effect, we temporarily set the selected show as a global variable,
+    // expose it to reducers through the getSelectedShow function, and then immediately unset it.
+    //
+    // This seems like a side effect and thus forbidden in Redux, but it's actually
+    // valid, since it's only used within the reducer function itself.
+    // This is a way to apply the "reducer compostion" pattern within the constraints
+    // of Redux Toolkit. The "clean" Redux way would be for all the other reducers to
+    // take the current show state as a third argument, but Redux Toolkit doesn't support
+    // this and we don't want to re-implement it. So we use this global as a pseudo-argument.
+    //
+    // Note that, if any other slices want to react to changes in the selected show, they
+    // will need to include showDataChangeMatcher as a reducer case as normal.
+    const selectedShowState = selectedShowReducer(state?.selectedShow, action);
+    _enterReducer(selectedShowState.show);
+    const rest = topReducer(state, action);
+    _exitReducer();
+    return {
+      selectedShow: selectedShowState,
+      ...rest,
+    };
   },
-  middleware: (def) => def().concat(listener.middleware, loggerMiddleware),
+  middleware: (def) =>
+    def({
+      serializableCheck: false, // we have Dates in our state
+    }).concat(listener.middleware, loggerMiddleware),
 });
 
 export type AppStore = typeof store;
-export type AppState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 export type AppThunk<A = void> = ThunkAction<A, AppState, unknown, Action>;
 
@@ -59,18 +99,28 @@ ipcMain.handle("getState", () => store.getState());
 export interface ExposedActionCreators extends ActionCreatorsMapObject {
   connectToServer: typeof connectToServer;
   changeSelectedShow: typeof changeSelectedShow;
+  queueMediaDownload: typeof localMediaActions.queueMediaDownload;
+  downloadAllMediaForSelectedShow: typeof localMediaActions.downloadAllMediaForSelectedShow;
+  obsConnect: typeof obsConnect;
+  addContinuityItemAsScene: typeof addContinuityItemAsScene;
 }
 const exposedActionCreators: ExposedActionCreators = {
   connectToServer,
   changeSelectedShow,
+  queueMediaDownload: localMediaActions.queueMediaDownload,
+  downloadAllMediaForSelectedShow:
+    localMediaActions.downloadAllMediaForSelectedShow,
+  obsConnect,
+  addContinuityItemAsScene,
 };
 
-ipcMain.handle("dispatch", (event, actionType, ...args) => {
+ipcMain.handle("dispatch", async (event, actionType, ...args) => {
   invariant(
     actionType in exposedActionCreators,
     "Tried to dispatch non-exposed action " + actionType,
   );
   logger.info(`Dispatching action ${actionType}`);
   const creator = exposedActionCreators[actionType];
-  store.dispatch(creator(...args));
+  const result = store.dispatch(creator(...args));
+  return result;
 });

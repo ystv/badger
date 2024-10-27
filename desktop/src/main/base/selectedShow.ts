@@ -3,6 +3,7 @@ import { serverAPI } from "./serverApiClient";
 import {
   createAsyncThunk,
   createSlice,
+  isAnyOf,
   PayloadAction,
   TaskAbortError,
 } from "@reduxjs/toolkit";
@@ -43,6 +44,14 @@ export const changeSelectedShow = createAsyncThunk(
   },
 );
 
+/**
+ * Slices can use this to listen for changes to the selected show data.
+ */
+export const showDataChangeMatcher = isAnyOf(
+  changeSelectedShow.fulfilled.match,
+  selectedShowState.actions._updateShowData.match,
+);
+
 listenOnStore({
   actionCreator: changeSelectedShow.fulfilled,
   effect: async (initialShowState, api) => {
@@ -80,3 +89,32 @@ listenOnStore({
     logger.debug("Cancelled show data update loop");
   },
 });
+
+// This hackery allows all other slice reducers to access selectedShow without
+// needing to maintain a copy in their slice. See the comment in store.ts
+// for more detail (including why it's legal).
+
+// This sigil allows us to enforce that getSelectedShow is only called within a reducer.
+// The value of state is this sigil whenever we're not in a reducer.
+const sigil = Symbol("SelectedShow_notInReducer");
+let state: CompleteShowType | null | typeof sigil = sigil;
+export function _enterReducer(value: CompleteShowType | null) {
+  state = value;
+}
+export function _exitReducer() {
+  state = sigil;
+}
+
+/**
+ * Get the currently selected show.
+ * **This is only legal to call within a Redux reducer**, during the top-level store update cycle. Any other
+ * usage will throw an error.
+ */
+export function getSelectedShow() {
+  if (state === sigil) {
+    throw new Error(
+      "getSelectedShow called outside of a reducer. It is only valid inside a Redux reducer. For all other uses, access the state directly.",
+    );
+  }
+  return state;
+}

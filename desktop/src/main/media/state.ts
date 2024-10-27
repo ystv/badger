@@ -1,5 +1,4 @@
 import * as fsp from "fs/promises";
-import * as path from "path";
 
 import { getLogger } from "../base/logging";
 import { createAppSlice } from "../base/reduxHelpers";
@@ -10,20 +9,16 @@ import {
   MediaDownloadState,
   scanLocalMedia,
 } from "./mediaManagement";
-import { AppState, AppThunk } from "../store";
+import { AppState } from "../store";
 import { setSetting } from "../base/settings";
-import {
-  createAsyncThunk,
-  isAnyOf,
-  PayloadAction,
-  ThunkAction,
-} from "@reduxjs/toolkit";
+import { createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { listenOnStore } from "../storeListener";
-
-const logger = getLogger("media/state");
+import invariant from "../../common/invariant";
+import { getSelectedShow } from "../base/selectedShow";
 
 interface DownloadQueueItem {
   mediaID: number;
+  name?: string;
   status: MediaDownloadState;
   progressPercent?: number;
   error?: string;
@@ -55,12 +50,13 @@ const downloadMedia = createAsyncThunk(
     const { outputPath, sizeBytes } = await doDownloadMedia(
       task,
       mediaPath,
-      (state, progress) => {
+      (state, progress, name) => {
         thunkAPI.dispatch(
           localMediaState.actions.downloadProgress({
             mediaID: task.mediaID,
             state,
             progress,
+            name,
           }),
         );
       },
@@ -69,39 +65,13 @@ const downloadMedia = createAsyncThunk(
   },
 );
 
-const downloadAllMediaForSelectedShow: () => AppThunk =
-  () => (dispatch, getState) => {
-    const show = getState().selectedShow;
-    if (!show) {
-      return;
-    }
-    // This is all the media IDs, the reducer will filter out the ones that are already downloaded
-    const mediaIDs: number[] = [];
-    for (const rundown of show.rundowns) {
-      for (const item of rundown.items) {
-        if (item.media) {
-          mediaIDs.push(item.media.id);
-        }
-      }
-      for (const asset of rundown.assets) {
-        mediaIDs.push(asset.media.id);
-      }
-    }
-    for (const continuityItem of show.continuityItems) {
-      if (continuityItem.media) {
-        mediaIDs.push(continuityItem.media.id);
-      }
-    }
-    dispatch(localMediaState.actions.queueMediaDownloads({ mediaIDs }));
-  };
-
 const localMediaState = createAppSlice({
   name: "localMedia",
   initialState: {
     media: [] as LocalMediaItem[],
     downloadQueue: [] as DownloadQueueItem[],
-    isDownloadInProgress: false,
-    preflightComplete: false,
+    currentDownload: null as DownloadQueueItem | null,
+    failedDownloads: [] as DownloadQueueItem[],
   },
   reducers: {
     queueMediaDownload(state, action: PayloadAction<{ mediaID: number }>) {
@@ -109,6 +79,9 @@ const localMediaState = createAppSlice({
         mediaID: action.payload.mediaID,
         status: "pending",
       });
+      if (state.currentDownload === null) {
+        state.currentDownload = state.downloadQueue.shift() ?? null;
+      }
     },
     queueMediaDownloads(state, action: PayloadAction<{ mediaIDs: number[] }>) {
       const alreadyPresent = new Set(
@@ -124,6 +97,47 @@ const localMediaState = createAppSlice({
           });
         }
       }
+      if (state.currentDownload === null) {
+        state.currentDownload = state.downloadQueue.shift() ?? null;
+      }
+    },
+    downloadAllMediaForSelectedShow(state) {
+      const show = getSelectedShow();
+      if (show === null) {
+        return;
+      }
+      // This is all the media IDs for the current show
+      const mediaIDs: number[] = [];
+      for (const rundown of show.rundowns) {
+        for (const item of rundown.items) {
+          if (item.media) {
+            mediaIDs.push(item.media.id);
+          }
+        }
+        for (const asset of rundown.assets) {
+          mediaIDs.push(asset.media.id);
+        }
+      }
+      for (const continuityItem of show.continuityItems) {
+        if (continuityItem.media) {
+          mediaIDs.push(continuityItem.media.id);
+        }
+      }
+      // All media that is either already downloaded or in the queue
+      const alreadyPresent = new Set(
+        state.downloadQueue
+          .map((i) => i.mediaID)
+          .concat(state.media.map((i) => i.mediaID)),
+      );
+      // Enqueue all the media that isn't already present
+      for (const mediaID of mediaIDs) {
+        if (!alreadyPresent.has(mediaID)) {
+          state.downloadQueue.push({
+            mediaID,
+            status: "pending",
+          });
+        }
+      }
     },
     downloadProgress(
       state,
@@ -131,79 +145,60 @@ const localMediaState = createAppSlice({
         mediaID: number;
         state: MediaDownloadState;
         progress: number;
+        name?: string;
       }>,
     ) {
-      const item = state.downloadQueue.findIndex(
-        (i) => i.mediaID === action.payload.mediaID,
+      invariant(state.currentDownload, "No current download");
+      invariant(
+        state.currentDownload.mediaID === action.payload.mediaID,
+        "Progress for unexpected media ID",
       );
-      if (item < 0) {
-        logger.warn(
-          `Received progress for unknown media ID ${action.payload.mediaID}`,
-        );
-        return;
-      }
-      state.downloadQueue[item].status = action.payload.state;
-      state.downloadQueue[item].progressPercent = action.payload.progress;
+      state.currentDownload.status = action.payload.state;
+      state.currentDownload.progressPercent = action.payload.progress;
+      state.currentDownload.name = action.payload.name;
     },
   },
   extraReducers: (builder) => {
     builder.addCase(initialise.fulfilled, (state, action) => {
       state.media = action.payload;
-      state.preflightComplete = true;
-    });
-    builder.addCase(downloadMedia.pending, (state) => {
-      state.isDownloadInProgress = true;
     });
     builder.addCase(downloadMedia.fulfilled, (state, action) => {
-      state.isDownloadInProgress = false;
-      const item = state.downloadQueue.findIndex(
-        (i) => i.mediaID === action.payload.mediaID,
+      invariant(state.currentDownload, "No current download");
+      invariant(
+        state.currentDownload.mediaID === action.payload.mediaID,
+        "Fulfilled for unexpected media ID",
       );
-      if (item < 0) {
-        logger.warn(
-          `Received completion for unknown media ID ${action.payload.mediaID}`,
-        );
-        return;
-      }
-      state.downloadQueue[item].status = "done";
       state.media.push({
         mediaID: action.payload.mediaID,
         path: action.payload.path,
         sizeBytes: action.payload.sizeBytes,
       });
+      state.currentDownload = state.downloadQueue.shift() ?? null;
     });
     builder.addCase(downloadMedia.rejected, (state, action) => {
-      state.isDownloadInProgress = false;
-      const item = state.downloadQueue.findIndex(
-        (i) => i.mediaID === action.meta.arg.mediaID,
+      invariant(state.currentDownload, "No current download");
+      invariant(
+        state.currentDownload.mediaID === action.meta.arg.mediaID,
+        "Fulfilled for unexpected media ID",
       );
-      if (item < 0) {
-        logger.warn(
-          `Received error for unknown media ID ${action.meta.arg.mediaID}`,
-        );
-        return;
-      }
-      state.downloadQueue[item].status = "error";
-      state.downloadQueue[item].error = action.error.message;
+      state.failedDownloads.push({
+        mediaID: action.meta.arg.mediaID,
+        status: "error",
+        error: action.error.message,
+      });
+      state.currentDownload = state.downloadQueue.shift() ?? null;
     });
   },
 });
 
 // This effect handles starting downloads when they are queued
 listenOnStore({
-  matcher: isAnyOf(
-    localMediaState.actions.queueMediaDownload,
-    downloadMedia.fulfilled,
-    downloadMedia.rejected,
-  ),
+  predicate: (_, oldState, newState) =>
+    oldState.localMedia.currentDownload?.mediaID !==
+    newState.localMedia.currentDownload?.mediaID,
   effect: (_, api) => {
     const state = api.getState() as AppState;
-    if (state.localMedia.isDownloadInProgress) {
-      return;
-    }
-    const nextItem = state.localMedia.downloadQueue
-      .filter((x) => x.status === "pending")
-      .shift();
+    const nextItem = state.localMedia.currentDownload;
     if (!nextItem) {
       return;
     }
@@ -215,5 +210,6 @@ export const localMediaReducer = localMediaState.reducer;
 export const localMediaActions = {
   initialise,
   queueMediaDownload: localMediaState.actions.queueMediaDownload,
-  downloadAllMediaForSelectedShow,
+  downloadAllMediaForSelectedShow:
+    localMediaState.actions.downloadAllMediaForSelectedShow,
 };

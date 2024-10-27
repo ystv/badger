@@ -6,7 +6,7 @@ import { ActionCreatorsMapObject } from "redux";
  */
 export function createRendererActionCreatorsProxy<
   T extends ActionCreatorsMapObject,
->(): T {
+>() {
   return new Proxy(
     {},
     {
@@ -15,12 +15,15 @@ export function createRendererActionCreatorsProxy<
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           return (...args: any[]) => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            window.MainStoreAPI._dispatch(prop as any, ...args);
+            return window.MainStoreAPI._dispatch(prop as any, ...args);
           };
         }
         return Reflect.get(target, prop, receiver);
       },
     },
     // SHENANIGANS ARE AFOOT! This is what lets us do `dispatch.yourActionType` as if it were a function call.
-  ) as T;
+  ) as {
+    // This mapped type lets us get the type you get when dispatching the action creator.
+    [K in keyof T]: (...args: Parameters<T[K]>) => ReturnType<ReturnType<T[K]>>;
+  };
 }

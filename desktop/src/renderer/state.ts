@@ -48,6 +48,7 @@ export const store = configureStore({
   middleware: (def) =>
     def({
       thunk: false,
+      serializableCheck: false,
     }).concat(mainProcessActionRedirectMiddleware),
 });
 

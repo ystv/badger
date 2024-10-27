@@ -4,6 +4,7 @@ import { initialiseSettings } from "./base/settings";
 import { localMediaActions } from "./media/state";
 import { WritableDraft } from "immer";
 import { tryConnectToServer } from "./base/serverConnectionState";
+import { obsTryConnect as tryConnectToOBS } from "./obs/state";
 
 export interface PreflightTask {
   name: string;
@@ -23,6 +24,7 @@ const preflightSlice = createSlice({
       { name: "Settings", thunk: initialiseSettings },
       { name: "Local media", thunk: localMediaActions.initialise },
       { name: "Server connection", thunk: tryConnectToServer },
+      { name: "OBS connection", thunk: tryConnectToOBS },
     ];
 
     for (const { name, thunk } of TASKS) {
@@ -58,4 +60,5 @@ export const doPreflight: () => AppThunk = () => async (dispatch) => {
   // then everything else
   dispatch(localMediaActions.initialise());
   dispatch(tryConnectToServer());
+  dispatch(tryConnectToOBS());
 };
