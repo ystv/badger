@@ -114,7 +114,7 @@ const exposedActionCreators: ExposedActionCreators = {
   addContinuityItemAsScene,
 };
 
-ipcMain.handle("dispatch", async (event, actionType, ...args) => {
+ipcMain.handle("dispatch", (event, actionType, ...args) => {
   invariant(
     actionType in exposedActionCreators,
     "Tried to dispatch non-exposed action " + actionType,

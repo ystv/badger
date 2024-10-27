@@ -4,6 +4,8 @@ Desktop is an Electron application, so follows the standard Electron process mod
 
 In short, we (ab)use Redux.
 
+If you're not familiar with redux, read through the [Redux core concepts](https://redux.js.org/introduction/core-concepts) docs first, as well as some of the other pages on the Redux website (the tutorials are good). The rest of this document assumes you have a basic understanding of Redux.
+
 ## Redux
 
 The main process runs a Redux store, just like you may be familiar with from other React apps, except that it runs entirely in Node.js. It stores the entire state of the application (at least anything that the renderer may ever need to care about). This store is created in [`main/store.ts`](../desktop/src/main/store.ts);
@@ -18,6 +20,28 @@ In short:
 4. In [`common/preload.ts`](../desktop/src/common/preload.ts), we expose `MainStoreAPI.onStateChange`.
 5. In [`renderer/store.ts`](../desktop/src/renderer/store.ts), we listen for `stateChange` messages and dispatch them to the renderer store.
 6. The renderer store updates its state (with a dummy reducer that simply applies the state change), and the UI re-renders.
+
+### Special case: the selected show
+
+Nearly every bit of the Badger application needs to know what show is selected, and its contents. For this reason, the selectedShow slice is handled a little differently.
+
+In `main/store.ts`, we define a custom root reducer. When it is called by a Redux dispatch, it first runs the selectedShow reducer. Then it stores the selected show state in a special global variable. It then runs the rest of the reducers, before clearing that special variable (to ensure that it can only be used during reducers.)
+
+That special variable can be acessed with the `getSelectedShow` function in `selectedShow.ts`, but it's only valid to use inside reducers - anywhere else you'll need to access it from the store state as normal.
+
+To quote a comment in main/store.ts:
+
+```ts
+// This seems like a side effect and thus forbidden in Redux, but it's actually
+// valid, since it's only used within the reducer function itself.
+// This is a way to apply the "reducer compostion" pattern within the constraints
+// of Redux Toolkit. The "clean" Redux way would be for all the other reducers to
+// take the current show state as a third argument, but Redux Toolkit doesn't support
+// this and we don't want to re-implement it. So we use this global as a pseudo-argument.
+//
+// Note that, if any other slices want to react to changes in the selected show, they
+// will need to include showDataChangeMatcher as a reducer case as normal.
+```
 
 ## Dispatching from the renderer
 
@@ -44,3 +68,4 @@ The flow of a renderer action is:
 5. It calls `exposedActionCreators.someAction(someParams)` and dispatches the resulting action to the main store
 6. This creates a standard Redux action that's handled the usual way by the main store's reducers
 7. The result of it makes its way back to the renderer process store as above.
+8. The result of the dispatch (step 3) is also sent back to the renderer process. This lets you use things like [the result of an async thunk](https://redux-toolkit.js.org/api/createAsyncThunk#handling-thunk-results).
