@@ -1,6 +1,5 @@
 import got, { type Got } from "got";
 import invariant from "../../common/invariant";
-import { getOntimeSettings } from "../base/settings";
 import { getLogger } from "../base/logging";
 
 const logger = getLogger("ontime");
@@ -128,22 +127,7 @@ export function getOntimeInstance() {
 }
 
 export async function createOntimeConnection(host: string) {
-  ontimeInstance = await OntimeClient.connect(host);
-}
-
-export async function tryCreateOntimeConnection() {
-  const settings = await getOntimeSettings();
-  if (!settings) {
-    return;
-  }
-  try {
-    await createOntimeConnection(settings.host);
-    logger.info("Successfully connected to Ontime");
-  } catch (e) {
-    logger.warn(
-      "Could not connect to Ontime: " +
-        (e instanceof Error ? e.message : String(e)),
-      e,
-    );
-  }
+  // OntimeClient.connect handles errors
+  const instance = await OntimeClient.connect(host);
+  ontimeInstance = instance;
 }

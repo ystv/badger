@@ -24,7 +24,7 @@ import { inspect } from "util";
 import { serverDataSlice } from "./base/serverDataState";
 import { addContinuityItemAsScene, obsConnect, obsSlice } from "./obs/state";
 import { integrationsReducer } from "./base/integrations";
-import isElectron from "is-electron";
+import { connectToOntime, ontimeReducer } from "./ontime/state";
 
 const logger = getLogger("store");
 
@@ -45,6 +45,7 @@ const topReducer = combineReducers({
   serverData: serverDataSlice.reducer,
   obs: obsSlice.reducer,
   integrations: integrationsReducer,
+  ontime: ontimeReducer,
 });
 
 export interface AppState extends ReturnType<typeof topReducer> {
@@ -94,5 +95,6 @@ export const exposedActionCreators = {
     localMediaActions.downloadAllMediaForSelectedShow,
   obsConnect,
   addContinuityItemAsScene,
+  connectToOntime,
 };
 export type ExposedActionCreators = typeof exposedActionCreators;
