@@ -7,7 +7,7 @@ export interface SettingsStore {
 }
 
 export async function getSettingsStore(): Promise<SettingsStore> {
-  return isElectron()
-    ? await import("./settingsStorage.electron")
-    : await import("./settingsStorage.dev");
+  return import.meta.env.DEV && !isElectron()
+    ? await import("./settingsStorage.dev")
+    : await import("./settingsStorage.electron");
 }

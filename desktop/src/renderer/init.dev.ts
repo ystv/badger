@@ -2,7 +2,7 @@ import { Dispatch } from "@reduxjs/toolkit";
 import isElectron from "is-electron";
 
 // Initialises MainStoreAPO when we're not running in Electron.
-if (!isElectron()) {
+if (import.meta.env.DEV && !isElectron()) {
   window.MainStoreAPI = {
     _dispatch: (async (actionType, ...args) => {
       const result = await fetch("/_dev/dispatch/" + actionType, {

@@ -9,7 +9,7 @@
     "devElectron": "electron-vite dev",
     "devServer": "tsx watch --include src/main src/main/devServer.ts",
     "devRenderer": "vite dev",
-    "devBrowser": "concurrently --names main,rndr -c blue,pink \"yarn devServer\" \"yarn devRenderer\"",
+    "devBrowser": "concurrently --names main,rndr -c blue,pink \"yarn devServer\" \"yarn devRenderer --open\"",
     "dev": "yarn devBrowser",
     "build": "rimraf out && electron-vite build",
     "package": "rimraf dist && yarn build && electron-builder build -c electron-builder.config.cjs",
