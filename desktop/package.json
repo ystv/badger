@@ -7,7 +7,7 @@
   "scripts": {
     "start": "electron-vite dev",
     "devElectron": "electron-vite dev",
-    "devServer": "tsx watch --include src/main src/main/devServer.ts",
+    "devServer": "vite-node src/main/devServer.ts",
     "devRenderer": "vite dev",
     "devBrowser": "concurrently --names main,rndr -c blue,pink \"yarn devServer\" \"yarn devRenderer --open\"",
     "dev": "yarn devBrowser",
@@ -121,9 +121,9 @@
     "rollup-plugin-visualizer": "^5.12.0",
     "strong-mock": "^9.0.0",
     "tailwindcss": "^3.3.3",
-    "tsx": "^4.19.2",
     "undici": "^6.13.0",
     "vite": "^5.2.11",
+    "vite-node": "^2.1.4",
     "vite-plugin-commonjs": "^0.10.1",
     "vitest": "^2.0.0",
     "webpack": "^5.91.0"
