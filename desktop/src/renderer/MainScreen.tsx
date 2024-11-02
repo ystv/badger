@@ -28,7 +28,7 @@ import {
   TableCell,
   TableRow,
 } from "@badger/components/table";
-import { useAppSelector } from "./state";
+import { useAppSelector } from "./store";
 
 function DownloadTrackerPopup() {
   const downloads = useAppSelector((state) =>

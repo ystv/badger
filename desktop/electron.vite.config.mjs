@@ -1,21 +1,11 @@
 import commonjs from "vite-plugin-commonjs";
-import * as fs from "node:fs";
-import { execFileSync } from "node:child_process";
-import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { mergeConfig, defineConfig } from "vite";
 import { visualizer } from "rollup-plugin-visualizer";
-import ignore from "rollup-plugin-ignore";
 
-const packageJSON = JSON.parse(fs.readFileSync("./package.json", "utf-8"));
-const gitCommit =
-  process.env.GIT_REV ??
-  execFileSync("git", ["rev-parse", "HEAD"]).toString().trim();
-const sentryRelease =
-  "badger-desktop@" + packageJSON.version + "-" + gitCommit.slice(0, 7);
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { base } = require("./vite.config.mjs");
 
-const prod = process.env.ENVIRONMENT === "prod";
-
-const visualizeBundle = process.argv.includes("--visualize-bundle");
+const visualizeBundle = process.env.VISUALIZE_BUNDLE === "true";
 
 /*
  * Explanation of this gross hack:
@@ -52,59 +42,6 @@ const IgnorePrismaJsonNullPlugin = {
   },
   enforce: "pre",
 };
-
-const base = defineConfig({
-  define: {
-    "global.__APP_VERSION__": JSON.stringify(packageJSON.version),
-    "global.__BUILD_TIME__": JSON.stringify(new Date().toISOString()),
-    "global.__GIT_COMMIT__": JSON.stringify(gitCommit),
-    "global.__SENTRY_RELEASE__": JSON.stringify(sentryRelease),
-    "global.__ENVIRONMENT__": JSON.stringify(process.env.ENVIRONMENT),
-  },
-  plugins: [
-    sentryVitePlugin({
-      org: "ystv",
-      project: "badger-desktop",
-      authToken: process.env.SENTRY_AUTH_TOKEN,
-      release: {
-        name: sentryRelease,
-      },
-      disable: process.env.IS_YSTV_BUILD !== "true",
-    }),
-  ],
-  build: {
-    minify: prod ? "esbuild" : false,
-    rollupOptions: {
-      onwarn(warning, warn) {
-        if (warning.code === "MODULE_LEVEL_DIRECTIVE") {
-          return;
-        }
-        warn(warning);
-      },
-      onLog(level, log, handler) {
-        if (
-          log.cause &&
-          log.cause.message === `Can't resolve original location of error.`
-        ) {
-          return;
-        }
-        if (
-          log.cause &&
-          log.cause.message.startsWith(
-            `Use of eval in "../utility/prisma/client/runtime/library.js" is strongly discouraged`,
-          )
-        ) {
-          return;
-        }
-        handler(level, log);
-      },
-      external: [
-        // Don't bundle Prisma into Desktop
-        /prisma\/client\/runtime/,
-      ],
-    },
-  },
-});
 
 /**
  * @type {import('electron-vite').UserConfig}

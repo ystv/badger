@@ -1,6 +1,6 @@
 import { ReactNode, useState } from "react";
 import Button from "@badger/components/button";
-import { dispatch, useAppSelector } from "./state";
+import { dispatch, useAppSelector } from "./store";
 import invariant from "../common/invariant";
 
 function ServerConnectForm() {

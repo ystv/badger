@@ -1,13 +1,11 @@
 import {
   Action,
-  ActionCreatorsMapObject,
   configureStore,
   Middleware,
   ThunkAction,
 } from "@reduxjs/toolkit";
 import { combineReducers } from "redux";
 import { settingsReducer } from "./base/settings";
-import { ipcMain } from "electron/main";
 import { listener } from "./storeListener";
 import { localMediaActions, localMediaReducer } from "./media/state";
 import {
@@ -23,10 +21,10 @@ import {
 } from "./base/serverConnectionState";
 import { getLogger } from "./base/logging";
 import { inspect } from "util";
-import invariant from "../common/invariant";
 import { serverDataSlice } from "./base/serverDataState";
 import { addContinuityItemAsScene, obsConnect, obsSlice } from "./obs/state";
 import { integrationsReducer } from "./base/integrations";
+import isElectron from "is-electron";
 
 const logger = getLogger("store");
 
@@ -88,23 +86,7 @@ export type AppStore = typeof store;
 export type AppDispatch = typeof store.dispatch;
 export type AppThunk<A = void> = ThunkAction<A, AppState, unknown, Action>;
 
-// IPC bits
-
-ipcMain.on("dispatch", (event, action) => {
-  store.dispatch(action);
-});
-
-ipcMain.handle("getState", () => store.getState());
-
-export interface ExposedActionCreators extends ActionCreatorsMapObject {
-  connectToServer: typeof connectToServer;
-  changeSelectedShow: typeof changeSelectedShow;
-  queueMediaDownload: typeof localMediaActions.queueMediaDownload;
-  downloadAllMediaForSelectedShow: typeof localMediaActions.downloadAllMediaForSelectedShow;
-  obsConnect: typeof obsConnect;
-  addContinuityItemAsScene: typeof addContinuityItemAsScene;
-}
-const exposedActionCreators: ExposedActionCreators = {
+export const exposedActionCreators = {
   connectToServer,
   changeSelectedShow,
   queueMediaDownload: localMediaActions.queueMediaDownload,
@@ -113,14 +95,4 @@ const exposedActionCreators: ExposedActionCreators = {
   obsConnect,
   addContinuityItemAsScene,
 };
-
-ipcMain.handle("dispatch", (event, actionType, ...args) => {
-  invariant(
-    actionType in exposedActionCreators,
-    "Tried to dispatch non-exposed action " + actionType,
-  );
-  logger.info(`Dispatching action ${actionType}`);
-  const creator = exposedActionCreators[actionType];
-  const result = store.dispatch(creator(...args));
-  return result;
-});
+export type ExposedActionCreators = typeof exposedActionCreators;

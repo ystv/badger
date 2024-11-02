@@ -23,7 +23,7 @@ import { z } from "zod";
 import invariant from "../../common/invariant";
 import { Label } from "@badger/components/label";
 import { Input } from "@badger/components/input";
-import { dispatch, useAppSelector } from "../state";
+import { dispatch, useAppSelector } from "../store";
 
 export function OBSSettings() {
   const { connecting, connected, version, platform } = useAppSelector(

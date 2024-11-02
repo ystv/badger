@@ -12,7 +12,7 @@ export const serverDataSlice = createAppSlice({
   },
   reducers: (builder) => ({
     updateUpcomingShows: builder.asyncThunk(
-      async (_, thunkAPI) => {
+      async () => {
         const result = await serverAPI().shows.listUpcoming.query();
         return result.map((show) => ({ id: show.id, name: show.name }));
       },

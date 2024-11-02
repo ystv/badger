@@ -9,9 +9,12 @@ import Icon from "../icon/png/64x64.png";
 import * as Sentry from "@sentry/electron/main";
 import { logFlagState } from "@badger/feature-flags";
 import { getLogger } from "./base/logging";
-import { store } from "./store";
+import { exposedActionCreators, store } from "./store";
 import { doPreflight } from "./preflight";
 import { listenOnStore } from "./storeListener";
+import { setupStoreIPC } from "./storeIpc";
+
+setupStoreIPC(store, exposedActionCreators);
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (isSquirrel) {
@@ -21,10 +24,10 @@ if (isSquirrel) {
 const logger = getLogger("main");
 
 /* eslint-disable no-console */
-// console.log = logger.debug;
-// console.info = logger.info;
-// console.warn = logger.warn;
-// console.error = logger.error;
+console.log = logger.debug;
+console.info = logger.info;
+console.warn = logger.warn;
+console.error = logger.error;
 /* eslint-enable no-console */
 
 logger.info(

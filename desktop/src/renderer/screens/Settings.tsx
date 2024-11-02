@@ -8,7 +8,7 @@ import {
 import { VMixConnection } from "./vMix";
 import { OntimeSettings } from "./Ontime";
 import { MediaSettings } from "./MediaSettings";
-import { useAppSelector } from "../state";
+import { useAppSelector } from "../store";
 
 export function Settings() {
   const integrations = useAppSelector((state) => state.integrations.supported);

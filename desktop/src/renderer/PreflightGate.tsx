@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import type { PreflightTask } from "../main/preflight";
-import { useAppSelector } from "./state";
+import { useAppSelector } from "./store";
 
 function PreflightShell(props: { status: string; tasks: PreflightTask[] }) {
   return (
@@ -27,7 +27,7 @@ function PreflightShell(props: { status: string; tasks: PreflightTask[] }) {
 }
 
 export function PreflightGate(props: { children: ReactNode }) {
-  const state = useAppSelector((state) => state?.preflight);
+  const state = useAppSelector((state) => state?.preflight ?? null);
   // If we have no state at all, we're still loading
   if (!state || Object.keys(state).length === 0) {
     return (

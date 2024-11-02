@@ -4,7 +4,7 @@ import { Suspense, useState } from "react";
 import ConnectAndSelectShowGate from "./ConnectAndSelectShowGate";
 import MainScreen from "./MainScreen";
 import { Provider } from "react-redux";
-import { store } from "./state";
+import { store } from "./store";
 import { PreflightGate } from "./PreflightGate";
 
 export default function App() {

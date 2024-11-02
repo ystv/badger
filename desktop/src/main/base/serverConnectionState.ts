@@ -35,9 +35,13 @@ const serverConnectionSlice = createSlice({
     });
 
     builder.addMatcher(serverConnected, (state, action) => {
-      state.state = "connected";
-      state.error = null;
-      state.versionSkew = action.payload.versionSkew;
+      if (action.payload) {
+        state.state = "connected";
+        state.error = null;
+        state.versionSkew = action.payload.versionSkew;
+      } else {
+        state.state = "disconnected";
+      }
     });
   },
 });
@@ -62,13 +66,13 @@ export const connectToServer = createAsyncThunk(
 
 export const tryConnectToServer = createAsyncThunk(
   "serverConnection/tryConnect",
-  async (_, { getState, rejectWithValue }) => {
+  async (_, { getState }) => {
     const settings = (getState() as AppState).settings;
     if (
       settings.server.endpoint.length === 0 ||
       settings.server.password.length === 0
     ) {
-      throw rejectWithValue("");
+      return false;
     }
     return await _tryConnect(
       settings.server.endpoint,

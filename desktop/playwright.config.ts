@@ -10,7 +10,6 @@ import { defineConfig } from "@playwright/test";
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  testDir: "./e2e",
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -34,9 +33,15 @@ export default defineConfig({
   /* Configure projects for major browsers */
   projects: [
     {
+      name: "renderer",
+      use: {},
+      testDir: "./src/renderer/tests",
+    },
+    {
       name: "complete",
       use: {},
       testDir: "./e2e/complete",
+      fullyParallel: false,
     },
     {
       name: "standalone",

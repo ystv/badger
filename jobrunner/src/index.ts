@@ -40,7 +40,7 @@ if (process.env.JOBRUNNER_SENTRY_DSN) {
 
 dotenv.config();
 logging.setLevel(
-  (process.env.LOG_LEVEL as LogLevelNames) ?? logging.levels.DEBUG,
+  (process.env.BADGER_LOG_LEVEL as LogLevelNames) ?? logging.levels.DEBUG,
 );
 prefix.reg(logging);
 prefix.apply(logging, {

@@ -1,8 +1,20 @@
 import logging, { LogLevelNames } from "loglevel";
 import prefix from "loglevel-plugin-prefix";
-import { app } from "electron";
 import path from "path";
 import fs from "fs";
+import isElectron from "is-electron";
+
+let app: Electron.App;
+if (isElectron()) {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  app = require("electron").app;
+} else {
+  app = {
+    getPath: () => process.cwd(),
+    on: () => {},
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as any;
+}
 
 const logsPath =
   process.env.BADGER_LOGS_PATH ?? path.join(app.getPath("userData"), "logs");
@@ -27,7 +39,8 @@ logging.methodFactory = function (level) {
   };
 };
 
-export let logLevel = (process.env.LOG_LEVEL as LogLevelNames) ?? "debug";
+export let logLevel =
+  (process.env.BADGER_LOG_LEVEL as LogLevelNames) ?? "debug";
 logging.setLevel(logLevel);
 prefix.reg(logging);
 prefix.apply(logging, {

@@ -69,3 +69,7 @@ The flow of a renderer action is:
 6. This creates a standard Redux action that's handled the usual way by the main store's reducers
 7. The result of it makes its way back to the renderer process store as above.
 8. The result of the dispatch (step 3) is also sent back to the renderer process. This lets you use things like [the result of an async thunk](https://redux-toolkit.js.org/api/createAsyncThunk#handling-thunk-results).
+
+## Preflight
+
+"Preflight" is the name for all the tasks that run when the app starts up, until the user is presented with either the shows list or the server connection screen.

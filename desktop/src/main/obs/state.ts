@@ -1,7 +1,7 @@
-import { createAsyncThunk, Dispatch, isAnyOf } from "@reduxjs/toolkit";
+import { createAsyncThunk, isAnyOf } from "@reduxjs/toolkit";
 import { createAppSlice } from "../base/reduxHelpers";
 import { createOBSConnection } from "./obs";
-import { AppDispatch, AppState } from "../store";
+import { AppState } from "../store";
 import { getLogger } from "../base/logging";
 import { addOrReplaceMediaAsScene, findContinuityScenes } from "./obsHelpers";
 import { listenOnStore } from "../storeListener";
@@ -111,7 +111,8 @@ const updateContinuityScenes = createAsyncThunk(
 
 // Update continuity scenes every 10 seconds
 listenOnStore({
-  matcher: isAnyOf(obsConnect.fulfilled.match, obsTryConnect.fulfilled.match),
+  predicate: (_, oldState, newState) =>
+    newState.obs.connection.connected && !oldState.obs.connection.connected,
   effect: async (_, api) => {
     logger.info("Connected to OBS, starting continuity scene updates loop");
     api.cancelActiveListeners();

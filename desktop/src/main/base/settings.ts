@@ -1,8 +1,8 @@
-import { createAction, createAsyncThunk, isAnyOf } from "@reduxjs/toolkit";
+import { createAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { AnyZodObject, z, ZodType } from "zod";
 import { createAppSlice } from "./reduxHelpers";
 import { set, throttle, isEqual } from "lodash";
-import { loadSettings, saveSettings } from "./settingsStorage";
+import { getSettingsStore } from "./settingsStorage";
 import { listenOnStore } from "../storeListener";
 import { connectToServer } from "./serverConnectionState";
 
@@ -89,20 +89,24 @@ const settings = createAppSlice({
 export const initialiseSettings = createAsyncThunk(
   "settings/initialise",
   async () => {
-    return await loadSettings();
+    const store = await getSettingsStore();
+    return await store.loadSettings();
   },
 );
 
-const doSaveSettings = throttle(saveSettings, 500);
+const doSaveSettings = throttle(async function (settings: AppSettings) {
+  const store = await getSettingsStore();
+  await store.saveSettings(settings);
+}, 500);
 
 listenOnStore({
   predicate: (action, newState, oldState) =>
     !isEqual(newState.settings, oldState.settings) &&
     !initialiseSettings.fulfilled.match(action),
-  effect: (_, api) => {
+  effect: async (_, api) => {
     const newSettings = api.getState().settings;
     // TODO: feedback?
-    doSaveSettings(newSettings);
+    await doSaveSettings(newSettings);
   },
 });
 

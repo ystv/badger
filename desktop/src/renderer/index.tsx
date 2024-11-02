@@ -27,6 +27,7 @@
  */
 import * as Sentry from "@sentry/electron/renderer";
 import { init as reactInit } from "@sentry/react";
+import "./init.dev";
 import * as ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";

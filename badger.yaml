@@ -1,0 +1,471 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-example.yml -o badger.yaml
+    kompose.version: 1.34.0 (HEAD)
+  labels:
+    io.kompose.service: minio
+  name: minio
+spec:
+  ports:
+    - name: "9000"
+      port: 9000
+      targetPort: 9000
+    - name: "9090"
+      port: 9090
+      targetPort: 9090
+  selector:
+    io.kompose.service: minio
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-example.yml -o badger.yaml
+    kompose.version: 1.34.0 (HEAD)
+  labels:
+    io.kompose.service: ontime
+  name: ontime
+spec:
+  ports:
+    - name: "4001"
+      port: 4001
+      targetPort: 4001
+  selector:
+    io.kompose.service: ontime
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-example.yml -o badger.yaml
+    kompose.version: 1.34.0 (HEAD)
+  labels:
+    io.kompose.service: postgres
+  name: postgres
+spec:
+  ports:
+    - name: "5432"
+      port: 5432
+      targetPort: 5432
+  selector:
+    io.kompose.service: postgres
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-example.yml -o badger.yaml
+    kompose.version: 1.34.0 (HEAD)
+  labels:
+    io.kompose.service: server
+  name: server
+spec:
+  ports:
+    - name: "3000"
+      port: 3000
+      targetPort: 3000
+  selector:
+    io.kompose.service: server
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-example.yml -o badger.yaml
+    kompose.version: 1.34.0 (HEAD)
+  labels:
+    io.kompose.service: tusd
+  name: tusd
+spec:
+  ports:
+    - name: "1080"
+      port: 1080
+      targetPort: 1080
+  selector:
+    io.kompose.service: tusd
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-example.yml -o badger.yaml
+    kompose.version: 1.34.0 (HEAD)
+  labels:
+    io.kompose.service: jobrunner
+  name: jobrunner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: jobrunner
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose-example.yml -o badger.yaml
+        kompose.version: 1.34.0 (HEAD)
+      labels:
+        io.kompose.service: jobrunner
+    spec:
+      containers:
+        - args:
+            - --watch
+          env:
+            - name: API_SHARED_SECRET
+              value: password
+            - name: AWS_ACCESS_KEY_ID
+              value: root
+            - name: AWS_REGION
+              value: us-east-1
+            - name: AWS_SECRET_ACCESS_KEY
+              value: rootroot
+            - name: DATABASE_URL
+              value: postgres://root:postgres@postgres:5432/badger_test?sslmode=disable
+            - name: JWT_SIGNING_KEY
+              value: somesecret
+            - name: PUBLIC_TUS_ENDPOINT
+              value: http://localhost:1080/files
+            - name: PUBLIC_URL
+              value: http://localhost:3000
+            - name: S3_ENDPOINT
+              value: http://minio:9000
+            - name: STORAGE_BUCKET
+              value: badger
+            - name: TUS_ENDPOINT
+              value: http://tusd:1080/files
+          image: ghcr.io/ystv/badger/jobrunner:latest
+          name: jobrunner
+      restartPolicy: Always
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-example.yml -o badger.yaml
+    kompose.version: 1.34.0 (HEAD)
+  labels:
+    io.kompose.service: minio
+  name: minio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: minio
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose-example.yml -o badger.yaml
+        kompose.version: 1.34.0 (HEAD)
+      labels:
+        io.kompose.service: minio
+    spec:
+      containers:
+        - args:
+            - server
+            - /data
+            - --console-address
+            - :9090
+          env:
+            - name: MINIO_ROOT_PASSWORD
+              value: rootroot
+            - name: MINIO_ROOT_USER
+              value: root
+          image: quay.io/minio/minio:latest
+          name: minio
+          ports:
+            - containerPort: 9000
+              protocol: TCP
+            - containerPort: 9090
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /data
+              name: minio-data
+      restartPolicy: Always
+      volumes:
+        - name: minio-data
+          persistentVolumeClaim:
+            claimName: minio-data
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    io.kompose.service: minio-data
+  name: minio-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-example.yml -o badger.yaml
+    kompose.version: 1.34.0 (HEAD)
+  labels:
+    io.kompose.service: minio-init
+  name: minio-init
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: minio-init
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose-example.yml -o badger.yaml
+        kompose.version: 1.34.0 (HEAD)
+      labels:
+        io.kompose.service: minio-init
+    spec:
+      containers:
+        - command:
+            - /bin/sh
+            - -c
+            - |2
+                chmod +x /opt/bin/mc;
+                mc alias set docker http://minio:9000 root rootroot;
+                mc mb docker/badger;
+                mc mb docker/uploads;
+                exit 0
+          image: quay.io/minio/minio:latest
+          name: minio-init
+      restartPolicy: Always
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-example.yml -o badger.yaml
+    kompose.version: 1.34.0 (HEAD)
+  labels:
+    io.kompose.service: ontime
+  name: ontime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: ontime
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose-example.yml -o badger.yaml
+        kompose.version: 1.34.0 (HEAD)
+      labels:
+        io.kompose.service: ontime
+    spec:
+      containers:
+        - image: getontime/ontime:v2.28.17
+          name: ontime
+          ports:
+            - containerPort: 4001
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /server/preloaded-db
+              name: ontime-data
+      restartPolicy: Always
+      volumes:
+        - name: ontime-data
+          persistentVolumeClaim:
+            claimName: ontime-data
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    io.kompose.service: ontime-data
+  name: ontime-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-example.yml -o badger.yaml
+    kompose.version: 1.34.0 (HEAD)
+  labels:
+    io.kompose.service: postgres
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: postgres
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose-example.yml -o badger.yaml
+        kompose.version: 1.34.0 (HEAD)
+      labels:
+        io.kompose.service: postgres
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DB
+              value: badger_test
+            - name: POSTGRES_PASSWORD
+              value: postgres
+            - name: POSTGRES_USER
+              value: root
+          image: postgres:16-alpine
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - root
+                - -d
+                - badger_test
+            failureThreshold: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+          name: postgres
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-data
+      restartPolicy: Always
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-data
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    io.kompose.service: postgres-data
+  name: postgres-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-example.yml -o badger.yaml
+    kompose.version: 1.34.0 (HEAD)
+  labels:
+    io.kompose.service: server
+  name: server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: server
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose-example.yml -o badger.yaml
+        kompose.version: 1.34.0 (HEAD)
+      labels:
+        io.kompose.service: server
+    spec:
+      containers:
+        - env:
+            - name: API_SHARED_SECRET
+              value: password
+            - name: AWS_ACCESS_KEY_ID
+              value: root
+            - name: AWS_REGION
+              value: us-east-1
+            - name: AWS_SECRET_ACCESS_KEY
+              value: rootroot
+            - name: DATABASE_URL
+              value: postgres://root:postgres@postgres:5432/badger_test?sslmode=disable
+            - name: JWT_SIGNING_KEY
+              value: somesecret
+            - name: PUBLIC_TUS_ENDPOINT
+              value: http://localhost:1080/files
+            - name: PUBLIC_URL
+              value: http://localhost:3000
+            - name: S3_ENDPOINT
+              value: http://minio:9000
+            - name: STORAGE_BUCKET
+              value: badger
+            - name: TUS_ENDPOINT
+              value: http://tusd:1080/files
+          image: ghcr.io/ystv/badger/server:latest
+          name: server
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+      restartPolicy: Always
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-example.yml -o badger.yaml
+    kompose.version: 1.34.0 (HEAD)
+  labels:
+    io.kompose.service: tusd
+  name: tusd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: tusd
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose-example.yml -o badger.yaml
+        kompose.version: 1.34.0 (HEAD)
+      labels:
+        io.kompose.service: tusd
+    spec:
+      containers:
+        - args:
+            - -s3-bucket=uploads
+            - -s3-endpoint=http://minio:9000
+            - -s3-object-prefix=/uploads
+            - -port=1080
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              value: root
+            - name: AWS_REGION
+              value: us-east-1
+            - name: AWS_SECRET_ACCESS_KEY
+              value: rootroot
+          image: tusproject/tusd:sha-b4ffdf4
+          name: tusd
+          ports:
+            - containerPort: 1080
+              protocol: TCP
+      restartPolicy: Always
