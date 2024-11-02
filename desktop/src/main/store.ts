@@ -24,7 +24,7 @@ import { inspect } from "util";
 import { serverDataSlice } from "./base/serverDataState";
 import { addContinuityItemAsScene, obsConnect, obsSlice } from "./obs/state";
 import { integrationsReducer } from "./base/integrations";
-import { connectToOntime, ontimeReducer } from "./ontime/state";
+import { connectToOntime, ontimeReducer, pushEvents } from "./ontime/state";
 
 const logger = getLogger("store");
 
@@ -96,5 +96,6 @@ export const exposedActionCreators = {
   obsConnect,
   addContinuityItemAsScene,
   connectToOntime,
+  pushEvents,
 };
 export type ExposedActionCreators = typeof exposedActionCreators;

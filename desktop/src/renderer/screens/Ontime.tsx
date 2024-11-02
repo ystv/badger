@@ -1,6 +1,3 @@
-import { ipc } from "../ipc";
-import { useQueryClient } from "@tanstack/react-query";
-import { getQueryKey } from "@trpc/react-query";
 import { Label } from "@badger/components/label";
 import { Input } from "@badger/components/input";
 import { Button } from "@badger/components/button";
@@ -16,19 +13,14 @@ import {
 } from "@badger/components/alert-dialog";
 import { Dialog, DialogContent, DialogHeader } from "@badger/components/dialog";
 import { CompleteShowType } from "../../common/types";
+import { dispatch, useAppSelector } from "../store";
+import { useRef, useState } from "react";
 
 export function OntimeSettings() {
-  const queryClient = useQueryClient();
-  const [status] = ipc.ontime.getConnectionStatus.useSuspenseQuery();
-  const [settings] = ipc.ontime.getSettings.useSuspenseQuery();
-  const connect = ipc.ontime.connect.useMutation({
-    async onSettled() {
-      await queryClient.invalidateQueries(
-        getQueryKey(ipc.ontime.getConnectionStatus),
-      );
-      await queryClient.invalidateQueries(getQueryKey(ipc.ontime.getSettings));
-    },
-  });
+  const { connected, host, connectionError } = useAppSelector(
+    (state) => state.ontime,
+  );
+  const [isConnecting, setIsConnecting] = useState(false);
 
   return (
     <div>
@@ -37,9 +29,14 @@ export function OntimeSettings() {
         onSubmit={(e) => {
           e.preventDefault();
           const values = new FormData(e.currentTarget);
-          connect.mutate({
-            host: values.get("host") as string,
-          });
+          setIsConnecting(true);
+          dispatch
+            .connectToOntime({
+              serverURL: values.get("host") as string,
+            })
+            .finally(() => {
+              setIsConnecting(false);
+            });
         }}
       >
         <div>
@@ -48,19 +45,21 @@ export function OntimeSettings() {
             id="host"
             name="host"
             type="text"
-            defaultValue={settings?.host}
+            defaultValue={"http://localhost:4001"}
             placeholder="http://localhost:4001"
           />
         </div>
-        <Button type="submit" color={status !== null ? "ghost" : "primary"}>
+        <Button
+          type="submit"
+          color={connected ? "ghost" : "primary"}
+          disabled={isConnecting}
+        >
           Connect
         </Button>
-        {connect.error && (
-          <Alert variant="danger">{connect.error.message}</Alert>
-        )}
-        {status !== null && (
+        {connectionError && <Alert variant="danger">{connectionError}</Alert>}
+        {connected && (
           <Alert>
-            Connected to Ontime at <code>{status.host}</code>
+            Connected to Ontime at <code>{host}</code>
           </Alert>
         )}
       </form>
@@ -76,11 +75,9 @@ export function OntimePush(props: {
   dialogOpen: boolean;
   setDialogOpen: (v: boolean) => unknown;
 }) {
-  const ontimePush = ipc.ontime.pushEvents.useMutation({
-    onSuccess() {
-      props.setDialogOpen(false);
-    },
-  });
+  const lastPushTarget = useRef<string | null>(null);
+  const [needsForce, setNeedsForce] = useState(false);
+  const [pushError, setPushError] = useState<string | null>(null);
 
   return (
     <>
@@ -96,12 +93,23 @@ export function OntimePush(props: {
                 if (!rundownId) {
                   return;
                 }
-                ontimePush.mutate({
-                  rundownId:
-                    rundownId === "all"
-                      ? undefined
-                      : parseInt(rundownId as string, 10),
-                });
+                lastPushTarget.current = rundownId as string;
+                dispatch
+                  .pushEvents({
+                    rundownID:
+                      rundownId === "all"
+                        ? undefined
+                        : parseInt(rundownId as string, 10),
+                  })
+                  .unwrap()
+                  .then((v) => {
+                    if (!v.done) {
+                      setNeedsForce(true);
+                    }
+                  })
+                  .catch((e) => {
+                    setPushError(e.message);
+                  });
               }}
             >
               <Label htmlFor="select-rundown">
@@ -128,16 +136,14 @@ export function OntimePush(props: {
             </form>
           </div>
           <div>
-            {ontimePush.isError && (
-              <Alert variant="danger">
-                Push failed: {ontimePush.error.message}
-              </Alert>
+            {pushError && (
+              <Alert variant="danger">Push failed: {pushError}</Alert>
             )}
           </div>
         </DialogContent>
       </Dialog>
-      {ontimePush.isSuccess && !ontimePush.data.done && (
-        <AlertDialog open={true} onOpenChange={() => ontimePush.reset()}>
+      {needsForce && (
+        <AlertDialog open={needsForce}>
           <AlertDialogContent>
             <AlertDialogDescription>
               There are already events present in Ontime. Would you like to
@@ -146,12 +152,23 @@ export function OntimePush(props: {
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
-                onClick={() =>
-                  ontimePush.mutate({
-                    rundownId: ontimePush.variables!.rundownId,
-                    replacementMode: "force",
-                  })
-                }
+                onClick={() => {
+                  dispatch
+                    .pushEvents({
+                      rundownID:
+                        lastPushTarget.current === "all"
+                          ? undefined
+                          : parseInt(lastPushTarget.current!, 10),
+                      replacementMode: "force",
+                    })
+                    .unwrap()
+                    .catch((e) => {
+                      setPushError(e.message);
+                    })
+                    .finally(() => {
+                      setNeedsForce(false);
+                    });
+                }}
               >
                 Replace
               </AlertDialogAction>
