@@ -1,15 +1,12 @@
-import { ipc, useInvalidateQueryOnIPCEvent } from "../ipc";
 import { Button } from "@badger/components/button";
-import { useEffect, useMemo, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { getQueryKey } from "@trpc/react-query";
+import { useMemo, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import {
   CompleteAssetSchema,
   CompleteRundownItemSchema,
   CompleteRundownModel,
 } from "@badger/prisma/utilityTypes";
 import { z } from "zod";
-import { ListInput } from "../../main/vmix/vmixTypes";
 import invariant from "../../common/invariant";
 import { Alert } from "@badger/components/alert";
 import { Progress } from "@badger/components/progress";
@@ -36,7 +33,6 @@ import {
   DropdownMenuTrigger,
 } from "@badger/components/dropdown-menu";
 import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
-import { VMIX_NAMES } from "../../common/constants";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,17 +43,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@badger/components/alert-dialog";
+import { dispatch, useAppSelector } from "../store";
+import { LoadAssetsArgs } from "../../main/vmix/state";
 
 export function VMixConnection() {
-  const [state] = ipc.vmix.getConnectionState.useSuspenseQuery();
-  const tryConnect = ipc.vmix.tryConnect.useMutation({
-    async onSettled() {
-      await queryClient.invalidateQueries(
-        getQueryKey(ipc.vmix.getConnectionState),
-      );
-    },
-  });
-  const queryClient = useQueryClient();
+  const state = useAppSelector((state) => state.vmix.connection);
 
   return (
     <div>
@@ -66,9 +56,9 @@ export function VMixConnection() {
         onSubmit={(e) => {
           e.preventDefault();
           const values = new FormData(e.currentTarget);
-          tryConnect.mutate({
+          dispatch.connectToVMix({
             host: values.get("host") as string,
-            port: parseInt(values.get("port") as string, 10),
+            port: parseInt(values.get("port") as string),
           });
         }}
       >
@@ -88,10 +78,8 @@ export function VMixConnection() {
         <Button type="submit" color={state.connected ? "ghost" : "primary"}>
           Connect
         </Button>
-        {tryConnect.error && (
-          <div className="bg-danger-4 text-light">
-            {tryConnect.error.message}
-          </div>
+        {state.error && (
+          <div className="bg-danger-4 text-light">{state.error}</div>
         )}
         {state.connected && (
           <Alert>
@@ -114,52 +102,32 @@ type ItemState =
   | "loaded";
 
 function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
-  const queryClient = useQueryClient();
-  const vmixState = ipc.vmix.getCompleteState.useQuery();
-  const downloadState = ipc.media.getDownloadStatus.useQuery(undefined, {
-    refetchInterval: (data) =>
-      data?.some((x) => x.status !== "done") ? 1_000 : false,
+  const localMedia = useAppSelector((state) => state.localMedia.media);
+  const downloadState = useAppSelector((state) =>
+    state.localMedia.currentDownload
+      ? [state.localMedia.currentDownload, ...state.localMedia.downloadQueue]
+      : state.localMedia.downloadQueue,
+  );
+  const vmixLoaded = useAppSelector((state) => state.vmix.loadedVTIDs);
+
+  const doLoad = useMutation({
+    mutationFn: (args: { rundownID: number; force?: boolean }) =>
+      dispatch.loadAllVTs(args).unwrap(),
   });
-  const localMedia = ipc.media.getLocalMedia.useQuery(undefined, {
-    refetchInterval: () =>
-      downloadState.data?.some((x) => x.status !== "done") ? 1_000 : 10_000,
-    staleTime: 2_500,
-  });
-  const doLoad = ipc.vmix.loadRundownVTs.useMutation({
-    onSuccess() {
-      queryClient.invalidateQueries(getQueryKey(ipc.vmix.getCompleteState));
-    },
-  });
-  const doLoadSingle = ipc.vmix.loadSingleRundownVT.useMutation({
-    onSuccess() {
-      queryClient.invalidateQueries(getQueryKey(ipc.vmix.getCompleteState));
-    },
-  });
-  const doDownload = ipc.media.downloadMedia.useMutation({
-    onSuccess() {
-      queryClient.invalidateQueries(getQueryKey(ipc.media.getDownloadStatus));
-    },
+  const doLoadSingle = useMutation({
+    mutationFn: (args: { rundownID: number; itemID: number }) =>
+      dispatch.loadSingleVT(args).unwrap(),
   });
 
   const [pendingSingleLoadItem, setPendingSingleLoadItem] =
     useState<RundownItem | null>(null);
-
-  const vtsListState = useMemo(() => {
-    if (!vmixState.data) {
-      return null;
-    }
-    return (
-      (vmixState.data.inputs.find(
-        (x) => x.shortTitle === VMIX_NAMES.VTS_LIST,
-      ) as ListInput) ?? null
-    );
-  }, [vmixState.data]);
   const items: Array<
     z.infer<typeof CompleteRundownItemSchema> & {
       _state: ItemState;
       _downloadProgress?: number;
     }
   > = useMemo(() => {
+    // TODO: Refactor this into main-side state computed by reducer
     return props.rundown.items
       .filter((item) => item.type !== "Segment")
       .sort((a, b) => a.order - b.order)
@@ -183,13 +151,9 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
             _state: "media-processing",
           };
         }
-        const local = localMedia.data?.find(
-          (x) => x.mediaID === item.media!.id,
-        );
+        const local = localMedia.find((x) => x.mediaID === item.media!.id);
         if (!local) {
-          const dl = downloadState.data?.find(
-            (x) => x.mediaID === item.media!.id,
-          );
+          const dl = downloadState.find((x) => x.mediaID === item.media!.id);
           if (dl) {
             switch (dl.status) {
               case "downloading":
@@ -224,7 +188,7 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
             _state: "no-local",
           };
         }
-        if (vtsListState?.items?.find((x) => x.source === local.path)) {
+        if (vmixLoaded.find((x) => x === local.mediaID)) {
           return {
             ...item,
             _state: "loaded",
@@ -235,12 +199,7 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
           _state: "ready",
         };
       });
-  }, [
-    downloadState.data,
-    localMedia.data,
-    props.rundown.items,
-    vtsListState?.items,
-  ]);
+  }, [downloadState, localMedia, props.rundown.items, vmixLoaded]);
 
   return (
     <>
@@ -291,10 +250,7 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
                         item.media,
                         "no media for item in download button handler",
                       );
-                      await doDownload.mutateAsync({ id: item.media.id });
-                      await queryClient.invalidateQueries(
-                        getQueryKey(ipc.media.getDownloadStatus),
-                      );
+                      dispatch.queueMediaDownload({ mediaID: item.media.id });
                     }}
                   >
                     {item._state === "no-local" ? "Download" : "Retry"}
@@ -321,7 +277,7 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
             <TableCell />
             <TableCell>
               <Button
-                disabled={doLoad.isLoading}
+                disabled={doLoad.isPending}
                 onClick={() => doLoad.mutate({ rundownID: props.rundown.id })}
                 className="w-full"
                 color={
@@ -385,18 +341,18 @@ function RundownVTs(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
             </AlertDialogHeader>
 
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={doLoadSingle.isLoading}>
+              <AlertDialogCancel disabled={doLoadSingle.isPending}>
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction
-                disabled={doLoadSingle.isLoading}
+                disabled={doLoadSingle.isPending}
                 onClick={(e) => {
                   e.preventDefault();
                   invariant(pendingSingleLoadItem, "no item to load");
                   doLoadSingle
                     .mutateAsync({
-                      rundownId: props.rundown.id,
-                      itemId: pendingSingleLoadItem.id,
+                      rundownID: props.rundown.id,
+                      itemID: pendingSingleLoadItem.id,
                     })
                     .then(() => {
                       setPendingSingleLoadItem(null);
@@ -435,20 +391,8 @@ function SingleAsset({
   state: AssetState;
   rundown: Rundown;
 }) {
-  const queryClient = useQueryClient();
-  const doDownload = ipc.media.downloadMedia.useMutation({
-    async onSuccess() {
-      await queryClient.invalidateQueries(
-        getQueryKey(ipc.media.getDownloadStatus),
-      );
-    },
-  });
-  const doLoad = ipc.vmix.loadAssets.useMutation({
-    async onSuccess() {
-      await queryClient.invalidateQueries(
-        getQueryKey(ipc.vmix.getCompleteState),
-      );
-    },
+  const doLoad = useMutation({
+    mutationFn: (args: LoadAssetsArgs) => dispatch.loadAssets(args).unwrap(),
   });
 
   return (
@@ -477,13 +421,7 @@ function SingleAsset({
                 asset.media,
                 "no media for asset in download button handler",
               );
-              await doDownload.mutateAsync({
-                id: asset.media.id,
-                name: asset.media.name,
-              });
-              await queryClient.invalidateQueries(
-                getQueryKey(ipc.media.getDownloadStatus),
-              );
+              dispatch.queueMediaDownload({ mediaID: asset.media.id });
             }}
             className="w-full"
           >
@@ -516,38 +454,19 @@ function AssetCategory(props: {
 }) {
   const [isExpanded, setExpanded] = useState(false);
 
-  const queryClient = useQueryClient();
-  const downloadState = ipc.media.getDownloadStatus.useQuery(undefined, {
-    refetchInterval: (data) =>
-      data?.some((x) => x.status !== "done") ? 1_000 : false,
-  });
-  const localMedia = ipc.media.getLocalMedia.useQuery(undefined, {
-    refetchInterval: () =>
-      downloadState.data?.some((x) => x.status === "downloading")
-        ? 2_500
-        : 10_000,
-    staleTime: 2_500,
-  });
-  useInvalidateQueryOnIPCEvent(
-    getQueryKey(ipc.media.getLocalMedia),
-    "localMediaStateChange",
+  const downloadState = useAppSelector((state) =>
+    state.localMedia.currentDownload
+      ? [state.localMedia.currentDownload, ...state.localMedia.downloadQueue]
+      : state.localMedia.downloadQueue,
   );
-
-  const doDownload = ipc.media.downloadMedia.useMutation({
-    async onSuccess() {
-      await queryClient.invalidateQueries(
-        getQueryKey(ipc.media.getDownloadStatus),
-      );
-    },
-  });
+  const localMedia = useAppSelector((state) => state.localMedia.media);
 
   // Just so there's *some* feedback - determining it from vMix is unreliable
   // as we don't know how it'll be loaded
   const [didLoad, setDidLoad] = useState(false);
-  const doLoad = ipc.vmix.loadAssets.useMutation({
-    async onSuccess() {
-      setDidLoad(true);
-    },
+  const doLoad = useMutation({
+    mutationFn: (args: LoadAssetsArgs) => dispatch.loadAssets(args).unwrap(),
+    onSuccess: () => setDidLoad(true),
   });
 
   function getAssetState(asset: Asset): AssetState {
@@ -567,9 +486,9 @@ function AssetCategory(props: {
       return { state: "no-media" };
     }
 
-    const local = localMedia.data?.find((x) => x.mediaID === asset.media!.id);
+    const local = localMedia.find((x) => x.mediaID === asset.media!.id);
     if (!local) {
-      const dl = downloadState.data?.find((x) => x.mediaID === asset.media!.id);
+      const dl = downloadState.find((x) => x.mediaID === asset.media!.id);
       if (dl) {
         switch (dl.status) {
           case "downloading":
@@ -623,10 +542,7 @@ function AssetCategory(props: {
                   continue;
                 }
                 if (getAssetState(asset).state === "no-local") {
-                  doDownload.mutate({
-                    id: asset.media!.id,
-                    name: asset.media!.name,
-                  });
+                  dispatch.queueMediaDownload({ mediaID: asset.media!.id });
                 }
               }
             }}
@@ -728,22 +644,6 @@ function RundownAssets(props: {
 }
 
 function Rundown(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
-  const queryClient = useQueryClient();
-  const { data: downloadStatus } = ipc.media.getDownloadStatus.useQuery(
-    undefined,
-    {
-      refetchInterval: (data) =>
-        data?.some((x) => x.status !== "done") ? 1_000 : false,
-    },
-  );
-  const [prevDownloadStatus, setPrevDownloadStatus] = useState(downloadStatus);
-  useEffect(() => {
-    if (prevDownloadStatus !== downloadStatus) {
-      setPrevDownloadStatus(downloadStatus);
-      queryClient.invalidateQueries(getQueryKey(ipc.media.getLocalMedia));
-    }
-  }, [downloadStatus, prevDownloadStatus, queryClient]);
-
   return (
     <div className="space-y-4">
       <h1 className="text-2xl">{props.rundown.name}</h1>
@@ -756,20 +656,9 @@ function Rundown(props: { rundown: z.infer<typeof CompleteRundownModel> }) {
 export default function VMixScreen(props: {
   rundown: z.infer<typeof CompleteRundownModel>;
 }) {
-  const connectionState = ipc.vmix.getConnectionState.useQuery();
+  const connectionState = useAppSelector((state) => state.vmix.connection);
 
-  if (connectionState.isLoading) {
-    return <div>Please wait, getting vMix connection state...</div>;
-  }
-  if (connectionState.isError) {
-    return (
-      <div>
-        <h2>Something went wrong inside Badger</h2>
-        <pre>{JSON.stringify(connectionState.error, null, 2)}</pre>
-      </div>
-    );
-  }
-  if (!connectionState.data.connected) {
+  if (!connectionState.connected) {
     return (
       <Alert variant="danger">
         Not connected to vMix. Please ensure vMix is running and the TCP API is

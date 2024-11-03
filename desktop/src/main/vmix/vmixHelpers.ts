@@ -1,9 +1,11 @@
+import { CompleteRundownType } from "@badger/prisma/utilityTypes";
 import invariant from "../../common/invariant";
 import { getLogger } from "../base/logging";
-import { getLocalMedia } from "../media/mediaManagement";
+import { LOCAL_MEDIA_PATH_REGEX } from "../media/constants";
 import { getVMixConnection } from "./vmix";
-import { InputType, ListInput, ListItem } from "./vmixTypes";
+import { InputType, ListInput, ListItem, VMixState } from "./vmixTypes";
 import type { Asset, Media } from "@badger/prisma/types";
+import { VMIX_NAMES } from "../../common/constants";
 
 const logger = getLogger("vmixHelpers");
 
@@ -107,8 +109,8 @@ export async function loadAssets(
   assets: (Asset & { media: Media | null })[],
   loadType: "direct" | "list",
   category: string,
+  localMedia: { mediaID: number; path: string }[],
 ) {
-  const localMedia = getLocalMedia();
   const vmix = getVMixConnection();
   invariant(vmix, "No vMix connection");
   const state = await vmix.getFullState();
@@ -156,4 +158,75 @@ export async function loadAssets(
       invariant(false, "Invalid load type " + loadType);
     }
   }
+}
+
+export function matchMediaToRundown(
+  selectedRundown: CompleteRundownType,
+  state: VMixState,
+) {
+  const items = [];
+  for (const input of state.inputs) {
+    if (input.type === "VideoList") {
+      for (const item of (input as ListInput).items) {
+        const mediaIDMatch = LOCAL_MEDIA_PATH_REGEX.exec(item.source);
+        if (!mediaIDMatch) {
+          continue;
+        }
+        const mediaID = Number(mediaIDMatch[1]);
+        items.push({ mediaID, context: input.shortTitle });
+      }
+    } else {
+      const mediaIDMatch = LOCAL_MEDIA_PATH_REGEX.exec(input.title);
+      if (!mediaIDMatch) {
+        continue;
+      }
+      const mediaID = Number(mediaIDMatch[1]);
+      items.push({ mediaID, context: null });
+    }
+  }
+
+  const expectedVTs = selectedRundown.items.filter(
+    (x) => x.type === "VT" && x.mediaId !== null,
+  );
+  const loadedAssetCategories: Record<string, "all" | "partial" | "none"> = {};
+  const loadedVTMedia = items.filter((x) => x.context === VMIX_NAMES.VTS_LIST);
+  let loadedVTs: "all" | "partial" | "none";
+  if (loadedVTMedia.length !== expectedVTs.length) {
+    loadedVTs = "partial";
+  } else {
+    const loadedIDs = new Set(loadedVTMedia.map((x) => x.mediaID));
+    if (expectedVTs.every((x) => loadedIDs.has(x.mediaId!))) {
+      loadedVTs = "all";
+    } else {
+      loadedVTs = "partial";
+    }
+  }
+
+  const expectedAssetsByCategory = new Map<string, Set<number>>();
+  for (const asset of selectedRundown.assets) {
+    let cur = expectedAssetsByCategory.get(asset.category);
+    if (!cur) {
+      cur = new Set();
+      expectedAssetsByCategory.set(asset.category, cur);
+    }
+    cur.add(asset.id);
+  }
+  for (const [cat, expectedMediaIDs] of expectedAssetsByCategory.entries()) {
+    const loadedAssets = items.filter((x) => x.context === cat);
+    if (loadedAssets.length !== expectedMediaIDs.size) {
+      loadedAssetCategories[cat] = "partial";
+    } else {
+      const loadedIDs = new Set(loadedAssets.map((x) => x.mediaID));
+      if (Array.from(expectedMediaIDs).every((x) => loadedIDs.has(x))) {
+        loadedAssetCategories[cat] = "all";
+      } else {
+        loadedAssetCategories[cat] = "partial";
+      }
+    }
+  }
+  return {
+    loadedAssetCategories,
+    loadedVTs,
+    loadedVTIDs: loadedVTMedia.map((x) => x.mediaID),
+  };
 }

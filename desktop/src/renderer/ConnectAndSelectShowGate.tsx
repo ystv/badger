@@ -52,7 +52,7 @@ function ServerConnectForm() {
   );
 }
 
-export function SelectShowForm() {
+export function SelectShowForm(props: { onSelect?: () => void }) {
   const { upcomingShows, upcomingShowsError, upcomingShowsLoading } =
     useAppSelector((state) => state.serverData);
   const pending = useAppSelector((state) => state.selectedShow.isLoading);
@@ -77,7 +77,11 @@ export function SelectShowForm() {
           <h3 className="text-xl">{show.name}</h3>
           <Button
             color="primary"
-            onClick={() => dispatch.changeSelectedShow(show.id)}
+            onClick={() =>
+              dispatch
+                .changeSelectedShow(show.id)
+                .then(() => props.onSelect?.())
+            }
             disabled={pending}
           >
             Select

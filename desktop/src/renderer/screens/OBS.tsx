@@ -367,14 +367,14 @@ export default function OBSScreen() {
           <TableRow>
             <TableCell />
             <TableCell>
-              <Button
+              {/* <Button
                 className="w-full"
                 color="light"
                 // onClick={() => addAll.mutate()}
                 disabled //FIXME
               >
                 Add All
-              </Button>
+              </Button> */}
             </TableCell>
           </TableRow>
         </TableBody>

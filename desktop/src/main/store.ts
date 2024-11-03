@@ -25,6 +25,14 @@ import { serverDataSlice } from "./base/serverDataState";
 import { addContinuityItemAsScene, obsConnect, obsSlice } from "./obs/state";
 import { integrationsReducer } from "./base/integrations";
 import { connectToOntime, ontimeReducer, pushEvents } from "./ontime/state";
+import {
+  connectToVMix,
+  loadAllVTs,
+  loadAssets,
+  loadSingleVT,
+  switchActiveRundown,
+  vmixReducer,
+} from "./vmix/state";
 
 const logger = getLogger("store");
 
@@ -46,6 +54,7 @@ const topReducer = combineReducers({
   obs: obsSlice.reducer,
   integrations: integrationsReducer,
   ontime: ontimeReducer,
+  vmix: vmixReducer,
 });
 
 export interface AppState extends ReturnType<typeof topReducer> {
@@ -97,5 +106,10 @@ export const exposedActionCreators = {
   addContinuityItemAsScene,
   connectToOntime,
   pushEvents,
+  connectToVMix,
+  switchActiveRundown,
+  loadAllVTs,
+  loadSingleVT,
+  loadAssets,
 };
 export type ExposedActionCreators = typeof exposedActionCreators;

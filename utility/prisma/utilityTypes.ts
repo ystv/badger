@@ -20,6 +20,7 @@ export const PartialShowModel = ShowSchema.extend({
   rundowns: z.array(RundownSchema),
 });
 export const PartialMediaModel = MediaSchema.extend({});
+export type PartialMediaType = z.infer<typeof PartialMediaModel>;
 export const CompleteContinuityItemModel = ContinuityItemSchema.extend({
   media: PartialMediaModel.nullable(),
 });

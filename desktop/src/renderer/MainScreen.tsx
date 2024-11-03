@@ -29,6 +29,8 @@ import {
   TableRow,
 } from "@badger/components/table";
 import { useAppSelector } from "./store";
+import { OntimePush } from "./screens/Ontime";
+import { SelectShowForm } from "./ConnectAndSelectShowGate";
 
 function DownloadTrackerPopup() {
   const downloads = useAppSelector((state) =>
@@ -88,8 +90,8 @@ export default function MainScreen() {
       : show.rundowns.find((rd) => rd.id === selectedRundown)?.name;
   invariant(selectedName, "selected non-existent rundown");
 
-  // const ontimeState = ipc.ontime.getConnectionStatus.useQuery();
-  // const [ontimePushOpen, setOntimePushOpen] = useState(false);
+  const ontimeState = useAppSelector((state) => state.ontime);
+  const [ontimePushOpen, setOntimePushOpen] = useState(false);
 
   return (
     <div>
@@ -106,17 +108,17 @@ export default function MainScreen() {
         <Button onClick={() => setIsChangeShowOpen(true)} color="ghost">
           Change selected show
         </Button>
-        {/* <Button
+        <Button
           onClick={() => setOntimePushOpen(true)}
-          disabled={!ontimeState.isSuccess || ontimeState.data === null}
+          disabled={!ontimeState.connected}
           color="ghost"
         >
           Push to Ontime
-        </Button> */}
+        </Button>
         <Dialog open={isChangeShowOpen} onOpenChange={setIsChangeShowOpen}>
           <DialogContent>
             <DialogHeader className="text-3xl">Change Show</DialogHeader>
-            {/* <SelectShowForm onSelect={() => setIsChangeShowOpen(false)} /> */}
+            <SelectShowForm onSelect={() => setIsChangeShowOpen(false)} />
           </DialogContent>
         </Dialog>
         <div className="ml-auto flex flex-row flex-nowrap">
@@ -184,11 +186,11 @@ export default function MainScreen() {
           />
         )}
       </div>
-      {/* <OntimePush
+      <OntimePush
         show={show}
         dialogOpen={ontimePushOpen}
         setDialogOpen={setOntimePushOpen}
-      /> */}
+      />
     </div>
   );
 }

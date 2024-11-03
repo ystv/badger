@@ -6,6 +6,7 @@ import { WritableDraft } from "immer";
 import { tryConnectToServer } from "./base/serverConnectionState";
 import { obsTryConnect as tryConnectToOBS } from "./obs/state";
 import { tryConnectToOntime } from "./ontime/state";
+import { tryConnectToVMix } from "./vmix/state";
 
 const PREFLIGHTS = [
   { name: "Settings", thunk: initialiseSettings, first: true },
@@ -13,6 +14,7 @@ const PREFLIGHTS = [
   { name: "Server connection", thunk: tryConnectToServer },
   { name: "OBS connection", thunk: tryConnectToOBS, noDelay: true },
   { name: "Ontime connection", thunk: tryConnectToOntime, noDelay: true },
+  { name: "vMix Connection", thunk: tryConnectToVMix, noDelay: true },
 ];
 
 export interface PreflightTask {

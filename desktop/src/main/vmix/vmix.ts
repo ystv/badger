@@ -398,24 +398,6 @@ export default class VMixConnection {
 
 export let conn: VMixConnection | null;
 
-export async function tryCreateVMixConnection(
-  host?: string,
-  port?: number,
-): Promise<VMixConnection | null> {
-  if (process.env.__USE_MOCK_VMIX) {
-    return getMockVMix();
-  }
-  if (!conn) {
-    try {
-      conn = await VMixConnection.connect(host, port);
-    } catch (e) {
-      logger.warn("Failed to connect to VMix", e);
-      conn = null;
-    }
-  }
-  return conn;
-}
-
 export async function createVMixConnection(
   host?: string,
   port?: number,
