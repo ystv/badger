@@ -14,7 +14,8 @@ const visualizeBundle = process.env.VISUALIZE_BUNDLE === "true";
  * not a problem because of zod-prisma-types, which generates @badger/prisma/types, which we
  * can import (and forbid importing @badger/prisma/client).
  * However, zod-prisma-types still needs to import the actual Prisma client in one place,
- * transformJsonNull.ts, so that it can access Prisma.JsonNull/Prisma.DbNull.
+ * transformJsonNull.ts, so that it can access Prisma.JsonNull/Prisma.DbNull. Luckily
+ * we never use those types in Desktop.
  *
  * To fix this, we stub out this one import, which thereby ensures the Prisma client runtime
  * never gets bundled in. This is safe to do, because we will never need to interact with

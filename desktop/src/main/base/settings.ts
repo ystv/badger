@@ -5,6 +5,10 @@ import { set, throttle, isEqual } from "lodash";
 import { getSettingsStore } from "./settingsStorage";
 import { listenOnStore } from "../storeListener";
 import { connectToServer } from "./serverConnectionState";
+import { getLogger } from "./logging";
+import { connectToOBS } from "../obs/state";
+
+const logger = getLogger("settings");
 
 export const AppSettingsSchema = z.object({
   server: z.object({
@@ -82,6 +86,12 @@ const settings = createAppSlice({
     builder.addCase(connectToServer.fulfilled, (state, action) => {
       state.server.endpoint = action.meta.arg.host;
       state.server.password = action.meta.arg.password;
+    });
+    // dto for OBS
+    builder.addCase(connectToOBS.fulfilled, (state, action) => {
+      state.obs.host = action.meta.arg.host;
+      state.obs.port = action.meta.arg.port || 4455;
+      state.obs.password = action.meta.arg.password;
     });
   },
 });

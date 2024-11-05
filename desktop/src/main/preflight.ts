@@ -4,7 +4,7 @@ import { initialiseSettings } from "./base/settings";
 import { localMediaActions } from "./media/state";
 import { WritableDraft } from "immer";
 import { tryConnectToServer } from "./base/serverConnectionState";
-import { obsTryConnect as tryConnectToOBS } from "./obs/state";
+import { tryConnectToOBS as tryConnectToOBS } from "./obs/state";
 import { tryConnectToOntime } from "./ontime/state";
 import { tryConnectToVMix } from "./vmix/state";
 

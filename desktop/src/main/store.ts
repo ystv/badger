@@ -22,7 +22,7 @@ import {
 import { getLogger } from "./base/logging";
 import { inspect } from "util";
 import { serverDataSlice } from "./base/serverDataState";
-import { addContinuityItemAsScene, obsConnect, obsSlice } from "./obs/state";
+import { addContinuityItemAsScene, connectToOBS, obsSlice } from "./obs/state";
 import { integrationsReducer } from "./base/integrations";
 import { connectToOntime, ontimeReducer, pushEvents } from "./ontime/state";
 import {
@@ -102,7 +102,7 @@ export const exposedActionCreators = {
   queueMediaDownload: localMediaActions.queueMediaDownload,
   downloadAllMediaForSelectedShow:
     localMediaActions.downloadAllMediaForSelectedShow,
-  obsConnect,
+  obsConnect: connectToOBS,
   addContinuityItemAsScene,
   connectToOntime,
   pushEvents,

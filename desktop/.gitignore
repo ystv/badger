@@ -99,3 +99,6 @@ dist/
 
 # Bundle visualization
 bundle-*.html
+
+# Settings
+.dev/

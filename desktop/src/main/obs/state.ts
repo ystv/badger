@@ -28,10 +28,10 @@ export const obsSlice = createAppSlice({
   },
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(obsConnect.pending, (state) => {
+    builder.addCase(connectToOBS.pending, (state) => {
       state.connection.connecting = true;
     });
-    builder.addCase(obsConnect.rejected, (state, action) => {
+    builder.addCase(connectToOBS.rejected, (state, action) => {
       state.connection.error = action.error.message ?? "Unknown error";
       state.connection.connecting = false;
     });
@@ -54,7 +54,7 @@ export const obsSlice = createAppSlice({
     });
 
     builder.addMatcher(
-      isAnyOf(obsConnect.fulfilled, obsTryConnect.fulfilled),
+      isAnyOf(connectToOBS.fulfilled, tryConnectToOBS.fulfilled),
       (state, data) => {
         if (data.payload) {
           state.connection.connected = true;
@@ -68,7 +68,7 @@ export const obsSlice = createAppSlice({
   },
 });
 
-export const obsConnect = createAsyncThunk(
+export const connectToOBS = createAsyncThunk(
   "obs/connect",
   async (payload: { host: string; password: string; port?: number }) => {
     return await createOBSConnection(
@@ -79,7 +79,7 @@ export const obsConnect = createAsyncThunk(
   },
 );
 
-export const obsTryConnect = createAsyncThunk(
+export const tryConnectToOBS = createAsyncThunk(
   "obs/tryConnect",
   async (_, api) => {
     const settings = (api.getState() as AppState).settings.obs;

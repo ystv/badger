@@ -6664,19 +6664,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@trpc/react-query@npm:latest":
-  version: 10.45.2
-  resolution: "@trpc/react-query@npm:10.45.2"
-  peerDependencies:
-    "@tanstack/react-query": ^4.18.0
-    "@trpc/client": 10.45.2
-    "@trpc/server": 10.45.2
-    react: ">=16.8.0"
-    react-dom: ">=16.8.0"
-  checksum: 10/c7ea51e6a9e2be539e7a5b9323d134250dd45b40d715aa25aa6e6d5c8a22f7a0fae787e19353d6cd467a5d049c6a9f48a2c564edd71cadd191086d2d70212301
-  languageName: node
-  linkType: hard
-
 "@trpc/server@npm:^10.34.0, @trpc/server@npm:latest":
   version: 10.45.2
   resolution: "@trpc/server@npm:10.45.2"
@@ -8780,7 +8767,6 @@ __metadata:
     "@tailwindcss/forms": "npm:^0.5.4"
     "@tanstack/react-query": "npm:^5.59.19"
     "@trpc/client": "npm:latest"
-    "@trpc/react-query": "npm:latest"
     "@trpc/server": "npm:latest"
     "@tsconfig/vite-react": "npm:^3.0.0"
     "@types/body-parser": "npm:^1.19.5"

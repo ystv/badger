@@ -8,11 +8,13 @@ import * as nodePath from "path";
 
 const logger = getLogger("settingsStorage.dev");
 
-const path = once(() => nodePath.join(process.cwd(), ".dev", "settings.json"));
+const dir = nodePath.join(process.cwd(), ".dev");
+const path = once(() => nodePath.join(dir, "settings.json"));
 
 export async function saveSettings(val: AppSettings) {
   const nv = cloneDeep(val);
   const data = JSON.stringify(nv, null, 2);
+  await fsp.mkdir(dir, { recursive: true });
   await fsp.writeFile(path(), data, { encoding: "utf-8", flag: "w" });
   logger.info("Saved settings");
 }

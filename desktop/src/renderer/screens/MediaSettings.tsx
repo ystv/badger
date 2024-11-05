@@ -1,5 +1,4 @@
 import Button from "@badger/components/button";
-import { ipc } from "../ipc";
 import {
   Table,
   TableBody,
@@ -18,7 +17,7 @@ import {
 import { IoChevronDownSharp } from "react-icons/io5";
 import { Badge } from "@badger/components/badge";
 import { useQueryClient } from "@tanstack/react-query";
-import { getQueryKey } from "@trpc/react-query";
+// import { getQueryKey } from "@trpc/react-query";
 
 function humaniseSize(bytes: number) {
   if (bytes < 1024) {
