@@ -31,7 +31,7 @@ It also interfaces with a few other services:
 
 _If you're looking to set up a development instance, follow the [contributing guide](./CONTRIBUTING.md) instead._
 
-Every release has Docker images published at `ghcr.io/ystv/badger/server` and `ghcr.io/ystv/badger/jobrunner`.
+Every release has Docker images published at `ghcr.io/badger-media/badger/server` and `ghcr.io/badger-media/badger/jobrunner`.
 We also create Desktop builds (Windows-only for now) in the [releases](https://github.com/ystv/badger/releases) section on GitHub.
 There is an example [docker-compose file](./docker-compose-example.yml) in the repository which runs server, jobrunner, and all dependencies.
 

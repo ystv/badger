@@ -144,8 +144,8 @@ jobs:
             await lin.createComment({
               issueId: issue.id,
               body: `Artifacts:
-                Server Docker image: \`ghcr.io/ystv/badger/server:${{ github.ref_name }}\`    
-                Jobrunner Docker Image: \`ghcr.io/ystv/badger/jobrunner:${{ github.ref_name }}\`    
+                Server Docker image: \`ghcr.io/badger-media/badger/server:${{ github.ref_name }}\`    
+                Jobrunner Docker Image: \`ghcr.io/badger-media/badger/jobrunner:${{ github.ref_name }}\`    
                 Desktop Windows installer: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
                 Once testing is complete, please approve [this workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) to publish the release.
@@ -178,11 +178,11 @@ jobs:
       - name: Re-tag and push Docker images
         run: |
           for img in server jobrunner; do
-            docker pull ghcr.io/ystv/badger/$img:${{ github.ref_name }}
-            docker tag ghcr.io/ystv/badger/$img:${{ github.ref_name }} ghcr.io/ystv/badger/$img:$VERSION
-            docker push ghcr.io/ystv/badger/$img:$VERSION
-            docker tag ghcr.io/ystv/badger/$img:${{ github.ref_name }} ghcr.io/ystv/badger/$img:latest
-            docker push ghcr.io/ystv/badger/$img:latest
+            docker pull ghcr.io/badger-media/badger/$img:${{ github.ref_name }}
+            docker tag ghcr.io/badger-media/badger/$img:${{ github.ref_name }} ghcr.io/badger-media/badger/$img:$VERSION
+            docker push ghcr.io/badger-media/badger/$img:$VERSION
+            docker tag ghcr.io/badger-media/badger/$img:${{ github.ref_name }} ghcr.io/badger-media/badger/$img:latest
+            docker push ghcr.io/badger-media/badger/$img:latest
           done
         shell: bash
       - name: Create GitHub release
@@ -202,8 +202,8 @@ jobs:
               prerelease: false,
               body: [
                 '## Docker images',
-                `- Server: \`ghcr.io/ystv/badger/server:${process.env.VERSION}\``,
-                `- Jobrunner: \`ghcr.io/ystv/badger/jobrunner:${process.env.VERSION}\``,
+                `- Server: \`ghcr.io/badger-media/badger/server:${process.env.VERSION}\``,
+                `- Jobrunner: \`ghcr.io/badger-media/badger/jobrunner:${process.env.VERSION}\``,
                 ''
               ].join('\n'),
             });

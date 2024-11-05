@@ -102,7 +102,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/ystv/badger/server
+          images: ghcr.io/badger-media/badger/server
           flavor: latest=true
           tags: |
             type=raw,value=${{ inputs.tag }}
@@ -148,7 +148,7 @@ jobs:
         id: jr_meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/ystv/badger/jobrunner
+          images: ghcr.io/badger-media/badger/jobrunner
           flavor: latest=true
           tags: |
             type=raw,value=${{ inputs.tag }}

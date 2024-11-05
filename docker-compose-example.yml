@@ -67,7 +67,7 @@ services:
       - ontime_data:/server/preloaded-db
 
   server:
-    image: ghcr.io/ystv/badger/server:latest
+    image: ghcr.io/badger-media/badger/server:latest
     platform: linux/amd64
     ports:
       - "3000:3000"
@@ -85,7 +85,7 @@ services:
       JWT_SIGNING_KEY: "somesecret"
 
   jobrunner:
-    image: ghcr.io/ystv/badger/jobrunner:latest
+    image: ghcr.io/badger-media/badger/jobrunner:latest
     platform: linux/amd64
     command: ["--watch"]
     environment: *badger_env
