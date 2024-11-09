@@ -28,9 +28,10 @@ import {
   TableCell,
   TableRow,
 } from "@badger/components/table";
-import { useAppSelector } from "./store";
+import { dispatch, useAppSelector } from "./store";
 import { OntimePush } from "./screens/Ontime";
 import { SelectShowForm } from "./ConnectAndSelectShowGate";
+import { Alert } from "@badger/components/alert";
 
 function DownloadTrackerPopup() {
   const downloads = useAppSelector((state) =>
@@ -70,6 +71,28 @@ function DownloadTrackerPopup() {
         </Table>
       </PopoverContent>
     </Popover>
+  );
+}
+
+function GlobalAlerts() {
+  const alerts = useAppSelector((state) => state.globalError.errors);
+  return (
+    <div className="absolute left-0 w-full p-2">
+      {alerts.map((alert) => (
+        <Alert key={alert.id} className="bg-red-700 text-white flex z-50">
+          {alert.message}
+          <button
+            className="ml-auto bg-transparent"
+            aria-label="Close"
+            onClick={() => {
+              dispatch.dismissGlobalError({ id: alert.id });
+            }}
+          >
+            &times;
+          </button>
+        </Alert>
+      ))}
+    </div>
   );
 }
 
@@ -139,6 +162,7 @@ export default function MainScreen() {
           </Dialog>
         </div>
       </nav>
+      <GlobalAlerts />
       <nav className="relative left-0 w-full h-12 mb-2 px-4 bg-mid-dark text-light flex flex-nowrap items-center justify-between">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -177,7 +201,7 @@ export default function MainScreen() {
           </DropdownMenuContent>
         </DropdownMenu>
       </nav>
-      <div className="relative mb-12 px-2 max-h-[100vh] overflow-y-scroll">
+      <div className="relative mb-12 px-2 max-h-[100vh] overflow-y-scroll z-0">
         {selectedRundown === "continuity" ? (
           <OBSScreen />
         ) : (

@@ -17,6 +17,9 @@ import {
   PartialMediaModel,
   PartialMediaType,
 } from "@badger/prisma/utilityTypes";
+import { getLogger } from "../base/logging";
+
+const logger = getLogger("vmix/state");
 
 const vmixSlice = createAppSlice({
   name: "vmix",
@@ -56,9 +59,11 @@ const vmixSlice = createAppSlice({
     });
 
     builder.addCase(updateLoadState.fulfilled, (state, action) => {
-      state.loadedAssetCategories = action.payload.loadedAssetCategories;
-      state.loadedVTs = action.payload.loadedVTs;
-      state.loadedVTIDs = action.payload.loadedVTIDs;
+      if (action.payload) {
+        state.loadedAssetCategories = action.payload.loadedAssetCategories;
+        state.loadedVTs = action.payload.loadedVTs;
+        state.loadedVTIDs = action.payload.loadedVTIDs;
+      }
     });
 
     builder.addMatcher(
@@ -113,7 +118,7 @@ export const tryConnectToVMix = createAsyncThunk(
   },
 );
 
-const updateLoadState = createAsyncThunk(
+export const updateLoadState = createAsyncThunk(
   // TODO: Rewrite this as a reducer which takes the current state as an action payload
   "vmix/updateLoadState",
   async (_, api) => {
@@ -123,11 +128,17 @@ const updateLoadState = createAsyncThunk(
     // This assumption may cease to hold when BDGR-170 is implemented.
     const state = api.getState() as AppState;
     const show = state.selectedShow.show;
-    invariant(show, "No selected show");
+    if (!show) {
+      logger.warn("No show selected");
+      return;
+    }
     const selectedRundown = show.rundowns.find(
       (x) => x.id === state.vmix.activeRundownID,
     );
-    invariant(selectedRundown, "No selected rundown");
+    if (!selectedRundown) {
+      logger.warn("No active rundown");
+      return;
+    }
     const vmix = getVMixConnection();
     invariant(vmix, "No vMix connection");
     const fullState = await vmix.getFullState();

@@ -102,7 +102,7 @@ export const tryConnectToOBS = createAsyncThunk(
   },
 );
 
-const updateContinuityScenes = createAsyncThunk(
+export const updateContinuityScenes = createAsyncThunk(
   "obs/updateContinuityScenes",
   async () => {
     return await findContinuityScenes();

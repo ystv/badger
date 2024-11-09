@@ -33,6 +33,7 @@ import {
   switchActiveRundown,
   vmixReducer,
 } from "./vmix/state";
+import { dismissGlobalError, globalErrorReducer } from "./globalError";
 
 const logger = getLogger("store");
 
@@ -46,6 +47,7 @@ const loggerMiddleware: Middleware = (store) => (next) => (action) => {
 };
 
 const topReducer = combineReducers({
+  globalError: globalErrorReducer,
   settings: settingsReducer,
   localMedia: localMediaReducer,
   preflight: preflightReducer,
@@ -97,6 +99,7 @@ export type AppDispatch = typeof store.dispatch;
 export type AppThunk<A = void> = ThunkAction<A, AppState, unknown, Action>;
 
 export const exposedActionCreators = {
+  dismissGlobalError,
   connectToServer,
   changeSelectedShow,
   queueMediaDownload: localMediaActions.queueMediaDownload,
