@@ -27,8 +27,8 @@ RUN yarn workspace badger-jobrunner run build
 
 FROM base
 
-COPY --from=mwader/static-ffmpeg:7.0 /ffmpeg /usr/local/bin/
-COPY --from=mwader/static-ffmpeg:7.0 /ffprobe /usr/local/bin/
+COPY --from=mwader/static-ffmpeg:7.1 /ffmpeg /usr/local/bin/
+COPY --from=mwader/static-ffmpeg:7.1 /ffprobe /usr/local/bin/
 
 COPY --from=build /app/jobrunner/dist /app
 
