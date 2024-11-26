@@ -1,5 +1,5 @@
 // Copy of settingsStorage.ts but doesn't use Electron.
-import { AppSettings, AppSettingsSchemaWithDefaults } from "./settings";
+import { AppSettings, SettingsStateSchema } from "./settings";
 import { once, cloneDeep } from "lodash";
 import * as fsp from "fs/promises";
 import { getLogger } from "./logging";
@@ -28,14 +28,14 @@ export async function loadSettings(): Promise<AppSettings> {
       e instanceof Error &&
       (e as unknown as { code: string }).code === "ENOENT"
     ) {
-      return AppSettingsSchemaWithDefaults.parse(undefined);
+      return SettingsStateSchema.parse(undefined);
     }
     throw e;
   }
-  const settings = AppSettingsSchemaWithDefaults.safeParse(JSON.parse(data));
+  const settings = SettingsStateSchema.safeParse(JSON.parse(data));
   if (!settings.success) {
     logger.error("Failed to parse settings: " + inspect(settings.error));
-    return AppSettingsSchemaWithDefaults.parse(undefined);
+    return SettingsStateSchema.parse(undefined);
   }
   return settings.data;
 }

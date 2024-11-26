@@ -1,4 +1,4 @@
-import { defineConfig } from "@playwright/test";
+import { defineConfig, devices } from "@playwright/test";
 
 /**
  * Read environment variables from file.
@@ -30,31 +30,43 @@ export default defineConfig({
     trace: "on-first-retry",
   },
 
+  testDir: "./e2e/standalone",
+
   /* Configure projects for major browsers */
   projects: [
     {
       name: "renderer",
-      use: {},
+      use: {
+        ...devices["Desktop Chrome"],
+      },
       testDir: "./src/renderer/tests",
     },
     {
-      name: "complete",
-      use: {},
-      testDir: "./e2e/complete",
-      fullyParallel: false,
-    },
-    {
       name: "standalone",
-      use: {},
+      use: {
+        ...devices["Desktop Chrome"],
+      },
       testDir: "./e2e/standalone",
     },
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: {
-    command: "yarn microserver",
-    cwd: "../server",
-    url: "http://127.0.0.1:8594",
-    reuseExistingServer: !process.env.CI,
-  },
+  webServer: [
+    {
+      command: "yarn devServer",
+      url: "http://localhost:5174/getState",
+      reuseExistingServer: !process.env.CI,
+    },
+    {
+      command: "yarn devRenderer",
+      url: "http://localhost:5173",
+      reuseExistingServer: !process.env.CI,
+    },
+    {
+      command: "yarn microserver",
+      cwd: "../server",
+      url: "http://localhost:8594",
+      reuseExistingServer: !process.env.CI,
+    },
+  ],
 });

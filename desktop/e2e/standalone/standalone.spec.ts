@@ -1,14 +1,12 @@
 import { test, expect } from "./base";
 
-test("it works", async ({ app: [_, page] }) => {
+test("it works", async ({ page }) => {
   await page.getByText("Test show").click();
 });
 
 test.describe("big show", () => {
   test.use({ scenario: "big-show" });
-  test("scrolling for a show with lots of rundown items", async ({
-    app: [_, page],
-  }) => {
+  test("scrolling for a show with lots of rundown items", async ({ page }) => {
     await page.getByRole("button", { name: "Select" }).click();
 
     await page.getByText("Continuity").click();

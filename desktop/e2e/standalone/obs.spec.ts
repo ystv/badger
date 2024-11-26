@@ -1,9 +1,7 @@
 import MockOBSWebSocket from "@badger/testing/MockOBSWebSocket";
 import { test, expect } from "./base";
 
-test("download continuity media and load into OBS", async ({
-  app: [_, page],
-}) => {
+test("download continuity media and load into OBS", async ({ page }) => {
   const mows = await MockOBSWebSocket.create(expect, async (obs) => {
     obs.alwaysRespond("GetVersion", () => ({
       success: true,

@@ -43,25 +43,6 @@ export const appRouter = r({
     .mutation(({ input }) => {
       rendererLogger[input.level](input.message);
     }),
-  listUpcomingShows: proc.output(z.array(ShowSchema)).query(async () => {
-    return await serverAPI().shows.listUpcoming.query({
-      gracePeriodHours: 24,
-    });
-  }),
-  getSelectedShow: proc.output(CompleteShowModel.nullable()).query(() => {
-    logger.trace(
-      `getSelectedShow called, current value is ${inspect(selectedShow.value)}`,
-    );
-    return selectedShow.value;
-  }),
-  setSelectedShow: proc
-    .input(z.object({ id: z.number() }))
-    .output(CompleteShowModel)
-    .mutation(async ({ input }) => {
-      const data = await serverAPI().shows.get.query({ id: input.id });
-      await setSelectedShow(data);
-      return data;
-    }),
   supportedIntegrations: proc.output(z.array(Integration)).query(() => {
     return supportedIntegrations;
   }),

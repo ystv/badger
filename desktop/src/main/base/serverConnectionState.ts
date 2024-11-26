@@ -69,7 +69,7 @@ export const tryConnectToServer = createAsyncThunk(
   async (_, { getState }) => {
     const settings = (getState() as AppState).settings;
     if (
-      settings.server.endpoint.length === 0 ||
+      !settings.server.endpoint?.length ||
       settings.server.password.length === 0
     ) {
       return false;

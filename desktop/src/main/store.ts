@@ -34,6 +34,7 @@ import {
   vmixReducer,
 } from "./vmix/state";
 import { dismissGlobalError, globalErrorReducer } from "./globalError";
+import { merge } from "lodash";
 
 const logger = getLogger("store");
 
@@ -65,6 +66,13 @@ export interface AppState extends ReturnType<typeof topReducer> {
 
 export const store = configureStore({
   reducer: (state: AppState | undefined, action) => {
+    // Allow resetting the state in tests
+    if (action.type === "@@RESET") {
+      state = undefined;
+    }
+    if (action.type === "@@PRELOAD") {
+      merge(state ?? {}, action.payload);
+    }
     // Since nearly every other bit of the application depends on the selected show,
     // we have a shortcut to allow all the other reducers to access it without embedding
     // it in their state. In effect, we temporarily set the selected show as a global variable,

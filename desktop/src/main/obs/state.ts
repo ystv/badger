@@ -42,7 +42,7 @@ export const obsSlice = createAppSlice({
         sources: s.sources.map((src) => ({ mediaID: src.mediaID })),
       }));
     });
-    // TODO error handling
+    // rejected handled in globalError
 
     builder.addCase(addContinuityItemAsScene.fulfilled, (state, action) => {
       if (action.payload.newScenes) {

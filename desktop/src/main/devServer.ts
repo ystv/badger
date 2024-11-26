@@ -18,6 +18,9 @@ import { doPreflight } from "./preflight";
 import express from "express";
 import { json as bodyParserJSON } from "body-parser";
 import { Action } from "redux";
+import { getLogger } from "./base/logging";
+
+const logger = getLogger("devServer");
 
 const DEV_SERVER_PORT = 5174;
 
@@ -58,6 +61,16 @@ export function createReduxDevServer(
     } else {
       res.json(result);
     }
+  });
+  app.post("/reset", async (req, res) => {
+    const preloadedState = req.body;
+    logger.info("received reset request");
+    store.dispatch({ type: "@@RESET" });
+    if (typeof preloadedState === "object") {
+      store.dispatch({ type: "@@PRELOAD", payload: preloadedState });
+    }
+    store.dispatch(doPreflight());
+    res.status(200).json({ ok: true, newState: store.getState() });
   });
   const server = createServer(app);
   const wss = new WebSocketServer({ server });

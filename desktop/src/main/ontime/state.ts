@@ -90,6 +90,7 @@ export const pushEvents = createAsyncThunk(
         return { done: false };
       }
     }
+    // Nothing to do
     return { done: true };
   },
 );

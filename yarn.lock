@@ -8806,6 +8806,7 @@ __metadata:
     express: "npm:^4.21.1"
     fast-xml-parser: "npm:^4.2.7"
     got: "npm:^13.0.0"
+    immer: "npm:^10.1.1"
     is-electron: "npm:^2.2.2"
     loglevel: "npm:^1.8.1"
     loglevel-plugin-prefix: "npm:^0.8.4"
