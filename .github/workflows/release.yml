@@ -75,7 +75,7 @@ jobs:
         env:
           PLAYWRIGHT_HTML_REPORT: ${{ github.workspace }}/server/playwright-report
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: playwright-report-server
